@@ -1,0 +1,59 @@
+<!-- <p>billingfinance works!</p> -->
+<div class="header">
+  <h2>BILLING & FINANCE MANAGEMENT</h2>
+
+</div>
+
+
+  <!-- Payment Dashboard -->
+  <section class="card mt-4">
+    <h3>Payment Dashboard</h3>
+      <table class="table table-bordered table-hover align-middle diagnosis-table">
+     <thead class="table-dark text-center" >
+        <tr>
+          <th>Hospital</th>
+          <th>Status</th>
+          <th>Amount</th>
+          <th>Due Date</th>
+          <th>Last Payment</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let payment of paymentData">
+          <td>{{ payment.hospital }}</td>
+          <td>{{ payment.status }}</td>
+          <td>{{ payment.amount | currency }}</td>
+          <td>{{ payment.dueDate }}</td>
+          <td>{{ payment.lastPayment }}</td>
+          <td><button (click)="remind(payment.hospital)">Remind</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Invoice Generation -->
+  <section class="card">
+    <h3>Invoice Generation</h3>
+    <div class="invoice-gen">
+      <label for="hospital" class="form-label">Select Hospital:</label>
+      <select id="hospital" [(ngModel)]="selectedHospital" class="form-control">
+        <option *ngFor="let hospital of hospitals" [value]="hospital">{{ hospital }}</option>
+      </select>
+    </div>
+    <button (click)="generateInvoice()" class="btn btn-sm-secondary">Generate Invoice</button>
+    <div *ngIf="invoiceMessage" class="invoice-message">
+      {{ invoiceMessage }}
+    </div>
+  </section>
+
+  <!-- Subscription Renewal Alerts -->
+  <section class="card">
+    <h3>Subscription Renewal Alerts</h3>
+    <ul>
+      <li *ngFor="let alert of renewalAlerts">
+        <strong>{{ alert.hospital }}</strong> – Plan expires on <em class="mx-3">{{ alert.expiryDate }}</em>
+        <i class="fa-solid fa-bell" (click)="sendRenewalReminder(alert.hospital)"></i>
+      </li>
+    </ul>
+  </section>

@@ -1,0 +1,390 @@
+<div class="employee-container">
+  <!-- Header Section -->
+  <div class="header-section mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+      <h2 class="page-title mb-0">
+        <i class="fas fa-users me-3 text-primary"></i>EMPLOYEE LIST
+      </h2>
+
+      <!-- Action Buttons -->
+      <!-- <div class="action-buttons">
+        <button class="btn btn-primary me-2" *ngIf="userPermissions.create" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+          <i class="fa-solid fa-user-plus me-2"></i>Add Employee
+        </button>
+        <button class="btn btn-success me-2" *ngIf="userPermissions.create">
+          <i class="fa-solid fa-file-import me-2"></i>Import CSV
+        </button>
+        <button class="btn btn-warning" *ngIf="userPermissions.read">
+          <i class="fas fa-file-export me-2"></i>Export
+        </button>
+      </div> -->
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="filter-section card shadow-sm mb-4">
+    <div class="card-body">
+      <form [formGroup]="filterForm" class="row g-3">
+        <div class="col-md-6">
+          <div class="input-group">
+            <span class="input-group-text bg-primary text-white">
+              <i class="fas fa-search"></i>
+            </span>
+            <input
+              type="text"
+              placeholder="Search by name, email, or role..."
+              formControlName="searchText"
+              class="form-control"
+            />
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <select formControlName="recordsPerPage" class="form-select">
+            <option value="10">10 per page</option>
+            <option value="25">25 per page</option>
+            <option value="50">50 per page</option>
+            <option value="100">100 per page</option>
+          </select>
+        </div>
+
+        <!-- <div class="col-md-3">
+          <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+            <i class="fas fa-times me-2"></i>Clear Filters
+          </button>
+        </div> -->
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-section text-center py-5" *ngIf="isLoading">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <h5 class="text-muted">Loading employees...</h5>
+  </div>
+
+  <!-- Employee Table Section -->
+  <div class="employee-table-section" *ngIf="!isLoading && users.length > 0">
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+              Employee Details
+          </h5>
+          <span class="badge bg-light text-dark">{{ users.length }} {{ users.length === 1 ? 'Employee' : 'Employees' }}</span>
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive" *ngIf="userPermissions.read">
+          <table class="table table-hover table-bordered mb-0 employee-table">
+            <thead class="table-primary">
+              <tr>
+                <th class="text-center" style="width: 5%">#</th>
+                <th >
+                  Employee Info
+                </th>
+                <th >
+                  Role
+                </th>
+                <th >
+                 Contact
+                </th>
+                <!-- <th style="width: 25%">
+                  <i class="fas fa-shield-alt me-2"></i>Permissions
+                </th> -->
+                <th class="text-center" >
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of users; let i = index" class="employee-row">
+                <!-- Serial Number -->
+                <td class="text-center fw-bold">
+                  {{ ((currentPage - 1) * recordsPerPage) + i + 1 }}
+                </td>
+
+                <!-- Employee Info -->
+                <td class="employee-info" (click)="getuserbyid(user._id)">
+                  <div class="d-flex align-items-center">
+                    <div class="employee-avatar me-3">
+                      <div class="avatar-circle bg-primary text-white">
+                        {{ getInitials(user.name) }}
+                      </div>
+                    </div>
+                    <div class="employee-details">
+                      <h6 class="mb-1 fw-bold text-dark">{{ user.name }}</h6>
+                      <!-- <small class="text-muted">
+                        <i class="fas fa-id-badge me-1"></i>ID: {{ user._id?.substring(0, 8) }}...
+                      </small> -->
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Role -->
+                <td class="role-info">
+                  <span class="badge bg-info text-dark p-2 rounded-pill">
+                    {{ user.role?.name || 'No Role' }}
+                  </span>
+                </td>
+
+                <!-- Contact Info -->
+                <td class="contact-info">
+                  <div class="mb-2">
+                    <i class="fas fa-envelope text-primary me-2"></i>
+                    <span class="text-truncate d-inline-block" style="max-width: 150px;" [title]="user.email">
+                      {{ user.email }}
+                    </span>
+                  </div>
+                  <!-- <div>
+                    <i class="fas fa-phone text-success me-2"></i>
+                    <span>{{ user.phone || 'Not provided' }}</span>
+                  </div> -->
+                </td>
+
+                <!-- Permissions -->
+                <!-- <td class="permissions-info">
+                  <div class="permissions-container" *ngIf="user.role?.permission?.length > 0; else noPermissions">
+                    <div class="permission-module mb-2" *ngFor="let perm of user.role.permission; let last = last">
+                      <div class="module-name fw-bold text-dark mb-1">
+                        <i class="fas fa-cube me-1 text-info"></i>{{ perm.name }}
+                      </div>
+                      <div class="permission-badges d-flex flex-wrap gap-1">
+                        <span
+                          class="badge permission-badge"
+                          [ngClass]="perm.create ? 'bg-success' : 'bg-secondary'"
+                          title="Create Permission"
+                        >
+                          <i class="fas fa-plus me-1"></i>C
+                        </span>
+                        <span
+                          class="badge permission-badge"
+                          [ngClass]="perm.read ? 'bg-primary' : 'bg-secondary'"
+                          title="Read Permission"
+                        >
+                          <i class="fas fa-eye me-1"></i>R
+                        </span>
+                        <span
+                          class="badge permission-badge"
+                          [ngClass]="perm.update ? 'bg-warning text-dark' : 'bg-secondary'"
+                          title="Update Permission"
+                        >
+                          <i class="fas fa-edit me-1"></i>U
+                        </span>
+                        <span
+                          class="badge permission-badge"
+                          [ngClass]="perm.delete ? 'bg-danger' : 'bg-secondary'"
+                          title="Delete Permission"
+                        >
+                          <i class="fas fa-trash me-1"></i>D
+                        </span>
+                      </div>
+                      <hr *ngIf="!last" class="my-2">
+                    </div>
+                  </div>
+                  <ng-template #noPermissions>
+                    <span class="text-muted fst-italic">
+                      <i class="fas fa-ban me-1"></i>No permissions assigned
+                    </span>
+                  </ng-template>
+                </td> -->
+
+                <!-- Actions -->
+                <td class="text-center actions-cell">
+                  <div class="btn-group" role="group">
+                    <!-- <button
+                      class="btn btn-sm btn-outline-primary"
+                      *ngIf="userPermissions.update"
+                      (click)="edituser(user._id)"
+                      title="Edit Employee"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </button> -->
+                    <button
+                      class="btn btn-sm btn-outline-info"
+                      *ngIf="userPermissions.read"
+                      (click)="viewUserDetails(user)"
+                      title="View Details"
+                    >
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <!-- <button
+                      class="btn btn-sm btn-outline-danger"
+                      *ngIf="userPermissions.delete"
+                      (click)="deleteuser(user._id)"
+                      title="Delete Employee"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button> -->
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- No Permission Message -->
+        <div class="text-center py-5" *ngIf="!userPermissions.read">
+          <i class="fas fa-lock fa-3x text-muted mb-3"></i>
+          <h5 class="text-muted">Access Denied</h5>
+          <p class="text-muted">You don't have permission to view employee data.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Data State -->
+  <div class="no-data-section text-center py-5" *ngIf="!isLoading && users.length === 0">
+    <div class="empty-state">
+      <i class="fas fa-users fa-4x text-muted mb-4"></i>
+      <h4 class="text-muted">No Employees Found</h4>
+      <p class="text-muted mb-4">
+        {{ filterForm.get('searchText')?.value ? 'No employees match your search criteria.' : 'No employees have been added yet.' }}
+      </p>
+      <button
+        class="btn btn-primary"
+        *ngIf="userPermissions.create && !filterForm.get('searchText')?.value"
+        data-bs-toggle="modal"
+        data-bs-target="#addEmployeeModal"
+      >
+        <i class="fa-solid fa-user-plus me-2"></i>Add First Employee
+      </button>
+      <!-- <button
+        class="btn btn-outline-secondary"
+        *ngIf="filterForm.get('searchText')?.value"
+        (click)="clearFilters()"
+      >
+        <i class="fas fa-times me-2"></i>Clear Search
+      </button> -->
+    </div>
+  </div>
+
+  <!-- Pagination Section -->
+  <nav aria-label="Employee pagination" *ngIf="!isLoading && users.length > 0 && totalPages > 1">
+    <div class="pagination-wrapper card shadow-sm mt-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="pagination-info">
+            <span class="text-muted">
+              Showing {{ ((currentPage - 1) * recordsPerPage) + 1 }} to
+              {{ Math.min(currentPage * recordsPerPage, totalRecords) }} of
+              {{ totalRecords }} employees
+            </span>
+          </div>
+
+          <ul class="pagination mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="previousPage()" [disabled]="currentPage === 1">
+                <i class="fas fa-chevron-left"></i> Previous
+              </button>
+            </li>
+
+            <li class="page-item" *ngFor="let page of getPageNumbers()" [class.active]="page === currentPage">
+              <button class="page-link" (click)="goToPage(page)" [disabled]="page === '...'">
+                {{ page }}
+              </button>
+            </li>
+
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">
+                Next <i class="fas fa-chevron-right"></i>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+</div>
+
+<!-- User Details Modal -->
+<div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title" id="userDetailsModalLabel">
+          <i class="fas fa-user me-2"></i>Employee Details
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedUser">
+        <div class="row">
+          <div class="col-md-12">
+            <h6 class="text-primary mb-3">
+              <i class="fas fa-user me-2"></i>Personal Information
+            </h6>
+            <table class="table table-borderless">
+              <tr>
+                <th>Name:</th>
+                <td>{{ selectedUser.name }}</td>
+              </tr>
+              <tr>
+                <th>Email:</th>
+                <td>{{ selectedUser.email }}</td>
+              </tr>
+              <tr>
+                <th>Phone:</th>
+                <td>{{ selectedUser.phone || 'Not provided' }}</td>
+              </tr>
+              <tr>
+                <th>ID:</th>
+                <td><code>{{ selectedUser._id }}</code></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+            <h6 class="text-success mb-3">
+              <i class="fas fa-user-tag me-2"></i>Role & Permissions
+            </h6>
+            <div class="mb-3">
+              <strong>Role:</strong>
+              <span class="badge bg-info ms-2">{{ selectedUser.role?.name || 'No Role' }}</span>
+            </div>
+
+            <div *ngIf="selectedUser.role?.permission?.length > 0">
+              <strong>Permissions:</strong>
+              <div class="permissions-detail mt-2">
+                <div class="mb-2" *ngFor="let perm of selectedUser.role.permission">
+                  <div class="fw-bold">{{ perm.name }}</div>
+                  <div class="permission-badges">
+                    <span class="badge me-1" [ngClass]="perm.create ? 'bg-success' : 'bg-secondary'">
+                      Create: {{ perm.create ? 'Yes' : 'No' }}
+                    </span>
+                    <span class="badge me-1" [ngClass]="perm.read ? 'bg-primary' : 'bg-secondary'">
+                      Read: {{ perm.read ? 'Yes' : 'No' }}
+                    </span>
+                    <span class="badge me-1" [ngClass]="perm.update ? 'bg-warning text-dark' : 'bg-secondary'">
+                      Update: {{ perm.update ? 'Yes' : 'No' }}
+                    </span>
+                    <span class="badge" [ngClass]="perm.delete ? 'bg-danger' : 'bg-secondary'">
+                      Delete: {{ perm.delete ? 'Yes' : 'No' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i>Close
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          *ngIf="userPermissions.update"
+          (click)="edituser(selectedUser._id)"
+          data-bs-dismiss="modal"
+        >
+          <i class="fas fa-edit me-1"></i>Edit Employee
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

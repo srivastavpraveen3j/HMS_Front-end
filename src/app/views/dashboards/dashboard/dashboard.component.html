@@ -1,0 +1,178 @@
+<div class="form-meta">
+  <!-- Header Section -->
+  <div class="header">
+    <!-- <div class="header-content"> -->
+      <h2>Dashboard</h2>
+      <!-- <p class="hospital-subtitle">Comprehensive Healthcare Management System</p> -->
+      <!-- <button class="refresh-btn" (click)="refreshDashboard()" [disabled]="isLoading">
+        <i class="fas fa-sync-alt" [class.spinning]="isLoading"></i>
+        <span>Refresh</span> -->
+      <!-- </button> -->
+    <!-- </div> -->
+  </div>
+
+  <!-- Quick Statistics -->
+  <!-- <div class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card patients">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ dashboardStats.totalPatients | number }}</h3>
+          <p>Total Patients</p>
+        </div>
+      </div>
+
+      <div class="stat-card appointments">
+        <div class="stat-icon">
+          <i class="fas fa-calendar-check"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ dashboardStats.todayAppointments }}</h3>
+          <p>Today's Appointments</p>
+        </div>
+      </div>
+
+      <div class="stat-card beds">
+        <div class="stat-icon">
+          <i class="fas fa-bed"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ dashboardStats.availableBeds }}/{{ dashboardStats.totalBeds }}</h3>
+          <p>Available Beds</p>
+        </div>
+      </div>
+
+      <div class="stat-card emergency">
+        <div class="stat-icon">
+          <i class="fas fa-ambulance"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ dashboardStats.emergencyCases }}</h3>
+          <p>Emergency Cases</p>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- Module Sections Container -->
+  <div class="modules-container">
+
+    <!-- OPD and IPD Side by Side Container -->
+    <div class="patient-modules-row">
+
+      <!-- OPD Module Section -->
+      <div class="module-section opd-section" *ngIf="getVisibleOpdActions().length > 0">
+        <!-- <div class="section-header"> -->
+          <!-- <div class="section-title-wrapper">
+            <i class="fas fa-clinic-medical section-icon"></i>
+            <h2 class="section-title">Hospital Module</h2>
+          </div> -->
+          <!-- <div class="section-badge opd-badge">Outpatient Department</div> -->
+        <!-- </div> -->
+
+        <div class="modules-grid">
+          <div
+            class="module-card opd-card"
+            *ngFor="let action of getVisibleOpdActions()"
+            (click)="navigateToModule(action.route)"
+            [attr.data-module]="'opd'">
+
+            <div class="module-header">
+              <!-- <div class="module-icon" [style.background]="action.color"> -->
+                <i class="fas fa-{{ action.icon }}"></i>
+              <!-- </div> -->
+              <!-- <div class="module-arrow">
+                <i class="fas fa-chevron-right"></i>
+              </div> -->
+            </div>
+
+            <div class="module-content">
+              <h3 class="module-title">{{ action.title }}</h3>
+              <p class="module-subtitle">{{ action.subtitle }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IPD Module Section -->
+      <!-- <div class="module-section ipd-section" *ngIf="getVisibleIpdActions().length > 0">
+        <div class="section-header">
+          <div class="section-title-wrapper">
+            <i class="fas fa-bed section-icon"></i>
+            <h2 class="section-title">IPD Module</h2>
+          </div>
+          <div class="section-badge ipd-badge">Inpatient Department</div>
+        </div>
+
+        <div class="modules-grid">
+          <div
+            class="module-card ipd-card"
+            *ngFor="let action of getVisibleIpdActions()"
+            (click)="navigateToModule(action.route)"
+            [attr.data-module]="'ipd'">
+
+            <div class="module-header">
+              <div class="module-icon" [style.background]="action.color">
+                <i class="fas fa-{{ action.icon }}"></i>
+              </div>
+              <div class="module-arrow">
+                <i class="fas fa-chevron-right"></i>
+              </div>
+            </div>
+
+            <div class="module-content">
+              <h3 class="module-title">{{ action.title }}</h3>
+              <p class="module-subtitle">{{ action.subtitle }}</p>
+            </div>
+          </div>
+        </div>
+      </div> -->
+
+    </div>
+
+    <!-- User Management Section (Full Width) -->
+    <div class="module-section user-section" *ngIf="getVisibleUserActions().length > 0">
+      <div class="section-header">
+        <div class="section-title-wrapper">
+          <i class="fas fa-users-cog section-icon"></i>
+          <h2 class="section-title">User Management</h2>
+        </div>
+        <div class="section-badge user-badge">Administration</div>
+      </div>
+
+      <div class="modules-grid">
+        <div
+          class="module-card user-card"
+          *ngFor="let action of getVisibleUserActions()"
+          (click)="navigateToModule(action.route)"
+          [attr.data-module]="'user'">
+
+          <div class="module-header">
+            <!-- <div class="module-icon" [style.background]="action.color"> -->
+              <i class="fas fa-{{ action.icon }}"></i>
+            <!-- </div> -->
+            <!-- <div class="module-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div> -->
+          </div>
+
+          <div class="module-content">
+            <h3 class="module-title">{{ action.title }}</h3>
+            <p class="module-subtitle">{{ action.subtitle }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Loading Overlay -->
+  <!-- <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Refreshing dashboard...</p>
+    </div>
+  </div> -->
+</div>

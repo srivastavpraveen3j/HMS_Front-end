@@ -1,0 +1,251 @@
+<!-- drwiseadmission.component.html -->
+<div class="form-meta">
+  <div class="header">
+    <h2>Today's DOCTOR WISE ADMISSION/DISCHARGE LIST</h2>
+    <div class="header-buttons">
+      <button
+        class="btn btn-success me-2"
+        (click)="printDoctorWiseList()"
+        [disabled]="displayedPatients.length === 0"
+        title="Print Doctor Wise List"
+      >
+       Print
+      </button>
+      <button
+        class="list-cases-btn"
+        [routerLink]="['/ipd/ipdadmissionlist']"
+      >
+        BACK TO ADMISSION LIST
+      </button>
+    </div>
+  </div>
+
+  <!-- Doctor Search Section -->
+  <div class="search-section p-3 mb-3">
+    <div class="row">
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Search Doctor</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Type doctor name..."
+          [(ngModel)]="doctorSearchText"
+          (input)="onDoctorSearchChange(doctorSearchText)"
+        />
+
+        <!-- Doctor Dropdown -->
+        <ul
+          *ngIf="filteredDoctors.length > 0"
+          class="list-group position-absolute w-50 shadow-sm"
+          style="z-index: 1000;"
+        >
+          <li
+            class="list-group-item list-group-item-action"
+            *ngFor="let doctor of filteredDoctors"
+            (click)="onDoctorSelected(doctor)"
+            style="cursor: pointer;"
+          >
+            {{ doctor.name }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-md-6" *ngIf="selectedDoctorName">
+        <div class="alert alert-info">
+          <strong>Selected Doctor:</strong> {{ selectedDoctorName }}<br>
+          <strong>Total Patients:</strong> {{ getDoctorPatientsCount() }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simple Patient Cards -->
+  <div class="patient-cards" *ngIf="displayedPatients.length > 0">
+    <div class="row">
+      <div
+        class="col-md-6 col-lg-4 mb-3"
+        *ngFor="let patient of displayedPatients; let i = index"
+      >
+        <div class="card border patient-card"
+             (click)="viewPatientSummary(patient)"
+             style="cursor: pointer;">
+
+          <!-- Header with Patient Name and Type -->
+          <div class="card-header text-dark"
+               [ngClass]="{
+                 'bg-cash': patient.patient_type === 'cash',
+                 'bg-cashless': patient.patient_type === 'cashless',
+                 'bg-mediclaim': patient.patient_type === 'med',
+                 'bg-danger': patient.isDischarge === true
+               }">
+            <h6 class="mb-0 patient-name">
+              {{ patient?.uniqueHealthIdentificationId?.patient_name || patient?.patientName }}
+              <span *ngIf="patient.isDischarge === true">
+               (Discharged)
+            </span>
+            </h6>
+            <small class="patient-type-info">
+              {{ getPatientTypeLabel(patient.patient_type) }}
+              <span *ngIf="patient.patient_type === 'cashless' || patient.patient_type === 'med'">
+                - {{ patient.companyName }}
+              </span>
+            </small>
+          </div>
+
+          <!-- Admission Details Section -->
+          <div class="card-body p-2">
+            <div class="section-header">{{ patient.dataType === 'admission' ? 'Admission Details' : 'Patient Details' }}</div>
+
+            <table class="details-table">
+              <tr>
+                <td>Patient Name</td>
+                <td>{{ patient?.uniqueHealthIdentificationId?.patient_name || patient?.patientName }}</td>
+              </tr>
+              <tr>
+                <td>Bed No.</td>
+                <td>
+                  <!-- ✅ FIXED: Simplified bed number display - show bed number directly -->
+                  <span *ngIf="getPatientRoomTransfer(patient.ipdCaseId || patient._id) as transferData">
+                    <span *ngIf="getTodaysTransfersOnly(transferData) as todaysTransfers">
+                      <span *ngIf="todaysTransfers.length > 0">
+                        {{ todaysTransfers[todaysTransfers.length - 1].from?.bedNumber || patient?.bed_id?.bed_number || patient?.bedNumber }} →
+                        {{ todaysTransfers[todaysTransfers.length - 1].to?.bedNumber }}
+                        <small class="text-muted">(Transferred)</small>
+                      </span>
+                      <span *ngIf="todaysTransfers.length === 0">
+                        {{ patient?.bed_id?.bed_number || patient?.bedNumber || 'N/A' }}
+                      </span>
+                    </span>
+                  </span>
+                  <span *ngIf="!getPatientRoomTransfer(patient.ipdCaseId || patient._id)">
+                    {{ patient?.bed_id?.bed_number || patient?.bedNumber || 'N/A' }}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="patient.dataType === 'admission'">
+                <td>Admission Date</td>
+                <td>{{ patient.admissionTime | date:'dd-MM-yyyy HH:mm' }}</td>
+              </tr>
+              <tr *ngIf="patient.dataType === 'discharge'">
+                <td>Discharge Date</td>
+                <td>{{ patient.dateOfDischarge | date:'dd-MM-yyyy HH:mm' }}</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Room Transfer Details Section -->
+          <div class="card-body p-2 border-top"
+               *ngIf="getPatientRoomTransfer(patient.ipdCaseId || patient._id) as transferData">
+            <ng-container *ngIf="getTodaysTransfersOnly(transferData) as todaysTransfers">
+              <div *ngIf="todaysTransfers.length > 0" class="section-header">Bed Transfer Details</div>
+
+              <table class="details-table" *ngIf="todaysTransfers.length > 0">
+                <tr *ngFor="let transfer of todaysTransfers; let last = last">
+                  <td>Transfer {{ last ? '(Latest)' : '' }}</td>
+                  <td>
+                    <small>
+                      {{ transfer.from?.bedNumber }} → {{ transfer.to?.bedNumber }}<br>
+                      <span class="text-muted">{{ transfer.transferStartTime | date:'dd-MM-yyyy HH:mm' }}</span>
+                    </small>
+                  </td>
+                </tr>
+              </table>
+            </ng-container>
+          </div>
+
+          <!-- Doctor & Room Details Section -->
+          <div class="card-body p-2 border-top">
+            <div class="section-header">Doctor & Room Details</div>
+
+            <table class="details-table">
+              <tr>
+                <td>Doctor Name</td>
+                <td>{{ patient?.admittingDoctorId?.name || patient?.doctorConsulted || 'N/A' }}</td>
+              </tr>
+              <tr>
+                <td>Room No</td>
+                <td>
+                  <!-- ✅ FIXED: Simplified room number display - show room number directly -->
+                  <span *ngIf="getPatientRoomTransfer(patient.ipdCaseId || patient._id) as transferData">
+                    <span *ngIf="getTodaysTransfersOnly(transferData) as todaysTransfers">
+                      <span *ngIf="todaysTransfers.length > 0">
+                        {{ todaysTransfers[todaysTransfers.length - 1].to?.roomNumber }}
+                        <small class="text-muted">(Current)</small>
+                      </span>
+                      <span *ngIf="todaysTransfers.length === 0">
+                        {{ patient?.room_id?.roomNumber || patient?.roomNumber || 'N/A' }}
+                      </span>
+                    </span>
+                  </span>
+                  <span *ngIf="!getPatientRoomTransfer(patient.ipdCaseId || patient._id)">
+                    {{ patient?.room_id?.roomNumber || patient?.roomNumber || 'N/A' }}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="patient.dataType === 'discharge'">
+                <td>Admission Date</td>
+                <td>{{ patient.admissionDate | date:'dd-MM-yyyy' }}</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Patient Type Info (for cashless/mediclaim) -->
+          <div class="card-body p-2 border-top"
+               *ngIf="patient.patient_type === 'cashless' || patient.patient_type === 'med'">
+            <div class="section-header">Insurance Details</div>
+
+            <table class="details-table">
+              <tr>
+                <td>Patient Type</td>
+                <td>{{ getPatientTypeLabel(patient.patient_type) }}</td>
+              </tr>
+              <tr>
+                <td>Company Name</td>
+                <td>{{ patient.companyName || 'N/A' }}</td>
+              </tr>
+              <tr>
+                <td>IPD Number</td>
+                <td>{{ patient.inpatientCaseNumber || patient.ipdNumber }}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-section text-center mt-3">
+      <button
+        class="btn btn-outline-primary me-2"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      <span class="mx-3">Page {{ currentPage }} of {{ totalPages }}</span>
+      <button
+        class="btn btn-outline-primary"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+
+  <!-- No Patients Message -->
+  <div *ngIf="displayedPatients.length === 0 && !isLoading" class="text-center p-5">
+    <h5 class="text-muted">
+      <span *ngIf="selectedDoctorName">No patients found for Dr. {{ selectedDoctorName }} today</span>
+      <span *ngIf="!selectedDoctorName">No patients admitted or discharged today</span>
+    </h5>
+  </div>
+
+  <!-- Loading Message -->
+  <div *ngIf="isLoading" class="text-center p-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <h5 class="text-muted mt-3">Loading patient data...</h5>
+  </div>
+</div>

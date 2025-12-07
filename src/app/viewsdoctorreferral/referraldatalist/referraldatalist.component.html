@@ -1,0 +1,43 @@
+<div class="header mx-2">
+    <h4>Referral Data List</h4>
+</div>
+
+<div class="mt-3" *ngIf="allData.length > 0">
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Ref ID</th>
+                <th>Patient Name</th>
+                <th>Referral By</th>
+                <th>Referral To / Speciality</th>
+                <th>Service</th>
+                <th>Referral %</th>
+                <th>Total Cost</th>
+                <th>Referral Share</th>
+                <th>Bill Status</th>
+                <th>Bill Date</th>
+                <th>Payout Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let data of allData; let i = index">
+                <td>{{ i+1 }}</td>
+                <td> {{ data.patient?.uhid }} </td>
+                <td> {{ data.patient?.patient_name }} </td>
+                <td>{{ data.referredBy?.name }}</td>
+                <td>{{ data.referredTo?.name }} ({{ data.referredTo?.speciality || 'N/A' }})</td>
+                <td>{{ data.service | genericHelper: 'getServiceNames' }}</td>
+                <td> {{ getReferralPercentages(data.service) }} </td>
+                <td> ₹{{ data.billingAmount }} </td>
+                <td>₹{{ data.calculatedShare }}</td>
+                <td>{{ getPaymentStatusIconLabel(data) }}</td>
+                <td>{{ data.billingDate | date: 'dd MMM yyyy' }}</td>
+                <!-- <td>Payment Received: {{ data.paymentReceived ? 'Yes' : 'No' }}</td> -->
+                <td>
+                    <strong>{{ data.payoutApproved ? 'Yes' : 'No (✔️ Pending Admin Approval)' }}</strong>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

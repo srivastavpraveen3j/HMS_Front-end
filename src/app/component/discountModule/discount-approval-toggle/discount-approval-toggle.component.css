@@ -1,0 +1,9 @@
+.btn-group > .btn:not(:first-child) {
+  margin-left: 5px;
+  padding-left: 5px;
+}
+
+.btn-group > .btn:not(:last-child) {
+  margin-right: 5px;
+  padding-right: 5px;
+}

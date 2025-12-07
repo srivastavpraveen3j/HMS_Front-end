@@ -1,0 +1,122 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>MEDICAL TEST</h2>
+    <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/master/medicaltestlist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div *ngIf="userPermissions.create">
+    <form [formGroup]="medicalTest" (ngSubmit)="OnSubmit()">
+      <div class="form-container">
+        <div class="form-half">
+          <div class="form-group">
+            <label>Test Name <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Test Name"
+              formControlName="test_name"
+            />
+            <div
+              *ngIf="medicalTest.get('test_name')?.touched && medicalTest.get('test_name')?.invalid"
+              class="text-danger"
+            >
+              Test Name is Required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Units <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Units"
+              formControlName="units"
+            />
+            <div
+              *ngIf="medicalTest.get('units')?.touched && medicalTest.get('units')?.invalid"
+              class="text-danger"
+            >
+              Units is Required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Default <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Default"
+              formControlName="default"
+            />
+            <div
+              *ngIf="medicalTest.get('default')?.touched && medicalTest.get('default')?.invalid"
+              class="text-danger"
+            >
+              Default is Required
+            </div>
+          </div>
+        </div>
+
+        <div class="form-half">
+          <div class="form-group">
+            <label>Short Name <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Short Name"
+              formControlName="shortname"
+            />
+            <div
+              *ngIf="medicalTest.get('shortname')?.touched && medicalTest.get('shortname')?.invalid"
+              class="text-danger"
+            >
+              Short Name is Required
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Min <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Min"
+              formControlName="min"
+            />
+            <div
+              *ngIf="medicalTest.get('min')?.touched && medicalTest.get('min')?.invalid"
+              class="text-danger"
+            >
+              Minimum Value is Required
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Max Value <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Max"
+              formControlName="max"
+            />
+            <div
+              *ngIf="medicalTest.get('max')?.touched && medicalTest.get('max')?.invalid"
+              class="text-danger"
+            >
+              Maximum Value is Required
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions text-center mt-3">
+        <button class="btn btn-dark mx-2" [disabled]="medicalTest.invalid">
+          SAVE
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

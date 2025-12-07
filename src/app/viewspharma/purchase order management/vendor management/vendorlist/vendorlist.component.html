@@ -1,0 +1,84 @@
+<div class="form-meta">
+
+<div class="header">
+  <h2>Vendors List</h2>
+  <button class="list-cases-btn" routerLinkActive="router-link-active" [routerLink]="['/inventorylayout/vendor']">
+    ADD NEW VENDOR
+  </button>
+</div>
+
+<div class="top-bar p-3">
+  <form [formGroup]="filterForm" class="top-bar p-3">
+    <input type="text" placeholder="Search..." formControlName="searchText" />
+  </form>
+</div>
+
+
+<!-- Filter by Today or Date Range -->
+<!-- <div class="filters text-center d-flex align-items-center ">
+
+  <label class="m-3">
+    <input type="radio" name="filter" value="today" [(ngModel)]="activeFilter" (change)="onFilterChange()" checked>
+   Today's
+</label>
+
+<label for="" class="m-3">
+  <input type="radio" name="filter" value="dateRange" [(ngModel)]="activeFilter" (change)="onFilterChange()">
+    Date Range
+</label>
+
+<input *ngIf="activeFilter === 'dateRange'" type="date" [(ngModel)]="startDate" (change)="onDateRangeChange()" class="form-control mx-2 w-50" />
+
+<input *ngIf="activeFilter === 'dateRange'" type="date" [(ngModel)]="endDate" (change)="onDateRangeChange()" class="form-control mx-2 w-50" />
+
+</div> -->
+
+<!-- ==> Loader  -->
+
+
+<!-- <div class="" *ngIf="uhidRecords.length > 0"> -->
+
+  <div class="table-responsive" *ngIf="userPermissions.read">
+    <table class="table table-bordered table-hover align-middle diagnosis-table">
+     <thead class="table-dark" >
+        <tr>
+          <th>#</th>
+          <th>Vendor</th>
+          <th>Contact Person Name</th>
+          <th>Email</th>
+          <th>Address</th>
+          <th>Phone</th>
+
+          <!-- <th>PINCODE</th> -->
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of vendors; let i = index">
+          <td>{{i + 1}}</td>
+          <td>{{ record.vendorName }}</td>
+          <td> {{ record.contactPerson }}</td>
+          <td>{{ record.email }}</td>
+          <td>{{ record.address }}</td>
+          <td>{{ record.phone }}</td>
+          <td>
+            <i class="fa-solid fa-pencil action-btn"     *ngIf="userPermissions.update" (click)="edituhid(record._id)"></i>
+            <i class="fa-solid fa-trash action-btn" *ngIf="userPermissions.delete" (click)="deleteduhid(record._id)"></i>
+
+            <!-- Modal Trigger specific to each row -->
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+    Page {{ currentPage }} of {{ totalPages }}
+    <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+  </div>
+<!-- </div> -->
+
+
+</div>

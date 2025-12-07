@@ -1,0 +1,45 @@
+<div class="calendar-container" [formGroup]="calendarForm">
+  <!-- Input Field -->
+  <input type="text"
+         class="calendar-input"
+         [value]="formattedDate"
+         (click)="!isDisabled && toggleCalendar()"
+         [readonly]="true"
+         [disabled]="isDisabled" />
+
+  <!-- Calendar Picker -->
+  <div class="calendar-picker" *ngIf="showCalendar">
+    <!-- Header -->
+    <div class="calendar-header">
+      <button (click)="prevMonth()">&lt;</button>
+      <span>{{ months[selectedMonth] }} {{ selectedYear }}</span>
+      <button (click)="nextMonth()">&gt;</button>
+    </div>
+
+    <!-- Weekday Labels -->
+    <div class="calendar-grid">
+      <div *ngFor="let day of days" class="day-label">{{ day }}</div>
+
+      <!-- Calendar Dates -->
+      <div *ngFor="let date of calendarDays"
+           [class.selected]="date === selectedDate"
+           [class.empty]="!date"
+           (click)="date && setDate(date)">
+        {{ date || '' }}
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="calendar-footer">
+      <select [formControlName]="'month'" (change)="onMonthOrYearChange()">
+        <option *ngFor="let month of months; let i = index" [value]="i">{{ month }}</option>
+      </select>
+
+      <select [formControlName]="'year'" (change)="onMonthOrYearChange()">
+        <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+      </select>
+
+      <button (click)="selectToday()">Today</button>
+    </div>
+  </div>
+</div>

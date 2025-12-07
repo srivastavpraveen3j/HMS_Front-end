@@ -1,0 +1,222 @@
+
+.billing-section {
+  background-color: #eef2ef;
+  padding: 15px;
+  border-radius: 6px;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.billing-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #6d0f15;
+  color: white;
+  font-weight: bold;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  border-top-left-radius: 6px;
+}
+
+.billing-label {
+  background-color: #6d0f15;
+  padding: 10px 15px;
+  font-size: 14px;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+}
+
+.billing-label::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 0;
+  width: 10px;
+  height: 100%;
+  background-color: #6d0f15;
+  clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+}
+
+.billing-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 40px 15px 15px;
+}
+
+.billing-column {
+  width: 48%;
+}
+
+.billing-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.billing-item label {
+  font-weight: bold;
+  color: #333;
+  width: 50%;
+}
+
+.billing-item input {
+  width: 50%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  text-align: right;
+  font-weight: bold;
+}
+
+.services-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 15px;
+  height: 50vh;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+}
+
+.panel-header {
+  background: #f8f9fa;
+  padding: 8px 12px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.panel-body {
+  flex: 1;
+  padding: 10px;
+}
+
+.scrollable {
+  overflow-y: auto;
+}
+
+.group-tag {
+  padding: 8px;
+  margin-bottom: 4px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  transition: background 0.2s;
+}
+
+.group-tag:hover {
+  background: #f1f1f1;
+}
+
+.group-tag.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.service-item {
+  padding: 8px;
+  margin-bottom: 4px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.service-item:hover {
+  background: #f8f9fa;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+}
+
+/* ✅ NEW: Quantity Dialog Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.quantity-dialog {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #dee2e6;
+  background-color: #007bff;
+  color: white;
+}
+
+.dialog-header h4 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-body {
+  padding: 30px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.dialog-footer {
+  padding: 20px;
+  border-top: 1px solid #dee2e6;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+

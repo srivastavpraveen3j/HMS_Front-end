@@ -1,0 +1,44 @@
+<div class="section services" [formGroup]="parentForm">
+  <!-- <h4 class="title">SERVICE DETAILS</h4> -->
+
+  <!-- Service Selector -->
+  <fieldset class="service-selector" aria-label="Select Services">
+    <legend class="visually-hidden">Select Services</legend>
+
+    <app-service-selector
+      [prefilledServices]="services.value"
+      (servicesSelected)="onServiceSelection($event)"
+    ></app-service-selector>
+  </fieldset>
+
+  <!-- Pagination -->
+  <nav class="pagination-wrapper" *ngIf="totalPages > 1" aria-label="Service Pagination">
+    <ul class="pagination pagination-sm justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button
+          type="button"
+          class="page-link"
+          [disabled]="currentPage === 1"
+        >
+          <i class="fas fa-chevron-left"></i> Previous
+        </button>
+      </li>
+
+      <li class="page-item active">
+        <span class="page-link" tabindex="0">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+      </li>
+
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button
+          type="button"
+          class="page-link"
+          [disabled]="currentPage === totalPages"
+        >
+          Next <i class="fas fa-chevron-right"></i>
+        </button>
+      </li>
+    </ul>
+  </nav>
+</div>

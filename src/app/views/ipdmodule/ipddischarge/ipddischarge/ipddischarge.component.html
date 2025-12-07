@@ -1,0 +1,320 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>DISCHARGE PATIENT</h2>
+    <div class="">
+      <!-- <button class="list-cases-btn mx-3"   ><i class="fa-solid fa-user-group"></i></button>
+      <button class="list-cases-btn" [routerLink]="['/ipd/ipddischargelist']" routerLinkActive="router-link-active">DISCHARGE LIST </button>
+     -->
+      <span class="icons position-relative">
+        <!-- <i class="fa-solid fa-user-tie mx-2" (click)="showUHIDDropdown = !showUHIDDropdown"></i> -->
+        <!-- <i
+          class="fa-solid fa-signal"
+          [routerLink]="['/ipd/ipddischargelist']"
+          routerLinkActive="router-link-active"
+        ></i> -->
+
+        <!-- Dropdown -->
+        <!-- Dropdown -->
+        <!-- <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+    <div *ngIf="uhidTodayRecords?.length === 0" class="text-center text-muted py-2">
+      No InPatient Case Created today.  </div>
+  
+    <ul class="uhid-list">
+      <li *ngFor="let record of uhidTodayRecords" (click)="selectPatientFromUHID(record)" style="cursor: pointer;">
+        <div class="uhid-name">{{ record.uniqueHealthIdentificationId?.patient_name }}</div>
+        <div class="uhid-meta">
+          UHID: {{ record.uniqueHealthIdentificationId?.uhid }} |
+          Age: {{ record.uniqueHealthIdentificationId?.age }}
+        </div>
+      </li>
+    </ul>
+  </div> -->
+      </span>
+    </div>
+  </div>
+  <div class="opd-container" *ngIf="userPermissions.create">
+    <form [formGroup]="ipddischargeform" (ngSubmit)="onSubmit()">
+      <h4 class="m-4">Patient Details</h4>
+      <hr />
+      <div class="form-row">
+        <div class="form-group">
+          <label>UHID No:</label>
+          <input
+            type="text"
+            placeholder="UHID No"
+            class="required"
+            formControlName="uhid"
+            (input)="onUhidInput()"
+          />
+          <div
+            *ngIf="
+              ipddischargeform.get('uhid')?.invalid &&
+              ipddischargeform.get('uhid')?.touched
+            "
+            class="text-danger"
+          >
+            UHID no. is required.
+          </div>
+        </div>
+        <!-- <div class="form-group">
+            <label>Patient Type:</label>
+            <select formControlName="patient_type">
+              <option>Cash</option>
+              <option>Medi Claim</option>
+            </select>
+            <div *ngIf="ipddischargeform.get('patient_type')?.invalid && ipddischargeform.get('patient_type')?.touched"
+              class="error-message">
+              Patient Type is required.
+            </div>
+          </div> -->
+      </div>
+      <div class="row g-2">
+        <div class="form-group col-md-6">
+          <label>Patient*:</label>
+          <input
+            type="text"
+            class="input-text"
+            placeholder="Enter patient name"
+            formControlName="patient_name"
+            (input)="onPatientInput()"
+            (focus)="showSuggestions = true"
+            (blur)="hideSuggestionsWithDelay()"
+          />
+          <!-- </div> -->
+          <!-- Patient Suggestions Dropdown - MOVED OUTSIDE BUT STILL IN THE FORM-GROUP -->
+          <div
+            *ngIf="showSuggestions && filteredPatients.length > 0"
+            class="suggestions-container"
+          >
+            <ul class="suggestions">
+              <li
+                *ngFor="let patient of filteredPatients"
+                (mousedown)="selectPatient(patient)"
+              >
+                {{ patient.patient.patient_name }}
+                {{ patient.patient.mobile_no ? "| " + patient.patient.mobile_no : "" }}
+                {{ patient.patient.uhid ? "| " + patient.patient.uhid : "" }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Debug info - MODIFIED to check for manuallySelected flag -->
+          <div
+            *ngIf="
+              ipddischargeform.get('patient_name')?.value &&
+              ipddischargeform.get('patient_name')?.value.length > 2 &&
+              !filteredPatients.length &&
+              !manuallySelected
+            "
+            class="text-danger"
+          >
+            No matching patients found
+          </div>
+          <div
+            *ngIf="
+              ipddischargeform.get('patient_name')?.touched &&
+              ipddischargeform.get('patient_name')?.invalid
+            "
+            class="text-danger"
+          >
+            Patient name is required
+          </div>
+        </div>
+        <div class="form-group col-md-6">
+          <label>Age*:</label>
+          <input type="text" placeholder="Age" formControlName="age" />
+          <div
+            *ngIf="
+              ipddischargeform.get('age')?.invalid &&
+              ipddischargeform.get('age')?.touched
+            "
+            class="text-danger"
+          >
+            Age is required.
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cons. Doctor*:</label>
+          <input
+            type="text"
+            placeholder="Cons. Doctor"
+            class="required"
+            formControlName="cons_doc"
+          />
+          <div
+            *ngIf="
+              ipddischargeform.get('cons_doc')?.invalid &&
+              ipddischargeform.get('cons_doc')?.touched
+            "
+            class="text-danger"
+          >
+            Consulting doctor is required.
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-2">
+        <!-- <div class="w-50">
+      <h4 class="m-4">Current Room Details</h4>
+      <hr>
+  
+  
+        <div class="form-group mt-4">
+            <label>Ward</label>
+            <input type="text" placeholder="Ward" class="required" formControlName="ward">
+            <div *ngIf="ipddischargeform.get('ward')?.invalid && ipddischargeform.get('ward')?.touched" class="error-message">
+              Ward is required.
+          </div>
+        </div>
+        <div class="form-group">
+            <label>Room No.:</label>
+            <input type="text" placeholder="Room No." formControlName="roomno">
+            <div *ngIf="ipddischargeform.get('roomno')?.invalid && ipddischargeform.get('roomno')?.touched" class="error-message">
+              Room Number is required.
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label>Bed No.:</label>
+          <input type="text" placeholder="Bed No." formControlName="bedno">
+          <div *ngIf="ipddischargeform.get('bedno')?.invalid && ipddischargeform.get('bedno')?.touched" class="error-message">
+            Bed Number is required.
+        </div>
+      </div>
+  
+    </div> -->
+        <div class="col-md-6">
+          <h4 class="m-4">Total Bills</h4>
+          <hr />
+
+          <div class="form-group">
+            <label>Hospital*:</label>
+            <input
+              type="text"
+              placeholder="PHospital"
+              class="required"
+              formControlName="hospitalbill"
+            />
+            <div
+              *ngIf="
+                ipddischargeform.get('hospitalbill')?.invalid &&
+                ipddischargeform.get('hospitalbill')?.touched
+              "
+              class="text-danger"
+            >
+              Hospital total oustanding bill is required.
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Pharmacy</label>
+            <input
+              type="text"
+              placeholder="Pharmacy"
+              class="required"
+              formControlName="pharmacybill"
+            />
+            <div
+              *ngIf="
+                ipddischargeform.get('pharmacybill')?.invalid &&
+                ipddischargeform.get('pharmacybill')?.touched
+              "
+              class="text-danger"
+            >
+              Pharmacy total oustanding bill is required.
+            </div>
+          </div>
+          <div *ngIf="medicalCase">
+            <label>Medical Legal Case Complete</label>
+            <input type="checkbox" formControlName="medicalCaseComplete"/>
+            <div *ngIf="
+                            ipddischargeform.get('medicalCaseComplete')?.invalid &&
+                            ipddischargeform.get('medicalCaseComplete')?.touched
+                          " class="text-danger">
+              Medical Legal case Completion is required before discharge.
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <h4 class="m-4">Discharge Detail</h4>
+          <hr />
+
+          <!-- <div class="form-group mt-4">
+        <label>Date/Time*:</label> -->
+          <!-- <input type="text" placeholder="Patient Name" class="required"> -->
+          <!-- <div class="d-flex w-100">
+          <app-customcalendar class="w-50" formControlName="discharge_date" ></app-customcalendar> <app-customtimepicker  class="w-50" formControlName="discharge_time" ></app-customtimepicker>
+  
+         </div> -->
+          <!-- </div> -->
+
+          <!-- <div class="form-group">
+            <label>Status</label>
+            <input
+              type="text"
+              placeholder="Status"
+              class="required"
+              formControlName="status"
+            />
+          </div> -->
+          <div class="form-group">
+            <label>Note:</label>
+            <input type="text" placeholder="Note" formControlName="notes" />
+          </div>
+
+          <div class="form-group">
+            <label>Remainder:</label>
+            <input
+              type="text"
+              placeholder="Remainder"
+              formControlName="remainder"
+            />
+          </div>
+
+          <!-- <div class="form-group">
+            <label>treatmentOnDischarge:</label>
+            <input
+              type="text"
+              placeholder="treatmentOnDischarge"
+              formControlName="treatmentOnDischarge"
+            />
+          </div> -->
+          <!-- <div class="form-group">
+            <label>Condition On Discharge:</label>
+            <input
+              type="text"
+              placeholder="conditionOnDischarge"
+              formControlName="conditionOnDischarge"
+            />
+          </div> -->
+          <!-- <div class="form-group">
+            <label>Advice On Discharge:</label>
+            <input
+              type="text"
+              placeholder="adviceOnDischarge"
+              formControlName="adviceOnDischarge"
+            />
+          </div> -->
+          <!-- <div class="form-group">
+            <label>Diet Advice:</label>
+            <input
+              type="text"
+              placeholder="dietAdvice"
+              formControlName="dietAdvice"
+            />
+          </div> -->
+        </div>
+      </div>
+
+      <div class="text-center mt-3">
+        <button class="btn btn-dark mx-2" [disabled]="ipddischargeform.invalid">
+          Submit
+        </button>
+        <!-- <button class="btn btn-secondary" type="button" (click)="resetForm()">
+          Cancel
+        </button> -->
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,264 @@
+<!-- <p>radiationreq works!</p> -->
+
+
+<!-- <p>radiologyreq works!</p> -->
+
+<div class="header">
+  <h2>ADD RADIATION REQUSITION REQUEST</h2>
+  <div class="">
+    <!-- <button class="list-cases-btn mx-2" [routerLink]="['/doctor/medpackage']" routerLinkActive="router-link-active">MEDICINE PACKAGE</button> -->
+    <!-- <button class="list-cases-btn" [routerLink]="['/doctor/radiationreqlist']" routerLinkActive="router-link-active">RADIATION REQUSITION REQUEST LIST </button> -->
+       <span class="icons position-relative">
+  <i class="fa-solid fa-user-tie mx-2" (click)="showUHIDDropdown = !showUHIDDropdown"></i>
+  <i class="fa-solid fa-signal" [routerLink]="['/doctor/radiationreqlist']" routerLinkActive="router-link-active"></i>
+
+  <!-- Dropdown -->
+ <!-- Dropdown -->
+<div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+  <div *ngIf="uhidTodayRecords?.length === 0" class="text-center text-muted py-2">
+    No InPatient Case Created today.  </div>
+  <ul class="uhid-list">
+    <li *ngFor="let record of uhidTodayRecords" (click)="selectPatientFromUHID(record)" style="cursor: pointer;">
+      <div class="uhid-name">{{ record.uniqueHealthIdentificationId?.patient_name }}</div>
+      <div class="uhid-meta">
+        UHID: {{ record.uniqueHealthIdentificationId?.uhid }} |
+        Age: {{ record.uniqueHealthIdentificationId?.age }}
+      </div>
+    </li>
+  </ul>
+</div>
+
+</span>
+
+  </div>
+</div>
+<div class="opd-container"  *ngIf="userPermissions.create">
+  <form [formGroup]="radioreq" (ngSubmit)="OnSubmit()">
+    <h4 class="m-4">Patient Details</h4>
+    <hr>
+      <div class="form-row">
+        <div class="form-group">
+          <label>UHID No:</label>
+          <input type="text" placeholder="UHID No" class="required" formControlName="uhid" >
+          <div class="text-danger small"
+          *ngIf="radioreq.get('uhid')?.invalid && radioreq.get('uhid')?.touched">
+          UHID No is required.
+        </div>
+      </div>
+
+               <div class="form-group">
+        <label>Patient*:</label>
+          <input
+            type="text"
+            class="input-text"
+            placeholder="Enter patient name"
+            formControlName="patient_name"
+            (input)="onPatientInput()"
+            (focus)="showSuggestions = true"
+            (blur)="hideSuggestionsWithDelay()">
+        <!-- </div> -->
+        <!-- Patient Suggestions Dropdown - MOVED OUTSIDE BUT STILL IN THE FORM-GROUP -->
+        <div *ngIf="showSuggestions && filteredPatients.length > 0" class="suggestions-container">
+          <ul class="suggestions">
+            <li *ngFor="let patient of filteredPatients" (mousedown)="selectPatient(patient)">
+              {{ patient?.uniqueHealthIdentificationId?.patient_name }} {{ patient?.uniqueHealthIdentificationId?.mobile_no ? '| ' + patient?.uniqueHealthIdentificationId?.mobile_no : '' }} {{ patient?.uniqueHealthIdentificationId?.uhid ? '| ' + patient?.uniqueHealthIdentificationId?.uhid : '' }}
+            </li>
+          </ul>
+        </div>
+<!-- <div *ngIf="!showSuggestions && filteredPatients.length > 0">
+  <p class="text-warning">Suggestion box hidden — check manuallySelected flag?</p>
+</div> -->
+
+        <!-- Debug info - MODIFIED to check for manuallySelected flag -->
+        <div *ngIf="radioreq.get('patient_name')?.value &&
+                   radioreq.get('patient_name')?.value.length > 2 &&
+                   !filteredPatients.length &&
+                   !manuallySelected" class="text-danger">
+          No matching patients found
+        </div>
+        <div *ngIf="radioreq.get('patient_name')?.touched && radioreq.get('patient_name')?.invalid" class="text-danger">
+          Patient name is required
+        </div>
+      </div>
+
+      </div>
+
+      <div class="form-row">
+
+          <div class="form-group">
+              <label>Age*:</label>
+              <input type="text" placeholder="Age/Gender" formControlName="age">
+              <div class="text-danger small"
+              *ngIf="radioreq.get('age')?.invalid && radioreq.get('age')?.touched">
+             Age is required.
+            </div>
+          </div>
+
+           <div class="form-group">
+              <label>Bed:</label>
+              <input type="text" class="form-control"  formControlName="bed_id">
+              <!-- <app-customcalendar formControlName="doa"></app-customcalendar> -->
+          </div>
+
+
+      </div>
+      <div class="form-row">
+
+          <div class="form-group">
+              <label>Patient Type*:</label>
+              <!-- <input type="text" placeholder="Patient Name" class="required"> -->
+               <select name="" id="" formControlName="patient_type">
+                <option value="cash">Cash</option>
+                <option value="medicalClaim">Mediclaim</option>
+                <!-- <option value=""></option> -->
+               </select>
+               <div class="text-danger small"
+               *ngIf="radioreq.get('patient_type')?.invalid && radioreq.get('patient_type')?.touched">
+               Patient Type is required.
+             </div>
+          </div>
+            <div class="form-group">
+  <label>Cons. Doctor*:</label>
+  <select class="form-control" formControlName="admittingDoctorId">
+    <option *ngFor="let doctor of doctors" [value]="doctor._id">
+      {{ doctor.name }}
+    </option>
+  </select>
+
+  <div class="text-danger small"
+       *ngIf="radioreq.get('admittingDoctorId')?.invalid && radioreq.get('admittingDoctorId')?.touched">
+    Doctor is required.
+  </div>
+</div>
+      </div>
+
+
+      <h4 class="m-4">Diagnosis Details</h4>
+      <hr>
+
+
+      <div class="form-row">
+        <div class="form-group">
+           <textarea name="" class="form-control" id="" placeholder="Enter diagnosis here" formControlName="diagnosisdetails"></textarea>
+           <div class="text-danger small"
+           *ngIf="radioreq.get('diagnosisdetails')?.invalid && radioreq.get('diagnosisdetails')?.touched">
+           Diagnosis details is required.
+         </div>
+          </div>
+
+    </div>
+
+    <h4 class="m-4">Test Details</h4>
+      <hr>
+      <div class="d-flex w-100">
+        <!-- <div class="w-50">
+          <h4 class="m-4">Complete Lab Test</h4>
+          <hr>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="multi-select-container" (click)="toggleDropdownComplete()">
+                <div class="selected-tags">
+                  <span *ngFor="let test of selectedCompleteTests" class="tag">
+                    {{ test.test_name }}
+                    <span class="remove" (click)="removeCompleteTest(test)">×</span>
+                  </span>
+                  <input type="text" placeholder="Select lab tests" readonly />
+                </div>
+                <div class="dropdown" *ngIf="dropdownOpenComplete">
+                  <div
+                    *ngFor="let test of medicaltest"
+                    (click)="selectCompleteTest(test)"
+                    class="dropdown-option"
+                    [class.selected]="isCompleteSelected(test)"
+                  >
+                    {{ test.test_name }}
+                  </div>
+                </div>
+              </div>
+
+
+          </div>
+
+          <div class="form-group">
+            <input type="text" placeholder="Enter Extra Note"  formControlName="notes" >
+        </div>
+          </div>
+
+
+        </div> -->
+        <div class="w-50">
+          <h4 class="m-4">Assign Lab Test</h4>
+          <hr>
+          <div *ngFor="let test of selectedAssignTests">
+    <table class="table table-bordered table-hover align-middle diagnosis-table">
+      <thead>
+        <tr>
+          <th>Test Group</th>
+          <th>Test Name</th>
+          <th>Units</th>
+          <!-- <th>Status</th> -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let param of test.testParameters">
+          <td>{{ test.testGroup }}</td>
+          <td>{{ param.test_name }}</td>
+          <td>{{ param.units }}</td>
+          <!-- <td>{{ param.status == "pending" }}</td> -->
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+<div class="form-row">
+  <div class="multi-select-container" (click)="toggleDropdownAssign()">
+    <div class="selected-tags">
+      <span *ngFor="let test of selectedAssignTests" class="tag">
+        {{ test.testGroup }}
+        <span class="remove" (click)="removeAssignTest(test)">×</span>
+      </span>
+      <input type="text" placeholder="Select lab tests" readonly />
+    </div>
+    <div class="dropdown" *ngIf="dropdownOpenAssign">
+      <div
+        *ngFor="let test of medicaltest"
+        (click)="selectAssignTest(test)"
+        class="dropdown-option"
+        [class.selected]="isAssignSelected(test)"
+      >
+        {{ test.testGroup }}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+          <!-- <div class="form-row">
+            <div class="form-group">
+              <select formControlName="labtestname">
+                <option value="" disabled selected>Select Lab Test</option>
+                <option *ngFor="let test of medicaltest" [value]="test.test_name">
+                  {{ test.test_name }}
+                </option>
+              </select>
+          </div>
+
+          <div class="form-group">
+            <input type="text" placeholder="Enter Extra Note">
+        </div>
+          </div> -->
+        </div>
+      </div>
+
+    <div class="text-center mt-3">
+      <button class="btn btn-dark mx-2" [disabled]="radioreq.invalid" >Submit</button>
+        <button class="btn btn-secondary">Cancel</button>
+    </div>
+
+
+
+
+  </form>
+
+
+</div>

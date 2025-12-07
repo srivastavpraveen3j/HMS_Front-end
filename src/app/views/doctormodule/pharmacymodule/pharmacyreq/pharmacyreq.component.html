@@ -1,0 +1,926 @@
+<div class="form-meta">
+  <div class="header">
+    <div class="">
+      <h2>INPATIENT PHARMACY REQUSITION REQUEST</h2>
+    </div>
+    <div class="">
+      <span class="icons position-relative">
+        <!-- <i
+          class="fa-solid fa-signal"
+          [routerLink]="['/doctor/pharmareqlist']"
+          routerLinkActive="router-link-active"
+        ></i> -->
+
+        <!-- UHID Dropdown -->
+        <!-- <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+          <div *ngIf="uhidTodayRecords?.length === 0" class="text-muted py-2">
+            No InPatient Case Created today.
+          </div>
+
+          <ul class="uhid-list">
+            <li
+              *ngFor="let record of uhidTodayRecords"
+              (click)="selectPatientFromUHID(record)"
+              style="cursor: pointer"
+            >
+              <div class="uhid-name">
+                {{ record.uniqueHealthIdentificationId?.patient_name }}
+              </div>
+              <div class="uhid-meta">
+                UHID: {{ record.uniqueHealthIdentificationId?.uhid }} | Age:
+                {{ record.uniqueHealthIdentificationId?.age }}
+              </div>
+            </li>
+          </ul>
+        </div> -->
+      </span>
+    </div>
+  </div>
+
+  <div
+    class=""
+    *ngIf="userPermissions?.create || userPermissions?.read || pharmaIpdPermission?.create || pharmaIpdPermission?.read"
+  >
+    <div class="">
+      <form [formGroup]="pharmareq" (ngSubmit)="OnSubmit()">
+        <!-- Patient Selection Section -->
+        <div class="row">
+          <div class="form-group col-md-6">
+            <label for="" class="form-label">UHID No</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="UHID No"
+              formControlName="caseNo"
+              readonly
+            />
+            <div
+              *ngIf="
+                pharmareq.get('caseNo')?.invalid &&
+                pharmareq.get('caseNo')?.touched
+              "
+              class="text-danger"
+            >
+              Case No is required
+            </div>
+          </div>
+
+          <div class="form-group position-relative col-md-6">
+            <label>Patient*:</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Enter patient name"
+              formControlName="patient_name"
+              (focus)="onPatientInputFocus()"
+              (blur)="hideSuggestionsWithDelay()"
+              (input)="onPatientInput()"
+              [class.patient-selected]="patientSelected"
+              readonly
+            />
+
+            <!-- Patient Suggestions Dropdown -->
+            <div
+              *ngIf="
+                showSuggestions &&
+                filteredPatients.length > 0 &&
+                !editMode &&
+                !patientSelected &&
+                !manuallySelected &&
+                pharmareq.get('patient_name')?.value?.length >= 2
+              "
+              class="suggestions-container"
+            >
+              <ul class="suggestions">
+                <li
+                  *ngFor="let patient of filteredPatients"
+                  (mousedown)="selectPatient(patient)"
+                >
+                  {{ patient.patient_name }}
+                  {{ patient.mobile_no ? "| " + patient.mobile_no : "" }}
+                  {{ patient.uhid ? "| " + patient.uhid : "" }}
+                </li>
+              </ul>
+            </div>
+
+            <!-- No matching patients message -->
+            <div
+              *ngIf="
+                pharmareq.get('patient_name')?.value &&
+                pharmareq.get('patient_name')?.value.length > 2 &&
+                !filteredPatients.length &&
+                !manuallySelected &&
+                !patientSelected &&
+                showSuggestions
+              "
+              class="text-danger"
+            >
+              No matching patients found
+            </div>
+
+            <!-- Validation error -->
+            <div
+              *ngIf="
+                pharmareq.get('patient_name')?.touched &&
+                pharmareq.get('patient_name')?.invalid
+              "
+              class="text-danger"
+            >
+              Patient name is required
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ Medicine Search Section - Independent -->
+        <div class="section medicine-selection">
+          <div class="form-row">
+            <div class="mb-3">
+              <label for="medicineSearch" class="form-label fw-bold">
+             Search & Add Individual Medicines
+              </label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="fa-solid fa-search"></i>
+                </span>
+                <input
+                  id="medicineSearch"
+                  type="text"
+                  class="form-control form-control-lg"
+                  [formControl]="medicineSearchControl"
+                  placeholder="Type medicine name to search and add directly..."
+                />
+              </div>
+              <small class="text-muted">
+                Search and add medicines one by one. These will be marked as "Individual Selection"
+              </small>
+            </div>
+
+            <!-- Medicine Search Results -->
+            <div *ngIf="filteredMedicines.length > 0" class="mt-3">
+              <h6 class="text-muted mb-2">
+                <i class="fa-solid fa-capsules me-1"></i>
+                Available Medicines ({{ filteredMedicines.length }} found)
+              </h6>
+
+              <div
+                class="list-group medicine-search-results"
+                style="max-height: 300px; overflow-y: auto"
+              >
+                <button
+                  *ngFor="let med of filteredMedicines"
+                  type="button"
+                  class="list-group-item list-group-item-action p-3 medicine-result-item"
+                  (click)="selectIndividualMedicine(med)"
+                  [class.list-group-item-secondary]="med.stock === 0"
+                  [disabled]="med.stock === 0 || isMedicineAlreadySelected(med._id)"
+                >
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                      <h6
+                        class="mb-1 fw-bold"
+                        [class.text-muted]="med.stock === 0"
+                      >
+                        {{ med.medicine_name }}
+                        <span *ngIf="isMedicineAlreadySelected(med._id)" class="badge bg-warning text-dark ms-2">
+                          Already Selected
+                        </span>
+                      </h6>
+                      <div class="row g-0">
+                        <div class="col-md-6">
+                          <small class="text-muted">Price:</small>
+                          <span class="fw-semibold text-success ms-1"
+                            >₹{{ med.price }}</span
+                          >
+                        </div>
+                        <div class="col-md-6">
+                          <small class="text-muted">Stock:</small>
+                          <span
+                            class="ms-1 fw-semibold"
+                            [class.text-danger]="med.stock === 0"
+                            [class.text-warning]="
+                              med.stock > 0 && med.stock <= 10
+                            "
+                            [class.text-success]="med.stock > 10"
+                          >
+                            {{ med.stock }} units
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ms-2">
+                      <span *ngIf="med.stock === 0" class="badge bg-danger">
+                        Out of Stock
+                      </span>
+                      <span
+                        *ngIf="med.stock > 0 && med.stock <= 10"
+                        class="badge bg-warning text-dark"
+                      >
+                        Low Stock
+                      </span>
+                      <span *ngIf="med.stock > 10" class="badge bg-success">
+                        Available
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- No Results Message -->
+            <div
+              *ngIf="
+                medicineSearchControl.value &&
+                medicineSearchControl.value.length >= 2 &&
+                filteredMedicines.length === 0
+              "
+              class="alert alert-info mt-3"
+            >
+              <i class="fa-solid fa-info-circle me-2"></i>
+              No available medicines found matching "{{
+                medicineSearchControl.value
+              }}"
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ Package Selection Section - Independent -->
+        <div class="section package-selection">
+          <div class="form-row">
+            <div class="form-group position-relative">
+              <label>
+             Or Select Pre-made Packages:
+              </label>
+
+              <!-- Search Input -->
+              <input
+                type="text"
+                class="form-control"
+                formControlName="packageSearch"
+                placeholder="Search packages..."
+                (focus)="onPackageSearchInput()"
+                (blur)="hidePackageSuggestionsWithDelay()"
+                (input)="onPackageSearchInput()"
+              />
+
+              <!-- Package Suggestions Dropdown -->
+              <ul
+                *ngIf="showPackageSuggestions && filteredPackages.length > 0"
+                class="dropdown-menu show w-100 mt-0 package-dropdown"
+                style="
+                  position: absolute;
+                  z-index: 1000;
+                  max-height: 200px;
+                  overflow-y: auto;
+                "
+              >
+                <li
+                  *ngFor="let pkg of filteredPackages"
+                  class="dropdown-item d-flex justify-content-between align-items-center package-suggestion"
+                  (mousedown)="onPackageSelect(pkg)"
+                  style="cursor: pointer; padding: 8px 12px"
+                  [class.disabled]="isPackageAlreadySelected(pkg._id)"
+                >
+                  <div>
+                    <strong>{{ pkg.packagename }}</strong>
+                    <small class="text-muted d-block">
+                      {{ pkg.medicines?.length || 0 }} medicines
+                    </small>
+                    <span *ngIf="isPackageAlreadySelected(pkg._id)" class="badge bg-warning text-dark">
+                      Already Selected
+                    </span>
+                  </div>
+                </li>
+              </ul>
+
+              <!-- No Packages Found -->
+              <div
+                *ngIf="
+                  showPackageSuggestions &&
+                  filteredPackages.length === 0 &&
+                  pharmareq.get('packageSearch')?.value
+                "
+                class="alert alert-info mt-2 py-2"
+              >
+                <i class="fa-solid fa-info-circle me-2"></i>
+                No packages found matching "{{
+                  pharmareq.get("packageSearch")?.value
+                }}"
+              </div>
+
+              <!-- Selected Packages List -->
+              <div
+                *ngIf="showPackageList && selectedPackages.length > 0"
+                class="mt-3"
+              >
+                <div
+                  class="d-flex justify-content-between align-items-center mb-2"
+                >
+                  <h6 class="mb-0 text-primary">
+                    Selected Packages ({{ selectedPackages.length }})
+                  </h6>
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger btn-sm"
+                    (click)="clearAllPackages()"
+                    title="Clear all packages"
+                  >
+                    <i class="fa-solid fa-trash me-1"></i>Clear All Packages
+                  </button>
+                </div>
+
+                <!-- Selected Packages Cards -->
+                <div class="row g-2">
+                  <div
+                    *ngFor="let pkg of selectedPackages; let i = index"
+                    class="col-md-6 col-lg-4"
+                  >
+                    <div class="card border-primary h-100 selected-package-card">
+                      <div class="card-body p-3">
+                        <div
+                          class="d-flex justify-content-between align-items-start mb-2"
+                        >
+                          <h6
+                            class="card-title mb-1 text-truncate"
+                            [title]="pkg.packagename"
+                          >
+                            {{ pkg.packagename }}
+                          </h6>
+                          <i
+                            class="fa-solid fa-times text-danger"
+                            (click)="removeSelectedPackage(i)"
+                            style="cursor: pointer; font-size: 16px;"
+                            title="Remove this package and its medicines"
+                          ></i>
+                        </div>
+
+                        <div
+                          class="d-flex justify-content-between text-muted small"
+                        >
+                          <span>
+                            {{ pkg.medicines?.length || 0 }} medicines
+                          </span>
+                          <!-- <span class="text-success">
+                            <i class="fa-solid fa-check-circle me-1"></i>
+                            Active
+                          </span> -->
+                        </div>
+
+                        <!-- Package Medicines Preview -->
+                        <div
+                          class="mt-2"
+                          *ngIf="pkg.medicines && pkg.medicines.length > 0"
+                        >
+                          <small class="text-muted">Medicines:</small>
+                          <div class="medicines-preview mt-1">
+                            <span
+                              *ngFor="
+                                let med of pkg.medicines.slice(0, 3);
+                                let last = last
+                              "
+                              class="badge bg-light text-dark me-1 mb-1"
+                            >
+                              {{ med.medicine_name }}
+                            </span>
+                            <span
+                              *ngIf="pkg.medicines.length > 3"
+                              class="badge bg-secondary"
+                            >
+                              +{{ pkg.medicines.length - 3 }} more
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Package Summary Stats -->
+          <div
+            *ngIf="selectedPackages.length > 0"
+            class="alert alert-info mt-3 d-flex align-items-center"
+          >
+            <i class="fa-solid fa-info-circle me-2"></i>
+            <div class="flex-grow-1">
+              <strong>Package Summary:</strong>
+              {{ selectedPackages.length }} package(s) selected with
+              {{ getPackageMedicinesCount() }} medicine(s) added
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ Selected Medicines Table Section -->
+        <div class="section medicine-table" *ngIf="medicinesArray.length > 0">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="text-primary mb-0">
+              <!-- <i class="fa-solid fa-list-check me-2"></i> -->
+              Selected Medicines ({{ medicinesArray.length }})
+            </h5>
+            <!-- <div class="medicine-summary-stats">
+              <span class="badge bg-info me-2" *ngIf="getPackageMedicinesCount() > 0">
+                <i class="fa-solid fa-box me-1"></i>
+                From Packages: {{ getPackageMedicinesCount() }}
+              </span>
+              <span class="badge bg-success" *ngIf="getIndividualMedicinesCount() > 0">
+                <i class="fa-solid fa-user-plus me-1"></i>
+                Individual: {{ getIndividualMedicinesCount() }}
+              </span>
+            </div> -->
+          </div>
+
+          <div class="table-container">
+            <table
+              class="table table-bordered table-hover align-middle diagnosis-table"
+            >
+              <thead class="table-dark">
+                <tr>
+                  <th>#</th>
+                  <th >MEDICINE NAME</th>
+                  <th >DOSAGE</th>
+                  <th >QTY</th>
+                  <th >SOURCE</th>
+                  <th >ACTION</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <ng-container formArrayName="medicinesArray">
+                  <tr
+                    *ngFor="let row of medicinesArray.controls; let i = index"
+                    [formGroupName]="i"
+                    class="medicine-row"
+                    [class.table-success]="row.get('packageSource')?.value === 'Individual Selection'"
+                    [class.table-info]="row.get('packageSource')?.value !== 'Individual Selection'"
+                  >
+                    <td class="text-center fw-bold">{{ i + 1 }}</td>
+
+                   <td>
+                      <input
+                        type="text"
+                        class="form-control medicine-name-input"
+                        [value]="row.get('medicine_name')?.value"
+                        readonly
+                      />
+                      <!-- Hidden fields -->
+                      <input type="hidden" formControlName="medicine_id" />
+                      <input type="hidden" formControlName="medicinename" />
+                      <input type="hidden" formControlName="availableStock" />
+                      <input type="hidden" formControlName="packageSource" />
+                    </td>
+
+                                        <td>
+                      <div class="dosage-checkboxes" formGroupName="checkbox">
+                        <div class="checkbox-group">
+                          <label class="checkbox-label">
+                            <input type="checkbox" formControlName="morning" />
+                            <span>Mor</span>
+                          </label>
+                          <label class="checkbox-label">
+                            <input type="checkbox" formControlName="noon" />
+                            <span>Aft</span>
+                          </label>
+                          <label class="checkbox-label">
+                            <input type="checkbox" formControlName="night" />
+                            <span>Night</span>
+                          </label>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td class="">
+                      <div class="quantity-input-container">
+                        <input
+                          type="number"
+                          class="form-control quantity-input"
+                          formControlName="quantity"
+                          [attr.max]="row.get('availableStock')?.value"
+                          [attr.min]="1"
+                          (change)="checkQuantity(i)"
+                        />
+                        <small class="text-muted stock-info">
+                          Max: {{ row.get("availableStock")?.value || 0 }}
+                        </small>
+                      </div>
+                    </td>
+
+                    <!-- <td class="">
+                      <div class="charge-input-container">
+                        <span class="currency-symbol">₹</span>
+                        <input
+                          type="number"
+                          class="form-control charge-input"
+                          formControlName="charge"
+                          readonly
+                        />
+                      </div>
+                    </td> -->
+
+                    <td class="">
+                      <span class="badge source-badge bg-info text-dark">
+                        {{ row.get("packageSource")?.value || "Unknown" }}
+                      </span>
+                    </td>
+
+                    <td class="">
+                      <!-- <button
+                        type="button"
+                        class="btn btn-outline-danger btn-sm remove-medicine-btn"
+
+                        title="Remove medicine"
+                      > -->
+                      <i
+                        class="fa-solid fa-trash"
+                        (click)="removeMedicineRow(i)"
+                      ></i>
+                      <!-- </button> -->
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Medicine Summary Info -->
+          <div class="mt-3">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="alert alert-success border-0" *ngIf="getIndividualMedicinesCount() > 0">
+                  <h6 class="alert-heading mb-2">
+                    <i class="fa-solid fa-user-plus me-2"></i>
+                    Individual Medicines
+                  </h6>
+                  <p class="mb-0">
+                    {{ getIndividualMedicinesCount() }} medicine(s) selected individually
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="alert alert-primary border-0" *ngIf="getPackageMedicinesCount() > 0">
+                  <h6 class="alert-heading mb-2">
+                    <i class="fa-solid fa-boxes-stacked me-2"></i>
+                    Package Medicines
+                  </h6>
+                  <p class="mb-0">
+                    {{ getPackageMedicinesCount() }} medicine(s) from {{ selectedPackages.length }} package(s)
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ Empty State -->
+        <div *ngIf="medicinesArray.length === 0" class="py-5 empty-state text-center">
+          <div class="empty-state-content">
+            <i class="fa-solid fa-prescription-bottle-medical fa-4x text-muted mb-4"></i>
+            <h4 class="text-muted mb-3">No Medicines Selected</h4>
+            <p class="text-muted mb-4">
+              You can add medicines in two ways:
+            </p>
+            <div class="row g-3 justify-content-center">
+              <div class="col-md-5">
+                <div class="card border-success">
+                  <div class="card-body text-center">
+                    <i class="fa-solid fa-search text-success fa-2x mb-2"></i>
+                    <h6 class="text-success">Search Individual Medicines</h6>
+                    <small class="text-muted">Search and add medicines one by one</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-5">
+                <div class="card border-primary">
+                  <div class="card-body text-center">
+                    <i class="fa-solid fa-box text-primary fa-2x mb-2"></i>
+                    <h6 class="text-primary">Select Pre-made Packages</h6>
+                    <small class="text-muted">Choose from existing medicine packages</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-4 action-buttons">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <!-- Save as Package Button -->
+              <button
+                *ngIf="medicinesArray.length > 0"
+                type="button"
+                class="btn btn-outline-primary me-2"
+                (click)="showSaveAsPackageModal()"
+              >
+                <!-- <i class="fa-solid fa-box-archive me-1"></i> -->
+                Save as New Package
+              </button>
+
+              <!-- Clear All Button -->
+              <button
+                *ngIf="medicinesArray.length > 0"
+                type="button"
+                class="btn btn-outline-warning me-2"
+                (click)="clearAllMedicines()"
+                title="Clear all selected medicines and packages"
+              >
+                <!-- <i class="fa-solid fa-broom me-1"></i> -->
+                Clear All
+              </button>
+
+              <button
+                class="btn btn-primary btn-lg"
+                [disabled]="pharmareq.invalid || medicinesArray.length === 0"
+                type="submit"
+              >
+                <!-- <i class="fa-solid fa-paper-plane me-2"></i> -->
+                Submit Request
+                <!-- <span class="badge bg-light text-primary ms-2">
+                  {{ medicinesArray.length }}
+                </span> -->
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Right Section - Patient Details -->
+    <!-- <div class="right-section">
+      <div class="info-box" *ngIf="selectedPatientDetails">
+        <h5 class="patient-details-title">
+          <i class="fa-solid fa-user-injured me-2"></i>
+          Patient Details
+        </h5>
+        <hr />
+        <div class="patient-info">
+          <p>
+            <strong>UHID Number:</strong>
+            {{
+              selectedPatientDetails.uniqueHealthIdentificationId?.uhid ||
+                selectedPatientDetails?.uhid
+            }}
+          </p>
+          <p>
+            <strong>Admit Time:</strong>
+            {{ selectedPatientDetails.dot }}
+          </p>
+          <p>
+            <strong>Admit Date:</strong>
+            {{ selectedPatientDetails.dor | date }}
+          </p>
+          <p>
+            <strong>Gender:</strong>
+            {{
+              selectedPatientDetails.uniqueHealthIdentificationId?.gender ||
+                selectedPatientDetails?.gender
+            }}
+          </p>
+          <p>
+            <strong>Age:</strong>
+            {{
+              selectedPatientDetails.uniqueHealthIdentificationId?.age ||
+                selectedPatientDetails?.age
+            }}
+          </p>
+          <p>
+            <strong>DOB:</strong>
+            {{
+              selectedPatientDetails.uniqueHealthIdentificationId?.dob ||
+                selectedPatientDetails?.dob | date
+            }}
+          </p>
+          <p>
+            <strong>Mobile Number:</strong>
+            {{
+              selectedPatientDetails.uniqueHealthIdentificationId?.mobile_no ||
+                selectedPatientDetails?.mobile_no
+            }}
+          </p>
+        </div>
+      </div>
+    </div> -->
+  </div>
+</div>
+
+<!-- ✅ Save as Package Modal -->
+<div
+  *ngIf="showSavePackageModal"
+  class="modal fade show d-block"
+  tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.5)"
+  [attr.aria-hidden]="!showSavePackageModal"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fa-solid fa-box-archive me-2"></i>
+          Save as New Package
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeSaveAsPackageModal()"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <form [formGroup]="packageCreationForm">
+          <!-- Package Name -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Package Name *</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="packagename"
+              placeholder="Enter package name (e.g., Fever Package, Cold Package)"
+            />
+            <div
+              *ngIf="
+                packageCreationForm.get('packagename')?.touched &&
+                packageCreationForm.get('packagename')?.invalid
+              "
+              class="text-danger small mt-1"
+            >
+              <span
+                *ngIf="packageCreationForm.get('packagename')?.errors?.['required']"
+              >
+                Package name is required
+              </span>
+              <span
+                *ngIf="packageCreationForm.get('packagename')?.errors?.['minlength']"
+              >
+                Package name must be at least 3 characters long
+              </span>
+            </div>
+          </div>
+
+          <!-- Symptom Group -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Symptom Group *</label>
+            <select class="form-select" formControlName="symptom_group">
+              <option value="">Select Symptom Group</option>
+              <option *ngFor="let group of symptomGroups" [value]="group._id">
+                {{ group.symptomGroups }}
+              </option>
+            </select>
+            <div
+              *ngIf="
+                packageCreationForm.get('symptom_group')?.touched &&
+                packageCreationForm.get('symptom_group')?.invalid
+              "
+              class="text-danger small mt-1"
+            >
+              Symptom group is required
+            </div>
+          </div>
+
+          <!-- Current Medicines Preview -->
+          <div class="mb-3">
+            <label class="form-label fw-bold"
+              >Selected Medicines ({{ medicinesArray.length }})</label
+            >
+            <div
+              class="border rounded p-3 medicine-preview-container"
+              style="max-height: 200px; overflow-y: auto"
+            >
+              <div
+                *ngFor="let medicine of medicinesArray.controls; let i = index"
+                class="d-flex justify-content-between align-items-center py-2 medicine-preview-item"
+                [class.border-bottom]="i < medicinesArray.length - 1"
+              >
+                <div class="flex-grow-1">
+                  <strong>{{ medicine.get("medicine_name")?.value }}</strong>
+                  <div class="small text-muted">
+                    Qty: {{ medicine.get("quantity")?.value }} | Charge: ₹{{
+                      medicine.get("charge")?.value
+                    }}
+                  </div>
+                </div>
+                <div class="text-end">
+                  <small class="badge"
+                    [class.bg-success]="medicine.get('packageSource')?.value === 'Individual Selection'"
+                    [class.bg-primary]="medicine.get('packageSource')?.value !== 'Individual Selection'"
+                  >
+                    {{ medicine.get("packageSource")?.value }}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dosage Instructions -->
+          <div class="mb-3" formGroupName="checkbox">
+            <label class="form-label fw-bold">Default Dosage Pattern</label>
+            <div class="row">
+              <div class="col-3">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    formControlName="morning"
+                    id="modalMorning"
+                  />
+                  <label class="form-check-label" for="modalMorning">
+                    Morning
+                  </label>
+                </div>
+              </div>
+              <div class="col-3">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    formControlName="noon"
+                    id="modalNoon"
+                  />
+                  <label class="form-check-label" for="modalNoon">
+                    Afternoon
+                  </label>
+                </div>
+              </div>
+              <div class="col-3">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    formControlName="evening"
+                    id="modalEvening"
+                  />
+                  <label class="form-check-label" for="modalEvening">
+                    Evening
+                  </label>
+                </div>
+              </div>
+              <div class="col-3">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    formControlName="night"
+                    id="modalNight"
+                  />
+                  <label class="form-check-label" for="modalNight">
+                    Night
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Intake Instructions -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Intake Instructions</label>
+            <textarea
+              class="form-control"
+              formControlName="intake"
+              rows="2"
+              placeholder="e.g., Take with food, Take on empty stomach"
+            ></textarea>
+          </div>
+
+          <!-- General Advice -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">General Advice</label>
+            <textarea
+              class="form-control"
+              formControlName="advice"
+              rows="3"
+              placeholder="e.g., Drink plenty of water, Avoid spicy food, Take complete rest"
+            ></textarea>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeSaveAsPackageModal()"
+        >
+          <i class="fa-solid fa-times me-1"></i>
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="saveAsNewPackage()"
+          [disabled]="packageCreationForm.invalid || isSubmittingPackage"
+        >
+          <span
+            *ngIf="isSubmittingPackage"
+            class="spinner-border spinner-border-sm me-2"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          <i *ngIf="!isSubmittingPackage" class="fa-solid fa-save me-1"></i>
+          {{ isSubmittingPackage ? "Creating..." : "Create Package" }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

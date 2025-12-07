@@ -1,0 +1,45 @@
+<!-- <p>raidationdischargelist works!</p> -->
+  <!-- <p>uhid works!</p> -->
+  <div class="header">
+    <h2>LIST OF RADIATION DISCHARGE</h2>
+    <button class="list-cases-btn"  routerLinkActive="router-link-active" [routerLink]="['/doctor/radiationdischarge']" routerLinkActive="router-link-active"  >ADD RADIATION SUMMARY</button>
+  </div>
+  <!-- <div class="container"> -->
+
+
+    <div class="top-bar p-3">
+      <select formControl="recordsPerPage">
+        <option *ngFor="let num of [25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+      </select>
+
+      <input type="text" placeholder="Search..." formControl="searchText" />
+
+    </div>
+
+      <table class="table table-bordered table-hover align-middle diagnosis-table">
+     <thead class="table-dark text-center" >
+        <tr>
+          <th>UHID</th>
+          <th>PATIENT NAME</th>
+          <th>DOR</th>
+          <th>DOB</th>
+          <th>MOBILE NO.</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let patient of filteredPatients()">
+          <td>{{ patient.uhid }}</td>
+          <td>{{ patient.name }}</td>
+          <td>{{ patient.dor }}</td>
+          <td>{{ patient.dob }}</td>
+          <td>{{ patient.mobile }}</td>
+          <td>
+            <i class="fa-solid fa-eye action-btn"  (click)="viewPatient(patient)"></i>
+            <i class="fa-solid fa-pencil action-btn" (click)="editPatient(patient)"></i>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  <!-- </div> -->
+

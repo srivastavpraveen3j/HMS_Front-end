@@ -1,0 +1,9 @@
+<div class="admin-layout-container" [class.sidebar-collapsed]="isCollapsed">
+    <app-hospitaladminheader (collapseChange)="onSidebarCollapseChange($event)">
+    </app-hospitaladminheader>
+
+    <main class="main-content">
+        <router-outlet></router-outlet>
+    </main>
+</div>
+<app-adminfooter></app-adminfooter>

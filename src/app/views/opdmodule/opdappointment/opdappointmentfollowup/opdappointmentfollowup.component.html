@@ -1,0 +1,313 @@
+<div class="header">
+  <h2>APPOINTMENT Que Management</h2>
+</div>
+
+<div class="main-layout">
+  <!-- LEFT COLUMN: Calendar & Time Picker -->
+  <div class="left-panel">
+    <div class="calendar-pane">
+      <div class="calendar-container" [formGroup]="calendarForm">
+        <!-- Input Field -->
+        <input
+          type="text"
+          class="calendar-input"
+          [value]="formattedDate"
+          [readonly]="true"
+          [disabled]="isDisabled"
+        />
+
+        <!-- Calendar Picker -->
+        <div class="calendar-picker" *ngIf="showCalendar">
+          <!-- Header -->
+          <div class="calendar-header">
+            <button (click)="prevMonth()">&lt;</button>
+            <span>{{ months[selectedMonth] }} {{ selectedYear }}</span>
+            <button (click)="nextMonth()">&gt;</button>
+          </div>
+
+          <!-- Weekday Labels -->
+          <div class="calendar-grid">
+            <!-- Weekday Labels -->
+            <div *ngFor="let day of days" class="day-label">{{ day }}</div>
+
+            <!-- Calendar Dates -->
+            <div
+              *ngFor="let date of calendarDays"
+              [class.selected]="date === selectedDate"
+              [class.empty]="!date"
+              (click)="date && setDate(date)"
+              class="calendar-day"
+            >
+              {{ date || "" }}
+              <small *ngIf="date && getAppointmentCountByDate(date)">
+                {{ getAppointmentCountByDate(date) }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="calendar-footer">
+            <select
+              [formControlName]="'month'"
+              (change)="onMonthOrYearChange()"
+            >
+              <option *ngFor="let month of months; let i = index" [value]="i">
+                {{ month }}
+              </option>
+            </select>
+
+            <select [formControlName]="'year'" (change)="onMonthOrYearChange()">
+              <option *ngFor="let year of years" [value]="year">
+                {{ year }}
+              </option>
+            </select>
+
+            <button (click)="selectToday()">Today</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="time-picker-pane">
+      <div class="time-picker-container">
+        <!-- Input Field -->
+        <input
+          type="text"
+          class="time-input"
+          [value]="formattedTime"
+          readonly
+        />
+
+        <!-- Time Picker UI -->
+        <div class="time-picker" *ngIf="showTimePicker">
+          <!-- <div class="time-header">
+              <span
+                >{{ selectedHour }}:{{
+                  selectedMinute.toString().padStart(2, "0")
+                }}
+                {{ period }}</span
+              >
+            </div> -->
+          <div class="time-header">
+            <span>
+              {{
+                selectedHour >= 0
+                  ? selectedHour.toString().padStart(2, "0")
+                  : "00"
+              }}:
+              {{
+                selectedMinute >= 0
+                  ? selectedMinute.toString().padStart(2, "0")
+                  : "00"
+              }}
+              {{ period }}
+            </span>
+          </div>
+
+          <div class="time-grid">
+            <!-- Hours -->
+            <h6>Hours</h6>
+            <div class="hour-section">
+              <div
+                *ngFor="let h of hours"
+                [class.selected]="h === selectedHour"
+                (click)="setHour(h)"
+              >
+                {{ h }}
+                <!-- Dots for appointments in this hour -->
+                <ng-container *ngIf="appointmentTimeMap[get24Hour(h)]">
+                  <small
+                    *ngIf="hourlyAppointmentCount[get24Hour(h)]"
+                    class="count-badge"
+                  >
+                    {{ hourlyAppointmentCount[get24Hour(h)] }}
+                  </small>
+                </ng-container>
+              </div>
+            </div>
+
+            <!-- Minutes -->
+            <h6 class="mt-2">Minutes</h6>
+            <div class="minute-section">
+              <div
+                *ngFor="let m of minutes"
+                class="minute-circle"
+                [class.selected]="m === selectedMinute"
+                (click)="setMinute(m)"
+              >
+                {{ m.toString().padStart(2, "0") }}
+
+                <span
+                  *ngIf="
+                    appointmentTimeMap[get24Hour(selectedHour)]?.includes(m)
+                  "
+                  class="dot-marker-inside"
+                ></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- AM/PM Toggle -->
+          <div class="period-toggle">
+            <span [class.selected]="period === 'AM'" (click)="setPeriod('AM')"
+              >AM</span
+            >
+            <span [class.selected]="period === 'PM'" (click)="setPeriod('PM')"
+              >PM</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- right panel => Filters & Table -->
+  <div class="right-panel">
+    <div class="form-group position-relative" style="max-width: 300px">
+      <label for="doctorFilter" class="form-label mx-2">Search Doctor</label>
+
+      <div class="input-group">
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="doctorFilter"
+          (input)="onDoctorFilterChange()"
+          (focus)="showSuggestions = true"
+          (blur)="hideSuggestions()"
+          placeholder="Search by doctor name"
+        />
+        <button
+          class="btn btn-outline-secondary"
+          type="button"
+          (click)="clearDoctorFilter()"
+          *ngIf="doctorFilter"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- Suggestions dropdown -->
+      <ul
+        class="list-group position-absolute w-100 mt-1 shadow-sm"
+        *ngIf="showSuggestions && filteredDoctorSuggestions.length > 0"
+        style="z-index: 1000"
+      >
+        <li
+          class="list-group-item list-group-item-action"
+          *ngFor="let doc of filteredDoctorSuggestions"
+          (mousedown)="selectDoctor(doc)"
+        >
+          {{ doc }}
+        </li>
+      </ul>
+
+      <div class="filters d-flex align-items-center m-2">
+        <!-- TODAY Filter -->
+        <!-- TODAY Filter -->
+        <label class="m-3">
+          <input
+            type="radio"
+            name="filter"
+            value="today"
+            [checked]="activeFilter === 'today'"
+            (change)="setFilterType('today'); applyFilters()"
+          />
+          TODAY'S
+        </label>
+
+        <!-- DATE RANGE Filter -->
+        <label class="m-3">
+          <input
+            type="radio"
+            name="filter"
+            value="dateRange"
+            [checked]="activeFilter === 'dateRange'"
+            (change)="setFilterType('dateRange');"
+          />
+          Date Range
+        </label>
+
+        <!-- Date Inputs Only Show for Date Range -->
+        <input
+          *ngIf="activeFilter === 'dateRange'"
+          type="date"
+          [(ngModel)]="startDate"
+          (change)="onDateRangeChange()"
+          class="form-control mx-2"
+        />
+
+        <input
+          *ngIf="activeFilter === 'dateRange'"
+          type="date"
+          [(ngModel)]="endDate"
+          (change)="onDateRangeChange()"
+          class="form-control mx-2"
+        />
+
+        <label class="m-3">
+          <input type="radio" name="filter" value="timeRange" [checked]="activeFilter === 'timeRange'"
+            (change)="setFilterType('timeRange');" />
+          Time Range
+        </label>
+        
+        <input *ngIf="activeFilter === 'dateRange' || activeFilter === 'timeRange'" type="time" [(ngModel)]="startTime"
+          (change)="onDateRangeChange()" class="form-control mx-2" />
+        
+        <input *ngIf="activeFilter === 'dateRange' || activeFilter === 'timeRange'" type="time" [(ngModel)]="endTime"
+          (change)="onDateRangeChange()" class="form-control mx-2" />
+
+
+      </div>
+    </div>
+
+    <!-- Appointment Table -->
+    <div *ngIf="getAppointmentsForSelectedDate().length > 0">
+      <table class="table table-bordered table-hover align-middle diagnosis-table"
+      >
+        <thead class="table-dark text-center">
+          <tr>
+            <th>#</th>
+            <th>Token Number</th>
+            <th>Patient Name</th>
+            <th>Doctor Name</th>
+            <th>Queue Status</th>
+            <th>Time Slot</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let appointment of getFilteredAppointmentsForSelectedDate();
+              let i = index
+            "
+          >
+            <td>{{ i + 1 }}</td>
+            <td>{{ appointment.token_number }}</td>
+            <td>{{ appointment.uhid?.patient_name }}</td>
+            <td>{{ appointment.Consulting_Doctor?.name }}</td>
+            <td>{{ appointment.status }}</td>
+            <td>{{ appointment.time_slot }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div
+        class="pagination d-flex justify-content-center align-items-center my-3"
+      >
+        <button
+          class="pagination-btn btn btn-primary mx-2"
+          (click)="previousPage()"
+          [disabled]="currentPage === 1"
+        >
+          Previous
+        </button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button
+          class="pagination-btn btn btn-primary mx-2"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

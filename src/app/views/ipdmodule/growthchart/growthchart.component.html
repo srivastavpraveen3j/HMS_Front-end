@@ -1,0 +1,20 @@
+<div class="card my-4 shadow-sm">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0">
+      Growth Chart:
+      {{ growthChartType === "boys" ? "Boys 1-18 Years" : "Girls 1-17 Years" }}
+    </h5>
+  </div>
+  <div id="growthchart" class="card-body">
+    <div class="d-flex justify-content-end mb-5">
+      <i class="fa fa-print" (click)="printGrowthChart()"></i>
+    </div>
+    <canvas #growthChart></canvas>
+    <div
+      *ngIf="growthData.length === 0"
+      class="alert alert-info mt-3 text-center"
+    >
+      No growth data available for this patient.
+    </div>
+  </div>
+</div>

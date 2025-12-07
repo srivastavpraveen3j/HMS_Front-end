@@ -1,0 +1,84 @@
+<!-- <p>request-quotation-detail works!</p> -->
+<div class="header">
+  <h2>ADD NEW OPDCASE DETAILS</h2>
+  <!-- Example icon and dropdown -->
+  <span class="icons position-relative">
+    <!-- <i
+      class="fa-solid fa-user-tie mx-2"
+      (click)="showUHIDDropdown = !showUHIDDropdown"
+    ></i> -->
+    <i
+      class="fa-solid fa-signal"
+      [routerLink]="['/opd/opdcases']"
+      routerLinkActive="router-link-active"
+    ></i>
+
+    <!-- Dropdown -->
+    <!-- <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+      <div
+        *ngIf="uhidTodayRecords.length === 0"
+        class="text-center text-muted py-2"
+      >
+        No UHID created today.
+      </div>
+
+      <ul class="uhid-list">
+        <li
+          *ngFor="let record of uhidTodayRecords"
+          (click)="selectPatientFromUHID(record)"
+          style="cursor: pointer"
+        >
+          <div class="uhid-name">{{ record.patient_name }}</div>
+          <div class="uhid-meta">
+            UHID: {{ record.uhid }} | Age: {{ record.age }}
+          </div>
+        </li>
+      </ul>
+    </div> -->
+  </span>
+
+  <!-- <button class="list-cases-btn" [routerLink]="['/opd/opdcases']" routerLinkActive="router-link-active">LIST CASES</button> -->
+</div>
+
+
+
+<div class="rfq-details-card">
+  <h2>RFQ Details</h2>
+
+  <div class="rfq-info">
+    <p><strong>RFQ ID:</strong> {{ rfq.id }}</p>
+    <p><strong>Vendor:</strong> {{ rfq.vendorName }}</p>
+    <p><strong>Created Date:</strong> {{ rfq.createdDate }}</p>
+    <p>
+      <strong>Status:</strong>
+      <span [ngClass]="{
+        'badge bg-warning': rfq.status === 'Pending',
+        'badge bg-success': rfq.status === 'Completed',
+        'badge bg-danger': rfq.status === 'Cancelled'
+      }">
+        {{ rfq.status }}
+      </span>
+    </p>
+  </div>
+
+  <h5 class="mt-4">Items</h5>
+  <table class="table table-bordered table-hover align-middle diagnosis-table">
+    <thead class="table-dark text-center">
+      <tr>
+        <th>#</th>
+        <th>Item</th>
+        <th>Category</th>
+        <th>Quantity</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of rfq.items; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.item }}</td>
+        <td>{{ item.category }}</td>
+        <td>{{ item.quantity }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+

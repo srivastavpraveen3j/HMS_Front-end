@@ -1,0 +1,85 @@
+<div class="form-meta">
+  <!-- Header Section -->
+  <div class="header">
+    <h2>NEW ROLE</h2>
+    <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/setting/roleslist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+  <div class="form-container">
+    <!-- Left: Role Form -->
+    <div class="form-half">
+      <form [formGroup]="roleform" (ngSubmit)="OnSubmit()">
+        <!-- <h4 class="m-4">Role Details</h4> -->
+        <!-- <hr /> -->
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Role Name:</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Name"
+              formControlName="name"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Permissions:</label>
+            <div class="custom-multiselect">
+              <div class="selected-items">
+                <span *ngFor="let perm of selectedPermissions" class="selected-tag">
+                  {{ perm.name }}
+                  <span class="remove-tag" (click)="removePermission(perm)">×</span>
+                </span>
+                <input type="hidden" formControlName="permission" />
+              </div>
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Search permissions..."
+                [value]="permissionSearch"
+                (input)="permissionSearch = $any($event.target).value"
+                (focus)="dropdownOpen = true"
+              />
+              <ul class="dropdown-list" *ngIf="dropdownOpen">
+                <li
+                  *ngFor="let perm of filteredPermissions()"
+                  (click)="selectPermission(perm)"
+                >
+                  {{ perm.name }}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <!-- Description Field (Uncomment if needed) -->
+        <!--
+        <div class="form-group">
+          <label class="form-label">Description:</label>
+          <input type="text" class="form-control" placeholder="Description" formControlName="description"/>
+        </div>
+        -->
+        <div class="text-center mt-3">
+          <button type="submit" class="btn btn-dark mx-2">Submit</button>
+        </div>
+      </form>
+    </div>
+    <!-- Right: (optional) information panel, permissions summary, or keep blank -->
+    <div class="form-half">
+      <!-- Example info-box, or leave empty -->
+      <!--
+      <div class="right-section info-box">
+        <h5 style="color: darkred">Role Builder Help</h5>
+        <ul>
+          <li>Choose a clear name for the new role.</li>
+          <li>Assign one or more permissions using the search box.</li>
+        </ul>
+      </div>
+      -->
+    </div>
+  </div>
+</div>

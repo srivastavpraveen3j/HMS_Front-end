@@ -1,0 +1,43 @@
+<!-- 📦 Low Stock Icon (Inventory Layout Only) -->
+<!-- <div *ngIf="currentRoute === '/inventorylayout/inventorylayout'" class="notification-wrapper" (click)="toggleRequestPanel()">
+  <div class="icon-container" [ngClass]="{ 'shake': lowstock.length > 0 }">
+    <i class="fas fa-bell"></i>
+    <span *ngIf="lowstock.length > 0" class="badge">{{ lowstock.length }}</span>
+  </div>
+</div> -->
+
+<!-- 💊 Pharma Request Icon (Pharmacy Dashboard Only) -->
+<div *ngIf="currentRoute === '/pharmalayout/pharmacydashboard'" class="notification-wrapper" (click)="toggleRequestPanel()">
+  <div class="icon-container" [ngClass]="{ 'shake': filteredPharmareq.length > 0 }">
+    <i class="fas fa-bell"></i>
+    <span *ngIf="filteredPharmareq.length > 0" class="badge">{{ filteredPharmareq.length }}</span>
+  </div>
+</div>
+
+<!-- 🔬 Radiology Request Icon (Radiology Dashboard Only) -->
+<div *ngIf="currentRoute === '/radiologylayout/radiologydashboard'" class="notification-wrapper" (click)="toggleRequestPanel()">
+  <div class="icon-container" [ngClass]="{ 'shake': filteredRadiologyreq.length > 0 }">
+    <i class="fas fa-bell"></i>
+    <span *ngIf="filteredRadiologyreq.length > 0" class="badge">{{ filteredRadiologyreq.length }}</span>
+  </div>
+
+  <!-- Optional: Show breakdown tooltip on hover -->
+  <div class="notification-tooltip" *ngIf="filteredRadiologyreq.length > 0">
+    <div class="tooltip-content">
+      <div *ngIf="getOpdRequestCount() > 0">OPD: {{ getOpdRequestCount() }}</div>
+      <div *ngIf="getIpdRequestCount() > 0">IPD: {{ getIpdRequestCount() }}</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 💰 Doctor Referral Payout Icon -->
+<div *ngIf="currentRoute === '/doctorreferrallayout/doctorreferrallayout'" class="notification-wrapper"
+  (click)="togglePayoutPanel()">
+  <div class="icon-container" [ngClass]="{ 'shake': pendingPayouts.length > 0 }">
+    <i class="fas fa-bell"></i>
+    <span *ngIf="pendingPayouts.length > 0" class="badge">
+      {{ pendingPayouts.length }}
+    </span>
+  </div>
+</div>

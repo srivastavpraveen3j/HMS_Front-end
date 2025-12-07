@@ -1,0 +1,128 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>OPD DIAGNOSIS SHEET LIST</h2>
+    <!-- <span class="icons"><i class="fa-solid fa-back" routerLink="/doctor/diagnosissheetlist"></i> <i class="fa-solid fa-user-tie mx-2"></i> <i class="fa-solid fa-gear"></i></span> -->
+    <!-- <button class="list-cases-btn" [routerLink]="['/opd/opddiagnosissheet']" routerLinkActive="router-link-active">
+      ADD NEW DIAGNOSIS
+    </button> -->
+  </div>
+
+  <!-- Filter by Today or Date Range -->
+  <div class="filters d-flex align-items-center m-3">
+
+    <div class="form-group position-relative w-50">
+      <input type="text" [(ngModel)]="searchText" (input)="applyFilters()" placeholder="Search by uhid/patient name"
+        class="form-control" />
+    </div>
+
+    <label class="m-3">
+      <input type="radio" name="filter" value="today" [(ngModel)]="activeFilter" (change)="applyFilters()" checked />
+      TODAY'S
+    </label>
+
+    <label class="m-3">
+      <input type="radio" name="filter" value="dateRange" [(ngModel)]="activeFilter" (change)="applyFilters()" />
+      Date Range
+    </label>
+
+    <!-- Date Inputs Visible Only for Date Range -->
+    <input *ngIf="activeFilter === 'dateRange'" type="date" [(ngModel)]="startDate" (change)="applyFilters()"
+      class="form-control mx-2" />
+    <input *ngIf="activeFilter === 'dateRange'" type="date" [(ngModel)]="endDate" (change)="applyFilters()"
+      class="form-control mx-2" />
+  </div>
+
+  <app-loader [patientData]="filteredCases" [title]="module" [activeFilter]="activeFilter" [startDate]="startDate"
+    [endDate]="endDate"></app-loader>
+
+
+  <div class="diagnosis-container" *ngIf="userPermissions.read && filteredCases.length > 0">
+    <table class="table table-bordered table-hover align-middle diagnosis-table diagnosis-table">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>UHID Number</th>
+          <th>Patient Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Vitals</th>
+          <th>Symptoms</th>
+          <th>Clinical Examination</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let patient of filteredCases; let i = index">
+          <td class="">{{ i + 1 }}</td>
+          <td class="">{{ patient.uhid }}</td>
+          <td (click)="viewPatient(patient._id)" class="clickable">
+            {{ patient.patient_name }}
+          </td>
+          <td class="">{{ patient?.age }}</td>
+          <td class="text-capitalize">{{ patient?.gender }}</td>
+          <td>
+            <ul class="vitals-list mb-0">
+              <li>
+                <strong>BP:</strong>
+                {{ patient?.vitals?.systolicBloodPressure }}/{{
+                patient?.vitals?.diastolicBloodPressure
+                }}
+              </li>
+              <li><strong>Temp:</strong> {{ patient?.vitals?.temperature }}°F</li>
+              <li><strong>Pulse:</strong> {{ patient?.vitals?.pulseRate }}</li>
+              <li>
+                <strong>Resp Rate:</strong> {{ patient?.vitals?.respiratoryRate }}
+              </li>
+              <li><strong>Height:</strong> {{ patient?.vitals?.height }} cm</li>
+              <li><strong>Weight:</strong> {{ patient?.vitals?.weight }} kg</li>
+              <li><strong>SPO2:</strong> {{ patient?.vitals?.spo2 }}</li>
+              <li><strong>Sugar:</strong> {{ patient?.vitals?.bloodSugar }}</li>
+              <li><strong>BG:</strong> {{ patient?.vitals?.bloodGroup }}</li>
+            </ul>
+          </td>
+          <td>
+            <ul class="symptoms-list mb-0">
+              <li *ngFor="let symptom of patient.symptoms">{{ symptom.name }}</li>
+            </ul>
+          </td>
+          <td>{{ patient.clinicalExamination }}</td>
+          <td class="">
+            <i class="fa-solid fa-eye action-btn me-2" (click)="viewPatient(patient._id)"></i>
+            <!-- <i class="fa-solid fa-pencil action-btn me-2" *ngIf="userPermissions.update" (click)="editDiagnosis(patient._id)"></i> -->
+            <!-- <i class="fa-solid fa-trash action-btn" *ngIf="userPermissions.delete" (click)="deleteDiagnosis(patient._id)"></i> -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination" *ngIf="activeFilter === 'none'">
+      <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+        Previous
+      </button>
+      Page {{ currentPage }} of {{ totalPages }}
+      <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-backdrop" *ngIf="selectedPatient">
+      <div class="modal-content-box">
+        <div class="modal-header">
+          <h3 style="visibility: hidden">Patient Details</h3>
+          <button class="close-btn" (click)="closeModal()">×</button>
+        </div>
+        <hr />
+        <div class="modal-body">
+          <!-- <app-patientdeatails [patientData]="selectedPatient"></app-patientdeatails> -->
+
+          <app-patient-ipdcase [patientData]="selectedPatient" [patientVitals]="vitals"></app-patient-ipdcase>
+        </div>
+      </div>
+    </div>
+
+    <!-- <app-patientdeatails *ngIf="selectedPatient" [patientData]="selectedPatient"></app-patientdeatails> -->
+    <!-- </div> -->
+  </div>
+
+</div>

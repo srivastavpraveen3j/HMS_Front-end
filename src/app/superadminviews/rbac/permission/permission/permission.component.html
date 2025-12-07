@@ -1,0 +1,70 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>NEW PERMISSION</h2>
+    <span class="icons position-relative">
+      <i class="fa-solid fa-signal" [routerLink]="['/setting/permissionlist']" routerLinkActive="router-link-active"></i>
+    </span>
+  </div>
+  <div class="form-container">
+    <!-- Left: Permission Form -->
+    <div class="form-half">
+      <form [formGroup]="permissionsForm" (ngSubmit)="OnSubmit()">
+        <h4 class="m-4">Permission Details</h4>
+        <hr />
+        <div class="form-row">
+          <!-- Permission Name -->
+          <div class="form-group">
+            <label class="form-label">Permission Name:</label>
+            <input type="text" class="form-control" formControlName="permissionName" placeholder="Enter permission name">
+          </div>
+          <!-- Module Selector -->
+          <div class="form-group">
+            <label class="form-label">Module:</label>
+            <select class="form-select form-control" formControlName="moduleName">
+              <option *ngFor="let module of allModules" [value]="module">
+                {{ module | titlecase }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <!-- Uncomment if Description needed
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Description:</label>
+            <input type="text" class="form-control" formControlName="Description" placeholder="Enter Description">
+          </div>
+        </div>
+        -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Actions:</label>
+            <div class="checkboxes">
+              <div class="form-check d-flex" *ngFor="let action of actions">
+                <input class="form-check-input" type="checkbox" [formControlName]="action" />
+                <label class="form-check-label ms-2">{{ action | titlecase }}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-dark mx-2">Submit</button>
+          <!-- <button type="button" class="btn btn-secondary" (click)="permissionsForm.reset()">Cancel</button> -->
+        </div>
+      </form>
+    </div>
+    <!-- Right: (optional, help/instructions, leave blank or add content if needed) -->
+    <div class="form-half">
+      <!-- Example info-box -->
+      <!--
+      <div class="right-section info-box">
+        <h5 style="color: darkred">Permission Tips</h5>
+        <ul>
+          <li>Choose a unique name for every permission.</li>
+          <li>Link each permission to the correct module.</li>
+          <li>Select all actions (view, edit, delete, etc.) that apply.</li>
+        </ul>
+      </div>
+      -->
+    </div>
+  </div>
+</div>

@@ -1,0 +1,41 @@
+<!-- <p>staffmanagement works!</p> -->
+<div class="header">
+  <h2>STAFF MANAGEMENT</h2>
+</div>
+<!-- <div class="container"> -->
+
+  <div class="m-5">
+    <h2>{{ hospital.name }} - Branch Wise Staff Management</h2>
+    <hr>
+
+    <!-- Flex container for branches -->
+     <div class="m-5 d-flex">
+      <div class="branches-flex   ">
+        <div class="branch" *ngFor="let branch of hospital.branches">
+          <div class="branch-header">
+            <h3>{{ branch.name }}</h3>
+            <p><strong>Total Departments:</strong> {{ branch.groups.length }}</p>
+          </div>
+
+          <div class="patient-list">
+            <div class="patient-card" *ngFor="let group of branch.groups">
+              <div class="group-header">
+                <h3>{{ group.name }}</h3>
+                <p>{{ group.email }}</p>
+                <p><strong>Status:</strong> {{ group.status }}</p>
+                <p><strong>Region:</strong> {{ group.region }} - {{ group.subRegion }}</p>
+              </div>
+
+              <div class="group-members">
+                <div class="member-avatar" *ngFor="let member of group.members">
+                  <img [src]="member" alt="Member" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+     </div>
+
+  </div>
+<!-- </div> -->

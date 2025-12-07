@@ -1,0 +1,105 @@
+<div class="form-meta">
+  <!-- <div class="dashboard-container"> -->
+  <!-- Header Section -->
+
+
+
+<div class="header">
+  <h2>OPD REPORTS</h2>
+  <!-- <div class="toggle-buttons"> -->
+    <!-- <button class="toggle opd active btn"
+            *ngIf="userPermissions.read"
+            [routerLink]="['/report/opdreport']"
+            routerLinkActive="router-link-active">OPD</button> -->
+
+    <!-- <button class="toggle ipd btn"
+            *ngIf="useripdreportPermissions.read"
+            [routerLink]="['/report/ipdreport']"
+            routerLinkActive="router-link-active">IPD</button> -->
+  <!-- </div> -->
+</div>
+
+
+  <!-- Cards Section -->
+  <div class="cards-grid mt-5">
+    <!-- <div class="card" >
+      <div class="card-content">
+        <i class="fa-solid fa-users"></i>
+        <h3>UHID</h3>
+      </div>
+      <div class="card-footer">
+        <a [routerLink]="['/report/opduhid']" [queryParams]="{ title: 'UHID' }">
+          VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div> -->
+
+    <div class="card">
+      <div class="card-content">
+        <i class="fa-solid fa-shuffle"></i>
+        <h3>OPD CASE</h3>
+      </div>
+      <div class="card-footer">
+        <a [routerLink]="['/report/opduhid']" [queryParams]="{ title: 'OPD Case' }">
+          VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-content">
+        <i class="fa-solid fa-file-invoice"></i>
+        <h3>OPD BILL</h3>
+      </div>
+      <div class="card-footer">
+        <a [routerLink]="['/report/opdbill']" [queryParams]="{ title: 'OPD Bill' }">
+          VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-content">
+        <i class="fa-solid fa-money-bill"></i>
+        <h3>OPD COLLECTION</h3>
+      </div>
+      <div class="card-footer">
+        <a [routerLink]="['/report/opdbill']" [queryParams]="{ title: 'OPD Collection' }">
+          VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-content">
+        <i class="fa-solid fa-wallet"></i>
+        <h3>SERVICE WISE COLLECTION</h3>
+      </div>
+      <div class="card-footer">
+        <a [routerLink]="['/report/servicewisecollection']" [queryParams]="{ title: 'Service Wise Collection' }">
+          VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- <div class="card">
+      <div class="card-content">
+        <i class="fa-solid fa-chart-bar"></i>
+        <h3>PATIENT LEDGER SUMMARY</h3>
+      </div>
+      <div class="card-footer">
+        <a [routerLink]="['/report/patientledgersummary']" [queryParams]="{ title: 'Patient Ledger Summary' }">
+          VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div> -->
+
+
+    <!-- <div class="d-flex ">
+      <button class="btn btn-secondary ">Export</button>
+    </div> -->
+  </div>
+
+<!-- </div> -->
+
+</div>

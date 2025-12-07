@@ -1,0 +1,522 @@
+<div class="header ">
+  <h4> Dashboard</h4>
+
+  <div [routerLink]="['doctorreferrallayout/referralapprovalpage']" *ngIf="pendingPayouts.length > 0" class="alert alert-warning d-flex align-items-center" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ pendingPayouts.length }} payout{{ pendingPayouts.length > 1 ? 's are' : ' is' }} pending for approval.
+  </div>
+
+</div>
+
+<div class="container-fluid mt-2">
+  <div class="card p-4 mb-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center">
+      <h3 class="dashboard-title">Referral Cost Management</h3>
+      <span class="badge bg-info">🔐 Finance/Admin Access Only</span>
+    </div>
+
+    <!-- Filters -->
+    <div class="row g-3 mt-3 align-items-end">
+      <!-- Referring Doctor -->
+      <div class="col-md-3">
+        <label>Referring Doctor:</label>
+        <input
+          type="text"
+          [(ngModel)]="searchText"
+          (input)="doctorFilter()"
+          placeholder="Search doctors by name..."
+          class="form-control"
+        />
+      </div>
+
+      <!-- Date Range -->
+      <div class="col-md-3">
+        <label>Date Range:</label>
+        <div class="d-flex gap-2">
+          <input
+            type="date"
+            [(ngModel)]="startDate"
+            (change)="applyFilters()"
+            class="form-control"
+            style="width: 100%"
+          />
+          <input
+            type="date"
+            [(ngModel)]="endDate"
+            (change)="applyFilters()"
+            class="form-control"
+            style="width: 100%"
+          />
+        </div>
+      </div>
+
+      <!-- Specialty -->
+      <div class="col-md-2">
+        <label>Specialty:</label>
+        <select
+          class="form-select"
+          [(ngModel)]="selectedSpecialty"
+          (change)="applyFilters()"
+        >
+          <option value="">All</option>
+          <!-- Add dynamic options -->
+        </select>
+      </div>
+
+      <!-- Department -->
+      <div class="col-md-2">
+        <label>Department:</label>
+        <select
+          class="form-select"
+          [(ngModel)]="selectedDepartment"
+          (change)="applyFilters()"
+        >
+          <option value="">All</option>
+          <!-- Add dynamic options -->
+        </select>
+      </div>
+
+      <!-- Status -->
+      <div class="col-md-2">
+        <label>Status:</label>
+        <select
+          class="form-select"
+          [(ngModel)]="selectedStatus"
+          (change)="applyFilters()"
+        >
+          <option value="">All</option>
+          <option value="Paid">Paid</option>
+          <option value="Pending">Pending</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row text-center mt-4" *ngIf="allData.length > 0">
+      <div class="col-md-3">
+        Total Referrals: <strong>{{ allData.length }}</strong>
+      </div>
+      <div class="col-md-3">
+        Total Cost Shared:
+        <strong>₹{{ allData | genericHelper : "calculateTotalCost" }}</strong>
+      </div>
+      <div class="col-md-3">
+        Pending Payouts:
+        <strong> ₹{{ allData | genericHelper : "calculatePayout" }} </strong>
+      </div>
+      <div class="col-md-3">Last Payout: <strong>15 July 2025</strong></div>
+    </div>
+
+    <!-- Footer Summary -->
+    <div class="mt-4">
+      📊 Top Referred Services: <strong>Cardiology, Radiology, Surgery</strong>
+    </div>
+  </div>
+
+  <!-- Bar Chart Card -->
+  <div class="card p-4 my-4 shadow border-0">
+    <h5 class="mb-2 fw-bold text-dark">Top Referred Overview</h5>
+
+    <div class="chart-type-toggle">
+      <label class="chart-label mb-0">Chart Type:</label>
+      <div class="form-check form-check-inline">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="chartType"
+          id="barChartRadio"
+          value="bar"
+          checked
+          (change)="onChartTypeChange('bar')"
+        />
+        <label class="form-check-label" for="barChartRadio">Bar</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="chartType"
+          id="donutChartRadio"
+          value="donut"
+          (change)="onChartTypeChange('donut')"
+        />
+        <label class="form-check-label" for="donutChartRadio">Doughnut</label>
+      </div>
+
+      <div class="d-flex mt-1 gap-2">
+        <button
+          class="btn btn-dark"
+          [ngClass]="{ active: groupBy === 'today' }"
+          (click)="applyGroupFilter('today')"
+        >
+          Today
+        </button>
+        <button
+          class="btn btn-dark"
+          [ngClass]="{ active: groupBy === 'week' }"
+          (click)="applyGroupFilter('week')"
+        >
+          This Week
+        </button>
+        <button
+          class="btn btn-dark"
+          [ngClass]="{ active: groupBy === 'month' }"
+          (click)="applyGroupFilter('month')"
+        >
+          This Month
+        </button>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 mb-3">
+      <input type="date" [(ngModel)]="startDate" class="form-control" />
+      <input type="date" [(ngModel)]="endDate" class="form-control" />
+      <button class="btn btn-primary" (click)="applyChartFilters()">
+        Apply
+      </button>
+    </div>
+
+    <div class="row gx-4 gy-4">
+      <!-- Left Chart: Services -->
+      <div class="col-md-6">
+        <div class="chart-card">
+          <div class="chart-label text-center">Top Referred Services</div>
+          <canvas id="dynamicTopServicesChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Right Chart: Doctors -->
+      <div class="col-md-6">
+        <div class="chart-card">
+          <div class="chart-label text-center">Top Referred Doctors</div>
+          <canvas id="topDoctorsBarChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-3">
+      <button
+        class="btn btn-outline-secondary"
+        (click)="downloadChartAsImage()"
+      >
+        Download PNG
+      </button>
+      <button class="btn btn-outline-secondary" (click)="downloadChartAsPDF()">
+        Download PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  <div class="card p-4 mb-4" *ngIf="filteredData.length > 0">
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr>
+          <th>Ref ID</th>
+          <th>Patient Name</th>
+          <th>Service</th>
+          <th>Amount</th>
+          <th>Referral %</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of filteredData.slice(0, 5); let i = index">
+          <td>{{ data.patient?.uhid }}</td>
+          <td>{{ data.patient?.patient_name }}</td>
+          <td>{{ data.service | genericHelper : "getServiceNames" }}</td>
+          <td>{{ data.billingAmount }}</td>
+          <td>{{ getReferralPercentages(data.service) }}</td>
+          <td>{{ getPaymentStatusIconLabel(data) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Referral Detail Section -->
+  <!-- Referral Cards -->
+  <div class="card p-4 mb-4" *ngFor="let data of paginatedData.slice(0, 5)">
+    <div class="d-flex justify-content-end">
+      <button
+        class="btn btn-sm btn-dark"
+        [routerLink]="['/doctorreferrallayout/referraldatalist']"
+      >
+        View All
+      </button>
+    </div>
+    <div>
+      <h5>
+        Referral ID: {{ data.patient?.uhid }} | Status:
+        <span class="status-pending">{{ data.billingStatus }} 🕓</span>
+      </h5>
+      <ul>
+        <li>Patient: {{ data.patient?.patient_name }}</li>
+        <li>Referred By: {{ data.referredBy?.name }}</li>
+        <li>
+          Referred To: {{ data.referredTo?.name }} ({{
+            data.referredTo?.speciality || "N/A"
+          }})
+        </li>
+        <li>Service: {{ data.service | genericHelper : "getServiceNames" }}</li>
+        <li>Billing Date: {{ data.billingDate | date : "dd MMM yyyy" }}</li>
+        <li>Total Cost: ₹{{ data.billingAmount }}</li>
+        <li>
+          Referral (%): {{ getReferralPercentages(data.service) || "N/A" }}
+        </li>
+        <li>Calculated Share: ₹{{ data.calculatedShare }}</li>
+        <li>Payment Received: {{ data.paymentReceived ? "Yes" : "No" }}</li>
+        <li>
+          Approved for Payout:
+          <strong>{{
+            data.payoutApproved ? "Yes" : "No (✔️ Pending Admin Approval)"
+          }}</strong>
+        </li>
+      </ul>
+    </div>
+    <div class="d-flex justify-content-start gap-2 mt-3">
+      <button class="btn btn-sm btn-primary">💬 Add Note</button>
+      <button class="btn btn-sm btn-secondary">📄 Download Report</button>
+    </div>
+    <!-- Pagination Controls -->
+    <div class="d-flex justify-content-end gap-2 mt-4" *ngIf="paginatedData.length > 0">
+      <button
+        class="btn btn-sm btn-outline-secondary"
+        [disabled]="currentPage === 1"
+        (click)="changePage(currentPage - 1)"
+      >
+        ◀ Prev
+      </button>
+
+      <span class="align-self-center"
+        >Page {{ currentPage }} of {{ 5 }}</span
+      >
+
+      <button
+        class="btn btn-sm btn-outline-secondary"
+        [disabled]="currentPage === 5"
+        (click)="changePage(currentPage + 1)"
+      >
+        Next ▶
+      </button>
+    </div>
+  </div>
+
+  <!-- Referral Rules Setup -->
+  <div class="card p-4 mb-4" *ngIf="allRules.length > 0">
+    <h5 class="mb-0">Referral Rules Setup</h5>
+    <div class="d-flex justify-content-end gap-2 align-items-center mb-3">
+      <button
+        class="btn btn-sm btn-success"
+        [routerLink]="['/master/doctorreferralrule']"
+      >
+        + Add New Rule
+      </button>
+      <button
+        class="btn btn-sm btn-dark"
+        [routerLink]="['/master/doctorreferralrulelist']"
+      >
+        View All
+      </button>
+    </div>
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr>
+          <th>Department</th>
+          <th>Service</th>
+          <th>Referral %</th>
+          <th>Cap/Limit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of allRules.slice(0, 5); let i = index">
+          <td>{{ data.department }}</td>
+          <td>{{ data.serviceName?.name }}</td>
+          <td>{{ data.referralPercent }}</td>
+          <td>{{ data.capLimit }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card mt-4">
+  <div class="card-header">
+    <h4>📊 Compliance & Reports</h4>
+  </div>
+  <div class="card-body">
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3" id="reportTabs" role="tablist">
+      <li class="nav-item">
+        <button
+          class="nav-link active"
+          id="audit-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#audit"
+          type="button"
+        >
+          📋 Audit Logs
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          id="compliance-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#compliance"
+          type="button"
+        >
+          📎 Compliance
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          id="doctor-rev-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#doctor-revenue"
+          type="button"
+        >
+          💼 Doctor Revenue
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          id="dept-rev-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#dept-revenue"
+          type="button"
+        >
+          🏥 Dept Revenue
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          id="outstanding-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#outstanding"
+          type="button"
+        >
+          🧾 Payouts
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          id="top-doc-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#top-doc"
+          type="button"
+        >
+          🌟 Top Doctors
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          id="conversion-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#conversion"
+          type="button"
+        >
+          📈 Conversion Ratio
+        </button>
+      </li>
+    </ul>
+
+    <!-- Tab content -->
+    <div class="tab-content" id="reportTabContent">
+      <!-- Audit Logs -->
+      <div
+        class="tab-pane fade show active"
+        id="audit"
+        *ngIf="audits.length > 0"
+      >
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Changed By</th>
+              <th>Action</th>
+              <th>Affected Rule</th>
+              <th>Old → New</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let audit of audits">
+              <td>{{ audit.dateTime | date : "dd-MM-yyyy HH:mm a" }}</td>
+              <td>{{ audit.changedBy }}</td>
+              <td>{{ audit.action }}</td>
+              <td>{{ audit.affectedRule.name }}</td>
+              <td>{{ audit.oldValue }} → {{ audit.newValue }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Compliance -->
+      <div class="tab-pane fade" id="compliance">
+        <p>
+          <strong>🛡️ Regulatory Alignment:</strong> Aligned with MCI/NMC, TDS,
+          Anti-kickback, and AMA (US) rules.
+        </p>
+        <ul>
+          <li>✅ MCI/NMC Medical Ethics Compliance</li>
+          <li>✅ TDS Deduction System Included</li>
+          <li>✅ Audit Trails Implemented</li>
+        </ul>
+        <button class="btn btn-outline-primary">
+          📤 Upload Compliance Document (PDF)
+        </button>
+      </div>
+
+      <!-- Doctor Revenue Report -->
+      <div class="tab-pane fade" id="doctor-revenue">
+        <canvas id="doctorRevenueChart" height="200"></canvas>
+      </div>
+
+      <!-- Department-wise Revenue -->
+      <div class="tab-pane fade" id="dept-revenue">
+        <canvas id="departmentRevenueChart" height="200"></canvas>
+      </div>
+
+      <!-- Outstanding Payouts -->
+      <div class="tab-pane fade" id="outstanding">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Referral ID</th>
+              <th>Doctor</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>10013</td>
+              <td>Dr. A Sharma</td>
+              <td>₹14,400</td>
+              <td>Pending</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Top Referring Doctors -->
+      <div class="tab-pane fade" id="top-doc">
+        <ul class="list-group">
+          <li class="list-group-item">🥇 Dr. A Sharma – ₹2,25,000</li>
+          <li class="list-group-item">🥈 Dr. R Jain – ₹1,85,000</li>
+          <li class="list-group-item">🥉 Dr. K Mehra – ₹1,20,000</li>
+        </ul>
+      </div>
+
+      <!-- Conversion Ratio -->
+      <div class="tab-pane fade" id="conversion">
+        <canvas id="conversionRatioChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</div>

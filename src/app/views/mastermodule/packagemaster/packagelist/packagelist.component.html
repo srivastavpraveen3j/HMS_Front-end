@@ -1,0 +1,127 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>PACKAGE MASTER LIST</h2>
+    <div class="">
+      <!-- <button class="list-cases-btn mx-3"   ><i class="fa-solid fa-user-group"></i></button> -->
+      <button
+        class="list-cases-btn mx-3"
+        [routerLink]="['/master/packagemaster']"
+        routerLinkActive="router-link-active"
+      >
+        ADD PACKAGE
+      </button>
+    </div>
+  </div>
+  <form [formGroup]="filterForm" class="top-bar p-3">
+    <!-- <select formControlName="recordsPerPage">
+      <option *ngFor="let num of [10, 25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+    </select> -->
+
+    <input type="text" placeholder="Search..." formControlName="searchText" />
+  </form>
+
+  <!-- <div class="loader-wrapper" *ngIf="packages.length === 0">
+    <div class="loader">
+      <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+    </div>
+  </div> -->
+
+  <div
+    class="table-responsive"
+    *ngIf="userPermissions.read && packages.length > 0"
+  >
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Package Name</th>
+          <th>Symptoms Name</th>
+          <th>Medicines Name</th>
+          <th>Medication</th>
+          <th>Intake</th>
+          <th>Advice</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pkg of packages; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ pkg.packagename }}</td>
+          <td>
+            <ul class="mb-0">
+              <li *ngFor="let symp of pkg.symptom_group?.symptoms">
+                {{ symp.name }}
+              </li>
+            </ul>
+          </td>
+
+          <td>
+            <ul class="mb-0">
+              <li *ngFor="let med of pkg.medicines">{{ med.medicine_name }}</li>
+            </ul>
+          </td>
+          <td>
+            <label
+              ><input
+                type="checkbox"
+                disabled
+                [checked]="pkg.checkbox?.morning"
+              />
+              Morning</label
+            ><br />
+            <label
+              ><input type="checkbox" disabled [checked]="pkg.checkbox?.noon" />
+              Noon</label
+            ><br />
+            <label
+              ><input
+                type="checkbox"
+                disabled
+                [checked]="pkg.checkbox?.evening"
+              />
+              Evening</label
+            ><br />
+            <label
+              ><input
+                type="checkbox"
+                disabled
+                [checked]="pkg.checkbox?.night"
+              />
+              Night</label
+            >
+          </td>
+          <td>{{ pkg.intake }}</td>
+          <td>{{ pkg.advice }}</td>
+          <td>
+            <i
+              class="fa-solid fa-pencil action-btn mx-3"
+              *ngIf="userPermissions.update"
+              (click)="editPackage(pkg._id)"
+            ></i>
+            <!-- <i class="fa-solid fa-trash action-btn" *ngIf="userPermissions.delete" (click)="deletePackage(pkg._id)"></i> -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button
+      class="pagination-btn"
+      (click)="previousPage()"
+      [disabled]="currentPage === 1"
+    >
+      Previous
+    </button>
+    Page {{ currentPage }} of {{ totalPages }}
+    <button
+      class="pagination-btn"
+      (click)="nextPage()"
+      [disabled]="currentPage === totalPages"
+    >
+      Next
+    </button>
+  </div>
+</div>

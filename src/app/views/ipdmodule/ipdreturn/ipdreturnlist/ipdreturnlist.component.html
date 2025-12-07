@@ -1,0 +1,49 @@
+<!-- <p>ipdreturnlist works!</p> -->
+<!-- <p>returnlist works!</p> -->
+
+
+<!-- <p>mrdlist works!</p> -->
+
+<div class="header">
+  <h2>RETURN LIST</h2>
+  <button class="list-cases-btn" [routerLink]="['/ipd/ipdreturn']" routerLinkActive="router-link-active" >ADD IPD RETURN DATA</button>
+</div>
+<div class="top-bar p-3">
+  <select formControl="recordsPerPage">
+    <option *ngFor="let num of [25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+  </select>
+
+  <input type="text" placeholder="Search..." formControl="searchText" />
+
+</div>
+
+  <table class="table table-bordered table-hover align-middle diagnosis-table">
+ <thead class="table-dark text-center" >
+    <tr>
+      <th>Bill No</th>
+      <th>Bill Amount</th>
+      <th>Amount Return</th>
+      <th>Receiver Name</th>
+      <th>Payment Mode</th>
+      <th>Action</th>
+
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let patient of filteredPatients()">
+      <td>{{ patient.token }}</td>
+      <td>{{ patient.mobile }}</td>
+      <td>{{ patient.caseno }}</td>
+      <td>{{ patient.name }}</td>
+      <td>{{ patient.paymenttype }}</td>
+
+      <td>
+        <i class="fa-solid fa-print action-btn"></i>
+        <i class="fa-solid fa-eye action-btn"  (click)="viewPatient(patient)"></i>
+        <i class="fa-solid fa-pencil action-btn" (click)="editPatient(patient)"></i>
+        <i class="fa-solid fa-trash action-btn"  (click)="deletPatient(patient)"></i>
+
+      </td>
+    </tr>
+  </tbody>
+</table>

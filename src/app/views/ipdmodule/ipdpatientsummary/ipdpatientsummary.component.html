@@ -1,0 +1,4742 @@
+<div class="patient-summary-container">
+  <!-- Header Section -->
+  <div class="patient-header">
+    <div class="patient-info">
+      <!-- <div class="patient-avatar">{{patientopdcase?.uniqueHealthIdentificationId.avatar}}</div> -->
+      <div class="patient-details">
+        <div class="patient-name">
+          <strong
+            >{{ ipdCase.uniqueHealthIdentificationId?.patient_name }} |
+          </strong>
+          <span>IPD No: {{ ipdCase?.inpatientCaseNumber }} </span>
+          <!-- <span class="status-badge">{{patientopdcase?.uniqueHealthIdentificationId.visitStatus}}</span> -->
+        </div>
+        <div class="patient-meta">
+          <!-- <span class="gender-badge">
+                      {{
+                      ipdCase?.uniqueHealthIdentificationId?.gender === "female"
+                      ? "♀"
+                      : "♂"
+                      }}
+                      {{ ipdCase?.uniqueHealthIdentificationId?.gender }}
+                    </span> -->
+          <strong
+            >UHID: {{ ipdCase?.uniqueHealthIdentificationId?.uhid }} |</strong
+          >
+          <span class="mx-2"
+            ><i class="fa fa-bed"></i> {{ ipdCase?.bed_id?.bed_number }}
+          </span>
+          <!-- <span class="mx-2">{{
+            ipdCase?.uniqueHealthIdentificationId?.age
+            }}</span> -->
+        </div>
+        <div class="patient-meta">
+          <a
+            style="font-size: 14px; color: #f0f0f0"
+            *ngIf="companyRates?.companyId?.cashlessFormDownloadLink"
+            [href]="companyRates.companyId.cashlessFormDownloadLink"
+            target="_blank"
+          >
+            {{ companyRates.companyId.companyName }}
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="barcode-container" *ngIf="opdcase?.uniqueHealthIdentificationId?.uhid">
+      <svg #headerBarcode></svg>
+    </div> -->
+
+    <!-- <div class="d-flex justify-content-end">
+      <button type="button" [ngClass]="{
+        'btn btn-danger': opdcase?.consulted === 'inConsultation',
+        'btn btn-info': opdcase?.consulted === 'onHold'
+        }" (click)="holdUnholdConsultation(opdcase)">
+        {{
+          opdcase?.consulted === 'onHold'
+          ? 'RESUME'
+          : opdcase?.consulted === 'inConsultation'
+          ? 'HOLD'
+          : ''
+          }}
+        </button>
+        <button
+        *ngIf="doctorId"
+        type="button"
+        class="record-btn"
+        (click)="endConsultation(opdcase)"
+        >
+        COMPLETE
+      </button>
+    </div> -->
+    <div class="d-flex justify-content-end">
+      <div *ngIf="hasModuleAccess('inpatientIntermBill', 'create')">
+        <span>Click here to generate final bill</span>
+        <i (click)="onClickIntermBill(ipdCase._id)" class="fa fa-receipt"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content-wrapper">
+    <!-- Left Sidebar Navigation -->
+    <div class="left-nav">
+      <ul class="nav-list">
+        <li
+          *ngFor="let item of visibleNavigationItems"
+          [class]="getNavItemClass(item)"
+          (click)="onNavigationClick(item)"
+        >
+          <i class="icon">{{ item.icon }}</i>
+          <span>{{ item.label }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="content-area">
+      <!-- Patient Summary Content -->
+      <div *ngIf="shouldShowContent('summary')" class="content-section">
+        <div class="section-header">
+          <h3>Vital parameters and Demographics</h3>
+          <span
+            class="no-opdcase?.uniqueHealthIdentificationId-text"
+            *ngIf="!vital || vital.length === 0"
+            >No vitals has been recorded for this patient today</span
+          >
+          <button
+            *ngIf="hasModuleAccess('vitals', 'create')"
+            class="record-btn"
+            (click)="onRecordVitalsClick(ipdCase._id)"
+          >
+            Record vitals →
+          </button>
+        </div>
+
+        <!-- Vitals and Biometrics Tabs -->
+        <div class="tabs-container">
+          <div class="tab-header">
+            <div
+              *ngIf="hasModuleAccess('vitals', 'create')"
+              [class]="getTabClass('vitals')"
+              (click)="onTabClick('vitals')"
+            >
+              Vital parameters
+            </div>
+            <div
+              [class]="getTabClass('biometrics')"
+              (click)="onTabClick('biometrics')"
+            >
+              Patient Overview
+            </div>
+            <div
+              *ngIf="hasModuleAccess('inpatientCase', 'read')"
+              [class]="getTabClass('ipdSticker')"
+              (click)="onTabClick('ipdSticker')"
+            >
+              IPD Sticker
+            </div>
+          </div>
+
+          <!-- Vitals Tab Content -->
+          <div
+            *ngIf="
+              activeTab === 'vitals' && hasModuleAccess('vitals', 'create')
+            "
+            class="tab-content"
+          >
+            <div class="vitals-container" *ngFor="let record of vital">
+              <div class="vitals-header">
+                <!-- <h3>Patient Vital Signs</h3> -->
+                <span class="recorded-date" *ngIf="vital.length > 0"
+                  >Recorded On: {{ record.createdAt | date : "medium" }}</span
+                >
+                <span class="recorded-date"
+                  ><i
+                    class="fa-solid fa-pencil"
+                    (click)="editVitals(record._id)"
+                  ></i
+                ></span>
+              </div>
+
+              <div class="vitals-grid">
+                <div class="vital-card">
+                  <div class="vital-icon">🩺</div>
+                  <div class="vital-info">
+                    <label>Blood Pressure</label>
+                    <span class="vital-value"
+                      >{{ record.systolicBloodPressure }} mmHg</span
+                    >
+                  </div>
+                </div>
+                <div class="vital-card">
+                  <div class="vital-icon">💓</div>
+                  <div class="vital-info">
+                    <label>Pulse Rate</label>
+                    <span class="vital-value">{{ record.pulseRate }} bpm</span>
+                  </div>
+                </div>
+                <div class="vital-card">
+                  <div class="vital-icon">🌡️</div>
+                  <div class="vital-info">
+                    <label>Temperature</label>
+                    <span class="vital-value">{{ record.temperature }}°F</span>
+                  </div>
+                </div>
+                <div class="vital-card">
+                  <div class="vital-icon">🫁</div>
+                  <div class="vital-info">
+                    <label>Respiratory Rate</label>
+                    <span class="vital-value"
+                      >{{ record.respiratoryRate }} /min</span
+                    >
+                  </div>
+                </div>
+                <div class="vital-card">
+                  <div class="vital-icon">⚕️</div>
+                  <div class="vital-info">
+                    <label>SpO2</label>
+                    <span class="vital-value">{{ record.spo2 }}%</span>
+                  </div>
+                </div>
+                <div class="vital-card">
+                  <div class="vital-icon">🩸</div>
+                  <div class="vital-info">
+                    <label>Blood Sugar</label>
+                    <span class="vital-value"
+                      >{{ record.bloodSugar }} mg/dL</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- <div class="vitals-notes" *ngIf="vitals.input || vitals.output || vitals.remarks">
+              <div class="note-section" *ngIf="vitals.input">
+                <strong>Input:</strong> {{ vitals.input }}
+              </div>
+              <div class="note-section" *ngIf="vitals.output">
+                <strong>Output:</strong> {{ vitals.output }}
+              </div>
+              <div class="note-section" *ngIf="vitals.remarks">
+                <strong>Remarks:</strong> {{ vitals.remarks }}
+              </div>
+             </div> -->
+            </div>
+
+            <div
+              class="empty-state"
+              *ngIf="(!vital || vital.length === 0) && !isHistory"
+            >
+              <div class="empty-icon">📊</div>
+              <p>No vitals recorded for today.</p>
+              <button
+                *ngIf="hasModuleAccess('vitals', 'create')"
+                class="record-link"
+                (click)="onRecordVitalSignsClick(ipdCase._id)"
+              >
+                Record vital signs
+              </button>
+            </div>
+          </div>
+
+          <!-- Biometrics Tab Content -->
+          <div *ngIf="activeTab === 'biometrics'" class="tab-content">
+            <div
+              class="demographics-container"
+              *ngIf="ipdCase; else noDemographics"
+            >
+              <div class="demographics-grid">
+                <!-- Personal Information Section -->
+                <div class="info-section">
+                  <h4 class="section-title">
+                    <span class="section-icon">👤</span>
+                    Personal Information
+                  </h4>
+                  <div class="info-cards">
+                    <div
+                      class="info-card"
+                      *ngIf="ipdCase?.uniqueHealthIdentificationId?.age"
+                    >
+                      <div class="info-label">Age</div>
+                      <div class="info-value">
+                        {{ ipdCase.uniqueHealthIdentificationId.age }}
+                      </div>
+                    </div>
+
+                    <div
+                      class="info-card"
+                      *ngIf="ipdCase?.uniqueHealthIdentificationId?.mobile_no"
+                    >
+                      <div class="info-label">Mobile Number</div>
+                      <div class="info-value">
+                        {{ ipdCase.uniqueHealthIdentificationId.mobile_no }}
+                      </div>
+                    </div>
+
+                    <div class="info-card" *ngIf="ipdCase?.emailAddress">
+                      <div class="info-label">Email Address</div>
+                      <div class="info-value">{{ ipdCase.emailAddress }}</div>
+                    </div>
+
+                    <div class="info-card" *ngIf="ipdCase?.admissionDate">
+                      <div class="info-label">Admitted</div>
+                      <div class="info-value">
+                        {{ ipdCase.admissionDate | date : "dd-MM-yyyy" }}
+                        {{ ipdCase.admissionTime | date : "hh:mm a" }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Address Information Section -->
+                <div
+                  class="info-section"
+                  *ngIf="
+                    ipdCase?.uniqueHealthIdentificationId?.area ||
+                    ipdCase?.uniqueHealthIdentificationId?.pincode
+                  "
+                >
+                  <h4 class="section-title">
+                    <span class="section-icon">📍</span>
+                    Address Information
+                  </h4>
+                  <div class="info-cards">
+                    <div class="info-card full-width">
+                      <div class="info-label">Address</div>
+                      <div class="info-value">
+                        {{ ipdCase?.uniqueHealthIdentificationId?.area }}
+                        <span
+                          *ngIf="
+                            ipdCase?.uniqueHealthIdentificationId?.area &&
+                            ipdCase?.uniqueHealthIdentificationId?.pincode
+                          "
+                          >,
+                        </span>
+                        {{ ipdCase?.uniqueHealthIdentificationId?.pincode }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Identity Documents Section -->
+                <div
+                  class="info-section"
+                  *ngIf="ipdCase?.aadharNumber || ipdCase?.panCardNumber"
+                >
+                  <h4 class="section-title">
+                    <span class="section-icon">🆔</span>
+                    Identity Documents
+                  </h4>
+                  <div class="info-cards">
+                    <div class="info-card" *ngIf="ipdCase?.aadharNumber">
+                      <div class="info-label">Aadhaar Number</div>
+                      <div class="info-value">{{ ipdCase.aadharNumber }}</div>
+                    </div>
+
+                    <div class="info-card" *ngIf="ipdCase?.panCardNumber">
+                      <div class="info-label">PAN Card Number</div>
+                      <div class="info-value">{{ ipdCase.panCardNumber }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Medical Team Section -->
+                <div class="info-section">
+                  <h4 class="section-title">
+                    <span class="section-icon">👨‍⚕️</span>
+                    Medical Team
+                  </h4>
+                  <div class="info-cards">
+                    <div
+                      class="info-card"
+                      *ngIf="ipdCase?.admittingDoctorId?.name"
+                    >
+                      <div class="info-label">Consultant Doctor</div>
+                      <div class="info-value doctor-name">
+                        {{ ipdCase.admittingDoctorId.name }}
+                      </div>
+                    </div>
+
+                    <div
+                      class="info-card"
+                      *ngIf="ipdCase?.referringDoctorId?.name"
+                    >
+                      <div class="info-label">Referring Doctor</div>
+                      <div class="info-value doctor-name">
+                        {{ ipdCase.referringDoctorId.name }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ng-template #noDemographics>
+              <div class="empty-state">
+                <div class="empty-icon">📏</div>
+                <p>There are no patient details to display.</p>
+              </div>
+            </ng-template>
+          </div>
+
+          <div *ngIf="activeTab === 'ipdSticker'" class="tab-content">
+            <div class="d-flex justify-content-between">
+              <!-- SINGLE sticker visible on screen, hidden during print -->
+              <div class="screen-sticker">
+                <div class="">
+                  <div
+                    id="print-label"
+                    class="label-container"
+                    style="font-family: Arial, sans-serif; background: #fff"
+                  >
+                    <div style="text-align: left; width: 300px; margin: auto">
+                      <div style="text-align: left; width: 300px; margin: auto">
+                        <div
+                          style="
+                            text-align: left;
+                            font-weight: bold;
+                            font-size: 18px;
+                            letter-spacing: 0.5px;
+                          "
+                        >
+                          {{
+                            ipdCase?.uniqueHealthIdentificationId?.patient_name?.toUpperCase()
+                          }}
+                        </div>
+                        <div style="margin-top: 10px; font-size: 16px">
+                          <span style="font-weight: bold">UHID :</span>
+                          <span style="font-weight: bold">{{
+                            ipdCase?.uniqueHealthIdentificationId?.uhid
+                          }}</span>
+                          &nbsp;&nbsp;
+                          <span style="font-weight: bold">Wt :</span>
+                          <span style="font-weight: bold">{{
+                            ipdCase?.vitals[0]?.weight
+                          }}</span>
+                          &nbsp;&nbsp;
+                          <span style="font-weight: bold">Sex:</span>
+                          <span style="font-weight: bold">{{
+                            ipdCase?.uniqueHealthIdentificationId?.gender?.toUpperCase()
+                          }}</span>
+                        </div>
+                        <div style="margin-top: 2px; font-size: 15px">
+                          IPD:{{ ipdCase?.inpatientCaseNumber }}
+                          &nbsp;
+                          <span>Age :</span>
+                          {{ ipdCase?.uniqueHealthIdentificationId?.age }}
+                        </div>
+                        <div style="font-size: 15px">
+                          DOA:{{
+                            ipdCase?.admissionDate
+                              | date
+                                : "dd-MM-yyyy &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;  hh:mm a"
+                          }}
+                          <span style="float: right">{{
+                            ipdCase?.doa_time
+                          }}</span>
+                        </div>
+                        <div style="height: 5px"></div>
+                        <div style="font-weight: bold; font-size: 17px">
+                          {{ ipdCase?.admittingDoctorId?.name?.toUpperCase() }}
+                        </div>
+                        <div style="font-size: 15px">
+                          Ref By :
+                          {{ ipdCase?.referringDoctorId?.name || "SELF" }}
+                        </div>
+                        <div
+                          *ngIf="ipdCase?.patient_type"
+                          style="font-size: 15px; font-weight: bold"
+                        >
+                          {{
+                            ipdCase?.patient_type === "cashless"
+                              ? "CL :"
+                              : ipdCase?.patient_type === "med"
+                              ? "MC :"
+                              : "CASH"
+                          }}
+                          {{ ipdCase?.companyName?.toUpperCase() }}
+                        </div>
+                        <div style="font-size: 15px">
+                          Mobile No:{{
+                            ipdCase?.uniqueHealthIdentificationId?.mobile_no
+                          }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <button class="btn" (click)="printSticker()">
+                  <i class="fa-solid fa-print action-btn"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- MULTIPLE stickers only visible during print, hidden on screen -->
+            <div class="print-sticker-grid">
+              <div class="sticker-grid">
+                <ng-container *ngFor="let n of [].constructor(40)">
+                  <div class="sticker-container">
+                    <div style="font-family: Arial, sans-serif">
+                      <div style="font-weight: bold; font-size: 7pt">
+                        {{
+                          ipdCase?.uniqueHealthIdentificationId?.patient_name?.toUpperCase()
+                        }}
+                      </div>
+                      <div style="font-size: 5pt">
+                        <span style="font-weight: bold">UHID :</span>
+                        <span>{{
+                          ipdCase?.uniqueHealthIdentificationId?.uhid
+                        }}</span>
+                        &nbsp;
+                        <span style="font-weight: bold">Wt :</span>
+                        <span>{{ ipdCase?.vitals[0]?.weight }}</span>
+                        &nbsp;
+                        <span style="font-weight: bold">Sex:</span>
+                        <span>{{
+                          ipdCase?.uniqueHealthIdentificationId?.gender?.toUpperCase()
+                        }}</span>
+                      </div>
+                      <div style="font-size: 6pt">
+                        IPD:{{ ipdCase?.inpatientCaseNumber }}
+                        &nbsp;
+                        <span>Age :</span>
+                        {{ ipdCase?.uniqueHealthIdentificationId?.age }}
+                      </div>
+                      <div style="font-size: 6pt">
+                        DOA:{{
+                          ipdCase?.admissionDate | date : "dd-MM-yyyy hh:mm a"
+                        }}
+                        <span style="float: right">{{
+                          ipdCase?.doa_time
+                        }}</span>
+                      </div>
+                      <div style="font-size: 7pt; font-weight: bold">
+                        {{ ipdCase?.admittingDoctorId?.name?.toUpperCase() }}
+                      </div>
+                      <div style="font-size: 6pt">
+                        Ref By :
+                        {{ ipdCase?.referringDoctorId?.name || "SELF" }}
+                      </div>
+                      <div
+                        *ngIf="ipdCase?.patient_type"
+                        style="font-size: 6pt; font-weight: bold"
+                      >
+                        {{
+                          ipdCase?.patient_type === "casheless"
+                            ? "CL"
+                            : ipdCase?.patient_type === "med"
+                            ? "MC"
+                            : "CASH"
+                        }}
+                        {{ ipdCase?.companyName?.toUpperCase() }}
+                      </div>
+                      <div style="font-size: 6pt">
+                        Mobile No:{{
+                          ipdCase?.uniqueHealthIdentificationId?.mobile_no
+                        }}
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vital Trend Chart Component -->
+        <div
+          *ngIf="activeTab === 'vitals' && hasModuleAccess('vitals', 'read')"
+          class="row g-2"
+        >
+          <div class="col-md-6">
+            <app-vitalchart [vitals]="vitals"></app-vitalchart>
+          </div>
+          <div class="col-md-6">
+            <app-growthchart [patient]="ipdCase"></app-growthchart>
+          </div>
+        </div>
+      </div>
+
+      <!-- deposit  -->
+      <div
+        *ngIf="
+          shouldShowContent('deposit') &&
+          hasModuleAccess('inpatientDeposit', 'create')
+        "
+        class="content-section"
+      >
+        <div
+          class="section-header d-flex justify-content-between align-items-center"
+        >
+          <h3>Deposit Details</h3>
+          <button
+            *ngIf="hasModuleAccess('inpatientDeposit', 'create')"
+            class="record-btn"
+            (click)="onAddDeposit(ipdCase._id)"
+          >
+            Add Deposit →
+          </button>
+        </div>
+
+        <!-- Deposit Details -->
+        <div *ngIf="deposit; else noDeposits" class="deposit-card mt-3">
+          <div class="card p-3 mb-2" *ngFor="let depo of deposit">
+            <div class="vitals-header">
+              <span class="recorded-date"
+                >Added On: {{ depo.createdAt | date : "medium" }}</span
+              >
+              <span class="recorded-date" *ngIf="deposit"
+                >Collected By: {{ depo.collectedBy?.name }}
+              </span>
+              <span
+                *ngIf="hasModuleAccess('inpatientDeposit', 'update')"
+                class="recorded-date"
+                ><i
+                  class="fa-solid fa-pencil"
+                  (click)="editDeposit(depo._id)"
+                ></i
+              ></span>
+            </div>
+
+            <div class="deposit-grid">
+              <div class="deposit-item">
+                <!-- <span class="icon">🆔</span> -->
+                <div class="info">
+                  <label>IPD Number</label>
+                  <p>
+                    {{ depo.inpatientCaseId?.inpatientCaseNumber || "N/A" }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- <div class="deposit-item">
+                <span class="icon">👤</span>
+                <div class="info">
+                  <label>Patient Name</label>
+                  <p>{{ depo.patientName || 'N/A' }}</p>
+                </div>
+              </div> -->
+
+              <!-- <div class="deposit-item">
+                <span class="icon">🛏️</span>
+                <div class="info">
+                  <label>Admitted Bed</label>
+                  <p>{{ depo.admittedBed || 'N/A' }}</p>
+                </div>
+              </div> -->
+
+              <div class="deposit-item">
+                <!-- <span class="icon">💰</span> -->
+                <div class="info">
+                  <label>Amount Deposited</label>
+                  <p>{{ depo.amountDeposited || "0" }}</p>
+                </div>
+              </div>
+
+              <div class="deposit-item">
+                <!-- <span class="icon">💵</span> -->
+                <div class="info">
+                  <label>Payment Mode</label>
+                  <p>{{ depo.paymentMode || "-" }}</p>
+                </div>
+              </div>
+
+              <div class="deposit-item">
+                <!-- <span class="icon">🙍</span> -->
+                <div class="info">
+                  <label>Depositor Name</label>
+                  <p>{{ depo.depositorFullName || "N/A" }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Deposits Template -->
+        <ng-template #noDeposits>
+          <div class="empty-state">
+            <div class="empty-icon">💰</div>
+            <p>No deposits available for this patient</p>
+            <button
+              *ngIf="hasModuleAccess('inpatientDeposit', 'create')"
+              class="record-link"
+              (click)="onAddDeposit(ipdCase._id)"
+            >
+              Add Deposit
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Vitals  -->
+      <div
+        *ngIf="
+          shouldShowContent('vitals') && hasModuleAccess('vitals', 'create')
+        "
+        class="content-section"
+      >
+        <div class="section-header">
+          <h3>Vitals Parameters</h3>
+          <button
+            *ngIf="hasModuleAccess('vitals', 'create')"
+            class="record-btn"
+            (click)="onRecordVitalsClick(ipdCase._id)"
+          >
+            Record vitals →
+          </button>
+        </div>
+
+        <div class="vitals-container">
+          <div class="d-flex justify-content-between my-2">
+            <button
+              type="button"
+              value="dateRange"
+              class="record-btn"
+              (click)="showVitalsHistory()"
+            >
+              {{ isHistory ? "Today" : "History" }}
+            </button>
+            <div class="filters d-flex" *ngIf="isHistory">
+              <input
+                type="date"
+                [(ngModel)]="startDate"
+                (change)="applyFilters(vitals)"
+                class="form-control mx-2"
+              />
+              <input
+                type="date"
+                [(ngModel)]="endDate"
+                (change)="applyFilters(vitals)"
+                class="form-control mx-2"
+              />
+            </div>
+          </div>
+          <hr />
+
+          <!-- No vitals recorded yet or for today -->
+          <div
+            class="empty-state"
+            *ngIf="(!vital || vital.length === 0) && !isHistory"
+          >
+            <div class="empty-icon">📊</div>
+            <p>No vitals recorded for today.</p>
+            <button
+              *ngIf="hasModuleAccess('vitals', 'create')"
+              class="record-link"
+              (click)="onRecordVitalSignsClick(ipdCase._id)"
+            >
+              Record vital signs
+            </button>
+          </div>
+
+          <!-- Today's Vitals -->
+          <div class="vitals-grid" *ngIf="vital.length > 0 && !isHistory">
+            <div *ngFor="let record of vital">
+              <span class="recorded-date" *ngIf="vital.length > 0"
+                >Recorded On: {{ record.createdAt | date : "medium" }}</span
+              >
+              <span class="recorded-date mx-2" *ngIf="vital.length > 0"
+                >Recorded By: {{ record.createdBy?.name }}
+              </span>
+              <div class="vital-card">
+                <div class="vital-icon">🩺</div>
+                <div class="vital-info">
+                  <label>Blood Pressure</label>
+                  <span class="vital-value"
+                    >{{ record.systolicBloodPressure }} mmHg</span
+                  >
+                </div>
+              </div>
+              <div class="vital-card">
+                <div class="vital-icon">💓</div>
+                <div class="vital-info">
+                  <label>Pulse Rate</label>
+                  <span class="vital-value">{{ record.pulseRate }} bpm</span>
+                </div>
+              </div>
+              <div class="vital-card">
+                <div class="vital-icon">🌡️</div>
+                <div class="vital-info">
+                  <label>Temperature</label>
+                  <span class="vital-value">{{ record.temperature }}°F</span>
+                </div>
+              </div>
+              <div class="vital-card">
+                <div class="vital-icon">🫁</div>
+                <div class="vital-info">
+                  <label>Respiratory Rate</label>
+                  <span class="vital-value"
+                    >{{ record.respiratoryRate }} /min</span
+                  >
+                </div>
+              </div>
+              <div class="vital-card">
+                <div class="vital-icon">⚕️</div>
+                <div class="vital-info">
+                  <label>SpO2</label>
+                  <span class="vital-value">{{ record.spo2 }}%</span>
+                </div>
+              </div>
+              <div class="vital-card">
+                <div class="vital-icon">🩸</div>
+                <div class="vital-info">
+                  <label>Blood Sugar</label>
+                  <span class="vital-value">{{ record.bloodSugar }} mg/dL</span>
+                </div>
+              </div>
+              <!-- Intake fields -->
+              <div class="vital-card">
+                <div class="vital-icon">🥤</div>
+                <div class="vital-info">
+                  <label>Oral / RTF</label>
+                  <span class="vital-value">{{ record.oralRtf }}</span>
+                </div>
+              </div>
+              <div class="vital-card">
+                <div class="vital-icon">💧</div>
+                <div class="vital-info">
+                  <label>I.V. Fluids Started</label>
+                  <span class="vital-value">{{ record.ivFluidsStarted }}</span>
+                </div>
+              </div>
+              <div class="vital-card">
+                <div class="vital-icon">💉</div>
+                <div class="vital-info">
+                  <label>I.V. Fluids Infused</label>
+                  <span class="vital-value">{{ record.ivFluidsInfused }}</span>
+                </div>
+              </div>
+
+              <!-- Output fields -->
+              <div class="vital-card">
+                <div class="vital-icon">🚽</div>
+                <div class="vital-info">
+                  <label>Urine</label>
+                  <span class="vital-value">{{ record.urine }}</span>
+                </div>
+              </div>
+              <div class="vital-card">
+                <div class="vital-icon">🤢</div>
+                <div class="vital-info">
+                  <label>Emesis / RTA</label>
+                  <span class="vital-value">{{ record.emesisRta }}</span>
+                </div>
+              </div>
+              <div class="vital-card">
+                <div class="vital-icon">🩹</div>
+                <div class="vital-info">
+                  <label>Drain</label>
+                  <span class="vital-value">{{ record.drain }}</span>
+                </div>
+              </div>
+              <div class="vital-card">
+                <div class="vital-icon">💩</div>
+                <div class="vital-info">
+                  <label>Stool</label>
+                  <span class="vital-value">{{ record.stool }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- History Table -->
+          <div
+            class="table-responsive"
+            *ngIf="isHistory && filtered.length > 0"
+          >
+            <table class="table table-bordered table-hover align-middle">
+              <thead class="table-dark text-center">
+                <tr>
+                  <th>#</th>
+                  <th>BP (Sys/Dia)</th>
+                  <th>Temp (°F)</th>
+                  <th>Pulse</th>
+                  <th>Resp Rate</th>
+                  <th>SPO2</th>
+                  <th>Blood Sugar</th>
+                  <th>Date</th>
+                  <th>Recorded By</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let record of filtered; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ record.systolicBloodPressure }}</td>
+                  <td>{{ record.temperature }}</td>
+                  <td>{{ record.pulseRate }}</td>
+                  <td>{{ record.respiratoryRate }}</td>
+                  <td>{{ record.spo2 }}</td>
+                  <td>{{ record.bloodSugar }}</td>
+                  <td>{{ record.createdAt | date : "medium" }}</td>
+                  <td>{{ record.createdBy?.name }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- </div> -->
+      </div>
+
+      <!-- Medications Content -->
+      <div *ngIf="shouldShowContent('medications')" class="content-section">
+        <div class="section-header">
+          <h3>Medications</h3>
+          <button class="record-btn" (click)="onAddMedicationClick()">
+            Add Medication →
+          </button>
+        </div>
+        <div class="empty-state">
+          <div class="empty-icon">💊</div>
+          <p>Medications section content will be displayed here</p>
+        </div>
+      </div>
+
+      <!-- HIDDEN PRINT TEMPLATE -->
+      <div id="printSection" style="display: none">
+        <!-- Hospital Header -->
+        <div
+          style="
+            border: 2px solid black;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+          "
+        >
+          <h2 style="margin: 0; font-size: 18px; font-weight: bold">
+            P.P. Maniya Children's Speciality Hospital And Maternity Home
+          </h2>
+          <p style="margin: 5px 0; font-size: 12px">
+            C-1, Ganesh Colony, Near Baroda Pristage, Varachha Main Road, Surat
+            | eCourtPhone = PH : 9099979976,<br />
+            9978799426 | email: maniyahospitalgmail.com
+          </p>
+        </div>
+
+        <!-- Prescription Header -->
+        <h3
+          style="
+            text-align: center;
+            margin: 20px 0;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: underline;
+          "
+        >
+          MEDICINE PRESCRIPTION
+        </h3>
+
+        <!-- Patient Information Table - WITH BORDERS like in your reference -->
+        <table
+          style="
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid black;
+            margin-bottom: 10px;
+          "
+        >
+          <tr>
+            <td
+              style="
+                border: 1px solid black;
+                padding: 5px;
+                font-weight: bold;
+                width: 15%;
+              "
+            >
+              PT NAME
+            </td>
+            <td style="border: 1px solid black; padding: 5px; width: 35%">
+              {{
+                diagnosis?.uniqueHealthIdentificationId?.patient_name?.toUpperCase()
+              }}
+            </td>
+            <td
+              style="
+                border: 1px solid black;
+                padding: 5px;
+                font-weight: bold;
+                width: 15%;
+              "
+            >
+              CODE
+            </td>
+            <td style="border: 1px solid black; padding: 5px; width: 35%">
+              {{ diagnosis?.uniqueHealthIdentificationId?.uhid }}
+            </td>
+          </tr>
+          <tr>
+            <td
+              style="border: 1px solid black; padding: 5px; font-weight: bold"
+            >
+              DR. NAME
+            </td>
+            <td style="border: 1px solid black; padding: 5px">
+              {{
+                diagnosis?.outpatientCaseId?.consulting_Doctor?.name?.toUpperCase()
+              }}
+            </td>
+            <td
+              style="border: 1px solid black; padding: 5px; font-weight: bold"
+            >
+              ID
+            </td>
+            <td style="border: 1px solid black; padding: 5px">
+              {{ diagnosis?.outpatientCaseId?._id?.slice(-6) }}
+            </td>
+          </tr>
+          <tr>
+            <td
+              style="border: 1px solid black; padding: 5px; font-weight: bold"
+            >
+              LOGIN NAME
+            </td>
+            <td style="border: 1px solid black; padding: 5px">
+              {{
+                diagnosis?.outpatientCaseId?.consulting_Doctor?.name?.toUpperCase()
+              }}
+            </td>
+            <td
+              style="border: 1px solid black; padding: 5px; font-weight: bold"
+            >
+              DATE
+            </td>
+            <td style="border: 1px solid black; padding: 5px">
+              {{ diagnosis?.createdAt | date : "d-MMM-yy" }}
+            </td>
+          </tr>
+        </table>
+
+        <!-- Cashless and Prepare By Section -->
+        <div style="margin-bottom: 20px">
+          <!-- <strong>Cashless</strong><br> -->
+          <table
+            style="
+              width: 100%;
+              border-collapse: collapse;
+              border: 1px solid black;
+            "
+          >
+            <tr>
+              <td
+                style="
+                  border: 1px solid black;
+                  padding: 5px;
+                  font-weight: bold;
+                  width: 15%;
+                "
+              >
+                PREPARE BY
+              </td>
+              <td style="border: 1px solid black; padding: 5px; width: 50%">
+                {{
+                  diagnosis?.outpatientCaseId?.consulting_Doctor?.name?.toUpperCase()
+                }}
+              </td>
+              <td
+                style="
+                  border: 1px solid black;
+                  padding: 5px;
+                  font-weight: bold;
+                  width: 15%;
+                "
+              >
+                TIME
+              </td>
+              <td style="border: 1px solid black; padding: 5px; width: 20%">
+                {{ diagnosis?.createdAt | date : "HH:mm:ss" }}
+                {{ diagnosis?.createdAt | date : "a" }}
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Medicine Table -->
+        <table
+          style="
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid black;
+          "
+        >
+          <thead>
+            <tr style="background-color: #f0f0f0">
+              <th
+                style="
+                  border: 1px solid black;
+                  padding: 8px;
+                  text-align: left;
+                  width: 10%;
+                "
+              >
+                SR.NO.
+              </th>
+              <th
+                style="
+                  border: 1px solid black;
+                  padding: 8px;
+                  text-align: left;
+                  width: 70%;
+                "
+              >
+                MEDICINE NAME
+              </th>
+              <th
+                style="
+                  border: 1px solid black;
+                  padding: 8px;
+                  text-align: center;
+                  width: 20%;
+                "
+              >
+                QTY
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let med of diagnosis?.packages; let i = index"
+              [style.background-color]="i % 2 === 0 ? '#ffffff' : '#f8f8f8'"
+            >
+              <td
+                style="
+                  border: 1px solid black;
+                  padding: 8px;
+                  text-align: center;
+                "
+              >
+                {{ i + 1 }}
+              </td>
+              <td style="border: 1px solid black; padding: 8px">
+                {{ med.medicineName?.toUpperCase() }}
+              </td>
+              <td
+                style="
+                  border: 1px solid black;
+                  padding: 8px;
+                  text-align: center;
+                "
+              >
+                {{ med.quantity }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Additional Information (if needed) -->
+        <div
+          style="margin-top: 20px"
+          *ngIf="diagnosis?.generalAdvice || diagnosis?.testprescription"
+        >
+          <div *ngIf="diagnosis?.generalAdvice">
+            <strong>General Advice:</strong> {{ diagnosis.generalAdvice }}
+          </div>
+          <div *ngIf="diagnosis?.testprescription" style="margin-top: 5px">
+            <strong>Test Prescription:</strong> {{ diagnosis.testprescription }}
+          </div>
+          <div *ngIf="diagnosis?.nextFollowUpDate" style="margin-top: 5px">
+            <strong>Next Follow-up:</strong>
+            {{ diagnosis.nextFollowUpDate | date : "dd-MMM-yyyy" }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional sections for other navigation items -->
+
+      <!-- Diagnosis sections for other navigation items -->
+      <div
+        *ngIf="
+          shouldShowContent('diagnosis') &&
+          hasModuleAccess('diagnosisSheet', 'create')
+        "
+        class="content-section"
+      >
+        <div class="section-header">
+          <h3>Indoor Case Summary</h3>
+          <button class="record-btn" (click)="onClickDiagnosis(ipdCase._id)">
+            Record Indoor Case →
+          </button>
+        </div>
+
+        <div class="vitals-container p-2">
+          <div class="d-flex justify-content-between my-2">
+            <div>
+              <button
+                type="button"
+                value="dateRange"
+                class="record-btn"
+                (click)="showDiagnosisHistory()"
+              >
+                {{ isDiagnosisHistory ? "Today" : "History" }}
+              </button>
+            </div>
+            <div class="d-flex" *ngIf="isDiagnosisHistory">
+              <input
+                type="date"
+                [(ngModel)]="startDate"
+                (change)="applyFilters(diagnoses)"
+                class="form-control mx-2"
+              />
+              <input
+                type="date"
+                [(ngModel)]="endDate"
+                (change)="applyFilters(diagnoses)"
+                class="form-control mx-2"
+              />
+            </div>
+          </div>
+          <hr />
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span
+                class="recorded-date"
+                *ngIf="diagnosis && !isDiagnosisHistory"
+                >Recorded On: {{ diagnosis.createdAt | date : "medium" }}</span
+              >
+              <span
+                class="recorded-date mx-2"
+                *ngIf="diagnosis && !isDiagnosisHistory"
+                >Recorded By: {{ diagnosis.createdBy?.name }}
+              </span>
+            </div>
+            <div>
+              <span
+                class=""
+                *ngIf="
+                  diagnosis &&
+                  !isDiagnosisHistory &&
+                  hasModuleAccess('diagnosisSheet', 'update')
+                "
+                ><i
+                  class="fa-solid fa-pencil"
+                  (click)="editDiagnosis(diagnosis._id)"
+                ></i
+              ></span>
+            </div>
+          </div>
+
+          <!-- Only show sections if diagnosis opdcase?.uniqueHealthIdentificationId exists -->
+          <div *ngIf="diagnosis && !isDiagnosisHistory">
+            <!-- Investigation/Clinical Examination Section -->
+            <div *ngIf="diagnosis.clinicalExamination || diagnosis.diagnosis">
+              <div class="section-header">
+                <h3>Clinical Examination</h3>
+              </div>
+
+              <div class="diagnosis-container">
+                <div class="investigation-grid">
+                  <div
+                    class="info-card examination-card"
+                    *ngIf="diagnosis.clinicalExamination"
+                  >
+                    <div class="card-icon">🔬</div>
+                    <div class="card-content">
+                      <h4>Examination</h4>
+                      <p class="examination-text">
+                        {{ diagnosis.clinicalExamination }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    class="info-card diagnosis-card"
+                    *ngIf="diagnosis.diagnosis"
+                  >
+                    <div class="card-icon">🩺</div>
+                    <div class="card-content">
+                      <h4>Diagnosis</h4>
+                      <p class="diagnosis-text">{{ diagnosis.diagnosis }}</p>
+                    </div>
+                  </div>
+                  <div
+                    class="info-card diagnosis-card"
+                    *ngIf="diagnosis.investigation"
+                  >
+                    <div class="card-icon">🩺</div>
+                    <div class="card-content">
+                      <h4>Investigation</h4>
+                      <p class="diagnosis-text">
+                        {{ diagnosis.investigation }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Presenting Complaint Section -->
+            <div *ngIf="diagnosis.symptoms && diagnosis.symptoms.length > 0">
+              <div class="section-header">
+                <h3>Presenting Complaints</h3>
+              </div>
+
+              <div class="diagnosis-container">
+                <div class="symptoms-grid">
+                  <div
+                    class="symptom-card"
+                    *ngFor="let symptom of diagnosis.symptoms; let i = index"
+                  >
+                    <div class="symptom-header">
+                      <span class="symptom-number">{{ i + 1 }}</span>
+                      <h4 class="symptom-name">{{ symptom.name }}</h4>
+                    </div>
+                    <div class="symptom-details">
+                      <div class="symptom-property" *ngIf="symptom.properties">
+                        <strong>Type:</strong> {{ symptom.properties }}
+                      </div>
+                      <div class="symptom-duration" *ngIf="symptom.since">
+                        <strong>Duration:</strong> {{ symptom.since }}
+                      </div>
+                      <div class="symptom-remarks" *ngIf="symptom.remarks">
+                        <strong>Remarks:</strong> {{ symptom.remarks }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Known Allergies & Medical History Section -->
+            <div *ngIf="diagnosis.allergy || diagnosis.medicalHistory">
+              <div class="section-header">
+                <h3>Known Allergies & Medical History</h3>
+              </div>
+
+              <div class="diagnosis-container">
+                <div class="allergies-medical-grid">
+                  <div class="info-card allergy-card" *ngIf="diagnosis.allergy">
+                    <div class="card-icon">🤧</div>
+                    <div class="card-content">
+                      <h4>Known Allergies</h4>
+                      <p class="allergy-text">{{ diagnosis.allergy }}</p>
+                    </div>
+                  </div>
+
+                  <div
+                    class="info-card medication-card"
+                    *ngIf="diagnosis.medicalHistory"
+                  >
+                    <div class="card-icon">💊</div>
+                    <div class="card-content">
+                      <h4>Medical History</h4>
+                      <p class="medication-text">
+                        {{ diagnosis.medicalHistory }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Prescription Medications Section -->
+            <!-- <div *ngIf="diagnosis.packages && diagnosis.packages.length > 0">
+              <div class="section-header">
+                <h3>Prescription Medications & Tests</h3>
+              </div>
+
+              <div class="diagnosis-container">
+                <div class="prescriptions-list">
+                  <div
+                    class="prescription-card my-3"
+                    *ngFor="let medicine of diagnosis.packages; let i = index"
+                  >
+                    <span class="d-flex">
+                      <h4 class="medicine-name">Medicines</h4>
+                      <div class="medicine-icon">💊</div>
+                    </span>
+
+                    <hr />
+                    <div class="prescription-header">
+                      <div class="medicine-info">
+                        <h4 class="medicine-name">
+                          {{ medicine.medicineName }}
+                        </h4>
+                        <span class="medicine-quantity"
+                          >Quantity: {{ medicine.quantity }}</span
+                        >
+                      </div>
+                    </div>
+
+                    <div class="prescription-details" *ngIf="medicine.checkbox">
+                      <div class="d-flex">
+                        <div class="dosage-info">
+                          <strong>Medication Time :</strong>
+
+                          <span
+                            class="dosage-item"
+                            *ngIf="medicine.checkbox.morning"
+                          >
+                            🌅 Morning
+                          </span>
+                          <span
+                            class="dosage-item"
+                            *ngIf="medicine.checkbox.noon"
+                          >
+                            ☀️ Noon
+                          </span>
+                          <span
+                            class="dosage-item"
+                            *ngIf="medicine.checkbox.evening"
+                          >
+                            🌆 Evening
+                          </span>
+                          <span
+                            class="dosage-item"
+                            *ngIf="medicine.checkbox.night"
+                          >
+                            🌙 Night
+                          </span>
+                        </div>
+                      </div> -->
+
+            <!-- ✅ Add dosage instructions -->
+            <!-- <div
+                        class="dosage-instructions"
+                        *ngIf="medicine.dosageInstruction"
+                      >
+                        <strong>Instructions:</strong>
+                        {{ medicine.dosageInstruction }}
+                      </div> -->
+            <!-- </div>
+                  </div>
+                </div>
+                <div class="prescriptions-list">
+                  <div
+                    class="prescription-card"
+                    *ngIf="diagnosis.testprescription"
+                  >
+                    <span class="d-flex">
+                      <h4 class="medicine-name">Tests</h4>
+                      <div class="medicine-icon">🔬</div>
+                    </span>
+                    <hr />
+                    <div class="prescription-header">
+                      <div class="medicine-info">
+                        <h4 class="medicine-name">
+                          {{ diagnosis.testprescription }}
+                        </h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> -->
+
+            <!-- General Advice & Next Follow Up Date Section -->
+            <div *ngIf="diagnosis.generalAdvice || diagnosis.nextFollowUpDate">
+              <div class="section-header">
+                <h3>General Advice & Next Follow Up Date</h3>
+              </div>
+
+              <div class="diagnosis-container">
+                <div class="advice-followup-grid">
+                  <div
+                    class="info-card advice-card"
+                    *ngIf="diagnosis.generalAdvice"
+                  >
+                    <div class="card-icon">📋</div>
+                    <div class="card-content">
+                      <h4>General Advice</h4>
+                      <p class="advice-text">
+                        {{ diagnosis.generalAdvice }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    class="info-card followup-card"
+                    *ngIf="diagnosis.nextFollowUpDate"
+                  >
+                    <div class="card-icon">📅</div>
+                    <div class="card-content">
+                      <h4>Next Follow-up</h4>
+                      <p class="followup-date">
+                        {{ diagnosis.nextFollowUpDate | date : "fullDate" }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="table-responsive"
+            *ngIf="isDiagnosisHistory && filtered.length > 0"
+          >
+            <table class="table table-bordered table-hover align-middle">
+              <thead class="table-dark text-center">
+                <tr>
+                  <th>#</th>
+                  <th>BP (Sys/Dia)</th>
+                  <th>Temp (°F)</th>
+                  <th>Pulse</th>
+                  <th>Resp Rate</th>
+                  <th>SPO2</th>
+                  <th>Blood Sugar</th>
+                  <th>Symptoms</th>
+                  <th>Clinical Examination</th>
+                  <th>Date</th>
+                  <th>Recorded By</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let diagnosis of filtered; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ diagnosis.vitals?.systolicBloodPressure }}</td>
+                  <td>{{ diagnosis.vitals?.temperature }}</td>
+                  <td>{{ diagnosis.vitals?.pulseRate }}</td>
+                  <td>{{ diagnosis.vitals?.respiratoryRate }}</td>
+                  <td>{{ diagnosis.vitals?.spo2 }}</td>
+                  <td>{{ diagnosis.vitals?.bloodSugar }}</td>
+                  <td>
+                    <div
+                      *ngIf="
+                        diagnosis?.symptoms && diagnosis.symptoms.length > 0
+                      "
+                    >
+                      <ul>
+                        <li *ngFor="let symptom of diagnosis.symptoms">
+                          {{ symptom.name }}
+                        </li>
+                      </ul>
+                    </div>
+                    <div
+                      *ngIf="
+                        !diagnosis?.symptoms || diagnosis.symptoms.length === 0
+                      "
+                    >
+                      N/A
+                    </div>
+                  </td>
+
+                  <td>{{ diagnosis.clinicalExamination }}</td>
+                  <td>
+                    <div
+                      *ngIf="
+                        diagnosis?.packages && diagnosis.packages.length > 0
+                      "
+                    >
+                      <ul>
+                        <li *ngFor="let med of diagnosis.packages">
+                          {{ med.medicineName }}
+                        </li>
+                      </ul>
+                    </div>
+                    <div
+                      *ngIf="
+                        !diagnosis?.packages || diagnosis.packages.length === 0
+                      "
+                    >
+                      N/A
+                    </div>
+                    {{ diagnosis.createdAt | date : "medium" }}
+                  </td>
+                  <td>{{ diagnosis.createdBy?.name }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- No Diagnosis Template -->
+          <div class="empty-state" *ngIf="!diagnosis && !isDiagnosisHistory">
+            <div class="empty-icon">📊</div>
+            <p>There are no diagnosis records to display for this patient</p>
+            <button
+              *ngIf="hasModuleAccess('diagnosisSheet', 'create')"
+              class="record-link"
+              (click)="onClickDiagnosis(ipdCase._id)"
+            >
+              Record Indoor Case
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Diagnosis sections for other navigation items -->
+
+      <!-- treatment sheet  -->
+      <div
+        *ngIf="
+          shouldShowContent('treatmentsheet') &&
+          hasModuleAccess('treatmentSheet', 'read')
+        "
+        class="content-section"
+      >
+        <div class="section-header">
+          <h3>Treatment Sheet</h3>
+          <button
+            class="record-btn"
+            *ngIf="hasModuleAccess('treatmentSheet', 'create')"
+            (click)="onClickTreatmentsheet(ipdCase._id)"
+          >
+            Add Treatment →
+          </button>
+        </div>
+
+        <!-- Empty State if no treatment sheet -->
+        <div class="empty-state" *ngIf="!treatmentSheet?.length">
+          <div class="empty-icon">📊</div>
+          <p>
+            There are no treatment sheet records to display for this patient
+          </p>
+          <button
+            *ngIf="hasModuleAccess('treatmentSheet', 'create')"
+            class="record-link"
+            (click)="onClickTreatmentsheet(ipdCase._id)"
+          >
+            Record Treatment Sheet
+          </button>
+        </div>
+
+        <div class="vitals-container" *ngFor="let record of treatmentSheet">
+          <div class="vitals-header">
+            <span class="recorded-date" *ngIf="treatmentSheet.length > 0"
+              >Recorded On: {{ record.createdAt | date : "medium" }}
+              <span class="recorded-date mx-2"
+                >Recorded By: {{ record.createdBy?.name }}
+              </span>
+              <span *ngIf="record.updatedBy" class="recorded-date mx-2"
+                >Updated By: {{ record.updatedBy?.name }}
+              </span>
+            </span>
+            <span class="recorded-date"
+              ><i
+                *ngIf="hasModuleAccess('treatmentSheet', 'update')"
+                class="fa-solid fa-pencil"
+                (click)="editTreatmentSheet(record._id)"
+              ></i
+            ></span>
+          </div>
+
+          <div class="vitals-grid">
+            <div class="vital-card">
+              <div class="vital-info">
+                <label>Drug</label>
+                <span class="vital-value">{{ record.drug }}</span>
+              </div>
+            </div>
+            <div class="vital-card">
+              <div class="vital-info">
+                <label>Dose</label>
+                <span class="vital-value">{{ record.dose }}</span>
+              </div>
+            </div>
+            <div class="vital-card">
+              <div class="vital-info">
+                <label>Route</label>
+                <span class="vital-value">{{ record.route }}</span>
+              </div>
+            </div>
+            <div class="vital-card">
+              <div class="vital-info">
+                <label>Frequency</label>
+                <span class="vital-value">{{ record.frequency }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- treatment sheet  -->
+
+      <!-- visit  -->
+      <div
+        *ngIf="shouldShowContent('visits') && hasModuleAccess('visitmaster')"
+        class="content-section"
+      >
+        <div class="section-header">
+          <h3>Doctor Visits/ Procedurial Visit</h3>
+          <button
+            *ngIf="hasModuleAccess('visitmaster', 'create')"
+            class="record-btn"
+            (click)="opemdalofcreatevisit(ipdCase._id)"
+          >
+            Record Visit →
+          </button>
+        </div>
+
+        <!-- Visits list OR empty state -->
+        <div
+          class="visits-container"
+          *ngIf="visits && visits.length > 0; else noVisits"
+        >
+          <div *ngFor="let visit of visits" class="visit-card">
+            <div class="visit-header">
+              <div class="visit-date-time">
+                <span class="visit-date">
+                  {{ visit.createdAt | date : "mediumDate" }}
+                </span>
+                <span class="visit-time">
+                  {{ visit.createdAt | date : "shortTime" }}
+                </span>
+              </div>
+
+              <!-- Manual / Auto badge -->
+              <span
+                class="visit-badge"
+                [ngClass]="visit.isManualEntry ? 'badge-manual' : 'badge-auto'"
+              >
+                {{ visit.isManualEntry ? "Outside Doctor" : "Hospital Doctor" }}
+              </span>
+
+              <span class="enter-by">
+                Entery by: {{ visit.createdBy?.name || visit.createdBy }}
+              </span>
+            </div>
+
+            <div class="visit-details">
+              <!-- Doctor card -->
+              <div class="doctor-card">
+                <div class="doctor-main">
+                  <span class="doctor-label">Doctor</span>
+                  <span class="doctor-name">
+                    <ng-container
+                      *ngIf="visit.isManualEntry; else autoDoctorName"
+                    >
+                      {{ visit.manualDoctorId?.name || visit.manualDoctorName }}
+                    </ng-container>
+                    <ng-template #autoDoctorName>
+                      {{ visit.doctorId?.name || "N/A" }}
+                    </ng-template>
+                  </span>
+                </div>
+
+                <!-- Doctor meta (manual OR auto safely) -->
+                <div class="doctor-meta">
+                  <span class="meta-item">
+                    <strong>Reg No:</strong>
+                    {{
+                      visit.isManualEntry
+                        ? visit.manualDoctorId?.reg_no || "N/A"
+                        : visit.doctorId?.reg_no || "N/A"
+                    }}
+                  </span>
+
+                  <span class="meta-item">
+                    <strong>Specialization:</strong>
+                    {{
+                      visit.isManualEntry
+                        ? visit.manualDoctorId?.specialization || "N/A"
+                        : visit.doctorId?.specialization || "N/A"
+                    }}
+                  </span>
+
+                  <span class="meta-item">
+                    <strong>Experience:</strong>
+                    {{
+                      visit.isManualEntry
+                        ? visit.manualDoctorId?.experience
+                          ? visit.manualDoctorId.experience + " yrs"
+                          : "N/A"
+                        : visit.doctorId?.experience
+                        ? visit.doctorId.experience + " yrs"
+                        : "N/A"
+                    }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Visit info -->
+              <div class="case-info">
+                <p><strong>Head:</strong> {{ visit.headName }}</p>
+                <p><strong>Type:</strong> {{ visit.visitType | titlecase }}</p>
+                <p><strong>Number of Visit:</strong> {{ visit.noOfVisits }}</p>
+                <p>
+                  <strong>Amount:</strong>
+                  {{ visit.amount | indianCurrency }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <ng-template #noVisits>
+          <div class="empty-state">
+            <div class="empty-icon">👨‍⚕️🩺</div>
+            <p>No visits recorded yet</p>
+            <button
+              *ngIf="hasModuleAccess('visitmaster', 'create')"
+              class="record-link"
+              (click)="opemdalofcreatevisit(ipdCase._id)"
+            >
+              Record Visit
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- visit -->
+
+      <!-- Pharma Request  -->
+      <!-- ✅ Pharmacy Requisition Section with Fixed Permission Checks -->
+      <!-- ✅ Enhanced Pharmacy Requisition Section -->
+      <!-- ✅ Pharmacy Requisition Section with Fixed Permission Checks -->
+      <!-- ✅ Enhanced Pharmacy Requisition Section -->
+      <div *ngIf="shouldShowContent('pharmaReq')" class="content-section">
+        <div class="section-header">
+          <h3>Pharmacy Requisition</h3>
+          <button
+            *ngIf="
+              hasModuleAccess(
+                ['pharmaceuticalRequestList', 'ipdpharmaceuticalRequestList'],
+                'create'
+              )
+            "
+            class="record-btn"
+            (click)="onClickPharmaReq(ipdCase._id)"
+          >
+            Add Pharmacy Request →
+          </button>
+        </div>
+
+        <!-- ✅ Enhanced Header with History Toggle and Filters -->
+        <div class="pharma-controls-container mb-3">
+          <div
+            class="d-flex justify-content-between align-items-center flex-wrap"
+          >
+            <div class="pharma-info">
+              <h6 class="mb-0">
+                <span class="badge me-2">
+                  {{ isPharmaHistory ? "History View" : "Today's Records" }}
+                </span>
+                <span class="text-muted">
+                  {{ getTotalPharmaCount() }} record(s) found
+                </span>
+              </h6>
+            </div>
+
+            <div class="pharma-actions d-flex align-items-center gap-2">
+              <!-- ✅ History Toggle Button -->
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-sm"
+                (click)="showPharmaHistory()"
+              >
+                <i class="fa-solid fa-clock me-1"></i>
+                {{ isPharmaHistory ? "Show Today" : "Show History" }}
+              </button>
+
+              <!-- ✅ Date Range Filters (Show only in history mode) -->
+              <div
+                *ngIf="isPharmaHistory"
+                class="date-filters d-flex align-items-center gap-2"
+              >
+                <label class="form-label mb-0 small text-muted">From:</label>
+                <input
+                  type="date"
+                  class="form-control form-control-sm"
+                  [(ngModel)]="pharmaStartDate"
+                  (change)="onPharmaDateChange()"
+                  style="width: 140px"
+                />
+
+                <label class="form-label mb-0 small text-muted">To:</label>
+                <input
+                  type="date"
+                  class="form-control form-control-sm"
+                  [(ngModel)]="pharmaEndDate"
+                  (change)="onPharmaDateChange()"
+                  style="width: 140px"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ Quick Date Buttons (History mode only) -->
+          <div *ngIf="isPharmaHistory" class="quick-date-filters mt-2">
+            <small class="text-muted me-2">Quick filters:</small>
+            <button
+              class="btn btn-outline-info btn-sm me-1"
+              (click)="setQuickDateRange('today')"
+            >
+              Today
+            </button>
+            <button
+              class="btn btn-outline-info btn-sm me-1"
+              (click)="setQuickDateRange('yesterday')"
+            >
+              Yesterday
+            </button>
+            <button
+              class="btn btn-outline-info btn-sm me-1"
+              (click)="setQuickDateRange('thisWeek')"
+            >
+              This Week
+            </button>
+            <button
+              class="btn btn-outline-info btn-sm me-1"
+              (click)="setQuickDateRange('thisMonth')"
+            >
+              This Month
+            </button>
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              (click)="clearDateRange()"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- ✅ Display Pharmacy Data -->
+        <div *ngIf="pharmaRequisitions.length > 0; else noData">
+          <div
+            *ngFor="let record of pharmaRequisitions; let i = index"
+            class="pharma-record-card mb-3 p-3 border rounded shadow-sm"
+          >
+            <!-- ✅ Enhanced Record Header with User Info -->
+            <div
+              class="record-header d-flex justify-content-between align-items-center mb-3"
+            >
+              <div class="record-info d-flex justify-content-evenly">
+                <div class="mb-1">
+                  <span
+                    class="text-muted small"
+                    *ngIf="record.pharmacistUserId?.name"
+                  >
+                    <i class="fa-solid fa-user-md me-1"></i>
+                    Requisition Created by:
+                    <strong>{{ record.pharmacistUserId.name }}</strong>
+                  </span>
+                  <span class="text-muted small">
+                    | {{ record.createdAt | date : "medium" }}
+                  </span>
+                </div>
+
+                <!-- ✅ Status Badge -->
+                <!-- <div *ngIf="record.status"> -->
+                <!-- <span
+              class="badge small"
+              [class.bg-warning]="record.status === 'pending'"
+              [class.bg-success]="record.status === 'completed'"
+              [class.bg-info]="record.status === 'in-progress'"
+              [class.bg-secondary]="record.status === 'cancelled'">
+              {{ record.status | titlecase }}
+            </span> -->
+
+                <!-- </div> -->
+              </div>
+              <!-- Record Actions -->
+              <!-- <div class="record-actions">
+          <button
+            *ngIf="hasModuleAccess('pharmaceuticalRequestList', 'update')"
+            class="btn btn-outline-primary btn-sm me-2"
+            (click)="editPharmacyRequest(record._id)"
+            title="Edit Pharmacy Request">
+            <i class="fa-solid fa-pencil"></i>
+          </button>
+        </div> -->
+            </div>
+            <hr />
+
+            <!-- Medicine List -->
+            <div class="medicines-list">
+              <h6 class="text-muted mb-2">
+                Prescribed Medicines ({{ record.packages?.length || 0 }})
+              </h6>
+
+              <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Medicine Name</th>
+                      <th class="text-center">Qty</th>
+                      <th class="text-center">Dosage Timing</th>
+                      <th *ngIf="record.packages?.[0]?.dosageInstruction">
+                        Instructions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let medicine of record.packages; let j = index">
+                      <td>
+                        <strong>{{ medicine.medicineName }}</strong>
+                      </td>
+                      <td class="text-center">
+                        <span class="badge bg-light text-dark">{{
+                          medicine.quantity
+                        }}</span>
+                      </td>
+                      <td class="text-center">
+                        <div class="dosage-info">
+                          <span
+                            *ngIf="medicine.checkbox?.morning"
+                            class="badge bg-warning text-dark me-1 mb-1"
+                            title="Morning"
+                          >
+                            Mor
+                          </span>
+                          <span
+                            *ngIf="medicine.checkbox?.noon"
+                            class="badge bg-info text-white me-1 mb-1"
+                            title="Afternoon"
+                          >
+                            Aft
+                          </span>
+                          <span
+                            *ngIf="medicine.checkbox?.evening"
+                            class="badge bg-orange text-white me-1 mb-1"
+                            title="Evening"
+                          >
+                            Eve
+                          </span>
+                          <span
+                            *ngIf="medicine.checkbox?.night"
+                            class="badge bg-dark text-white me-1 mb-1"
+                            title="Night"
+                          >
+                            Night
+                          </span>
+                          <small
+                            class="text-muted d-block"
+                            *ngIf="
+                              !medicine.checkbox?.morning &&
+                              !medicine.checkbox?.noon &&
+                              !medicine.checkbox?.evening &&
+                              !medicine.checkbox?.night
+                            "
+                          >
+                            No timing specified
+                          </small>
+                        </div>
+                      </td>
+                      <td *ngIf="medicine.dosageInstruction">
+                        <small class="text-muted">{{
+                          medicine.dosageInstruction
+                        }}</small>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ Enhanced No Data Template -->
+        <ng-template #noData>
+          <div class="empty-state text-center py-5">
+            <div class="empty-icon mb-3">
+              <i class="fa-solid fa-pills fa-3x text-muted"></i>
+            </div>
+            <h5 class="text-muted">
+              {{
+                isPharmaHistory
+                  ? "No Records Found for Selected Date Range"
+                  : "No Pharmacy Requisitions Today"
+              }}
+            </h5>
+            <p class="text-muted">
+              {{
+                isPharmaHistory
+                  ? "Try adjusting your date range or check other dates."
+                  : "No pharmacy requisitions found for today. Add a new request to get started."
+              }}
+            </p>
+            <button
+              *ngIf="
+                hasModuleAccess(
+                  ['pharmaceuticalRequestList', 'diagnosisSheet'],
+                  'create'
+                )
+              "
+              class="btn record-link"
+              (click)="onClickPharmaReq(ipdCase._id)"
+            >
+              <!-- <i class="fa-solid fa-plus me-2"></i> -->
+              Add Pharmacy Request
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Pharma Request  -->
+
+      <!-- Pharma Request  -->
+
+      <!-- Pathology Request   -->
+      <div
+        *ngIf="
+          shouldShowContent('pathologyReq') &&
+          hasModuleAccess('departmentRequestList', 'create')
+        "
+        class="content-section"
+      >
+        <div class="section-header">
+          <h3>Pathology Requisition</h3>
+          <button
+            *ngIf="hasModuleAccess('departmentRequestList', 'create')"
+            class="record-btn"
+            (click)="onClickPathologyReq(ipdCase._id)"
+          >
+            + Add Pathology Request
+          </button>
+        </div>
+      </div>
+      <!-- Pathology Request   -->
+
+      <!-- Radiology request  -->
+      <div
+        *ngIf="
+          shouldShowContent('radioReq') &&
+          hasModuleAccess('departmentRequestList', 'create')
+        "
+        class="content-section"
+      >
+        <div class="section-header">
+          <h3>Radiology Requisition</h3>
+          <button
+            *ngIf="hasModuleAccess('departmentRequestList', 'create')"
+            class="record-btn"
+            (click)="onClickRadiologyReq(ipdCase._id)"
+          >
+            + Add Radiology Request
+          </button>
+        </div>
+      </div>
+      <!-- Radiology request  -->
+
+      <!-- Room Transfer  -->
+
+      <div
+        *ngIf="
+          shouldShowContent('roomTransfer') &&
+          hasModuleAccess('inpatientRoomTransfer', 'create')
+        "
+        class="content-section"
+      >
+        <!-- Section Header -->
+        <div
+          class="section-header d-flex justify-content-between align-items-center mb-4"
+        >
+          <h3>Room Log</h3>
+          <div class="d-flex">
+            <!-- [routerLink]="['/ipd/ipdroomtransferlist']"
+            routerLinkActive="router-link-active" -->
+            <i
+              class="fa solid fa-signal"
+              (click)="renderOnRoomTransferList(ipdCase._id)"
+            >
+            </i>
+            <button
+              class="record-btn"
+              (click)="onClickRoomTransfer(ipdCase._id)"
+            >
+              Room Transfer →
+            </button>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="!transferData">
+          <div class="empty-icon">📊</div>
+          <p>There are no room transfer records to display for this patient</p>
+          <button
+            *ngIf="hasModuleAccess('inpatientRoomTransfer', 'create')"
+            class="record-link"
+            (click)="onClickRoomTransfer(ipdCase._id)"
+          >
+            Room Transfer
+          </button>
+        </div>
+
+        <!-- Primary & Current Bed -->
+        <div *ngIf="transferData">
+          <div class="mb-5">
+            <!-- Primary & Current Bed -->
+            <div
+              class="primary-current-bed mb-4 p-4 border rounded shadow-sm bg-light"
+            >
+              <div class="row">
+                <div class="mt-2">
+                  <!-- <span class="badge bg-success me-2">Room Charge: {{ transfer.roomCharge }}</span> -->
+                  <!-- <span class="badge bg-info me-2">Bed Charge: {{ transfer.bedCharge }}</span> -->
+                  <span class="badge"
+                    >Created:
+                    {{
+                      transferData.createdAt | date : "dd-MM-yyyy hh:mm a"
+                    }}</span
+                  >
+                  <span class="badge"
+                    >Updated:
+                    {{
+                      transferData.updatedAt | date : "dd-MM-yyyy hh:mm a"
+                    }}</span
+                  >
+                </div>
+                <div class="col-md-6 mb-3">
+                  <h5 class="mb-2">Primary Bed</h5>
+                  <p class="mb-0">
+                    <strong>Ward:</strong> {{ transferData.primaryBed?.wardName
+                    }}<br />
+                    <strong>Room:</strong>
+                    {{ transferData.primaryBed?.roomNumber }}<br />
+                    <strong>Bed:</strong> {{ transferData.primaryBed?.bedNumber
+                    }}<br />
+                    <strong>Assigned:</strong>
+                    {{
+                      transferData.primaryBed?.assignedDate
+                        | date : "dd MMM yyyy hh:mm:ss a"
+                    }}
+                  </p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <h5 class="mb-2">Current Bed</h5>
+                  <p class="mb-0">
+                    <strong>Ward:</strong> {{ transferData.currentBed?.wardName
+                    }}<br />
+                    <strong>Room:</strong>
+                    {{ transferData.currentBed?.roomNumber }}<br />
+                    <strong>Bed:</strong>
+                    {{ transferData.currentBed?.bedNumber }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Room daily log  -->
+            <div>
+              <h5>Daily Room Log</h5>
+              <table
+                class="table table-bordered table-hover align-middle diagnosis-table"
+              >
+                <thead class="table-dark">
+                  <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Room</th>
+                    <th>Bed</th>
+                    <th>Room Charge</th>
+                    <th>Bed Charge</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let log of transferData.dailyRoomChargeLogs;
+                      let i = index
+                    "
+                  >
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ log.date | date : "dd-MM-yyyy" }}</td>
+                    <td>
+                      {{ log.roomNumber }}
+                      <small class="badge"> {{ log.remarks }} </small>
+                    </td>
+                    <td>{{ log.bedNumber }}</td>
+                    <td>{{ log.roomCharge }}</td>
+                    <td>{{ log.bedCharge }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- Room daily log  -->
+
+            <!-- Transfer Timeline -->
+            <div class="transfers-list">
+              <h5 class="mb-3">Transfer History</h5>
+              <div class="timeline" *ngIf="transferData.transfers.length > 0">
+                <div
+                  *ngFor="let transfer of transferData.transfers; let i = index"
+                  class="timeline-item mb-4 position-relative"
+                >
+                  <!-- Vertical Line -->
+                  <div
+                    class="position-absolute top-0 start-0 h-100 border-start border-3 border-primary"
+                    style="left: 15px"
+                  ></div>
+
+                  <!-- Dot Indicator -->
+                  <div
+                    class="position-absolute top-0 start-0 bg-primary rounded-circle"
+                    style="
+                      width: 30px;
+                      height: 30px;
+                      left: 0;
+                      text-align: center;
+                      color: white;
+                      line-height: 30px;
+                    "
+                  >
+                    {{ i + 1 }}
+                  </div>
+
+                  <!-- Card -->
+                  <div
+                    class="transfer-card p-3 ps-5 border rounded shadow-sm bg-white"
+                  >
+                    <div class="d-flex justify-content-between mb-2">
+                      <h6 class="mb-0">
+                        {{ transfer.transferType | titlecase }} Transfer
+                      </h6>
+                      <!-- <small class="text-muted">
+                      {{ transfer.transferStartTime | date:'dd-MM-yyyy hh:mm a' }}
+                      -
+                      {{ transfer.transferEndTime ? (transfer.transferEndTime | date:'dd-MM-yyyy hh:mm a') : 'In Progress' }}
+                    </small> -->
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 mb-2">
+                        <p class="mb-1">
+                          <strong>From:</strong> {{ transfer.from.wardName }} /
+                          {{ transfer.from.roomNumber }} /
+                          {{ transfer.from.bedNumber }}
+                        </p>
+                        <p class="mb-1">
+                          <strong>To:</strong> {{ transfer.to.wardName }} /
+                          {{ transfer.to.roomNumber }} /
+                          {{ transfer.to.bedNumber }}
+                        </p>
+                        <p class="mb-1">
+                          <strong>Transfer started:</strong>
+                          {{
+                            transfer.transferStartTime
+                              | date : "dd-MM-yyyy hh:mm a"
+                          }}
+                        </p>
+                        <p class="mb-1">
+                          <strong>Transfer ended:</strong>
+                          {{
+                            transfer.transferEndTime
+                              ? (transfer.transferEndTime
+                                | date : "dd-MM-yyyy hh:mm a")
+                              : "In Progress"
+                          }}
+                        </p>
+                      </div>
+                      <div class="col-md-6 mb-2">
+                        <p class="mb-1">
+                          <strong>Transferred By:</strong>
+                          {{ getUserName(transfer.transferredBy) }}
+                        </p>
+                        <p class="mb-0">
+                          <strong>Reason:</strong>
+                          {{ transfer.transferReason || "-" }}<br />
+                          <strong>Remark:</strong> {{ transfer.remark || "-" }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="mt-2">
+                      <span class="badge bg-success me-2"
+                        >Room Charge: {{ transfer.roomCharge }}</span
+                      >
+                      <span class="badge bg-info me-2"
+                        >Bed Charge: {{ transfer.bedCharge }}</span
+                      >
+                      <span
+                        *ngIf="transfer?.totalCharge"
+                        class="badge bg-info me-2"
+                        >Total Charge: {{ transfer.totalCharge }}</span
+                      >
+                      <!-- <span class="badge">Created: {{ data.createdAt | date:'dd-MM-yyyy hh:mm a' }}</span> -->
+                      <!-- <span class="badge">Updated: {{ data.updatedAt | date:'dd-MM-yyyy hh:mm a' }}</span> -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="empty-state"
+                *ngIf="transferData.transfers.length === 0"
+              >
+                <div class="empty-icon">📊</div>
+                <p>
+                  There are no room transfer records to display for this patient
+                </p>
+                <button
+                  *ngIf="hasModuleAccess('inpatientRoomTransfer', 'create')"
+                  class="record-link"
+                  (click)="onClickRoomTransfer(ipdCase._id)"
+                >
+                  Room Transfer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Room Transfer  -->
+
+      <!-- OT sheet  -->
+      <div
+        *ngIf="
+          shouldShowContent('operationEntry') &&
+          hasModuleAccess('oprationTheatresheet', 'create')
+        "
+        class="content-section"
+      >
+        <div
+          class="section-header d-flex justify-content-between align-items-center mb-3"
+        >
+          <h3 class="mb-0">Operation Entry</h3>
+          <button class="record-btn" (click)="onClickOTSheet(ipdCase._id)">
+            Add Operation Entry →
+          </button>
+        </div>
+
+        <ng-container *ngIf="!otsheetList || otsheetList.length === 0">
+          <div class="empty-state text-center">
+            <div class="empty-icon" style="font-size: 3rem">📊</div>
+            <p>
+              There are no Operation Entry records to display for this patient
+            </p>
+            <button
+              *ngIf="hasModuleAccess('oprationTheatresheet', 'create')"
+              class="record-link"
+              (click)="onClickOTSheet(ipdCase._id)"
+            >
+              Add Operation Entry
+            </button>
+          </div>
+        </ng-container>
+
+        <div *ngIf="otsheetList && otsheetList.length > 0">
+          <div
+            class="operation-list-section mb-4 p-3 rounded"
+            style="background: #fff; border: 1px solid #e9ecef"
+          >
+            <h5>Operations</h5>
+            <ul class="list-group">
+              <li
+                *ngFor="let entry of otsheetList; let i = index"
+                class="list-group-item cursor-pointer"
+                [class.active]="selectedOTIndex === i"
+                (click)="selectOTEntry(i)"
+              >
+                {{ getSurgeryNames(entry) }}
+                —
+                {{ entry.surgeryDate | date : "shortDate" }}
+                ({{ entry.surgeryStartTime | dateToIST }} -
+                {{ entry.surgeryEndTime | dateToIST }})
+                <br />
+                <small
+                  >Operation Entery by:
+                  {{ entry.createdBy?.name || entry.createdBy }}</small
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div
+            class="patient-info-section mb-4 p-3 rounded"
+            style="background: #fff; border: 1px solid #e9ecef"
+          >
+            <h5 class="mb-3 text-secondary">
+              <i class="fas fa-user-injured me-2"></i>Patient Information
+            </h5>
+            <div class="row">
+              <div class="col-md-6">
+                <p class="mb-2">
+                  <strong>Patient Name:</strong>
+                  {{ getPatientInfo().patient_name }}
+                </p>
+                <p class="mb-2">
+                  <strong>UHID:</strong> {{ getPatientInfo().uhid }}
+                </p>
+                <p class="mb-2">
+                  <strong>Age:</strong> {{ getPatientInfo().age }}
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p class="mb-2">
+                  <strong>Gender:</strong>
+                  {{ getPatientInfo().gender | titlecase }}
+                </p>
+                <p class="mb-2">
+                  <strong>IPD Case:</strong>
+                  {{ otsheetList[0]?.inpatientCaseId?.inpatientCaseNumber }}
+                </p>
+                <p class="mb-2">
+                  <strong>Mobile:</strong> {{ getPatientInfo().mobile_no }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            *ngIf="otsheetList[selectedOTIndex]"
+            class="ot-sheet-card mb-4 p-4 shadow-sm rounded"
+            style="background: #fff; border: 1px solid #e9ecef"
+          >
+            <div
+              class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3"
+            >
+              <div>
+                <h4 class="mb-1 text-primary">
+                  Operation Entry -
+                  {{ getSurgeryNames(otsheetList[selectedOTIndex]) }}
+                  <span *ngIf="otsheetList[selectedOTIndex].surgeryDate">
+                    ({{
+                      otsheetList[selectedOTIndex].surgeryDate
+                        | date : "mediumDate"
+                    }})
+                  </span>
+                </h4>
+                <small class="text-muted">
+                  Surgery Time:
+                  {{ otsheetList[selectedOTIndex].surgeryStartTime }} -
+                  {{ otsheetList[selectedOTIndex].surgeryEndTime }}
+                </small>
+              </div>
+            </div>
+
+            <!-- MANUAL Surgery/MODE -->
+            <div
+              *ngIf="
+                otsheetList[selectedOTIndex].manualEntryEnabled &&
+                otsheetList[selectedOTIndex].manualOperationEntries?.length
+              "
+            >
+              <h5 class="mb-3 text-secondary">Surgery Package Details</h5>
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Total Price</th>
+                      <th>Breakdown</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      *ngFor="
+                        let op of otsheetList[selectedOTIndex]
+                          .manualOperationEntries
+                      "
+                    >
+                      <td>{{ op.name }}</td>
+                      <td>{{ op.totalPrice | indianCurrency }}</td>
+                      <td>
+                        <table class="table table-sm">
+                          <thead>
+                            <tr>
+                              <th>Charge Type</th>
+                              <th>Amount</th>
+                              <th>Staff Name</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let ch of op.breakdown">
+                              <td>{{ ch.chargeType }}</td>
+                              <td>{{ ch.amount | indianCurrency }}</td>
+                              <td>{{ ch.staffName }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- PACKAGE Mode -->
+            <div
+              *ngIf="
+                !otsheetList[selectedOTIndex].manualEntryEnabled &&
+                otsheetList[selectedOTIndex].surgeryPackage
+              "
+            >
+              <h5 class="mb-3 text-secondary">Surgery Package Details</h5>
+              <div
+                class="surgery-package-card border rounded p-4 shadow-sm"
+                style="background: #fdfdfd"
+              >
+                <h6 class="mb-3 text-primary">
+                  {{ otsheetList[selectedOTIndex].surgeryPackage?.name }}
+                </h6>
+                <p
+                  class="mb-2"
+                  *ngIf="otsheetList[selectedOTIndex].surgeryPackage?.duration"
+                >
+                  <strong>Duration:</strong>
+                  {{ otsheetList[selectedOTIndex].surgeryPackage?.duration }}
+                  day(s)
+                </p>
+              </div>
+
+              <div
+                class="room-breakdown-section mb-4"
+                *ngIf="
+                  otsheetList[selectedOTIndex].surgeryPackage?.roomWiseBreakdown
+                "
+              >
+                <h5 class="mb-3 text-secondary">Room-wise Package Breakdown</h5>
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Room Type</th>
+                        <th>Description</th>
+                        <th>Package Price</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let room of otsheetList[selectedOTIndex]
+                            .surgeryPackage?.roomWiseBreakdown
+                        "
+                        [class.table-success]="
+                          room.packagePrice ===
+                          otsheetList[selectedOTIndex].netAmount
+                        "
+                      >
+                        <td>
+                          <strong>{{ room.roomName }}</strong>
+                          <i
+                            *ngIf="
+                              room.packagePrice ===
+                              otsheetList[selectedOTIndex].netAmount
+                            "
+                            class="fas fa-check-circle text-success ms-2"
+                            title="Selected Room Type"
+                          ></i>
+                        </td>
+                        <td class="text-muted">{{ room.roomDescription }}</td>
+                        <td>
+                          <strong
+                            [class.text-success]="
+                              room.packagePrice ===
+                              otsheetList[selectedOTIndex].netAmount
+                            "
+                          >
+                            {{ room.packagePrice | indianCurrency }}
+                          </strong>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="ot-details-section mb-4 p-3 rounded"
+              style="background: #f8f9fa"
+            >
+              <h5 class="mb-3 text-secondary">
+                Anesthesia & Equipment Details
+              </h5>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="detail-item mb-3">
+                    <strong class="text-muted d-block">Anesthesia Type</strong>
+                    <span class="text-capitalize">
+                      {{ otsheetList[selectedOTIndex].anesthesiaType }}
+                    </span>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-item mb-3">
+                    <strong>Anesthesia Risk:</strong>
+                    <span
+                      class="badge"
+                      [ngClass]="
+                        otsheetList[selectedOTIndex].highRisk
+                          ? 'bg-danger'
+                          : 'bg-success'
+                      "
+                    >
+                      {{ otsheetList[selectedOTIndex].highRisk ? "Yes" : "No" }}
+                    </span>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-item mb-3">
+                    <strong class="text-muted d-block">Equipment Used</strong>
+                    <span class="text-capitalize">{{
+                      otsheetList[selectedOTIndex].equipmentUsed
+                    }}</span>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="detail-item mb-3">
+                    <strong class="text-muted d-block">Implant Details</strong>
+                    <span class="text-capitalize">{{
+                      otsheetList[selectedOTIndex].implantDetails
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="billing-section p-4 rounded"
+              style="
+                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                border-left: 4px solid #28a745;
+              "
+            >
+              <h5 class="mb-3 text-secondary">
+                <i class="fas fa-file-invoice-dollar me-2"></i>Billing Summary
+              </h5>
+              <div class="row align-items-center">
+                <div class="col-md-8">
+                  <p class="mb-1 text-muted">
+                    {{
+                      otsheetList[selectedOTIndex].manualEntryEnabled
+                        ? "Manual Surgery Total (No Package/Room Charges)"
+                        : "Final Amount After Room Selection"
+                    }}
+                  </p>
+                  <small class="text-muted">
+                    {{
+                      otsheetList[selectedOTIndex].manualEntryEnabled
+                        ? "Includes all manual charge breakdowns"
+                        : "Includes surgery package and selected room charges"
+                    }}
+                  </small>
+                </div>
+                <div class="col-md-4 text-end">
+                  <div
+                    class="final-amount p-3 rounded"
+                    style="background: white; border: 2px solid #28a745"
+                  >
+                    <h3 class="mb-0 text-success">
+                      {{
+                        otsheetList[selectedOTIndex].netAmount | indianCurrency
+                      }}
+                    </h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- <div class="action-buttons mt-4 text-end border-top pt-3">
+              <button
+                class="btn btn-outline-primary me-2"
+                (click)="editOTsheet(otsheetList[selectedOTIndex]._id)"
+              >
+                <i class="fas fa-edit me-1"></i>Edit Entry
+              </button>
+            </div> -->
+          </div>
+        </div>
+      </div>
+
+      <!-- OT sheet  -->
+
+      <!-- OT Notes  -->
+      <div
+        *ngIf="
+          shouldShowContent('Otsheet') &&
+          hasModuleAccess('operationTheatreNotes', 'create')
+        "
+        class="content-section"
+      >
+        <!-- Header Section -->
+        <div class="section-header">
+          <h3>OT Sheets</h3>
+          <button
+            *ngIf="hasModuleAccess('operationTheatreNotes', 'create')"
+            class="record-btn"
+            (click)="onClickOTNotes(ipdCase._id)"
+          >
+            Add OT Sheet →
+          </button>
+        </div>
+
+        <div class="empty-state" *ngIf="!otnotes || otnotes.length === 0">
+          <div class="empty-icon">📊</div>
+          <p>There are no OT Sheet records to display for this patient</p>
+          <button
+            *ngIf="hasModuleAccess('operationTheatreNotes', 'create')"
+            class="record-link"
+            (click)="onClickOTNotes(ipdCase._id)"
+          >
+            Record OT Sheet
+          </button>
+        </div>
+
+        <!-- OT Notes List -->
+        <div *ngFor="let note of otnotes" class="ot-sheet-card">
+          <!-- Patient Details Section -->
+          <!-- <div class="operation-section">
+            <h3>Patient Details</h3>
+            <div class="details-grid">
+              <p><strong>Name:</strong> {{ note.patient_name }}</p>
+              <p><strong>UHID:</strong> {{ note.uhid }}</p>
+              <p><strong>Age:</strong> {{ note.age }}</p>
+              <p><strong>Bed:</strong> {{ note.bed }}</p>
+            </div>
+          </div> -->
+
+          <!-- Operation Info Section -->
+          <div class="operation-section">
+            <h3>Operation Details</h3>
+            <div class="details-grid">
+              <p><strong>Doctor:</strong> {{ note.doctor }}</p>
+              <p><strong>Surgeon:</strong> {{ note.surgeon_name }}</p>
+              <p><strong>Procedure:</strong> {{ note.procedure_name }}</p>
+              <p><strong>Anesthesia:</strong> {{ note.anethesia }}</p>
+            </div>
+          </div>
+
+          <!-- Timing Section -->
+          <div class="operation-section">
+            <h3>Timing</h3>
+            <div class="details-grid">
+              <p>
+                <strong>Start:</strong> {{ note.startingdate | date }}
+                {{ note.startingtime }}
+              </p>
+              <p>
+                <strong>End:</strong> {{ note.endingdate | date }}
+                {{ note.endingtime }}
+              </p>
+              <p>
+                <strong>In:</strong> {{ note.indate | date }} {{ note.intime }}
+              </p>
+              <p>
+                <strong>Out:</strong> {{ note.outdate | date }}
+                {{ note.outtime }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Notes Section -->
+          <div class="operation-section row g-2">
+            <h3>Notes</h3>
+            <div class="col-md-6">
+              <p><strong>Procedure Details:</strong> {{ note.otprocedure }}</p>
+              <p><strong>Operation Note:</strong> {{ note.operation_note }}</p>
+              <p>
+                <strong>Anesthesia Note:</strong> {{ note.anesthesia_note }}
+              </p>
+              <p>
+                <strong>Post-Op Order:</strong> {{ note.postoperativeorder }}
+              </p>
+              <p><strong>Closure:</strong> {{ note.closure }}</p>
+              <p><strong>Shifting:</strong> {{ note.shifting }}</p>
+              <p><strong>Remarks:</strong> {{ note.remark }}</p>
+            </div>
+            <div class="col-md-6">
+              <p><strong>Consent:</strong> {{ note.consent }}</p>
+              <p><strong>Position:</strong> {{ note.position }}</p>
+              <p><strong>Skin Incision:</strong> {{ note.skin_incision }}</p>
+              <p><strong>Approach:</strong> {{ note.approach }}</p>
+              <p><strong>Steps:</strong> {{ note.steps }}</p>
+            </div>
+          </div>
+
+          <!-- Staff Section -->
+          <div class="operation-section">
+            <h3>Staff Involved</h3>
+            <div class="details-grid">
+              <p><strong>Anesthetist:</strong> {{ note.anesthetist }}</p>
+              <p>
+                <strong>Circulatory Staff:</strong> {{ note.circulatory_staff }}
+              </p>
+              <p><strong>Scrub Nurse 1:</strong> {{ note.scrub_nurse_1 }}</p>
+              <p><strong>Scrub Nurse 2:</strong> {{ note.scrub_nurse_2 }}</p>
+            </div>
+          </div>
+
+          <div class="operation-footer">
+            <span>Last Updated: {{ note.updatedAt | date : "medium" }}</span>
+          </div>
+        </div>
+      </div>
+      <!-- OT Notes  -->
+
+      <!-- Daily progress report  -->
+      <div
+        *ngIf="
+          shouldShowContent('dailyprogressReport') &&
+          hasModuleAccess('dailyProgressReport', 'create')
+        "
+        class="content-section"
+      >
+        <div class="section-header">
+          <h3>Daily Progress</h3>
+          <button
+            *ngIf="hasModuleAccess('dailyProgressReport', 'create')"
+            class="record-btn"
+            (click)="onClickDailyProgressReport(ipdCase._id)"
+          >
+            Add Daily Progress →
+          </button>
+        </div>
+
+        <div class="vitals-container p-2">
+          <div class="d-flex justify-content-between my-2">
+            <div>
+              <button
+                type="button"
+                value="dateRange"
+                class="record-btn"
+                (click)="showDailyProgressHistory()"
+              >
+                {{ isProgressHistory ? "Today" : "History" }}
+              </button>
+            </div>
+            <div class="d-flex" *ngIf="isProgressHistory">
+              <input
+                type="date"
+                [(ngModel)]="startDate"
+                (change)="applyFilters(allProgressdata)"
+                class="form-control mx-2"
+              />
+              <input
+                type="date"
+                [(ngModel)]="endDate"
+                (change)="applyFilters(allProgressdata)"
+                class="form-control mx-2"
+              />
+            </div>
+          </div>
+
+          <div class="empty-state" *ngIf="!progressdata && !isProgressHistory">
+            <div class="empty-icon">📊</div>
+            <p>No report available for this patient.</p>
+            <button
+              *ngIf="hasModuleAccess('dailyProgressReport', 'create')"
+              class="record-link"
+              (click)="onClickDailyProgressReport(ipdCase._id)"
+            >
+              Add Daily Progress
+            </button>
+          </div>
+
+          <div
+            *ngIf="progressdata && !isProgressHistory"
+            class="container py-4"
+          >
+            <!-- Recorded Info -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <small class="text-secondary">
+                Recorded On:
+                <span class="fw-semibold">{{
+                  progressdata.createdAt | date : "medium"
+                }}</span>
+              </small>
+              <small class="text-secondary">
+                Recorded By:
+                <span class="fw-semibold">{{
+                  progressdata.createdBy?.name
+                }}</span>
+              </small>
+            </div>
+
+            <div
+              *ngIf="progressdata?.diagnosisCase"
+              class="card mb-4 shadow-sm"
+            >
+              <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Case of Diagnosis</h5>
+              </div>
+              <div class="card-body">
+                <div class="row mb-2">
+                  <div class="col-md-6">
+                    {{ progressdata.diagnosisCase }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="progressdata?.treatment" class="card mb-4 shadow-sm">
+              <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Treatment</h5>
+              </div>
+              <div class="card-body">
+                <div class="row mb-2">
+                  {{ progressdata.treatment }}
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="progressdata?.advice" class="card mb-4 shadow-sm">
+              <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Advice</h5>
+              </div>
+              <div class="card-body">
+                <div class="row mb-2">
+                  <div class="col-md-6">
+                    {{ progressdata.advice }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vitals Card -->
+            <div *ngIf="progressdata?.vitals" class="card shadow-sm">
+              <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Vitals</h5>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-sm-6 col-md-4">
+                    <strong>BP:</strong>
+                    {{ progressdata.vitals.systolicBloodPressure }}/{{
+                      progressdata.vitals.diastolicBloodPressure
+                    }}
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <strong>Temp:</strong>
+                    {{ progressdata.vitals.temperature }} °F
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <strong>Pulse:</strong> {{ progressdata.vitals.pulseRate }}
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <strong>Resp Rate:</strong>
+                    {{ progressdata.vitals.respiratoryRate || "N/A" }}
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <strong>SPO₂:</strong> {{ progressdata.vitals.spo2 }}
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <strong>Blood Sugar:</strong>
+                    {{ progressdata.vitals.bloodSugar }}
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <strong>Weight:</strong> {{ progressdata.vitals.weight }} kg
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <strong>Blood Group:</strong>
+                    {{ progressdata.vitals.bloodGroup }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="table-responsive"
+            *ngIf="isProgressHistory && filtered.length > 0"
+          >
+            <table class="table table-bordered table-hover align-middle">
+              <thead class="table-dark text-center">
+                <tr>
+                  <th>#</th>
+                  <th>BP (Sys/Dia)</th>
+                  <th>Temp (°F)</th>
+                  <th>Pulse</th>
+                  <th>Resp Rate</th>
+                  <th>SPO2</th>
+                  <th>Blood Sugar</th>
+                  <th>Case of Diagnosis</th>
+                  <th>Treatment</th>
+                  <th>Advice</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Doctor Name</th>
+                  <th>Recorded By</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let report of filtered; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ report.vitals?.systolicBloodPressure }}</td>
+                  <td>{{ report.vitals?.temperature }}</td>
+                  <td>{{ report.vitals?.pulseRate }}</td>
+                  <td>{{ report.vitals?.respiratoryRate }}</td>
+                  <td>{{ report.vitals?.spo2 }}</td>
+                  <td>{{ report.vitals?.bloodSugar }}</td>
+
+                  <td>{{ report.diagnosisCase }}</td>
+                  <td>{{ report.treatment }}</td>
+                  <td>{{ report.advice }}</td>
+                  <td>{{ report.Date | date : "dd-MM-yyyy" }}</td>
+                  <td>{{ report.Time }}</td>
+                  <td>{{ report.DoctorName }}</td>
+                  <td>{{ report.createdBy?.name }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- Daily progress report  -->
+
+      <!-- Treatment sheet  -->
+      <div
+        *ngIf="
+          shouldShowContent('treatmentsheet2') &&
+          hasModuleAccess('treatmentHistorySheet', 'create')
+        "
+        class="content-section"
+      >
+        <!-- Section Header -->
+        <div class="section-header">
+          <h3>Treatment Sheet</h3>
+          <button
+            *ngIf="hasModuleAccess('treatmentHistorySheet', 'create')"
+            class="record-btn"
+            (click)="onClickTreatmentSheet(ipdCase._id)"
+          >
+            Add Treatment Sheet
+          </button>
+        </div>
+
+        <!-- Empty State if no treatment sheet -->
+        <div class="empty-state" *ngIf="!treatmentsheet?.length">
+          <div class="empty-icon">📊</div>
+          <p>
+            There are no treatment sheet records to display for this patient
+          </p>
+          <button
+            *ngIf="hasModuleAccess('treatmentHistorySheet', 'create')"
+            class="record-link"
+            (click)="onClickTreatmentSheet(ipdCase._id)"
+          >
+            Record Treatment Sheet
+          </button>
+        </div>
+
+        <!-- Admission Card -->
+        <div class="card admission-card" *ngIf="treatmentsheet?.length">
+          <div class="card-header">🏥 Admission Details</div>
+          <div class="card-body">
+            <p>
+              <strong>Case Number:</strong>
+              {{ treatmentsheet[0].inpatientCaseId?.inpatientCaseNumber }}
+            </p>
+            <p>
+              <strong>Patient Type:</strong>
+              {{ treatmentsheet[0].inpatientCaseId?.patient_type }}
+            </p>
+            <p>
+              <strong>Admission:</strong>
+              {{
+                treatmentsheet[0].inpatientCaseId?.admissionDate
+                  | date : "mediumDate"
+              }}
+              at
+              {{
+                treatmentsheet[0].inpatientCaseId?.admissionTime
+                  | date : "hh:mm a"
+              }}
+            </p>
+            <p>
+              <strong>Doctor:</strong>
+              {{ treatmentsheet[0].inpatientCaseId?.admittingDoctorId?.name }}
+            </p>
+            <p>
+              <strong>Bed:</strong>
+              {{ treatmentsheet[0].inpatientCaseId?.bed_id?.bed_number }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Medicines Card -->
+        <div
+          class="card medicines-card"
+          *ngIf="treatmentsheet[0]?.medicalId?.length"
+        >
+          <div class="card-header">💊 Medicines</div>
+          <div class="card-body">
+            <table class="hospital-table">
+              <thead>
+                <tr>
+                  <th>Medicine Name</th>
+                  <th>Dosage</th>
+                  <th>Quantity</th>
+                  <th>Schedule</th>
+                  <th>Status</th>
+                  <th>Charge</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let med of treatmentsheet[0].medicalId">
+                  <td>{{ med.packages[0]?.medicineName }}</td>
+                  <td>{{ med.packages[0]?.dosageInstruction }}</td>
+                  <td>{{ med.packages[0]?.quantity }}</td>
+                  <td>
+                    <ng-container
+                      *ngFor="
+                        let key of ['morning', 'noon', 'evening', 'night']
+                      "
+                    >
+                      <span
+                        class="badge active"
+                        *ngIf="med.packages[0]?.checkbox[key]"
+                      >
+                        {{
+                          key === "morning"
+                            ? "M"
+                            : key === "noon"
+                            ? "N"
+                            : key === "evening"
+                            ? "E"
+                            : "Nt"
+                        }}
+                      </span>
+                    </ng-container>
+                  </td>
+                  <td>
+                    <span
+                      [class.completed]="med.status === 'completed'"
+                      [class.pending]="med.status !== 'completed'"
+                    >
+                      {{ med.status }}
+                    </span>
+                  </td>
+                  <td>{{ med.packages[0]?.charge | indianCurrency }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Medical Tests Card -->
+        <div
+          class="card tests-card"
+          *ngIf="treatmentsheet[0]?.medicalTest?.length"
+        >
+          <div class="card-header">🧪 Medical Tests</div>
+          <div class="card-body">
+            <table class="hospital-table">
+              <thead>
+                <tr>
+                  <th>Bill Number</th>
+                  <th>Services</th>
+                  <th>Date & Time</th>
+                  <th>Total Amount</th>
+                  <th>Doctor</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let test of treatmentsheet[0].medicalTest">
+                  <td>{{ test.billNumber }}</td>
+                  <td>
+                    <span *ngFor="let serv of test.serviceId"
+                      >{{ serv.name }}<span>, </span></span
+                    >
+                  </td>
+                  <td>
+                    {{ test.billingDate | date : "dd-MM-yyyy" }}
+                    {{ test.billingTime }}
+                  </td>
+                  <td>{{ test.totalBillAmount | indianCurrency }}</td>
+                  <td>{{ test.consultingDoctorId?.name }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Treatment sheet  -->
+
+      <!-- IPD Bill  -->
+      <div
+        *ngIf="
+          shouldShowContent('ipdbill') &&
+          hasModuleAccess('inpatientBilling', 'create')
+        "
+        class="content-section"
+      >
+        <div class="section-header">
+          <h3>Services Bill</h3>
+          <button
+            *ngIf="hasModuleAccess('inpatientBilling', 'create')"
+            class="record-btn"
+            (click)="onClickIPDBill(ipdCase._id)"
+          >
+            Add Services →
+          </button>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <i class="fa-solid fa-calendar" (click)="showBillHistory()"></i>
+          <div *ngIf="isBillHistory">
+            <div
+              class="d-flex justify-content-end mb-2"
+              *ngIf="groupedBills && groupedBills.length > 0"
+            >
+              <input
+                type="date"
+                [(ngModel)]="startDate"
+                (change)="applyBillFilters(groupedBills)"
+                class="form-control mx-2"
+              />
+              <input
+                type="date"
+                [(ngModel)]="endDate"
+                (change)="applyBillFilters(groupedBills)"
+                class="form-control mx-2"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Bill Cards -->
+        <div *ngIf="filteredBill && filteredBill.length > 0; else emptyState">
+          <div class="bill-card" *ngFor="let group of filteredBill">
+            <!-- Date Header -->
+            <div class="bill-header">
+              <h4>{{ group.date | date : "dd-MMM-yyy" }}</h4>
+              <span class="badge">Total Bills: {{ group.bills.length }}</span>
+            </div>
+
+            <!-- Combined Total for the Date -->
+            <div class="bill-info">
+              <div>
+                <label>Total Amount</label>
+                <p class="amount">
+                  {{ getTotalBillAmount(group.bills) | indianCurrency }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Bills for this date -->
+            <div *ngFor="let bill of group.bills" class="card p-2 mb-1">
+              <div class="d-flex justify-content-between">
+                <p>Bill Number: {{ bill.billNumber }}</p>
+                <strong
+                  ><p>Time: {{ bill.billingTime | dateToIST }}</p></strong
+                >
+              </div>
+
+              <!-- Services for this bill -->
+              <div
+                class="service-section"
+                *ngIf="bill.services && bill.services.length > 0"
+              >
+                <div class="service-card" *ngFor="let service of bill.services">
+                  <div class="service-icon">
+                    <!-- ✅ Dynamic icons based on billing type -->
+                    <span *ngIf="service.billingType === 'hourly'">⏰</span>
+                    <span *ngIf="service.billingType === 'daily'">📅</span>
+                    <span *ngIf="service.billingType === 'session'">🔄</span>
+                    <span *ngIf="service.billingType === 'quantity'">📦</span>
+                    <span
+                      *ngIf="
+                        service.billingType === 'fixed' || !service.billingType
+                      "
+                      >💊</span
+                    >
+                  </div>
+                  <div class="service-details">
+                    <h6>{{ service.name }}</h6>
+                    <p>Type: {{ service.type | titlecase }}</p>
+                  </div>
+                  <!-- <div class="service-charge">{{ service.charge }}</div> -->
+                  <div class="service-charge">
+                    {{ service.totalAmount || service.charge | indianCurrency }}
+                  </div>
+
+                  <div
+                    *ngIf="
+                      service.billingType &&
+                      service.billingType !== 'fixed' &&
+                      service.quantity > 1
+                    "
+                    class="calculation-breakdown"
+                  >
+                    <small class="text-muted">
+                      ({{ service.quantity }} {{ service.billingType }} ×
+                      {{
+                        service.ratePerUnit || service.charge | indianCurrency
+                      }})
+                    </small>
+                  </div>
+                </div>
+                <hr />
+                <!-- ✅ CORRECT: Use bill.totalBillAmount for overall bill total -->
+                <span class="service-charge">
+                  {{ bill.totalBillAmount | indianCurrency }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <ng-template #emptyState>
+          <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <p>No Services billing records available for today.</p>
+            <button
+              *ngIf="hasModuleAccess('inpatientBilling', 'create')"
+              class="record-link"
+              (click)="onClickIPDBill(ipdCase._id)"
+            >
+              Add Services
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- IPD Bill  -->
+
+      <!-- Discharge  -->
+      <div
+        *ngIf="
+          shouldShowContent('discharge') &&
+          hasModuleAccess('discharge', 'create')
+        "
+        class="content-section"
+      ></div>
+      <!-- Discharge  -->
+
+      <!-- Discharge Summary -->
+      <div
+        *ngIf="
+          shouldShowContent('dischargeSummary') &&
+          hasModuleAccess('dischargeSummary', 'create')
+        "
+        class="content-section"
+      >
+        <!-- Header -->
+        <div class="section-header">
+          <h3>Discharge Summary</h3>
+          <div>
+            <button
+              *ngIf="hasModuleAccess('dischargeSummary', 'create') && !summary"
+              class="record-btn"
+              (click)="onClickDischargeSummary(ipdCase._id)"
+            >
+              Add Discharge Summary →
+            </button>
+            <button
+              *ngIf="summary"
+              class="btn btn-outline-secondary ms-2"
+              (click)="openDischargeSummary(summary)"
+              title="View Discharge Summary"
+            >
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!summary || summary.length === 0" class="empty-state">
+          <div class="fs-1 mb-3">📊</div>
+          <p>
+            There are no discharge summary records to display for this patient
+          </p>
+          <button
+            *ngIf="hasModuleAccess('dischargeSummary', 'create') && !summary"
+            class="record-link"
+            (click)="onClickDischargeSummary(ipdCase._id)"
+          >
+            Record Discharge Summary
+          </button>
+        </div>
+
+        <!-- Summary Details Card -->
+        <div *ngIf="summary" class="card shadow-sm">
+          <div
+            *ngIf="hasModuleAccess('dischargeSummary', 'update')"
+            class="d-flex justify-content-end"
+          >
+            <button class="btn">
+              <i
+                class="fa fa-pencil"
+                (click)="editDischargeSummary(summary._id)"
+              ></i>
+            </button>
+          </div>
+          <div class="card-body">
+            <div
+              class="summary-details"
+              *ngIf="summary?.summaryDetails as details"
+            >
+              <div
+                *ngFor="let key of sectionKeys"
+                class="row py-2 border-bottom"
+              >
+                <div class="col-md-4 fw-bold text-secondary">
+                  {{ sectionLabels[key] || key }}
+                </div>
+                <div class="col-md-8" style="white-space: pre-line">
+                  {{ details[key] }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer text-muted text-end fst-italic">
+            Last Updated: {{ summary.updatedAt | date : "medium" }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Discharge Summary -->
+
+      <!-- estimate bill  -->
+      <div
+        *ngIf="
+          shouldShowContent('estimateBill') &&
+          hasModuleAccess('inpatientIntermBill', 'read')
+        "
+        class=""
+      >
+        <div class="section-header">
+          <h4>Estimate Bill</h4>
+          <button
+            class="btn"
+            *ngIf="
+              hasModuleAccess('inpatientIntermBill', 'read') &&
+              estimateBill &&
+              showEstimate
+            "
+            (click)="print()"
+          >
+            <i class="fa-solid fa-print action-btn"></i>
+          </button>
+        </div>
+
+        <div class="empty-state" *ngIf="!showEstimate">
+          <div class="empty-icon">📎</div>
+          <div *ngIf="estimateBill?.inpatientBills.length > 0 && !showEstimate">
+            <p>To generate Estimate bill click on the button.</p>
+            <button class="record-link" (click)="showestimate()">
+              Show Estimate Bill
+            </button>
+          </div>
+          <div *ngIf="estimateBill?.inpatientBills.length === 0">
+            <p>Estimate bill could not generate now.</p>
+          </div>
+        </div>
+
+        <div class="diagnosis-container" *ngIf="showEstimate">
+          <!-- Page 1: Summary Bill -->
+          <app-ipdestimatebill
+            [estimateBill]="estimateBill"
+            [serviceList]="serviceList"
+            [radioList]="radiotest"
+            [otData]="otData"
+            [roomCharge]="roomCharge"
+            [serviceCharge]="serviceCharge"
+            [otcharge]="otcharge"
+            [total]="total"
+            [amount]="amountinwords"
+            [finalRoomCharge]="finalRoomCharge"
+            [dailyRoomCharges]="dailyRoomCharges"
+          ></app-ipdestimatebill>
+        </div>
+      </div>
+      <!-- estimate bill  -->
+
+      <!-- final bill  -->
+      <div
+        *ngIf="
+          shouldShowContent('finalBill') &&
+          hasModuleAccess('inpatientIntermBill', 'read')
+        "
+        class=""
+      >
+        <div class="section-header">
+          <h4>Final Bill</h4>
+          <button
+            class="btn"
+            *ngIf="
+              hasModuleAccess('inpatientIntermBill', 'read') &&
+              selectedPatientBill &&
+              showFinalBill
+            "
+            (click)="print()"
+          >
+            <i class="fa-solid fa-print action-btn"></i>
+          </button>
+        </div>
+
+        <div class="empty-state" *ngIf="!showFinalBill">
+          <div *ngIf="selectedPatientBill && !showFinalBill">
+            <!-- <div class="empty-icon">📎</div> -->
+            <p>To generate Final bill click on the button.</p>
+            <button class="record-btn" (click)="showFinalbill()">
+              Show Final Bill
+            </button>
+          </div>
+          <div class="empty-state" *ngIf="!selectedPatientBill">
+            <div class="empty-icon">📎</div>
+            <p>Final bill has not generated yet.</p>
+          </div>
+        </div>
+
+        <div class="diagnosis-container" *ngIf="showFinalBill">
+          <app-ipdbillcumreceipt
+            [selectedPatientBill]="selectedPatientBill"
+            [serviceList]="serviceData"
+            [radioList]="radioData"
+            [roomLog]="dailyRoomCharges"
+            [totalRoomCharge]="finalRoomCharge"
+          ></app-ipdbillcumreceipt>
+          <!-- </div> -->
+        </div>
+      </div>
+      <!-- final bill  -->
+      <!-- rates charge shown -->
+
+      <div
+        *ngIf="shouldShowContent('chargesatadmisison')"
+        class="content-section"
+      >
+        <div class="section-header">
+          <h3>Company Rates at Admission</h3>
+          <button class="record-btn" *ngIf="companyRates">
+            Export Rate Sheet →
+          </button>
+        </div>
+
+        <!-- ✅ Loading State -->
+        <div *ngIf="loadingCompanyRates" class="loading-state text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <p class="mt-2">Loading company rates...</p>
+        </div>
+
+        <!-- ✅ Company Rates Display -->
+        <div *ngIf="!loadingCompanyRates && companyRates" class="rates-display">
+          <!-- ✅ Patient & Company Info -->
+          <div class="company-info-card mb-4">
+            <div class="row">
+              <div class="col-md-6">
+                <h5><i class="fa fa-user text-primary"></i> Patient Details</h5>
+                <p>
+                  <strong>Name:</strong>
+                  {{ companyRates.uhidId?.patient_name || "N/A" }}
+                </p>
+                <p>
+                  <strong>UHID:</strong>
+                  {{ companyRates.uhidId?.uhid || "N/A" }}
+                </p>
+                <p>
+                  <strong>Age/Gender:</strong>
+                  {{ companyRates.uhidId?.age || "N/A" }} /
+                  {{ companyRates.uhidId?.gender || "N/A" }}
+                </p>
+              </div>
+              <div class="col-md-6">
+                <h5>
+                  <i class="fa fa-building text-success"></i> Company Details
+                </h5>
+                <p>
+                  <strong>Company:</strong>
+                  {{ companyRates.companyId?.companyName || "N/A" }}
+                </p>
+                <p>
+                  <strong>Type:</strong>
+                  <span class="badge badge-info">{{
+                    companyRates.companyId?.type || "N/A"
+                  }}</span>
+                </p>
+                <p>
+                  <strong>Case Type:</strong>
+                  <span class="badge badge-warning">{{
+                    companyRates.caseType || "IPD"
+                  }}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ SIMPLE TABS with Click Events (No Bootstrap dependency) -->
+          <div class="custom-tabs mb-4">
+            <div class="tab-headers">
+              <button
+                class="tab-header"
+                [class.active]="activeTabs === 'services'"
+                (click)="setActiveTab('services')"
+              >
+                <i class="fa fa-cogs"></i> Services
+                <span class="badge">{{
+                  companyRates.lockedServiceRates?.length || 0
+                }}</span>
+              </button>
+              <button
+                class="tab-header"
+                [class.active]="activeTabs === 'rooms'"
+                (click)="setActiveTab('rooms')"
+              >
+                <i class="fa fa-home"></i> Rooms
+                <span class="badge">{{
+                  companyRates.roomTypeRates?.length || 0
+                }}</span>
+              </button>
+              <button
+                class="tab-header"
+                [class.active]="activeTabs === 'beds'"
+                (click)="setActiveTab('beds')"
+              >
+                <i class="fa fa-bed"></i> Beds
+                <span class="badge">{{
+                  companyRates.bedTypeRates?.length || 0
+                }}</span>
+              </button>
+            </div>
+
+            <!-- ✅ TAB CONTENT -->
+            <div class="tab-content-area">
+              <!-- ✅ SERVICES TAB -->
+              <div *ngIf="activeTabs === 'services'" class="tab-panel">
+                <div
+                  *ngIf="
+                    companyRates.lockedServiceRates &&
+                    companyRates.lockedServiceRates.length > 0
+                  "
+                >
+                  <!-- Search and Filter -->
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        placeholder="Search services..."
+                        [(ngModel)]="serviceSearchTerm"
+                        (ngModelChange)="filterServices()"
+                      />
+                    </div>
+                    <div class="col-md-3">
+                      <select
+                        class="form-control form-control-sm"
+                        [(ngModel)]="serviceTypeFilter"
+                        (ngModelChange)="filterServices()"
+                      >
+                        <option value="">All Types</option>
+                        <option value="opd">OPD</option>
+                        <option value="ipd">IPD</option>
+                        <option value="radiology">Radiology</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="table-responsive">
+                    <table class="table table-sm table-striped table-hover">
+                      <thead class="thead-dark">
+                        <tr>
+                          <th style="width: 5%">#</th>
+                          <th style="width: 40%">Service Name</th>
+                          <th style="width: 10%">Type</th>
+                          <th style="width: 15%">Standard Rate</th>
+                          <th style="width: 15%">Company Rate</th>
+                          <th style="width: 15%">Difference</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          *ngFor="
+                            let rate of filteredServices
+                              | slice
+                                : 0
+                                : (showAllServices
+                                    ? filteredServices.length
+                                    : 20);
+                            let i = index
+                          "
+                        >
+                          <td>{{ i + 1 }}</td>
+                          <td>
+                            <strong>{{ rate.serviceName }}</strong>
+                            <br /><small class="text-muted">{{
+                              rate.serviceId?._id
+                            }}</small>
+                          </td>
+                          <td>
+                            <span
+                              class="badge"
+                              [class.badge-info]="rate.serviceType === 'opd'"
+                              [class.badge-success]="rate.serviceType === 'ipd'"
+                              [class.badge-warning]="
+                                rate.serviceType === 'radiology'
+                              "
+                            >
+                              {{ rate.serviceType | uppercase }}
+                            </span>
+                          </td>
+                          <td class="text-muted">
+                            {{ rate.originalRate | indianCurrency }}
+                          </td>
+                          <td>
+                            <span
+                              class="font-weight-bold"
+                              [class.text-success]="
+                                rate.lockedRate < rate.originalRate
+                              "
+                              [class.text-danger]="
+                                rate.lockedRate > rate.originalRate
+                              "
+                              [class.text-muted]="
+                                rate.lockedRate === rate.originalRate
+                              "
+                            >
+                              {{ rate.lockedRate | indianCurrency }}
+                            </span>
+                          </td>
+                          <td>
+                            <span
+                              *ngIf="rate.originalRate > rate.lockedRate"
+                              class="badge badge-success"
+                            >
+                              <i class="fa fa-arrow-down"></i> -{{
+                                rate.originalRate - rate.lockedRate
+                                  | number : "1.0-0"
+                              }}
+                            </span>
+                            <span
+                              *ngIf="rate.originalRate < rate.lockedRate"
+                              class="badge badge-danger"
+                            >
+                              <i class="fa fa-arrow-up"></i> +{{
+                                rate.lockedRate - rate.originalRate
+                                  | number : "1.0-0"
+                              }}
+                            </span>
+                            <span
+                              *ngIf="rate.originalRate === rate.lockedRate"
+                              class="badge badge-secondary"
+                            >
+                              <i class="fa fa-equals"></i> Same
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ✅ ROOMS TAB -->
+              <div *ngIf="activeTabs === 'rooms'" class="tab-panel">
+                <h6 class="mb-3">
+                  <i class="fa fa-home text-info"></i> Available Room Types
+                </h6>
+
+                <div
+                  *ngIf="
+                    companyRates.roomTypeRates &&
+                    companyRates.roomTypeRates.length > 0
+                  "
+                  class="row"
+                >
+                  <div
+                    class="col-md-6"
+                    *ngFor="
+                      let roomRate of companyRates.roomTypeRates;
+                      let i = index
+                    "
+                  >
+                    <div
+                      class="rate-card p-3 border rounded mb-3"
+                      [class.border-success]="
+                        roomRate.lockedRate < roomRate.originalRate
+                      "
+                      [class.border-danger]="
+                        roomRate.lockedRate > roomRate.originalRate
+                      "
+                    >
+                      <div
+                        class="rate-card-header d-flex justify-content-between align-items-center"
+                      >
+                        <div>
+                          <h6 class="font-weight-bold mb-1">
+                            <i class="fa fa-home text-info"></i>
+                            {{
+                              roomRate.roomTypeName || roomRate.roomTypeId?.name
+                            }}
+                          </h6>
+                          <p class="text-muted small mb-2">
+                            {{
+                              roomRate.roomTypeId?.description || "Room Type"
+                            }}
+                          </p>
+                        </div>
+                        <div class="room-number">
+                          <span class="badge badge-secondary"
+                            >#{{ i + 1 }}</span
+                          >
+                        </div>
+                      </div>
+
+                      <div class="rate-details">
+                        <div class="row">
+                          <div class="col-6">
+                            <small class="text-muted">Standard Rate</small>
+                            <div class="h6 text-muted">
+                              {{
+                                roomRate.originalRate ||
+                                  roomRate.roomTypeId?.price_per_day
+                                  | indianCurrency
+                              }}/day
+                            </div>
+                          </div>
+                          <div class="col-6">
+                            <small class="text-success font-weight-bold"
+                              >Company Rate</small
+                            >
+                            <div class="h5 text-success">
+                              {{ roomRate.lockedRate | indianCurrency }}/day
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="savings-badge mt-2">
+                          <span
+                            *ngIf="roomRate.originalRate > roomRate.lockedRate"
+                            class="badge badge-success w-100"
+                          >
+                            <i class="fa fa-arrow-down"></i> Save
+                            {{
+                              roomRate.originalRate - roomRate.lockedRate
+                                | number : "1.0-0"
+                            }}/day
+                          </span>
+                          <span
+                            *ngIf="roomRate.originalRate < roomRate.lockedRate"
+                            class="badge badge-danger w-100"
+                          >
+                            <i class="fa fa-arrow-up"></i> Additional
+                            {{
+                              roomRate.lockedRate - roomRate.originalRate
+                                | number : "1.0-0"
+                            }}/day
+                          </span>
+                          <span
+                            *ngIf="
+                              roomRate.originalRate === roomRate.lockedRate
+                            "
+                            class="badge badge-secondary w-100"
+                          >
+                            <i class="fa fa-equals"></i> Same as Standard Rate
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  *ngIf="
+                    !companyRates.roomTypeRates ||
+                    companyRates.roomTypeRates.length === 0
+                  "
+                  class="text-center py-4"
+                >
+                  <i class="fa fa-home fa-3x text-muted"></i>
+                  <p class="text-muted mt-2">No room rates configured</p>
+                </div>
+              </div>
+
+              <!-- ✅ BEDS TAB -->
+              <div *ngIf="activeTabs === 'beds'" class="tab-panel">
+                <h6 class="mb-3">
+                  <i class="fa fa-bed text-warning"></i> Available Bed Types
+                </h6>
+
+                <div
+                  *ngIf="
+                    companyRates.bedTypeRates &&
+                    companyRates.bedTypeRates.length > 0
+                  "
+                  class="row"
+                >
+                  <div
+                    class="col-md-6"
+                    *ngFor="
+                      let bedRate of companyRates.bedTypeRates;
+                      let i = index
+                    "
+                  >
+                    <div
+                      class="rate-card p-3 border rounded mb-3"
+                      [class.border-success]="
+                        bedRate.lockedRate < bedRate.originalRate
+                      "
+                      [class.border-danger]="
+                        bedRate.lockedRate > bedRate.originalRate
+                      "
+                    >
+                      <div
+                        class="rate-card-header d-flex justify-content-between align-items-center"
+                      >
+                        <div>
+                          <h6 class="font-weight-bold mb-1">
+                            <i class="fa fa-bed text-warning"></i>
+                            {{ bedRate.bedTypeName || bedRate.bedTypeId?.name }}
+                          </h6>
+                          <p class="text-muted small mb-2">
+                            {{ bedRate.bedTypeId?.description || "Bed Type" }}
+                          </p>
+                        </div>
+                        <div class="bed-number">
+                          <span class="badge badge-secondary"
+                            >#{{ i + 1 }}</span
+                          >
+                        </div>
+                      </div>
+
+                      <div class="rate-details">
+                        <div class="row">
+                          <div class="col-6">
+                            <small class="text-muted">Standard Rate</small>
+                            <div class="h6 text-muted">
+                              {{
+                                bedRate.originalRate ||
+                                  bedRate.bedTypeId?.price_per_day
+                                  | indianCurrency
+                              }}/day
+                            </div>
+                          </div>
+                          <div class="col-6">
+                            <small class="text-success font-weight-bold"
+                              >Company Rate</small
+                            >
+                            <div class="h5 text-success">
+                              {{ bedRate.lockedRate | indianCurrency }}/day
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="savings-badge mt-2">
+                          <span
+                            *ngIf="bedRate.originalRate > bedRate.lockedRate"
+                            class="badge badge-success w-100"
+                          >
+                            <i class="fa fa-arrow-down"></i> Save
+                            {{
+                              bedRate.originalRate - bedRate.lockedRate
+                                | number : "1.0-0"
+                            }}/day
+                          </span>
+                          <span
+                            *ngIf="bedRate.originalRate < bedRate.lockedRate"
+                            class="badge badge-danger w-100"
+                          >
+                            <i class="fa fa-arrow-up"></i> Additional
+                            {{
+                              bedRate.lockedRate - bedRate.originalRate
+                                | number : "1.0-0"
+                            }}/day
+                          </span>
+                          <span
+                            *ngIf="bedRate.originalRate === bedRate.lockedRate"
+                            class="badge badge-secondary w-100"
+                          >
+                            <i class="fa fa-equals"></i> Same as Standard Rate
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  *ngIf="
+                    !companyRates.bedTypeRates ||
+                    companyRates.bedTypeRates.length === 0
+                  "
+                  class="text-center py-4"
+                >
+                  <i class="fa fa-bed fa-3x text-muted"></i>
+                  <p class="text-muted mt-2">No bed rates configured</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ SUMMARY STATISTICS -->
+          <div class="statistics-summary mt-4">
+            <div class="row">
+              <div class="col-md-2">
+                <div
+                  class="stat-card text-center p-3 bg-primary text-white rounded"
+                >
+                  <h4>{{ companyRates.lockedServiceRates?.length || 0 }}</h4>
+                  <p class="mb-0">Services</p>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div
+                  class="stat-card text-center p-3 bg-info text-white rounded"
+                >
+                  <h4>{{ companyRates.roomTypeRates?.length || 0 }}</h4>
+                  <p class="mb-0">Room Types</p>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div
+                  class="stat-card text-center p-3 bg-warning text-white rounded"
+                >
+                  <h4>{{ companyRates.bedTypeRates?.length || 0 }}</h4>
+                  <p class="mb-0">Bed Types</p>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div
+                  class="stat-card text-center p-3 bg-success text-white rounded"
+                >
+                  <h4>{{ getDiscountedServicesCount() }}</h4>
+                  <p class="mb-0">Discounted</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div
+                  class="stat-card text-center p-3 bg-secondary text-white rounded"
+                >
+                  <h4>{{ getTotalSavings() | number : "1.0-0" }}</h4>
+                  <p class="mb-0">Total Savings</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ Empty State -->
+        <div *ngIf="!loadingCompanyRates && !companyRates" class="empty-state">
+          <div class="empty-icon">💰</div>
+          <p>No company rates configured</p>
+          <small class="text-muted">Standard hospital rates will apply</small>
+        </div>
+      </div>
+      <!-- final bill  -->
+
+      <!-- diet Chart -->
+      <!-- Diet Chart Section -->
+      <div
+        *ngIf="
+          shouldShowContent('dietchart') &&
+          hasModuleAccess('departmentRequestList', 'create')
+        "
+        class="content-section"
+      >
+        <div class="section-header">
+          <h3>Diet Chart</h3>
+          <button
+            *ngIf="hasModuleAccess('departmentRequestList', 'create')"
+            class="record-btn"
+            (click)="onClickDietChart(ipdCase._id)"
+          >
+            Add Diet Chart →
+          </button>
+        </div>
+
+        <!-- History View Header -->
+        <!-- <div
+          class="history-header d-flex justify-content-between align-items-center mb-3"
+        > -->
+        <!-- <div class="history-info">
+            <span class="history-label">History View</span>
+            <span class="record-count"
+              >{{ dietCharts.length }} record(s) found</span
+            >
+          </div> -->
+
+        <!-- <div class="date-controls d-flex align-items-center gap-2"> -->
+        <!-- Show Today Toggle -->
+        <!-- <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                type="radio"
+                id="showToday"
+                [checked]="showTodayOnly"
+                (change)="showTodaysDietCharts()"
+              />
+              <label class="form-check-label" for="showToday">
+                Show Today
+              </label>
+            </div> -->
+
+        <!-- Date Range Inputs -->
+        <!-- <div class="date-range-group" *ngIf="!showTodayOnly">
+              <span class="text-muted">From:</span>
+              <input
+                type="date"
+                class="form-control form-control-sm date-input"
+                [(ngModel)]="selectedDateRange.from"
+                (change)="applyDateRange()"
+              />
+              <span class="text-muted">To:</span>
+              <input
+                type="date"
+                class="form-control form-control-sm date-input"
+                [(ngModel)]="selectedDateRange.to"
+                (change)="applyDateRange()"
+              />
+            </div> -->
+
+        <!-- <div class="date-range-group" *ngIf="showTodayOnly">
+              <span class="text-muted">From:</span>
+              <span class="current-date">{{ selectedDateRange.from }}</span>
+              <span class="text-muted">To:</span>
+              <span class="current-date">{{ selectedDateRange.to }}</span>
+            </div> -->
+        <!-- </div> -->
+        <!-- </div> -->
+
+        <!-- Quick Filters -->
+        <!-- <div class="quick-filters mb-3">
+          <span class="text-muted me-2">Quick filters:</span>
+          <button
+            class="btn btn-sm btn-outline-primary me-1"
+            [class.active]="showTodayOnly"
+            (click)="showTodaysDietCharts()"
+          >
+            Today
+          </button>
+          <button
+            class="btn btn-sm btn-outline-primary me-1"
+            (click)="showYesterdaysDietCharts()"
+          >
+            Yesterday
+          </button>
+          <button
+            class="btn btn-sm btn-outline-primary me-1"
+            (click)="showThisWeeksDietCharts()"
+          >
+            This Week
+          </button>
+          <button
+            class="btn btn-sm btn-outline-primary me-1"
+            (click)="showThisMonthsDietCharts()"
+          >
+            This Month
+          </button>
+          <button
+            class="btn btn-sm btn-outline-secondary"
+            (click)="clearDateFilter()"
+          >
+            Clear
+          </button>
+        </div> -->
+
+        <!-- Loading State -->
+        <div *ngIf="isLoadingDietCharts" class="text-center p-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading diet charts...</span>
+          </div>
+          <p class="mt-2 text-muted">Loading diet chart history...</p>
+        </div>
+
+        <!-- Diet Charts Table -->
+        <div
+          *ngIf="!isLoadingDietCharts && dietCharts.length > 0"
+          class="table-responsive"
+        >
+          <table class="table table-striped table-hover">
+            <thead class="table-primary">
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Diet Type</th>
+                <th scope="col">Meals</th>
+                <th scope="col">Calories</th>
+                <th scope="col">Water Intake</th>
+                <th scope="col">Created By</th>
+                <th scope="col">Created On</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let dietChart of dietCharts">
+                <td>
+                  <strong>{{
+                    dietChart.dietDate | date : "mediumDate"
+                  }}</strong>
+                </td>
+                <td>
+                  <span
+                    class="badge"
+                    [class]="'badge ' + getDietTypeClass(dietChart.dietType)"
+                  >
+                    {{ getDietTypeLabel(dietChart.dietType) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="meals-summary">
+                    <small class="text-muted d-block"
+                      >{{ dietChart.meals.length }} meal(s) planned</small
+                    >
+                    <div class="meal-types">
+                      <span
+                        *ngFor="let meal of dietChart.meals; let last = last"
+                        class="meal-type-tag"
+                      >
+                        {{ meal.time | titlecase }}{{ !last ? ", " : "" }}
+                      </span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span *ngIf="dietChart.totalCalories" class="calories">
+                    {{ dietChart.totalCalories }} cal
+                  </span>
+                  <span *ngIf="!dietChart.totalCalories" class="text-muted">
+                    Not specified
+                  </span>
+                </td>
+                <td>
+                  <small>{{ dietChart.waterIntake || "Not specified" }}</small>
+                </td>
+                <td>
+                  <div class="created-by">
+                    <small class="fw-bold">{{
+                      dietChart.createdBy?.name || "Unknown"
+                    }}</small>
+                  </div>
+                </td>
+                <td>
+                  <small class="text-muted">
+                    {{ dietChart.createdAt | date : "short" }}
+                  </small>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button
+                      class="btn btn-sm btn-outline-primary me-1"
+                      (click)="viewDietChart(dietChart)"
+                      title="View Details"
+                    >
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-success me-1"
+                      (click)="editDietChart(dietChart)"
+                      title="Edit"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="deleteDietChart(dietChart)"
+                      title="Delete"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        <div
+          *ngIf="!isLoadingDietCharts && dietCharts.length === 0"
+          class="empty-state"
+        >
+          <div class="empty-icon">🍽️</div>
+          <p class="empty-title">No diet charts found</p>
+          <p class="empty-description">
+            {{
+              showTodayOnly
+                ? "No diet chart configured for today"
+                : "No diet charts found for the selected date range"
+            }}
+          </p>
+          <button
+            class="btn record-link"
+            (click)="onClickDietChart(ipdCase._id)"
+          >
+            Create Diet Chart
+          </button>
+        </div>
+      </div>
+
+      <!-- <div class="right-sidebar">
+      <div class="medications-section">
+        <div class="section-header">
+          <h4>Prescription Medications</h4>
+          <button class="add-btn" (click)="onAddMedicationClick()">
+            Add +
+          </button>
+        </div>
+
+        <table class="medications-table">
+          <thead>
+            <tr>
+              <th>Start date</th>
+              <th>Details</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let medicine of diagnosis?.packages; let i = index">
+              <td>{{ diagnosis?.createdAt | date }}</td>
+              <td>
+                <div class="medication-details">
+                  <strong>{{ medicine.medicineName }}</strong> <br />
+                  <small>
+                    <span *ngIf="medicine.checkbox">Medication Time :</span>
+                    <div class="dosage-info">
+                      <span
+                        class="dosage-item"
+                        *ngIf="medicine.checkbox?.morning"
+                      >
+                        🌅 Morning
+                      </span>
+                      <span class="dosage-item" *ngIf="medicine.checkbox?.noon">
+                        ☀️ Noon
+                      </span>
+                      <span
+                        class="dosage-item"
+                        *ngIf="medicine.checkbox?.evening"
+                      >
+                        🌆 Evening
+                      </span>
+                      <span
+                        class="dosage-item"
+                        *ngIf="medicine.checkbox?.night"
+                      >
+                        🌙 Night
+                      </span>
+                    </div>
+                  </small>
+                  <br />
+                  <small class="indication">
+                    {{ medicine.dosageInstruction }} Total Quantity :
+                    {{ medicine.quantity }}
+                  </small>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div> -->
+    </div>
+  </div>
+
+  <!-- diet chart modal -->
+  <!-- Diet Chart View Modal -->
+  <div
+    class="modal fade"
+    id="viewDietChartModal"
+    tabindex="-1"
+    aria-labelledby="viewDietChartModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content" *ngIf="selectedDietChart">
+        <!-- Modal Header -->
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="viewDietChartModalLabel">
+            <i class="fas fa-chart-pie me-2"></i>
+            Diet Chart Details
+          </h5>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+            (click)="closeModal()"
+          ></button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <!-- Patient Information Card -->
+          <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+              <h6 class="mb-0">
+                <i class="fas fa-user-injured me-2"></i>Patient Information
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <p>
+                    <strong>Name:</strong>
+                    {{ selectedDietChart.patientId?.patient_name || "N/A" }}
+                  </p>
+                  <p>
+                    <strong>UHID:</strong>
+                    {{ selectedDietChart.patientId?.uhid || "N/A" }}
+                  </p>
+                  <p>
+                    <strong>Age:</strong>
+                    {{ selectedDietChart.patientId?.age || "N/A" }}
+                  </p>
+                  <p>
+                    <strong>Gender:</strong>
+                    {{ selectedDietChart.patientId?.gender || "N/A" }}
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <p>
+                    <strong>Mobile:</strong>
+                    {{ selectedDietChart.patientId?.mobile_no || "N/A" }}
+                  </p>
+                  <p>
+                    <strong>Area:</strong>
+                    {{ selectedDietChart.patientId?.area || "N/A" }}
+                  </p>
+                  <p>
+                    <strong>Room:</strong>
+                    {{ selectedDietChart.roomId?.roomNumber || "N/A" }}
+                  </p>
+                  <p>
+                    <strong>Bed:</strong>
+                    {{ selectedDietChart.bedId?.bed_number || "N/A" }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Diet Chart Summary -->
+          <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+              <h6 class="mb-0">
+                <i class="fas fa-clipboard-list me-2"></i>Diet Chart Summary
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="text-center">
+                    <h4 class="text-primary">
+                      {{ selectedDietChart.dietDate | date : "mediumDate" }}
+                    </h4>
+                    <small class="text-muted">Diet Date</small>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="text-center">
+                    <span
+                      class="badge badge-lg"
+                      [class]="
+                        'badge ' + getDietTypeClass(selectedDietChart.dietType)
+                      "
+                    >
+                      {{ getDietTypeLabel(selectedDietChart.dietType) }}
+                    </span>
+                    <div><small class="text-muted">Diet Type</small></div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="text-center">
+                    <h4 class="text-warning">
+                      {{ selectedDietChart.totalCalories || "Not Specified" }}
+                    </h4>
+                    <small class="text-muted">Total Calories</small>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="text-center">
+                    <h6 class="text-info">
+                      {{ selectedDietChart.waterIntake || "N/A" }}
+                    </h6>
+                    <small class="text-muted">Water Intake</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Meals Details -->
+          <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+              <h6 class="mb-0">
+                <i class="fas fa-utensils me-2"></i>Meal Plan Details
+              </h6>
+            </div>
+            <div class="card-body">
+              <div
+                class="row"
+                *ngFor="let meal of selectedDietChart.meals; let i = index"
+              >
+                <div class="col-12">
+                  <div
+                    class="meal-card border rounded p-3 mb-3"
+                    [class]="
+                      'border-' + (i % 2 === 0 ? 'primary' : 'secondary')
+                    "
+                  >
+                    <div class="d-flex align-items-center mb-3">
+                      <i
+                        [class]="getMealIcon(meal.time)"
+                        class="me-3 text-primary fa-2x"
+                      ></i>
+                      <div>
+                        <h5 class="mb-1">
+                          {{ getMealDisplayName(meal.time) }}
+                        </h5>
+                        <!-- <small class="text-muted">{{ meal.createdAt | date:'short' }}</small> -->
+                      </div>
+                    </div>
+
+                    <!-- Food Items -->
+                    <div
+                      class="mb-3"
+                      *ngIf="meal.items && meal.items.length > 0"
+                    >
+                      <h6 class="text-success mb-2">
+                        <i class="fas fa-apple-alt me-2"></i>Food Items:
+                      </h6>
+                      <div class="row">
+                        <div class="col-md-6" *ngFor="let item of meal.items">
+                          <div class="food-item p-2 bg-light rounded mb-2">
+                            <div class="d-flex justify-content-between">
+                              <span class="fw-bold">{{
+                                item.name || item.foodName || "N/A"
+                              }}</span>
+                              <span class="text-muted">{{
+                                item.quantity || "Not Specified"
+                              }}</span>
+                            </div>
+                            <!-- <small class="text-info">{{ item.calories || 0 }} cal</small> -->
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Special Instructions -->
+                    <div
+                      *ngIf="
+                        meal.specialInstructions &&
+                        meal.specialInstructions.trim()
+                      "
+                    >
+                      <h6 class="text-warning mb-2">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Special
+                        Instructions:
+                      </h6>
+                      <div class="alert alert-warning py-2">
+                        {{ meal.specialInstructions }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Allergies & Restrictions -->
+          <div
+            class="card mb-4"
+            *ngIf="
+              selectedDietChart.allergies?.length > 0 ||
+              selectedDietChart.restrictions?.length > 0
+            "
+          >
+            <div class="card-header bg-danger text-white">
+              <h6 class="mb-0">
+                <i class="fas fa-exclamation-circle me-2"></i>Allergies &
+                Restrictions
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div
+                  class="col-md-6"
+                  *ngIf="selectedDietChart.allergies?.length > 0"
+                >
+                  <h6 class="text-danger">Allergies:</h6>
+                  <ul class="list-unstyled">
+                    <li
+                      *ngFor="let allergy of selectedDietChart.allergies"
+                      class="mb-1"
+                    >
+                      <span class="badge bg-danger">{{ allergy }}</span>
+                    </li>
+                  </ul>
+                </div>
+                <div
+                  class="col-md-6"
+                  *ngIf="selectedDietChart.restrictions?.length > 0"
+                >
+                  <h6 class="text-warning">Restrictions:</h6>
+                  <ul class="list-unstyled">
+                    <li
+                      *ngFor="let restriction of selectedDietChart.restrictions"
+                      class="mb-1"
+                    >
+                      <span class="badge bg-warning text-dark">{{
+                        restriction
+                      }}</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Remarks -->
+          <div
+            class="card"
+            *ngIf="
+              selectedDietChart.remarks && selectedDietChart.remarks.trim()
+            "
+          >
+            <div class="card-header bg-secondary text-white">
+              <h6 class="mb-0"><i class="fas fa-comment me-2"></i>Remarks</h6>
+            </div>
+            <div class="card-body">
+              <p class="mb-0">{{ selectedDietChart.remarks }}</p>
+            </div>
+          </div>
+
+          <!-- Created By Information -->
+          <div class="row mt-4">
+            <div class="col-md-12">
+              <div class="card border-info">
+                <div class="card-body text-center">
+                  <i class="fas fa-user-md fa-2x text-info mb-2"></i>
+                  <h6>Created By</h6>
+                  <p class="mb-0">
+                    {{ selectedDietChart.createdBy?.name || "Unknown" }}
+                  </p>
+                  <p class="mb-0">
+                    {{ selectedDietChart.createdAt | date : "medium" }}
+                  </p>
+                  <small
+                    class="text-muted"
+                    *ngIf="
+                      selectedDietChart.updatedAt !==
+                      selectedDietChart.createdAt
+                    "
+                  >
+                    Updated: {{ selectedDietChart.updatedAt | date : "short" }}
+                  </small>
+                </div>
+              </div>
+            </div>
+            <!-- <div class="col-md-6">
+            <div class="card border-success">
+              <div class="card-body text-center">
+                <i class="fas fa-calendar-plus fa-2x text-success mb-2"></i>
+                <h6>Created On</h6>
+                <p class="mb-0">{{ selectedDietChart.createdAt | date:'full' }}</p>
+                <small class="text-muted" *ngIf="selectedDietChart.updatedAt !== selectedDietChart.createdAt">
+                  Updated: {{ selectedDietChart.updatedAt | date:'short' }}
+                </small>
+              </div>
+            </div>
+          </div> -->
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <!-- <button type="button" class="btn btn-outline-primary" (click)="printDietChart()">
+          <i class="fas fa-print me-2"></i>Print
+        </button>
+        <button type="button" class="btn btn-outline-success" (click)="editDietChart(selectedDietChart)">
+          <i class="fas fa-edit me-2"></i>Edit
+        </button> -->
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+            (click)="closeModal()"
+          >
+            <i class="fas fa-times me-2"></i>Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- diet chart modal -->
+
+  <div class="modal-backdrop" *ngIf="selectedSummary">
+    <div class="modal-content-box">
+      <div class="modal-header">
+        <h3 style="visibility: hidden">Patient Details</h3>
+        <button class="close-btn mt-5" (click)="closeModal()">×</button>
+      </div>
+      <hr />
+      <div class="modal-body">
+        <app-dischargesummaryreport
+          [summary]="selectedSummary"
+        ></app-dischargesummaryreport>
+      </div>
+    </div>
+  </div>
+</div>

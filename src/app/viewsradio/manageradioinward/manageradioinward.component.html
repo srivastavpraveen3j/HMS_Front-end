@@ -1,0 +1,615 @@
+<div class="form-meta">
+  <div class="header">
+    <h2 class="dashboard-title">MANAGE INPATIENT RADIOLOGY INVESTIGATION</h2>
+    <div class="">
+      <button
+        class="toggle ipd btn mx-2"
+        [routerLink]="['/radiologylayout/radiointermbill']"
+        routerLinkActive="router-link-active"
+        *ngIf="userPermissions"
+      >
+        OPD
+      </button>
+    </div>
+  </div>
+
+  <div class="" *ngIf="userPermissions.create">
+    <form action="" [formGroup]="radioinward" (ngSubmit)="onSubmit()">
+      <div class="diagnosis-container">
+        <!-- PATIENT DETAILS SECTION -->
+        <div class="section patient-details mt-3">
+          <h4>PATIENT DETAILS</h4>
+          <div class="d-flex">
+            <div class="w-50">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="" class="form-label">UHID No</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="UHID No"
+                    formControlName="uhid"
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Patient*:</label>
+                  <input
+                    type="text"
+                    class="input-text"
+                    placeholder="Enter patient name"
+                    formControlName="patient_name"
+                    (focus)="showSuggestions = true"
+                    (blur)="hideSuggestionsWithDelay()"
+                  />
+
+                  <!-- Patient Suggestions Dropdown -->
+                  <div
+                    *ngIf="showSuggestions && radioreq.length > 0"
+                    class="suggestions-container"
+                  >
+                    <ul class="suggestions">
+                      <li
+                        *ngFor="let patient of radioreq"
+                        (mousedown)="selectPatient(patient)"
+                      >
+                        {{ patient?.patient_name }}
+                        {{
+                          patient?.mobile_no ? "| " + patient?.mobile_no : ""
+                        }}
+                        {{ patient?.uhid ? "| " + patient?.uhid : "" }}
+                      </li>
+                    </ul>
+                  </div>
+
+                  <!-- Validation messages -->
+                  <div
+                    *ngIf="
+                      radioinward.get('patient_name')?.value &&
+                      radioinward.get('patient_name')?.value.length > 2 &&
+                      !radioreq.length &&
+                      !manuallySelected
+                    "
+                    class="text-danger"
+                  >
+                    No matching patients found
+                  </div>
+                  <div
+                    *ngIf="
+                      radioinward.get('patient_name')?.touched &&
+                      radioinward.get('patient_name')?.invalid
+                    "
+                    class="text-danger"
+                  >
+                    Patient name is required
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="" class="form-label">Age</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Age"
+                    formControlName="age"
+                  />
+                </div>
+              </div>
+
+              <!-- Gender Field -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="" class="form-label">Gender</label>
+                  <select class="form-control" formControlName="gender">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Additional fields for selected radiology request -->
+              <div class="form-row" *ngIf="selectedRadiologyRequest">
+                <div class="form-group">
+                  <label class="form-label">Request Number</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="requestNumber"
+                    readonly
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Bed Number</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="bedNumber"
+                    readonly
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="right-section w-50">
+              <div class="info-box">
+                Radiology Test Requests
+                <div class="d-flex justify-content-end">
+                  <!-- Optional action buttons -->
+                </div>
+
+                <table
+                  class="table table-bordered table-hover align-middle diagnosis-table"
+                >
+                  <thead class="table-dark">
+                    <tr>
+                      <th>#</th>
+                      <th>Patient Name</th>
+                      <th>UHID</th>
+                      <th>Request Date</th>
+                      <th>Bed</th>
+                      <th>Requested Test</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      *ngFor="let item of paginatedRadiologyreq; let i = index"
+                      (click)="onRowSelect(item)"
+                      [class.table-active]="
+                        selectedRadiologyRequest?._id === item._id
+                      "
+                      style="cursor: pointer"
+                    >
+                      <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                      <td>{{ item.patientName }}</td>
+                      <td>{{ item.patientUhid?.uhid || "N/A" }}</td>
+                      <td>{{ item.createdAt | date : "short" }}</td>
+                      <td>{{ item.bedNumber || "N/A" }}</td>
+                      <td>
+                        <ng-container
+                          *ngFor="
+                            let service of item.requestedServices;
+                            let last = last
+                          "
+                        >
+                          <strong>{{ service.serviceName }}</strong>
+                          <span *ngIf="!last">, </span>
+                        </ng-container>
+                      </td>
+                      <td>
+                        <span
+                          class="badge"
+                          [class.badge-warning]="
+                            item.overallStatus === 'pending'
+                          "
+                          [class.badge-success]="
+                            item.overallStatus === 'completed'
+                          "
+                        >
+                          {{ item.overallStatus | titlecase }}
+                        </span>
+                      </td>
+                    </tr>
+
+                    <!-- Empty state -->
+                    <tr *ngIf="filteredRadiologyreq.length === 0">
+                      <td colspan="7" class="text-center text-muted">
+                        No pending IPD radiology requests found
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div
+                  class="pagination d-flex justify-content-center align-items-center gap-2 mt-3"
+                  *ngIf="totalPages > 1"
+                >
+                  <button
+                    class="btn btn-sm btn-primary"
+                    (click)="previousPage()"
+                    [disabled]="currentPage === 1"
+                  >
+                    Previous
+                  </button>
+                  <span>Page {{ currentPage }} of {{ totalPages }}</span>
+                  <button
+                    class="btn btn-sm btn-primary"
+                    (click)="nextPage()"
+                    [disabled]="currentPage === totalPages"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected Request Details -->
+        <div
+          class="section patient-details mt-3"
+          *ngIf="selectedRadiologyRequest"
+        >
+          <h4>SELECTED RADIOLOGY REQUEST DETAILS</h4>
+          <div class="row">
+            <div class="col-md-6">
+              <p>
+                <strong>Request Number:</strong>
+                {{ selectedRadiologyRequest.requestNumber }}
+              </p>
+              <p>
+                <strong>Patient:</strong>
+                {{ selectedRadiologyRequest.patientName }}
+              </p>
+              <p>
+                <strong>Bed:</strong> {{ selectedRadiologyRequest.bedNumber }}
+              </p>
+            </div>
+            <div class="col-md-6">
+              <p>
+                <strong>Age/Sex:</strong> {{ selectedRadiologyRequest.age }} /
+                {{ radioinward.get("gender")?.value || "Not specified" }}
+              </p>
+              <p><strong>Study:</strong> {{ selectedTestGroupName }}</p>
+              <p>
+                <strong>Date:</strong>
+                {{ selectedRadiologyRequest.createdAt | date : "dd.MM.yyyy" }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Services List -->
+          <div class="mt-3">
+            <h5>Requested Test:</h5>
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered">
+                <thead>
+                  <tr>
+                    <th>Test Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let service of selectedRequestedServices">
+                    <td>{{ service.serviceName }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ RADIOLOGY REPORT SECTION -->
+        <div
+          class="section patient-details mt-3"
+          *ngIf="selectedRadiologyRequest"
+        >
+          <h4>RADIOLOGY REPORT</h4>
+
+          <!-- Template Selection and Management -->
+          <div class="row mb-3">
+            <div class="col-md-8">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-file"></i> Load Template
+                </label>
+                <select
+                  class="form-control"
+                  [(ngModel)]="selectedTemplateId"
+                  (change)="loadTemplate()"
+                  [ngModelOptions]="{ standalone: true }"
+                >
+                  <option value="">Select a template...</option>
+                  <option
+                    *ngFor="let template of availableTemplates"
+                    [value]="template._id"
+                  >
+                    {{ template.templateName }} - {{ template.serviceName }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">&nbsp;</label>
+              <div class="btn-group d-block">
+                <button
+                  type="button"
+                  class="btn btn-info btn-sm mr-2"
+                  (click)="openTemplateModal()"
+                >
+                  <i class="fas fa-save"></i> Save as Template
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  (click)="clearReport()"
+                >
+                  <i class="fas fa-eraser"></i> Clear
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PROTOCOL Section -->
+          <div class="form-group">
+            <label class="form-label"><strong>PROTOCOL:</strong></label>
+            <textarea
+              class="form-control"
+              rows="2"
+              formControlName="protocol"
+              placeholder="Enter the procedure protocol used for this study..."
+            ></textarea>
+            <div
+              *ngIf="
+                radioinward.get('protocol')?.touched &&
+                radioinward.get('protocol')?.invalid
+              "
+              class="text-danger"
+            >
+              Protocol is required
+            </div>
+          </div>
+
+          <!-- OBSERVATION Section -->
+          <div class="form-group">
+            <label class="form-label"><strong>OBSERVATION:</strong></label>
+            <textarea
+              class="form-control"
+              rows="6"
+              formControlName="observation"
+              placeholder="Enter detailed radiological observations and findings..."
+            ></textarea>
+            <div
+              *ngIf="
+                radioinward.get('observation')?.touched &&
+                radioinward.get('observation')?.invalid
+              "
+              class="text-danger"
+            >
+              Observation is required
+            </div>
+          </div>
+
+          <!-- IMPRESSION Section -->
+          <div class="form-group">
+            <label class="form-label"><strong>IMPRESSION:</strong></label>
+            <textarea
+              class="form-control"
+              rows="3"
+              formControlName="impression"
+              placeholder="Enter clinical impression and conclusion..."
+            ></textarea>
+            <div
+              *ngIf="
+                radioinward.get('impression')?.touched &&
+                radioinward.get('impression')?.invalid
+              "
+              class="text-danger"
+            >
+              Impression is required
+            </div>
+          </div>
+
+          <!-- Additional Remarks -->
+          <div class="form-group">
+            <label class="form-label">Additional Findings/Remarks:</label>
+            <textarea
+              rows="3"
+              formControlName="remarks"
+              class="form-control"
+              placeholder="Enter additional findings, recommendations, or remarks..."
+            ></textarea>
+          </div>
+
+          <!-- ✅ ENHANCED SIGNATURE SECTION WITH LIBRARY -->
+          <div class="row mt-4">
+            <div class="col-md-8">
+              <!-- Left side content can go here -->
+            </div>
+
+            <div class="col-md-4">
+              <div class="signature-section">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <label class="form-label mb-0"><strong>Radiologist Signature:</strong></label>
+                  <button
+                    type="button"
+                    class="btn btn-outline-info btn-sm"
+                    (click)="openSignatureLibrary()"
+                    title="Manage signature library"
+                  >
+                    <i class="fas fa-folder"></i> Library
+                  </button>
+                </div>
+
+                <!-- Signature Type Toggle -->
+                <div class="signature-type-toggle mb-2">
+                  <div class="btn-group btn-group-sm w-100" role="group">
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="signatureType"
+                      id="drawSig"
+                      [(ngModel)]="signatureType"
+                      value="draw"
+                      [ngModelOptions]="{ standalone: true }"
+                    />
+                    <label class="btn btn-outline-secondary btn-sm" for="drawSig">
+                      <i class="fas fa-pen"></i> Draw
+                    </label>
+
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="signatureType"
+                      id="uploadSig"
+                      [(ngModel)]="signatureType"
+                      value="upload"
+                      [ngModelOptions]="{ standalone: true }"
+                    />
+                    <label class="btn btn-outline-secondary btn-sm" for="uploadSig">
+                      <i class="fas fa-upload"></i> Upload
+                    </label>
+
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="signatureType"
+                      id="selectSig"
+                      [(ngModel)]="signatureType"
+                      value="select"
+                      [ngModelOptions]="{ standalone: true }"
+                    />
+                    <label class="btn btn-outline-secondary btn-sm" for="selectSig">
+                      <i class="fas fa-list"></i> Select
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Signature Display Box -->
+                <div class="signature-box">
+                  <!-- Drawing Canvas -->
+                  <div *ngIf="signatureType === 'draw'" class="canvas-container">
+                    <canvas
+                      #signatureCanvas
+                      class="signature-canvas"
+                      width="280"
+                      height="120"
+                      (mousedown)="startDrawing($event)"
+                      (mousemove)="draw($event)"
+                      (mouseup)="stopDrawing()"
+                      (touchstart)="startDrawing($event)"
+                      (touchmove)="draw($event)"
+                      (touchend)="stopDrawing()"
+                    >
+                    </canvas>
+                  </div>
+
+                  <!-- File Upload Area -->
+                  <div *ngIf="signatureType === 'upload'" class="upload-container">
+                    <input
+                      #fileInput
+                      type="file"
+                      (change)="onFileSelected($event)"
+                      accept="image/*"
+                      style="display: none"
+                    />
+
+                    <div
+                      *ngIf="!uploadedSignaturePreview"
+                      class="upload-placeholder"
+                      (click)="fileInput.click()"
+                    >
+                      <i class="fas fa-plus-circle text-muted"></i>
+                      <small class="d-block text-muted mt-1">Click to upload</small>
+                    </div>
+
+                    <div
+                      *ngIf="uploadedSignaturePreview"
+                      class="signature-preview"
+                    >
+                      <img [src]="uploadedSignaturePreview" alt="Signature" />
+                    </div>
+                  </div>
+
+                  <!-- Signature Selection -->
+                  <div *ngIf="signatureType === 'select'" class="select-container">
+                    <div *ngIf="!selectedLibrarySignature" class="select-placeholder">
+                      <i class="fas fa-hand-pointer text-muted"></i>
+                      <small class="d-block text-muted mt-1">
+                        <button
+                          type="button"
+                          class="btn btn-link p-0"
+                          (click)="openSignatureLibrary()"
+                        >
+                          Select from library
+                        </button>
+                      </small>
+                    </div>
+
+                    <div *ngIf="selectedLibrarySignature" class="signature-preview">
+                      <img [src]="selectedLibrarySignature.signatureData" alt="Selected Signature" />
+                      <div class="mt-1">
+                        <small class="text-muted">{{ selectedLibrarySignature.name }}</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Current Signature Display -->
+                    <!-- <div *ngIf="signatureData && !isShowingInput()" class="signature-display">
+                      <img [src]="signatureData" alt="Radiologist Signature" />
+                    </div> -->
+                </div>
+
+                <!-- Signature Controls -->
+                <div class="signature-controls mt-2">
+                  <div class="btn-group btn-group-sm w-100">
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary btn-sm"
+                      (click)="clearSignature()"
+                      [disabled]="!signatureData && !uploadedSignaturePreview && !selectedLibrarySignature"
+                    >
+                      <i class="fas fa-eraser"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      (click)="saveSignature()"
+                    >
+                      <i class="fas fa-check"></i> Save
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Signature Status -->
+                <div *ngIf="signatureData" class="signature-status mt-2">
+                  <small class="text-success">
+                    <i class="fas fa-check-circle"></i> Signature saved
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Report Status -->
+          <div class="form-group">
+            <label class="form-label"><strong>Report Status:</strong></label>
+            <select class="form-control" formControlName="reportStatus">
+              <option value="draft">Draft</option>
+              <option value="preliminary">Preliminary</option>
+              <option value="final">Final</option>
+            </select>
+          </div>
+        </div>
+
+        <hr />
+      </div>
+
+      <!-- Submit Buttons Section -->
+      <div class="mt-3">
+        <button
+          class="btn btn-success mx-2"
+          type="submit"
+          [disabled]="!selectedRadiologyRequest || radioinward.invalid"
+        >
+          Complete Investigation & Generate Report
+        </button>
+        <button
+          type="button"
+          class="btn btn-info mx-2"
+          (click)="previewReport()"
+          [disabled]="!selectedRadiologyRequest"
+        >
+          Preview Report
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- No Permissions Message -->
+  <div *ngIf="!userPermissions.create" class="alert alert-warning">
+    <h4>Access Denied</h4>
+    <p>You don't have permission to manage radiology investigations.</p>
+  </div>
+</div>

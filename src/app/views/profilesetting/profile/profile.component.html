@@ -1,0 +1,62 @@
+<div class="form-meta">
+  <!-- Header -->
+   <div class="header">
+     <h2 class="fw-bold"> User Profile</h2>
+
+   </div>
+
+  <!-- User Info Card -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4 p-4">
+    <div class="row">
+      <div class="col-md-4 mb-2">
+        <p><strong>Name:</strong> {{ userRole?.name }}</p>
+      </div>
+      <div class="col-md-4 mb-2">
+        <p><strong>Email:</strong> {{ userRole?.email }}</p>
+      </div>
+      <div class="col-md-4 mb-2">
+        <p><strong>Role ID:</strong> {{ userRole?._id }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Permission Cards per Module -->
+   <div class=" m-3">
+    <h5>Permissions</h5>
+    <hr>
+
+    <div class="row m-3">
+      <div class="col-md-4 mb-4" *ngFor="let mod of allowedModules">
+        <div class="card border-0 shadow rounded-4 h-100">
+          <div class="card-body">
+            <h6 class="fw-semibold text-capitalize mb-3">
+              {{ mod.moduleName }}
+            </h6>
+
+            <div class="d-flex flex-wrap gap-2">
+              <span class="badge rounded-pill px-3 py-2"
+                [ngClass]="mod.permissions.read ? 'bg-success text-white' : 'bg-danger text-white'">
+                Read
+              </span>
+
+              <span class="badge rounded-pill px-3 py-2"
+                [ngClass]="mod.permissions.create ? 'bg-success text-white' : 'bg-danger text-white'">
+                Create
+              </span>
+
+              <span class="badge rounded-pill px-3 py-2"
+                [ngClass]="mod.permissions.update ? 'bg-success text-white' : 'bg-danger text-white'">
+                Update
+              </span>
+
+              <span class="badge rounded-pill px-3 py-2"
+                [ngClass]="mod.permissions.delete ? 'bg-success text-white' : 'bg-danger text-white'">
+                Delete
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+   </div>
+</div>

@@ -1,0 +1,1400 @@
+<!-- company-master.component.html -->
+<div class="form-meta">
+  <div class="header">
+    <h2>Company Master</h2>
+  </div>
+
+  <div class="card mt-5">
+    <div class="card-header">
+      <h4>{{ isEditMode ? "Edit" : "Create" }} Company Master</h4>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="companyForm" (ngSubmit)="onSubmit()">
+        <!-- Basic Information -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Type <span class="text-danger">*</span></label>
+              <select class="form-control" formControlName="type">
+                <option value="">Select Type</option>
+                <option *ngFor="let type of companyTypes" [value]="type">
+                  {{ type }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Company Name <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="companyName"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label
+                >Company Short Name <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                formControlName="companyShortName"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>TPA Name</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="tpaName"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Address</label>
+              <textarea
+                class="form-control"
+                rows="3"
+                formControlName="address"
+              ></textarea>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Company URL</label>
+              <textarea
+                class="form-control"
+                rows="3"
+                formControlName="cashlessFormDownloadLink"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" class="form-control" formControlName="city" />
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="text" class="form-control" formControlName="phone" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Service Rates Section -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <h5>Service Rates</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Service Name</th>
+                    <th>Original Rate</th>
+                    <th>Custom Rate</th>
+                    <th>Type</th>
+                  </tr>
+                </thead>
+                <tbody formArrayName="serviceRates">
+                  <tr
+                    *ngFor="
+                      let serviceRate of serviceRatesArray.controls.slice(
+                        0,
+                        showMoreService
+                      );
+                      let i = index
+                    "
+                    [formGroupName]="i"
+                  >
+                    <td>{{ i + 1 }}</td>
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control"
+                        formControlName="serviceName"
+                        readonly
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        class="form-control"
+                        formControlName="originalRate"
+                        readonly
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        class="form-control"
+                        formControlName="customRate"
+                      />
+                    </td>
+                    <td>{{ services[i]?.type }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div
+                class="text-center"
+                *ngIf="serviceRatesArray.length > showMoreService"
+              >
+                <button
+                  type="button"
+                  class="btn btn-link"
+                  (click)="showMoreService = serviceRatesArray.length"
+                >
+                  Show More
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bed Type Rates Section -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <h5>Bed Type Rates</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Bed Type</th>
+                    <th>Original Rate (Per Day)</th>
+                    <th>Custom Rate (Per Day)</th>
+                  </tr>
+                </thead>
+                <tbody formArrayName="bedTypeRates">
+                  <tr
+                    *ngFor="
+                      let bedTypeRate of bedTypeRatesArray.controls.slice(
+                        0,
+                        showMoreBed
+                      );
+                      let i = index
+                    "
+                    [formGroupName]="i"
+                  >
+                    <td>{{ i + 1 }}</td>
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control"
+                        formControlName="bedTypeName"
+                        readonly
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        class="form-control"
+                        formControlName="originalRate"
+                        readonly
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        class="form-control"
+                        formControlName="customRate"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div
+                class="text-center"
+                *ngIf="bedTypeRatesArray.length > showMoreBed"
+              >
+                <button
+                  type="button"
+                  class="btn btn-link"
+                  (click)="showMoreBed = bedTypeRatesArray.length"
+                >
+                  Show More
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Room Type Rates Section -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <h5>Room Type Rates</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Room Type</th>
+                    <th>Original Rate (Per Day)</th>
+                    <th>Custom Rate (Per Day)</th>
+                  </tr>
+                </thead>
+                <tbody formArrayName="roomTypeRates">
+                  <tr
+                    *ngFor="
+                      let roomTypeRate of roomTypeRatesArray.controls.slice(
+                        0,
+                        showMoreRoom
+                      );
+                      let i = index
+                    "
+                    [formGroupName]="i"
+                  >
+                    <td>{{ i + 1 }}</td>
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control"
+                        formControlName="roomTypeName"
+                        readonly
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        class="form-control"
+                        formControlName="originalRate"
+                        readonly
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        class="form-control"
+                        formControlName="customRate"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div
+                class="text-center"
+                *ngIf="roomTypeRatesArray.length > showMoreRoom"
+              >
+                <button
+                  type="button"
+                  class="btn btn-link"
+                  (click)="showMoreRoom = roomTypeRatesArray.length"
+                >
+                  Show More
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Surgery Package Rates Section (same pattern, tailor for your table)-->
+        <div class="card mt-4">
+          <div class="card-header">
+            <h5>Surgery Package Rates</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-sm">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Package Name</th>
+                    <th>Default Package Rate</th>
+                    <th>Company Custom Rate</th>
+                    <th>Effective Date</th>
+                    <th>Room Type</th>
+                    <th>Room Default Rate</th>
+                    <th>Company Room Custom Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <ng-container
+                    *ngFor="
+                      let pkg of surgeryPackages.slice(0, showMoreSurgery);
+                      let i = index
+                    "
+                  >
+                    <tr
+                      *ngIf="
+                        !pkg.roomWiseBreakdown ||
+                        pkg.roomWiseBreakdown.length === 0
+                      "
+                    >
+                      <td>{{ i + 1 }}</td>
+                      <td>{{ pkg.name }}</td>
+                      <td>{{ pkg.totalPrice }}</td>
+                      <td>
+                        <input
+                          type="number"
+                          class="form-control form-control-sm"
+                          [(ngModel)]="
+                            getOrCreateCompanyPkgRate(pkg._id).customRate
+                          "
+                          [ngModelOptions]="{ standalone: true }"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="date"
+                          class="form-control form-control-sm"
+                          [(ngModel)]="
+                            getOrCreateCompanyPkgRate(pkg._id).effectiveDate
+                          "
+                          [ngModelOptions]="{ standalone: true }"
+                        />
+                      </td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr>
+                    <ng-container
+                      *ngIf="
+                        pkg.roomWiseBreakdown &&
+                        pkg.roomWiseBreakdown.length > 0
+                      "
+                    >
+                      <tr
+                        *ngFor="
+                          let room of pkg.roomWiseBreakdown;
+                          let j = index
+                        "
+                      >
+                        <td
+                          *ngIf="j === 0"
+                          [attr.rowspan]="pkg.roomWiseBreakdown.length"
+                        >
+                          {{ i + 1 }}
+                        </td>
+                        <td
+                          *ngIf="j === 0"
+                          [attr.rowspan]="pkg.roomWiseBreakdown.length"
+                        >
+                          {{ pkg.name }}
+                        </td>
+                        <td
+                          *ngIf="j === 0"
+                          [attr.rowspan]="pkg.roomWiseBreakdown.length"
+                        >
+                          {{ pkg.totalPrice }}
+                        </td>
+                        <td
+                          *ngIf="j === 0"
+                          [attr.rowspan]="pkg.roomWiseBreakdown.length"
+                        >
+                          <input
+                            type="number"
+                            class="form-control form-control-sm"
+                            [(ngModel)]="
+                              getOrCreateCompanyPkgRate(pkg._id).customRate
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                          />
+                        </td>
+                        <td
+                          *ngIf="j === 0"
+                          [attr.rowspan]="pkg.roomWiseBreakdown.length"
+                        >
+                          <input
+                            type="date"
+                            class="form-control form-control-sm"
+                            [(ngModel)]="
+                              getOrCreateCompanyPkgRate(pkg._id).effectiveDate
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                          />
+                        </td>
+                        <td>{{ room.roomName }}</td>
+                        <td>{{ room.packagePrice }}</td>
+                        <td>
+                          <input
+                            type="number"
+                            class="form-control form-control-sm"
+                            [(ngModel)]="
+                              getOrCreateCompanyRoomPkgRate(
+                                pkg._id,
+                                room.roomTypeId
+                              ).customRate
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                          />
+                        </td>
+                      </tr>
+                    </ng-container>
+                  </ng-container>
+                </tbody>
+              </table>
+              <div
+                class="text-center"
+                *ngIf="surgeryPackages.length > showMoreSurgery"
+              >
+                <button
+                  type="button"
+                  class="btn btn-link"
+                  (click)="showMoreSurgery = surgeryPackages.length"
+                >
+                  Show More
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ... other sections and submit logic ... -->
+
+        <div class="row mt-4">
+          <div class="col-md-12">
+            <button
+              type="submit"
+              class="btn btn-primary me-2"
+              [disabled]="!companyForm.valid"
+            >
+              {{ isEditMode ? "Update" : "Create" }} Company
+            </button>
+
+            <!-- ✅ Export Button -->
+            <button
+              type="button"
+              class="btn btn-success me-2"
+              (click)="exportToExcel()"
+              [disabled]="!formInitialized || isLoading"
+            >
+              <i class="fa fa-file-excel me-1"></i>
+              Export Master Data to Excel
+            </button>
+
+            <!-- ✅ Import Button -->
+            <button
+              type="button"
+              class="btn btn-info me-2"
+              (click)="triggerFileUpload()"
+              [disabled]="isImporting"
+            >
+              <i class="fa fa-upload me-1"></i>
+              {{ isImporting ? "Importing..." : "Import from Excel" }}
+            </button>
+
+            <!-- ✅ Hidden File Input -->
+            <input
+              #fileInput
+              type="file"
+              accept=".xlsx,.xls"
+              (change)="onFileSelected($event)"
+              style="display: none"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Companies List -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5>Existing Companies</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Company Name</th>
+              <th>Short Name</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let company of companies">
+              <td>{{ company.type }}</td>
+              <td>{{ company.companyName }}</td>
+              <td>{{ company.companyShortName }}</td>
+              <td>
+                <i
+                  class="fa fa-eye mx-3"
+                  (click)="viewCompanyRates(company)"
+                ></i>
+                <i class="fa fa-edit" (click)="editCompany(company)"></i>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Import Preview Modal -->
+<div
+  class="modal fade show"
+  [style.display]="showImportModal ? 'block' : 'none'"
+  tabindex="-1"
+  role="dialog"
+  *ngIf="showImportModal"
+>
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">
+          <i class="fa fa-upload text-success"></i>
+          Import Preview - Excel Data
+        </h4>
+        <button type="button" class="close" (click)="closeImportModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body" *ngIf="importResults">
+        <!-- Import Summary -->
+        <div class="import-summary mb-4">
+          <div class="row">
+            <div class="col-md-4">
+              <div
+                class="stat-card text-center p-3 bg-primary text-white rounded"
+              >
+                <h4>{{ importResults.summary.validServices }}</h4>
+                <p class="mb-0">Service Rates</p>
+                <small
+                  >of {{ importResults.summary.totalServices }} total</small
+                >
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div
+                class="stat-card text-center p-3 bg-warning text-white rounded"
+              >
+                <h4>{{ importResults.summary.validBedTypes }}</h4>
+                <p class="mb-0">Bed Type Rates</p>
+                <small
+                  >of {{ importResults.summary.totalBedTypes }} total</small
+                >
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="stat-card text-center p-3 bg-info text-white rounded">
+                <h4>{{ importResults.summary.validRoomTypes }}</h4>
+                <p class="mb-0">Room Type Rates</p>
+                <small
+                  >of {{ importResults.summary.totalRoomTypes }} total</small
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Services Preview -->
+        <div *ngIf="importResults.serviceRates.length > 0">
+          <h6>Service Rates Preview</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Service Name</th>
+                  <th>Original Rate</th>
+                  <th>New Rate</th>
+                  <th>Difference</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let rate of importResults.serviceRates | slice : 0 : 10;
+                    let i = index
+                  "
+                >
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ rate.serviceName }}</td>
+                  <td>₹{{ rate.originalRate | number : "1.2-2" }}</td>
+                  <td class="text-success font-weight-bold">
+                    ₹{{ rate.customRate | number : "1.2-2" }}
+                  </td>
+                  <td>
+                    <span
+                      *ngIf="rate.originalRate > rate.customRate"
+                      class="text-success"
+                    >
+                      -₹{{
+                        rate.originalRate - rate.customRate | number : "1.0-0"
+                      }}
+                    </span>
+                    <span
+                      *ngIf="rate.originalRate < rate.customRate"
+                      class="text-danger"
+                    >
+                      +₹{{
+                        rate.customRate - rate.originalRate | number : "1.0-0"
+                      }}
+                    </span>
+                    <span
+                      *ngIf="rate.originalRate === rate.customRate"
+                      class="text-muted"
+                    >
+                      Same
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p
+            class="text-muted small"
+            *ngIf="importResults.serviceRates.length > 10"
+          >
+            Showing 10 of {{ importResults.serviceRates.length }} service rates
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeImportModal()"
+        >
+          <i class="fa fa-times"></i> Cancel
+        </button>
+        <button
+          (click)="applyImportedRates()"
+          [disabled]="
+            !importResults || !importResults.summary || !canApplyImport
+          "
+        >
+          Import
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal Backdrop -->
+<div class="modal-backdrop fade show" *ngIf="showImportModal"></div>
+
+<!-- View Modal -->
+<!-- (Keep your existing view modal code here) -->
+<!-- ✅ VIEW COMPANY RATES MODAL -->
+<div
+  class="modal fade show"
+  [style.display]="showViewModal ? 'block' : 'none'"
+  tabindex="-1"
+  role="dialog"
+  *ngIf="showViewModal"
+>
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">
+          <i class="fa fa-building text-primary"></i>
+          {{ selectedCompanyForView?.companyName }} - Rate Details
+        </h4>
+        <button type="button" class="close" (click)="closeViewModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Loading State -->
+        <div *ngIf="loadingCompanyData" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <p class="mt-2">Loading company rate details...</p>
+        </div>
+
+        <!-- Company Details -->
+        <div *ngIf="!loadingCompanyData && companyRatesData" class="row">
+          <!-- Company Info -->
+          <div class="col-md-12">
+            <div class="card mb-4">
+              <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                  <i class="fa fa-info-circle"></i> Company Information
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-3">
+                    <strong>Type:</strong> {{ companyRatesData.type }}
+                  </div>
+                  <div class="col-md-3">
+                    <strong>Short Name:</strong>
+                    {{ companyRatesData.companyShortName }}
+                  </div>
+                  <div class="col-md-3">
+                    <strong>TPA Name:</strong>
+                    {{ companyRatesData.tpaName || "N/A" }}
+                  </div>
+                  <div class="col-md-3">
+                    <strong>Status:</strong>
+                    <span
+                      class="badge"
+                      [class.badge-success]="companyRatesData.isActive"
+                      [class.badge-danger]="!companyRatesData.isActive"
+                    >
+                      {{ companyRatesData.isActive ? "Active" : "Inactive" }}
+                    </span>
+                  </div>
+                </div>
+                <div class="row mt-2" *ngIf="companyRatesData.address">
+                  <div class="col-md-12">
+                    <strong>Address:</strong> {{ companyRatesData.address }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ SERVICE RATES TABLE -->
+          <div
+            class="col-md-12"
+            *ngIf="
+              companyRatesData.serviceRates &&
+              companyRatesData.serviceRates.length > 0
+            "
+          >
+            <div class="card mb-4">
+              <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                  <i class="fa fa-cogs"></i> Service Rates
+                  <span class="badge badge-light text-dark">{{
+                    companyRatesData.serviceRates.length
+                  }}</span>
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover">
+                    <thead class="thead-dark">
+                      <tr>
+                        <th>Service Name</th>
+                        <th>Standard Rate</th>
+                        <th>Company Rate</th>
+                        <th>Savings/Difference</th>
+                        <th>Status</th>
+                        <th>Effective Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let serviceRate of companyRatesData.serviceRates
+                        "
+                      >
+                        <td>
+                          <strong>{{
+                            serviceRate.serviceId?.name || "Unknown Service"
+                          }}</strong>
+                        </td>
+                        <td>
+                          ₹{{
+                            serviceRate.serviceId?.charge || 0
+                              | number : "1.2-2"
+                          }}
+                        </td>
+                        <td>
+                          <span
+                            [class.text-success]="
+                              isDiscounted(
+                                serviceRate.serviceId?.charge || 0,
+                                serviceRate.customRate
+                              )
+                            "
+                            [class.text-danger]="
+                              isIncreased(
+                                serviceRate.serviceId?.charge || 0,
+                                serviceRate.customRate
+                              )
+                            "
+                            [class.text-muted]="
+                              serviceRate.serviceId?.charge ===
+                              serviceRate.customRate
+                            "
+                          >
+                            ₹{{ serviceRate.customRate | number : "1.2-2" }}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            *ngIf="
+                              isDiscounted(
+                                serviceRate.serviceId?.charge || 0,
+                                serviceRate.customRate
+                              )
+                            "
+                            class="badge badge-success"
+                          >
+                            <i class="fa fa-arrow-down"></i> ₹{{
+                              getSavings(
+                                serviceRate.serviceId?.charge || 0,
+                                serviceRate.customRate
+                              ) | number : "1.2-2"
+                            }}
+                            saved
+                          </span>
+                          <span
+                            *ngIf="
+                              isIncreased(
+                                serviceRate.serviceId?.charge || 0,
+                                serviceRate.customRate
+                              )
+                            "
+                            class="badge badge-danger"
+                          >
+                            <i class="fa fa-arrow-up"></i> ₹{{
+                              serviceRate.customRate -
+                                (serviceRate.serviceId?.charge || 0)
+                                | number : "1.2-2"
+                            }}
+                            increase
+                          </span>
+                          <span
+                            *ngIf="
+                              serviceRate.serviceId?.charge ===
+                              serviceRate.customRate
+                            "
+                            class="badge badge-secondary"
+                          >
+                            <i class="fa fa-equals"></i> Same as standard
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            *ngIf="
+                              isDiscounted(
+                                serviceRate.serviceId?.charge || 0,
+                                serviceRate.customRate
+                              )
+                            "
+                            class="badge badge-success"
+                            >Discounted</span
+                          >
+                          <span
+                            *ngIf="
+                              isIncreased(
+                                serviceRate.serviceId?.charge || 0,
+                                serviceRate.customRate
+                              )
+                            "
+                            class="badge badge-warning"
+                            >Premium</span
+                          >
+                          <span
+                            *ngIf="
+                              serviceRate.serviceId?.charge ===
+                              serviceRate.customRate
+                            "
+                            class="badge badge-secondary"
+                            >Standard</span
+                          >
+                        </td>
+                        <td>
+                          <small>{{
+                            serviceRate.effectiveDate | date : "short"
+                          }}</small>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ SURGERY PACKAGE RATES TABLE -->
+          <div
+            class="col-md-12"
+            *ngIf="
+              companyRatesData.surgeryPackageRates &&
+              companyRatesData.surgeryPackageRates.length > 0
+            "
+          >
+            <div class="card mb-4">
+              <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                  <i class="fa fa-heartbeat"></i> Surgery Package Rates
+                  <span class="badge badge-light text-dark">
+                    {{ companyRatesData.surgeryPackageRates.length }}
+                  </span>
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive mb-3">
+                  <table class="table table-striped table-hover">
+                    <thead class="thead-dark">
+                      <tr>
+                        <th></th>
+                        <th>Package Name</th>
+                        <th>Standard Rate</th>
+                        <th>Company Rate</th>
+                        <th>Difference</th>
+                        <th>Effective Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <ng-container
+                        *ngFor="let pkg of companyRatesData.surgeryPackageRates"
+                      >
+                        <tr>
+                          <td>
+                            <button
+                              class="btn btn-link p-0"
+                              (click)="pkg.showRooms = !pkg.showRooms"
+                              *ngIf="
+                                pkg.surgeryPackageId?.roomWiseBreakdown?.length
+                              "
+                            >
+                              <i
+                                class="fa"
+                                [ngClass]="{
+                                  'fa-chevron-down': !pkg.showRooms,
+                                  'fa-chevron-up': pkg.showRooms
+                                }"
+                              ></i>
+                            </button>
+                          </td>
+                          <td>
+                            <strong>{{
+                              resolvePackageName(pkg.surgeryPackageId) ||
+                                "Unknown Package"
+                            }}</strong>
+                          </td>
+                          <td>
+                            ₹{{
+                              resolvePackageRate(pkg.surgeryPackageId)
+                                | number : "1.2-2"
+                            }}
+                          </td>
+                          <td>
+                            <span
+                              [class.text-success]="
+                                isDiscounted(
+                                  resolvePackageRate(pkg.surgeryPackageId) || 0,
+                                  pkg.customRate
+                                )
+                              "
+                              [class.text-danger]="
+                                isIncreased(
+                                  resolvePackageRate(pkg.surgeryPackageId) || 0,
+                                  pkg.customRate
+                                )
+                              "
+                              >₹{{ pkg.customRate | number : "1.2-2" }}</span
+                            >
+                          </td>
+                          <td>
+                            <ng-container
+                              [ngSwitch]="
+                                getSavings(
+                                  resolvePackageRate(pkg.surgeryPackageId) || 0,
+                                  pkg.customRate
+                                )
+                              "
+                            >
+                              <span *ngSwitchCase="0" class="text-muted"
+                                ><i class="fa fa-equals"></i> Same</span
+                              >
+                              <span
+                                *ngSwitchCase="
+                                  getSavings(
+                                    resolvePackageRate(pkg.surgeryPackageId) ||
+                                      0,
+                                    pkg.customRate
+                                  ) > 0
+                                "
+                                class="text-success"
+                                ><i class="fa fa-arrow-down"></i> ₹{{
+                                  getSavings(
+                                    resolvePackageRate(pkg.surgeryPackageId) ||
+                                      0,
+                                    pkg.customRate
+                                  ) | number : "1.2-2"
+                                }}</span
+                              >
+                              <span
+                                *ngSwitchCase="
+                                  getSavings(
+                                    resolvePackageRate(pkg.surgeryPackageId) ||
+                                      0,
+                                    pkg.customRate
+                                  ) < 0
+                                "
+                                class="text-danger"
+                                ><i class="fa fa-arrow-up"></i> ₹{{
+                                  getSavings(
+                                    resolvePackageRate(pkg.surgeryPackageId) ||
+                                      0,
+                                    pkg.customRate
+                                  ) | number : "1.2-2"
+                                }}</span
+                              >
+                            </ng-container>
+                          </td>
+                          <td>
+                            <small>{{
+                              pkg.effectiveDate | date : "short"
+                            }}</small>
+                          </td>
+                        </tr>
+                        <!-- ROOM WISE EXPAND ROW -->
+                        <tr *ngIf="pkg.showRooms">
+                          <td colspan="6">
+                            <div class="ml-4">
+                              <h6>
+                                <i class="fa fa-bed text-info"></i> Room-wise
+                                Breakdown
+                              </h6>
+                              <div class="table-responsive">
+                                <table class="table table-borderless table-sm">
+                                  <thead>
+                                    <tr>
+                                      <th>Room Type</th>
+                                      <th>Room Price</th>
+                                      <th>Package Price</th>
+                                      <th>Description</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <ng-container
+                                      *ngIf="
+                                        pkg.surgeryPackageId?.roomWiseBreakdown
+                                          ?.length
+                                      "
+                                    >
+                                      <tr
+                                        *ngFor="
+                                          let br of pkg.surgeryPackageId
+                                            .roomWiseBreakdown
+                                        "
+                                      >
+                                        <td>{{ br.roomName }}</td>
+                                        <td>
+                                          ₹{{ br.roomPrice | number : "1.2-2" }}
+                                        </td>
+                                        <td>
+                                          ₹{{
+                                            br.packagePrice | number : "1.2-2"
+                                          }}
+                                        </td>
+                                        <td>{{ br.roomDescription }}</td>
+                                      </tr>
+                                    </ng-container>
+                                    <ng-container
+                                      *ngIf="
+                                        !pkg.surgeryPackageId?.roomWiseBreakdown
+                                          ?.length
+                                      "
+                                    >
+                                      <tr>
+                                        <td colspan="4" class="text-muted">
+                                          <i class="fa fa-info-circle"></i> No
+                                          room-specific rates for this package.
+                                        </td>
+                                      </tr>
+                                    </ng-container>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </ng-container>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ BED TYPE RATES TABLE -->
+          <div
+            class="col-md-6"
+            *ngIf="
+              companyRatesData.bedTypeRates &&
+              companyRatesData.bedTypeRates.length > 0
+            "
+          >
+            <div class="card mb-4">
+              <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                  <i class="fa fa-bed"></i> Bed Type Rates
+                  <span class="badge badge-dark">{{
+                    companyRatesData.bedTypeRates.length
+                  }}</span>
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped table-sm">
+                    <thead class="thead-dark">
+                      <tr>
+                        <th>Bed Type</th>
+                        <th>Standard Rate</th>
+                        <th>Company Rate</th>
+                        <th>Difference</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let bedTypeRate of companyRatesData.bedTypeRates
+                        "
+                      >
+                        <td>
+                          <strong>{{
+                            bedTypeRate.bedTypeId?.name || "Unknown Bed Type"
+                          }}</strong>
+                        </td>
+                        <td>
+                          ₹{{
+                            bedTypeRate.bedTypeId?.price_per_day || 0
+                              | number : "1.2-2"
+                          }}
+                        </td>
+                        <td>
+                          <span
+                            [class.text-success]="
+                              isDiscounted(
+                                bedTypeRate.bedTypeId?.price_per_day || 0,
+                                bedTypeRate.customRate
+                              )
+                            "
+                            [class.text-danger]="
+                              isIncreased(
+                                bedTypeRate.bedTypeId?.price_per_day || 0,
+                                bedTypeRate.customRate
+                              )
+                            "
+                          >
+                            ₹{{ bedTypeRate.customRate | number : "1.2-2" }}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            *ngIf="
+                              getSavings(
+                                bedTypeRate.bedTypeId?.price_per_day || 0,
+                                bedTypeRate.customRate
+                              ) > 0
+                            "
+                            class="text-success"
+                          >
+                            <i class="fa fa-arrow-down"></i> ₹{{
+                              getSavings(
+                                bedTypeRate.bedTypeId?.price_per_day || 0,
+                                bedTypeRate.customRate
+                              ) | number : "1.2-2"
+                            }}
+                          </span>
+                          <span
+                            *ngIf="
+                              getSavings(
+                                bedTypeRate.bedTypeId?.price_per_day || 0,
+                                bedTypeRate.customRate
+                              ) < 0
+                            "
+                            class="text-danger"
+                          >
+                            <i class="fa fa-arrow-up"></i> ₹{{
+                              getSavings(
+                                bedTypeRate.bedTypeId?.price_per_day || 0,
+                                bedTypeRate.customRate
+                              ) | number : "1.2-2"
+                            }}
+                          </span>
+                          <span
+                            *ngIf="
+                              getSavings(
+                                bedTypeRate.bedTypeId?.price_per_day || 0,
+                                bedTypeRate.customRate
+                              ) === 0
+                            "
+                            class="text-muted"
+                          >
+                            <i class="fa fa-equals"></i> Same
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ ROOM TYPE RATES TABLE -->
+          <div
+            class="col-md-6"
+            *ngIf="
+              companyRatesData.roomTypeRates &&
+              companyRatesData.roomTypeRates.length > 0
+            "
+          >
+            <div class="card mb-4">
+              <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                  <i class="fa fa-home"></i> Room Type Rates
+                  <span class="badge badge-light text-dark">{{
+                    companyRatesData.roomTypeRates.length
+                  }}</span>
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped table-sm">
+                    <thead class="thead-dark">
+                      <tr>
+                        <th>Room Type</th>
+                        <th>Standard Rate</th>
+                        <th>Company Rate</th>
+                        <th>Difference</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let roomTypeRate of companyRatesData.roomTypeRates
+                        "
+                      >
+                        <td>
+                          <strong>{{
+                            roomTypeRate.roomTypeId?.name || "Unknown Room Type"
+                          }}</strong>
+                        </td>
+                        <td>
+                          ₹{{
+                            roomTypeRate.roomTypeId?.price_per_day || 0
+                              | number : "1.2-2"
+                          }}
+                        </td>
+                        <td>
+                          <span
+                            [class.text-success]="
+                              isDiscounted(
+                                roomTypeRate.roomTypeId?.price_per_day || 0,
+                                roomTypeRate.customRate
+                              )
+                            "
+                            [class.text-danger]="
+                              isIncreased(
+                                roomTypeRate.roomTypeId?.price_per_day || 0,
+                                roomTypeRate.customRate
+                              )
+                            "
+                          >
+                            ₹{{ roomTypeRate.customRate | number : "1.2-2" }}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            *ngIf="
+                              getSavings(
+                                roomTypeRate.roomTypeId?.price_per_day || 0,
+                                roomTypeRate.customRate
+                              ) > 0
+                            "
+                            class="text-success"
+                          >
+                            <i class="fa fa-arrow-down"></i> ₹{{
+                              getSavings(
+                                roomTypeRate.roomTypeId?.price_per_day || 0,
+                                roomTypeRate.customRate
+                              ) | number : "1.2-2"
+                            }}
+                          </span>
+                          <span
+                            *ngIf="
+                              getSavings(
+                                roomTypeRate.roomTypeId?.price_per_day || 0,
+                                roomTypeRate.customRate
+                              ) < 0
+                            "
+                            class="text-danger"
+                          >
+                            <i class="fa fa-arrow-up"></i> ₹{{
+                              getSavings(
+                                roomTypeRate.roomTypeId?.price_per_day || 0,
+                                roomTypeRate.customRate
+                              ) | number : "1.2-2"
+                            }}
+                          </span>
+                          <span
+                            *ngIf="
+                              getSavings(
+                                roomTypeRate.roomTypeId?.price_per_day || 0,
+                                roomTypeRate.customRate
+                              ) === 0
+                            "
+                            class="text-muted"
+                          >
+                            <i class="fa fa-equals"></i> Same
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ NO DATA MESSAGE -->
+          <div
+            class="col-md-12"
+            *ngIf="
+              !companyRatesData.serviceRates ||
+              companyRatesData.serviceRates.length === 0
+            "
+          >
+            <div class="alert alert-info">
+              <i class="fa fa-info-circle"></i> No service rates configured for
+              this company yet.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeViewModal()"
+        >
+          <i class="fa fa-times"></i> Close
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="editCompany(selectedCompanyForView); closeViewModal()"
+        >
+          <i class="fa fa-edit"></i> Edit Company Rates
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal backdrop -->

@@ -1,0 +1,131 @@
+/* ---- Generic page container & flex ---- */
+.page, .a4-bill {
+  display: flex;
+  flex-direction: column;
+  width: 210mm;
+  min-height: 297mm;
+  position: relative;
+  background: white;
+  box-sizing: border-box;
+  margin: 0 auto 24px auto;
+  border: 1px solid #090909;
+}
+
+.print-header {
+  flex-shrink: 0;
+  width: 100%;
+  padding: 12px 0 0 0;
+  border-bottom: 1px solid #ddd;
+  background: white;
+}
+
+.bill-main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.bill-content {
+  flex: 1 1 auto;
+  padding: 18px 0 20px 0;
+  border: 1px solid #060606;
+  border-radius: 4px;
+  min-height: 120px;
+}
+
+.print-footer {
+  flex-shrink: 0;
+  width: 100%;
+  border-top: 1px solid #ddd;
+  background: white;
+  margin-top: 0;
+}
+
+.footer-sign {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Patient and summary styles */
+.bill-patient-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 44px;
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+.bill-patient-grid > div { min-width: 170px; }
+
+/* Tables and general styling */
+.charges-table, table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+.charges-table th, .charges-table td, table th, table td {
+  border: 1px solid #bbb;
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+/* Typography */
+.title {
+  background: #e7eaf1;
+  padding: 6px;
+  font-size: 20px;
+  text-align: center;
+  margin: 5px 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.words { margin: 12px 0 0 8px; font-weight: 600; text-transform: capitalize; }
+.divider { border: none; border-bottom: 1.5px solid #bbb; margin: 16px 0; }
+.entry-details{ margin-top: 200px; }
+.box{ border:1px solid black; width:55px; height:70px; }
+
+/* ----- Print adjustments ----- */
+@media print {
+  body * { visibility: hidden !important; }
+  #opd-sheet, #opd-sheet * { visibility: visible !important; }
+  #opd-sheet { position: static !important; width: 100% !important; }
+  .summary{ border: 1px solid black !important;}
+  .page, .a4-bill {
+    page-break-after: always;
+    box-shadow: none !important;
+    border: none !important;
+    background: white !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+  }
+  .print-header,
+  .print-footer {
+    position: static !important;
+    width: 100% !important;
+    background: white !important;
+  }
+  .bill-content {
+    padding: 0 !important;
+    min-height: 120px !important;
+    border: none !important;
+  }
+  .charges-table, table {
+    page-break-inside: avoid !important;
+  }
+  .charges-table th, .charges-table td, table th, table td {
+    border: 1px solid #000 !important;
+    page-break-inside: avoid !important;
+  }
+  .title {
+    background: #e7eaf1 !important;
+    font-size: 20px !important;
+    text-align: center !important;
+    margin: 8px 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  * { box-shadow: none !important; outline: none !important; }
+}

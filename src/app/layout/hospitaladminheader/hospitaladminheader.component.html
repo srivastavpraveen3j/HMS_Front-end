@@ -1,0 +1,274 @@
+<!-- ==> sidebar  -->
+<aside class="sidebar" [ngClass]="{ collapsed: isCollapsed }">
+  <!-- Logo -->
+  <div class="logo-container" routerLink="/hospitaladmin">
+    <div class="logo">
+      <!-- Show image only when NOT collapsed -->
+      <img
+        *ngIf="!isCollapsed"
+        [src]="logoUrl"
+        alt="Hospital Logo"
+        class="logo-image"
+        style="width: 100%; height: auto"
+        (error)="onLogoError($event)"
+      />
+
+      <!-- Show icon only when collapsed -->
+      <i
+        *ngIf="isCollapsed"
+        class="fa-solid fa-hospital logo-icon"
+        style="
+          color: var(--sidebar-color);
+          background-color: var(--sidebar-color);
+        "
+      >
+      </i>
+    </div>
+  </div>
+
+  <!-- Sidebar Nav -->
+  <nav>
+    <ul class="sidebar-nav">
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/hospitaladmin/hospitalmanagement">
+          <i class="fa-solid fa-building nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Hospital Management</span>
+        </a>
+      </li>
+
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" (click)="toggleDropdown('urm')">
+          <i class="fa-solid fa-users-gear nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">User Role Management</span>
+        </a>
+        <ul class="dropdown-menu" [class.open]="dropdowns.urm">
+          <div class="dropdown-grid">
+            <li>
+              <a
+                class="dropdown-item"
+                routerLink="/hospitaladmin/urm/patientmanagement"
+              >
+                <i
+                  class="fa-solid fa-hospital-user nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="dropdown-item" *ngIf="!isCollapsed"
+                  >Patient Management</span
+                >
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                routerLink="/hospitaladmin/urm/doctormanagement"
+              >
+                <i
+                  class="fa-solid fa-user-doctor nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="dropdown-item" *ngIf="!isCollapsed"
+                  >Doctor Management</span
+                >
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                routerLink="/hospitaladmin/urm/staffmanagement"
+              >
+                <i
+                  class="fa-solid fa-user-nurse nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="dropdown-item" *ngIf="!isCollapsed"
+                  >Staff Management</span
+                >
+              </a>
+            </li>
+          </div>
+        </ul>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/hospitaladmin/appointmentmanagement">
+          <i
+            class="fa-solid fa-calendar-check nav-icon"
+            *ngIf="isCollapsed"
+          ></i>
+          <span class="nav-text">Appointment Management</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/hospitaladmin/labmanagement">
+          <i class="fa-solid fa-vials nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Lab & Diagnostic Management</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/hospitaladmin/pharmacymanagement">
+          <i class="fa-solid fa-pills nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Pharmacy Management</span>
+        </a>
+      </li>
+
+      <!-- SETTINGS DROPDOWN -->
+      <li class="nav-item dropdown">
+        <a
+          class="nav-link dropdown-toggle"
+          (click)="toggleDropdown('settings')"
+        >
+          <i class="fa-solid fa-gear nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Settings</span>
+        </a>
+        <ul class="dropdown-menu" [class.open]="dropdowns.settings">
+          <div class="dropdown-grid">
+            <li>
+              <a class="dropdown-item" routerLink="/hospitaladmin/roles">
+                <i
+                  class="fa-solid fa-user-shield nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="dropdown-item" *ngIf="!isCollapsed">Role</span>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" routerLink="/hospitaladmin/permission">
+                <i
+                  class="fa-solid fa-lock-keyhole nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="dropdown-item" *ngIf="!isCollapsed"
+                  >Permission</span
+                >
+              </a>
+            </li>
+          </div>
+        </ul>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/digitalks" (click)="logOut()">
+          <i class="fa-solid fa-sign-out-alt nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">LogOut</span>
+        </a>
+      </li>
+    </ul>
+
+    <!-- User Menu -->
+    <!-- <div class="user-menu">
+      <div class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" (click)="toggleDropdown('profile')">
+          <i class="fa-solid fa-user-tie nav-icon"></i>
+          <span class="nav-text" *ngIf="!isCollapsed">Hospital Admin</span>
+        </a>
+        <ul class="dropdown-menu" [class.open]="dropdowns.profile">
+          <li><a class="dropdown-item" routerLink="/profilesetting">Profile</a></li>
+          <li>
+            <a class="dropdown-item" routerLink="/hospitaladmin/notification">
+              <i class="fa-solid fa-bell"></i>
+              Notification
+              <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+            </a>
+          </li>
+          <li><a class="dropdown-item" routerLink="/login">Logout</a></li>
+        </ul>
+      </div>
+    </div> -->
+  </nav>
+
+  <!-- Sidebar Toggle -->
+  <div class="sidebar-toggle" (click)="toggleCollapse()">
+    <i
+      class="fa-solid"
+      [ngClass]="isCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"
+    ></i>
+  </div>
+</aside>
+
+<!-- <div class="d-flex">
+  <div class="logo-container w-25" routerLink="/hospitaladmin">
+    <div class="logo">
+      <img src="Untitled design (6).jpg" alt="logo" >
+    </div>
+  </div>
+  <div class="w-75">
+    <nav class="header navbar navbar-expand-lg">
+
+      <div class="container-fluid">
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="nav-links navbar-nav me-auto"> -->
+<!-- <li class="nav-item"><a class="nav-link" href="/pathologylayout/manageinward">LOGIN & DASHBOARD ACCESS</a></li> -->
+<!-- <li class="nav-item"><a class="nav-link" href="/hospitaladmin/hospitalmanagement
+              ">Hospital MANAGEMENT</a></li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="opdDropdown" role="button" data-bs-toggle="dropdown">
+                USER ROLE MANAGEMENT
+              </a>
+              <ul class="dropdown-menu opd-menu">
+                <div class="dropdown-grid">
+                  <li><a class="dropdown-item" href="hospitaladmin/urm/patientmanagement"><i class="fa-regular fa-hand-point-right"></i> PATIENT MANAGEMENT</a></li>
+                  <li><a class="dropdown-item" href="hospitaladmin/urm/doctormanagement"><i class="fa-regular fa-hand-point-right"></i> DOCTOR MANAGEMENT</a></li>
+                  <li><a class="dropdown-item" href="hospitaladmin/urm/staffmanagement"><i class="fa-regular fa-hand-point-right"></i> STAFF MANAGEMENT</a></li> -->
+<!-- <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i>HEALTH CHECKUP BILL</a></li> -->
+<!-- </div>
+              </ul>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="hospitaladmin/appointmentmanagement">APPOINTMENT MANAGEMENT</a></li>
+            <li class="nav-item"><a class="nav-link" href="hospitaladmin/labmanagement">LAB & DIAGNOSTIC MANAGEMENT</a></li>
+            <li class="nav-item"><a class="nav-link" href="hospitaladmin/pharmacymanagement">PHARMACY MANAGEMENT</a></li>
+
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="settings" role="button" data-bs-toggle="dropdown">
+                SETTINGS
+              </a>
+              <ul class="dropdown-menu settingmenu">
+                <div class="dropdown-grid"> -->
+<!-- <li><a class="dropdown-item" href="/setting/general"><i class="fa-regular fa-hand-point-right"></i> General Setting</a></li> -->
+<!-- <li><a class="dropdown-item" href="/setting/administrative"><i class="fa-regular fa-hand-point-right"></i> Authorities Management</a></li> -->
+<!-- <li><a class="dropdown-item" href="/hospitaladmin/roles"><i class="fa-regular fa-hand-point-right"></i> Role Management</a></li>
+                  <li><a class="dropdown-item" href="/hospitaladmin/permission"><i class="fa-regular fa-hand-point-right"></i> Role Permission Management</a></li> -->
+<!-- <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Report Sheet</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Diagnosis Sheet</a></li> -->
+<!-- </div>
+              </ul>
+            </li>
+
+          </ul>
+
+          <div class="user-menu">
+            <div class="nav-item ">
+              <a class="nav-link " href="/hospitaladmin" id="hmsDropdown" role="button" data-bs-toggle="dropdown">
+               Hospital Admin
+              </a>
+
+            </div> -->
+<!-- <a class="nav-link" [routerLink]="['/login']" routerLinkActive="router-link-active"><i class="fa-solid fa-user-tie"></i></a> -->
+<!-- <div class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="hmsDropdown" role="button" data-bs-toggle="dropdown">
+                <i class="fa-solid fa-user-tie"></i>
+              </a>
+              <ul class="dropdown-menu ">
+                <div class="dropdown-grid">
+                  <li><a class="dropdown-item" href="/profilesetting"><i class="fa-solid fa-gear"></i>Profile</a></li>
+                  <li><a class="dropdown-item" href="hospitaladmin/notification"><span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span><i class="fa-solid fa-bell">  </i>Notification</a>
+
+                  </li>
+                  <li><a class="nav-link" [routerLink]="['/login']" routerLinkActive="router-link-active"><i class="fa-solid fa-gear"></i>Logout</a></li>
+                </div>
+              </ul>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div> -->

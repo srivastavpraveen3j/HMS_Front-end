@@ -1,0 +1,242 @@
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pharmacy Management Dashboard</title>
+</head>
+
+<div class="p-2">
+  <!-- Dashboard Overview Section -->
+  <div id="dashboard" class="section active">
+    <div class="stats-grid">
+      <div class="stat-card" routerLink="/pharmalayout/opdpharmalayout" *ngIf="pharmapermission">
+        <div class="stat-number">{{ totalFilteredOPDCases || 0 }}</div>
+        <div class="stat-label">OPD Patients Today</div>
+      </div>
+      <div class="stat-card" routerLink="/pharmalayout/pharmalayout" *ngIf="ipdpharmapermission">
+        <div class="stat-number">{{ totalFilteredIPDCases || 0 }}</div>
+        <div class="stat-label">IPD Patients</div>
+      </div>
+      <div class="stat-card" routerLink="/pharmalayout/walkinpharma">
+        <div class="stat-number">{{ totalFilteredWalkCases || 0 }}</div>
+        <div class="stat-label">Walk-in Patients</div>
+      </div>
+      <div class="stat-card" routerLink="/pharmalayout/pharmamanagementlist">
+        <div class="stat-number">{{ lowStockMedicinesFullList.length }}</div>
+        <div class="stat-label">Low Stock Alerts</div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <div class="action-btn" routerLink="/pharmalayout/pharmamanagementlist">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem">💊</div>
+        <div>Medicine Stock</div>
+      </div>
+      <div class="action-btn" routerLink="/pharmalayout/subpharmaexpired">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem">
+          <i class="fa-solid fa-prescription-bottle-pill"></i>
+        </div>
+        <div>
+          Expired Medicines: <span class="text-danger">{{ countexpired }}</span>
+        </div>
+      </div>
+      <div class="action-btn" routerLink="/pharmalayout/pharmareport">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem">📊</div>
+        <div>View Reports</div>
+      </div>
+      <div class="action-btn" routerLink="/pharmalayout/pharmamaterialreq">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem">📝</div>
+        <div>Material Request</div>
+      </div>
+      <div class="action-btn" routerLink="/pharmalayout/returnmedicine">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔄</div>
+        <div>Return Medicine</div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+ <!-- Enhanced Charts Section -->
+<div class="charts-section">
+    <!-- <h2 class="charts-section-title">Analytics Overview</h2> -->
+    <div class="charts-grid">
+        <!-- Top Medicines Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">Top Medicines</div>
+                <div class="chart-subtitle">Most dispensed medications</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="topMedicinesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Income Pie Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">Revenue Distribution</div>
+                <div class="chart-subtitle">Income breakdown by category</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="incomePieChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Refund Analysis Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">Refund Analysis</div>
+                <div class="chart-subtitle">Returns and refund trends</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="refundAnalysisChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Net Income Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">Net Income Summary</div>
+                <div class="chart-subtitle">Profit after refunds</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="netIncomePieChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Patient Tables Section -->
+    <div class="dashboard-grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Recent OPD Patients Walk-In</div>
+          <button
+            class="btn btn-primary"
+            routerLink="/pharmalayout/walkinpharma"
+          >
+            View All
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table table table-striped table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>TIME</th>
+                <th>PATIENT NAME</th>
+                <th>Medicine Name</th>
+                <th>Total Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of filteredwalkCases">
+                <td>{{ record.createdAt | date : "shortTime" }}</td>
+                <td>
+                  {{ record?.walkInPatient?.name || "-" }}
+                  <span *ngIf="!record?.walkInPatient?.name">[Missing]</span>
+                </td>
+                <td>
+                  <ul>
+                    <li *ngFor="let med of record.packages">
+                      {{ med.medicineName }}
+                    </li>
+                  </ul>
+                </td>
+                <td>{{ record.total | indianCurrency }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" *ngIf="pharmapermission">
+        <div class="card-header">
+          <div class="card-title">Recent OPD Patients</div>
+          <button
+            class="btn btn-primary"
+            routerLink="/pharmalayout/opdpharmalayout"
+          >
+            View All
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table table table-striped table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th>DATE TIME</th>
+              <th>UHID NO</th>
+              <th>PATIENT NAME</th>
+              <th>Medicine Name</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let record of filteredCases">
+              <td>{{ record.createdAt | date : "shortTime" }}</td>
+              <td>{{ record.uhid }}</td>
+              <td>
+                {{ record.patient_name || "-" }}
+                <span *ngIf="!record.patient_name">[Missing]</span>
+              </td>
+              <td>
+                <ul>
+                  <li *ngFor="let med of record.packages">
+                    {{ med.medicineName }}
+                  </li>
+                </ul>
+              </td>
+              <td>{{ record.total | indianCurrency }}</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+
+      </div>
+
+      <div class="card" *ngIf="ipdpharmapermission">
+        <div class="card-header">
+          <div class="card-title">IPD Patient Summary</div>
+          <button
+            class="btn btn-primary"
+            routerLink="/pharmalayout/pharmalayout"
+          >
+            View All
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table table table-striped table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>TIME</th>
+                <th>UHID NO</th>
+                <th>PATIENT NAME</th>
+                <th>Medicine Name</th>
+                <th>Total Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of filteredipdCases">
+                <td>{{ record.createdAt | date : "shortTime" }}</td>
+                <td>
+                  {{ record.uhid || "-" }}
+                  <span *ngIf="!record.uhid">[Missing]</span>
+                </td>
+                <td>
+                  {{ record.patient_name || "-" }}
+                  <span *ngIf="!record.patient_name">[Missing]</span>
+                </td>
+                <td>
+                  <ul>
+                    <li *ngFor="let med of record.packages">
+                      {{ med.medicineName }}
+                    </li>
+                  </ul>
+                </td>
+                <td>{{ record.total | indianCurrency }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,55 @@
+<!-- <p>doctordischargesummary works!</p> -->
+<div class="header">
+  <h2>ACCESS & CONTROL</h2>
+  <div class="">
+    <button class="list-cases-btn mx-3"   ><i class="fa-solid fa-user-group"></i></button>
+  </div>
+</div>
+<div class="opd-container">
+  <form>
+    <h4 class="m-4">Access Details</h4>
+    <hr>
+
+    <div *ngFor="let role of roles" class="role-card">
+      <div class="role-header" (click)="toggleExpand(role._id)">
+        <div>
+          <h3>{{ role.name | titlecase }}</h3>
+          <p>{{ role.description }}</p>
+        </div>
+        <button class="toggle-btn">
+          {{ expandedRoleId === role._id ? '−' : '+' }}
+        </button>
+      </div>
+
+      <div class="permission-list" [ngClass]="{ 'visible': expandedRoleId === role._id, 'hidden': expandedRoleId !== role._id }">
+          <table class="table table-bordered table-hover align-middle diagnosis-table">
+         <thead class="table-dark text-center" >
+            <tr>
+              <th>Permission Name</th>
+              <th>Description</th>
+              <th>Action</th>
+              <th>Resource</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let perm of role.permissions">
+              <td>{{ perm.name }}</td>
+              <td>{{ perm.description }}</td>
+              <td>{{ perm.action }}</td>
+              <td>{{ perm.resource }}</td>
+              <td>
+                <span class="badge" [class.active]="perm.is_active" [class.inactive]="!perm.is_active">
+                  {{ perm.is_active ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+  </form>
+
+</div>

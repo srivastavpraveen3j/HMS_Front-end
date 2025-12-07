@@ -1,0 +1,221 @@
+<div id="opd-sheet">
+  <div *ngFor="let page of allPages">
+    <div class="ipd-bill-page page">
+      <!-- Header with letterhead -->
+      <app-letterheader class="header summary"></app-letterheader>
+
+      <!-- Summary Page -->
+      <ng-container *ngIf="page.pageType === 'summary'">
+        <h3 class="title summary">INPATIENT BILL CUM RECEIPT</h3>
+
+        <div class="summary">
+          <div class="patient-info">
+            <div class="info-row">
+              <div class="info-col">
+                <span><strong>Rec No : </strong></span>
+                <span
+                  ><strong>Date :
+                  {{
+                    page.patient.createdAt | date : "dd-MMM-yyyy hh:mm:ss a"
+                  }}</strong></span
+                >
+                <p>
+                  <strong>Bill No : </strong> {{ page.patient.billNumber }}
+                  <span
+                    ><strong>Date :</strong>
+                    {{
+                      page.patient.createdAt | date : "dd-MMM-yyyy hh:mm:ss a"
+                    }}</span
+                  >
+                </p>
+                <p>
+                  <strong>Patient Name: {{ page.patient.patientName }}</strong>
+                </p>
+                <p><strong>Address:</strong> {{ page.patient.area }}</p>
+                <p><strong>Mobile No.:</strong> {{ page.patient.mobileNo }}</p>
+              </div>
+              <div class="info-col">
+                <p><strong>UHID:</strong> {{ page.patient.uhid }}</p>
+                <p>
+                  <strong>IPD No:</strong>
+                  {{ page.patient.inpatientCase[0].inpatientCaseNumber }}
+                </p>
+                <p>
+                  <strong>Age / Sex:</strong> {{ page.patient.age }} /
+                  {{ page.patient.gender }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="patient-details">
+            <p>
+              <strong>D.O.A. / Time:</strong>
+              {{ page.patient.dor | date : "dd-MM-yyyy / hh:mm a" }}
+            </p>
+            <p>
+              <strong
+                >Doctor Name: {{ page.patient.consultingDoctor?.name }}</strong
+              >
+            </p>
+            <p>
+              <strong
+                >Room Type:
+                {{ page.patient.inpatientCase?.[0]?.room?.roomType?.name }}</strong
+              >
+            </p>
+          </div>
+
+          <hr class="divider" />
+
+          <!-- Charges Table -->
+          <table class="charges-table">
+            <thead>
+              <tr>
+                <th><strong>PARTICULARS</strong></th>
+                <th><strong>AMOUNT</strong></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Total Inpatient Charges</td>
+                <td>{{ page.patient.totalInpatientCharges }}</td>
+              </tr>
+              <tr>
+                <td>Total Medical Charges</td>
+                <td>{{ radioList.totalAmount }}</td>
+              </tr>
+              <tr>
+                <td>Total Operation Theater Charges</td>
+                <td>{{ page.patient.totalOperationTheaterCharges }}</td>
+              </tr>
+              <tr>
+                <td>Total Pharmacy Charges</td>
+                <td>{{ page.patient.totalPharmacyCharges }}</td>
+              </tr>
+              <tr>
+                <td>Total Room Charges</td>
+                <td>{{ page.patient.totalRoomCharges }}</td>
+              </tr>
+              <tr class="final-row">
+                <td><strong>Final Bill Amount</strong></td>
+                <td>
+                  <strong>{{ page.patient.grandTotalAmount }}</strong>
+                </td>
+              </tr>
+              <tr>
+                <td>Deposit</td>
+                <td>
+                  {{
+                    page.patient.grandTotalAmount -
+                      page.patient.netPayableAmount
+                  }}
+                </td>
+              </tr>
+              <tr class="final-row">
+                <td><strong>Net Payable Amount</strong></td>
+                <td>
+                  <strong>{{ page.patient.netPayableAmount }}</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="bill-summary">
+            <p class="entry-info">
+              <strong>EntryBy: {{ page.patient.createdBy?.name }}</strong>
+              At: {{ page.patient.updatedAt | date : "medium" }}
+            </p>
+            <p class="amount-words">
+              <strong
+                >The FINAL BILL AMOUNT is Rs.
+                {{ page.patient.grandTotalAmount }}</strong
+              ><br />
+              {{ page.patient.amountInWords }}<br />
+              <small><b>(Subject to SURAT Jurisdiction)</b></small>
+            </p>
+          </div>
+
+          <div class="row g-2 gap-4 justify-content-between">
+            <div class="col-md-9">
+              <table class="payment-table">
+                <thead>
+                  <tr>
+                    <th colspan="4"><strong>Payment Details</strong></th>
+                  </tr>
+                  <tr>
+                    <th><strong>Amount</strong></th>
+                    <th><strong>Type</strong></th>
+                    <th><strong>Remark</strong></th>
+                    <th><strong>User</strong></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{ page.patient.netPayableAmount }}</td>
+                    <td>{{ page.patient.paymentMode }}</td>
+                    <td>.</td>
+                    <td>EntryBy : {{ page.patient.createdBy?.name }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="col-md-2 box"></div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- All detail pages in borderless, flex-row (plain block) style -->
+      <ng-container *ngIf="page.pageType !== 'summary'">
+        <h3 class="title summary">INPATIENT BILL CUM RECEIPT DETAILS</h3>
+        <h4 style="margin: 10px 0"></h4>
+        <div class="plain-log">
+          <div class="plain-row plain-header">
+            <span
+              *ngFor="let col of page.columns"
+              class="plain-col {{ col.key }}"
+            >
+              <strong> {{ col.label }}</strong>
+            </span>
+          </div>
+          <div *ngFor="let item of page.data; let i = index" class="plain-row">
+            <span
+              *ngFor="let col of page.columns"
+              class="plain-col {{ col.key }}"
+            >
+              <ng-container *ngIf="col.key === 'date'; else plainText">
+                {{ col.value(item, i) | date : "dd-MM-yyyy" }}
+              </ng-container>
+              <ng-template #plainText>
+                {{ col.value(item, i) }}
+              </ng-template>
+            </span>
+          </div>
+          <div class="plain-row plain-total">
+            <span
+              *ngFor="let col of page.columns; let k = index"
+              class="plain-col {{ col.key }}"
+            >
+              <ng-container *ngIf="k === page.columns.length - 2"
+                ><strong>Total Amount:</strong></ng-container
+              >
+              <ng-container *ngIf="k === page.columns.length - 1"
+                ><strong>{{ page.total }}</strong></ng-container
+              >
+            </span>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Footer: One per page, at bottom -->
+      <div class="footer">
+        <div class="signature-section">
+          <p><strong>Patient / Relative Sign</strong> ...................</p>
+          <p><strong>Authorized Sign</strong> ...................</p>
+        </div>
+      </div>
+    </div>
+    <div class="page-break"></div>
+  </div>
+</div>

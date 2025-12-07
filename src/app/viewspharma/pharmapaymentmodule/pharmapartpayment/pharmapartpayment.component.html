@@ -1,0 +1,68 @@
+<div [formGroup]="parentForm">
+    <div class="form-group">
+      <label>Payment Method</label>
+      <div class="row">
+        <div class="col">
+          <label>CASH (₹)</label>
+          <input
+            type="number"
+            formControlName="cashAmount"
+            class="form-control"
+            placeholder="Enter cash amount"
+          />
+        </div>
+        <div class="col">
+          <label>UPI (₹)</label>
+          <input
+            type="number"
+            formControlName="upiAmount"
+            class="form-control"
+            placeholder="Enter UPI amount"
+          />
+          <!-- Conditional show using TS getter -->
+          <div *ngIf="upiShouldShowTransactionId">
+            <input
+              type="text"
+              formControlName="transactionId"
+              class="form-control mt-1"
+              placeholder="Enter UPI Transaction ID"
+            />
+            <div
+              *ngIf="
+                parentForm.get('transactionId')?.invalid &&
+                parentForm.get('transactionId')?.touched
+              "
+              class="text-danger"
+            >
+              Transaction ID is required
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <label>CARD (₹)</label>
+          <input
+            type="number"
+            formControlName="cardAmount"
+            class="form-control"
+            placeholder="Enter card amount"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- <billing-discount-box
+      [parentForm]="parentForm"
+      (requestDiscount)="onRequestDiscount()"
+    ></billing-discount-box> -->
+
+    <div>
+      <label>Total Amount Received</label>
+      <input
+        type="number"
+        class="form-control"
+        [value]="totalAmountReceived"
+        readonly
+      />
+    </div>
+  </div>

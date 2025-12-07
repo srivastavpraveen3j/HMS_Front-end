@@ -1,0 +1,83 @@
+<div class="form-meta">
+  <div class="header">
+    <div class="header-content d-flex justify-content-between">
+      <h2>Master Module</h2>
+      <div class="header-actions">
+        <i class="fa-solid fa-gear customize-gear" (click)="toggleCustomization()" [class.active]="isCustomizing"
+          title="Customize Card Order"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" *ngIf="isCustomizing" (click)="toggleCustomization()"></div>
+
+  <!-- Customization Sidebar -->
+  <div class="customization-sidebar" [class.open]="isCustomizing">
+    <div class="sidebar-header">
+      <h3><i class="fa-solid fa-gear"></i> Customize Master Cards</h3>
+      <button class="close-btn" (click)="toggleCustomization()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-content">
+      <p>Reorder your Master module cards to match your workflow. Changes are saved automatically.</p>
+
+      <div class="card-order-list">
+        <div class="order-item" *ngFor="let card of userCardOrder; let i = index; trackBy: trackByCard"
+          [class.disabled]="!shouldShowCard(card)">
+          <div class="order-info">
+            <span class="order-number">{{ i + 1 }}</span>
+            <div class="card-details">
+              <span class="card-title">{{ card.title }}</span>
+              <span class="card-status" *ngIf="!shouldShowCard(card)">
+                (Hidden - No Permission)
+              </span>
+            </div>
+          </div>
+
+          <div class="order-controls">
+            <button class="order-btn up-btn" (click)="moveCardUp(i)" [disabled]="i === 0" title="Move Up">
+              <i class="fa-solid fa-chevron-up"></i>
+            </button>
+            <button class="order-btn down-btn" (click)="moveCardDown(i)" [disabled]="i === userCardOrder.length - 1"
+              title="Move Down">
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-actions">
+        <button class="reset-btn" (click)="resetToDefaultOrder()">
+          <i class="fa-solid fa-refresh"></i>
+          Reset to Default
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="cards-grid" [class.sidebar-open]="isCustomizing">
+    <div class="card" *ngFor="let card of getVisibleCards(); let i = index; trackBy: trackByCard"
+      [class.customizing]="isCustomizing">
+      <!-- Card order indicator in customization mode -->
+      <div class="card-order-indicator" *ngIf="isCustomizing">
+        {{ i + 1 }}
+      </div>
+
+      <div class="card-content">
+        <div class="card-header">
+          <h3>{{ card.title }}</h3>
+        </div>
+        <div class="card-footer">
+          <a [routerLink]="card.routerLink">
+            VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

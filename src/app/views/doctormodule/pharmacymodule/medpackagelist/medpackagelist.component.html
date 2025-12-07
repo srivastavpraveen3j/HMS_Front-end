@@ -1,0 +1,60 @@
+<!-- <p>medpackagelist works!</p> -->
+<!-- <p>packagelist works!</p> -->
+
+<!-- <p>symptomsgrouplist works!</p> -->
+<div class="header">
+  <h2>MEDICINE STOCK LIST</h2>
+  <div class="">
+    <!-- <button class="list-cases-btn mx-3"   ><i class="fa-solid fa-user-group"></i></button> -->
+    <button class="list-cases-btn mx-3" [routerLink]="['/doctor/medpackage']" routerLinkActive="router-link-active"  > ADD MEDICINE STOCK </button>
+  </div>
+</div>
+<form [formGroup]="filterForm" class="top-bar p-3">
+  <!-- <select formControlName="recordsPerPage">
+    <option *ngFor="let num of [10, 25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+  </select> -->
+
+  <input type="text" placeholder="Search..." formControlName="searchText" />
+</form>
+
+<div class="table-responsive">
+  <table class="table table-bordered table-hover align-middle diagnosis-table">
+   <thead class="table-dark text-center" >
+      <tr>
+        <th>#</th>
+        <th>Medicine Group Name </th>
+        <th>Batch No</th>
+        <th>Medicines </th>
+        <th>Pharmacy Name</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody *ngIf="medstock && medstock.length">
+      <tr *ngFor="let pkg of medstock; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ pkg.medicineGroupName }}</td>
+        <td>{{ pkg.batch_no }}</td>
+        <td >
+          <li *ngFor="let med of pkg.medicines">{{ med.medicine_name }}</li>
+        </td>
+        <td>{{ pkg.pharmacyName }}</td>
+        <td>{{ pkg.price }}</td>
+        <td>{{ pkg.stock }}</td>
+        <td>
+          <i class="fa-solid fa-pencil action-btn mx-3" (click)="editPackage(pkg._id)"></i>
+          <i class="fa-solid fa-trash action-btn" (click)="deletePackage(pkg._id)"></i>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+
+<div class="pagination">
+  <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+  Page {{ currentPage }} of {{ totalPages }}
+  <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+</div>

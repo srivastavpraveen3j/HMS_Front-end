@@ -1,0 +1,428 @@
+<!-- ==>Sidebar -->
+<aside class="sidebar" [ngClass]="{ collapsed: isCollapsed }">
+  <!-- Logo -->
+  <div class="logo-container" routerLink="/superadmin">
+    <div class="logo">
+      <!-- Show image only when NOT collapsed -->
+      <img
+        *ngIf="!isCollapsed"
+        [src]="logoUrl"
+        alt="Hospital Logo"
+        class="logo-image"
+        style="width: 100%; height: auto"
+        (error)="onLogoError($event)"
+      />
+
+      <!-- Show icon only when collapsed -->
+      <i
+        *ngIf="isCollapsed"
+        class="fa-solid fa-hospital logo-icon"
+        style="
+          color: var(--sidebar-color);
+          background-color: var(--sidebar-color);
+        "
+      >
+      </i>
+    </div>
+  </div>
+
+  <!-- Sidebar Nav -->
+  <nav>
+    <ul class="sidebar-nav">
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/superadmin/userrolemanagement">
+          <i class="fa-solid fa-building nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Hospital Management</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/superadmin/superadminplatformusers">
+          <i class="fa-solid fa-users nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Platform Users</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/superadmin/apikeymanagment">
+          <i class="fa-solid fa-users nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">API Key Management</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/superadmin/superadminrolemanagement">
+          <i class="fa-solid fa-user nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Role Management</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/superadmin/superadminpermission">
+          <i class="fa-solid fa-user nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Permission Management</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/superadmin/billingfinance">
+          <i
+            class="fa-solid fa-file-invoice-dollar nav-icon"
+            *ngIf="isCollapsed"
+          ></i>
+          <span class="nav-text">Billing & Management</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/superadmin/accesscontrol">
+          <i class="fa-solid fa-chart-line nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Usage & Monitoring</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/superadmin/supportticekting">
+          <i class="fa-solid fa-headset nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Support & Ticketing</span>
+        </a>
+      </li>
+
+      <!-- System Management Dropdown -->
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" (click)="toggleDropdown('system')">
+          <i class="fa-solid fa-server nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">System Management</span>
+        </a>
+        <ul class="dropdown-menu" [class.open]="dropdowns.system">
+          <div class="dropdown-grid">
+            <li>
+              <a
+                class="dropdown-item"
+                routerLink="/superadmin/systemmanagement/versioncontrol"
+              >
+                <i
+                  class="fa-solid fa-code-branch nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="dropdown-item" *ngIf="!isCollapsed"
+                  >Version Control</span
+                >
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                routerLink="/superadmin/systemmanagement/serverstatus"
+              >
+                <i class="fa-solid fa-server nav-icon" *ngIf="isCollapsed"></i>
+                <span class="dropdown-item" *ngIf="!isCollapsed"
+                  >Server Status</span
+                >
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                routerLink="/superadmin/systemmanagement/backupmanagement"
+              >
+                <i
+                  class="fa-solid fa-database nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="dropdown-item" *ngIf="!isCollapsed"
+                  >Backup Management</span
+                >
+              </a>
+            </li>
+          </div>
+        </ul>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/superadmin/hospitalsreports">
+          <i class="fa-solid fa-chart-pie nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Analytics & Reports</span>
+        </a>
+      </li>
+
+      <!-- Security & Compliance Dropdown -->
+      <li class="nav-item dropdown">
+        <a
+          class="nav-link dropdown-toggle"
+          (click)="toggleDropdown('security')"
+        >
+          <i class="fa-solid fa-shield-alt nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Security & Compliance</span>
+        </a>
+        <ul class="dropdown-menu" [class.open]="dropdowns.security">
+          <div class="dropdown-grid">
+            <li>
+              <a class="dropdown-item" routerLink="/superadmin/userlogs">
+                <i
+                  class="fa-solid fa-user-secret nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="dropdown-item" *ngIf="!isCollapsed"
+                  >User Access Logs</span
+                >
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                routerLink="/superadmin/compilancescertificates"
+              >
+                <i
+                  class="fa-solid fa-file-shield nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="dropdown-item" *ngIf="!isCollapsed"
+                  >Compliance</span
+                >
+              </a>
+            </li>
+          </div>
+        </ul>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/superadmin/braodcastingmessage">
+          <i class="fa-solid fa-bullhorn nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Broadcast Messaging</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/digitalks" (click)="logOut()">
+          <i class="fa-solid fa-sign-out-alt nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">LogOut</span>
+        </a>
+      </li>
+    </ul>
+
+    <!-- User Menu -->
+    <!-- <div class="user-menu">
+      <div class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" (click)="toggleDropdown('modules')">
+          <i class="fa-solid fa-layer-group nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Modules</span>
+        </a>
+        <ul class="dropdown-menu" [class.open]="dropdowns.modules">
+          <li><a class="dropdown-item" routerLink="dashboard">HMS</a></li>
+          <li><a class="dropdown-item" routerLink="pathologylayout">Pathology</a></li>
+          <li><a class="dropdown-item" routerLink="/pharmalayout">Pharmacy</a></li>
+          <li><a class="dropdown-item" routerLink="/radiologylayout">Radiology</a></li>
+          <li><a class="dropdown-item" routerLink="/radiationlayout">Radiation</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" (click)="toggleDropdown('profile')">
+          <i class="fa-solid fa-user-tie nav-icon"></i>
+          <span class="nav-text" *ngIf="!isCollapsed">Superadmin</span>
+        </a>
+        <ul class="dropdown-menu" [class.open]="dropdowns.profile">
+          <li><a class="dropdown-item" routerLink="/profilesetting">Profile</a></li>
+          <li><a class="dropdown-item" routerLink="/login">Logout</a></li>
+        </ul>
+      </div>
+    </div> -->
+  </nav>
+
+  <!-- Sidebar Toggle -->
+  <div class="sidebar-toggle" (click)="toggleCollapse()">
+    <i
+      class="fa-solid"
+      [ngClass]="isCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"
+    ></i>
+  </div>
+</aside>
+
+<!-- <div class="d-flex">
+  <div class="logo-container w-25" routerLink="/superadmin">
+    <div class="logo">
+      <img src="Untitled design (6).jpg" alt="logo" >
+    </div>
+  </div>
+  <div class="w-75">
+    <nav class="header navbar navbar-expand-lg">
+
+      <div class="container-fluid">
+
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="nav-links navbar-nav me-auto">
+            <li class="nav-item"><a class="nav-link" href="/pathologylayout/manageinward">LOGIN & DASHBOARD ACCESS</a></li>
+            <li class="nav-item"><a class="nav-link" href="/superadmin/userrolemanagement
+              ">Hospital MANAGEMENT</a></li> -->
+<!-- <li class="nav-item"><a class="nav-link" href="uhid">UHID</a></li> -->
+<!-- <li class="nav-item"><a class="nav-link" href="/superadmin/billingfinance">Billing  & Management</a></li>
+              <li class="nav-item"><a class="nav-link" href="/superadmin/accesscontrol">Usage  & Monitoring</a></li>
+              <li class="nav-item"><a class="nav-link" href="/superadmin/supportticekting">Support & Ticketing</a></li> -->
+<!-- <li class="nav-item"><a class="nav-link" href="/superadmin/logoutsecurity">System Management</a></li> -->
+<!-- <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="Security" role="button" data-bs-toggle="dropdown">
+                  System Management
+                </a>
+                <ul class="dropdown-menu security-menu">
+                  <div class="dropdown-grid">
+                    <li><a class="dropdown-item" href="/superadmin/systemmanagement/versioncontrol"><i class="fa-regular fa-hand-point-right"></i> Version Control </a></li>
+                    <li><a class="dropdown-item" href="/superadmin/systemmanagement/serverstatus"><i class="fa-regular fa-hand-point-right"></i>Server Status</a></li>
+                    <li><a class="dropdown-item" href="/superadmin/systemmanagement/backupmanagement"><i class="fa-regular fa-hand-point-right"></i> Backup Management</a></li> -->
+<!-- <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i>HEALTH CHECKUP BILL</a></li> -->
+<!-- </div>
+                </ul>
+              </li>
+
+              <li class="nav-item"><a class="nav-link" href="/superadmin/hospitalsreports">Analytics & Reports</a></li> -->
+
+<!-- <li class="nav-item"><a class="nav-link" href="/superadmin/security">Security & Compilance</a></li> -->
+<!-- <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="Security" role="button" data-bs-toggle="dropdown">
+                  Security & Compilance
+                </a>
+                <ul class="dropdown-menu security-menu">
+                  <div class="dropdown-grid">
+                    <li><a class="dropdown-item" href="/superadmin/userlogs"><i class="fa-regular fa-hand-point-right"></i> User Access Logs </a></li> -->
+<!-- <li><a class="dropdown-item" href=""><i class="fa-regular fa-hand-point-right"></i>Data Encryption Monitoring</a></li> -->
+<!-- <li><a class="dropdown-item" href="/superadmin/compilancescertificates"><i class="fa-regular fa-hand-point-right"></i> Compliance Certificates </a></li> -->
+<!-- <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i>HEALTH CHECKUP BILL</a></li> -->
+<!-- </div>
+                </ul>
+              </li>
+              <li class="nav-item"><a class="nav-link" href="/superadmin/braodcastingmessage">Broadcast Messaging</a></li> -->
+<!-- <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="opdDropdown" role="button" data-bs-toggle="dropdown">
+                  OPD
+                </a>
+                <ul class="dropdown-menu opd-menu">
+                  <div class="dropdown-grid">
+                    <li><a class="dropdown-item" href="opd/opd"><i class="fa-regular fa-hand-point-right"></i> NEW / FOLLOW UP</a></li>
+                    <li><a class="dropdown-item" href="opd/opdbill"><i class="fa-regular fa-hand-point-right"></i> OPD BILL</a></li>
+                    <li><a class="dropdown-item" href="/opd/mrd"><i class="fa-regular fa-hand-point-right"></i> MRD DATA</a></li>
+                  </div>
+                  <div class="dropdown-grid">
+                    <li><a class="dropdown-item" href="/opd/deposit"><i class="fa-regular fa-hand-point-right"></i> DEPOSIT</a></li>
+                    <li><a class="dropdown-item" href="/opd/return"><i class="fa-regular fa-hand-point-right"></i> RETURN</a></li>
+                    <li><a class="dropdown-item" href="/opd/opdappointment"><i class="fa-regular fa-hand-point-right"></i> APPOINTMENT</a></li>
+                  </div>
+                </ul>
+              </li> -->
+
+<!-- <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="ipdDropdown" role="button  " data-bs-toggle="dropdown">
+                  IPD
+                </a>
+                <ul class="dropdown-menu ipd-menu">
+                  <div class="dropdown-grid">
+                    <li><a class="dropdown-item" href="/ipd/ipdadmission"><i class="fa-regular fa-hand-point-right"></i>Admission</a></li>
+                    <li><a class="dropdown-item" href="/ipd/ipdbill"><i class="fa-regular fa-hand-point-right"></i> IPD Billing</a></li>
+                    <li><a class="dropdown-item" href="/ipd/ipddeposit"><i class="fa-regular fa-hand-point-right"></i> Deposit</a></li>
+                    <li><a class="dropdown-item" href="/ipd/ipdreturn"><i class="fa-regular fa-hand-point-right"></i> Return</a></li>
+                    <li><a class="dropdown-item" href="/ipd/ipddischarge"><i class="fa-regular fa-hand-point-right"></i>Discharge</a></li>
+                  </div>
+                  <div class="dropdown-grid">
+                    <li><a class="dropdown-item" href="/ipd/ipdroomtransfer"><i class="fa-regular fa-hand-point-right"></i> Room Transfer</a></li>
+                    <li><a class="dropdown-item" href="/ipd/intermbill"><i class="fa-regular fa-hand-point-right"></i> Interim Bill</a></li>
+                    <li><a class="dropdown-item" href="/ipd/finalbill"><i class="fa-regular fa-hand-point-right"></i> Final Bill</a></li>
+                    <li><a class="dropdown-item" href="/ipd/otsheet"><i class="fa-regular fa-hand-point-right"></i> OT SHEET</a></li>
+                  </div>
+                </ul>
+              </li> -->
+
+<!-- <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="doctorDropdown" role="button" data-bs-toggle="dropdown">
+                  DOCTOR
+                </a>
+                <ul class="dropdown-menu ipd-menu">
+                  <div class="dropdown-grid">
+                    <li><a class="dropdown-item" href="/doctor/daignosissheet"><i class="fa-regular fa-hand-point-right"></i>Diagnosis Sheet</a></li>
+                    <li><a class="dropdown-item" href="/doctor/doctordischarge"><i class="fa-regular fa-hand-point-right"></i> Discharge Summary</a></li>
+                    <li><a class="dropdown-item" href="/doctor/vitals"><i class="fa-regular fa-hand-point-right"></i> Vital Chart</a></li>
+                    <li><a class="dropdown-item" href="/doctor/otnotes"><i class="fa-regular fa-hand-point-right"></i> Surgery Note</a></li>
+                    <li><a class="dropdown-item" href="/doctor/tretmentordersheet"><i class="fa-regular fa-hand-point-right"></i> Treatment Order Sheet</a></li>
+                  </div>
+                  <div class="dropdown-grid">
+                    <li><a class="dropdown-item" href="/doctor/pharmareq"><i class="fa-regular fa-hand-point-right"></i>Pharmacy Requisition</a></li>
+                    <li><a class="dropdown-item" href="/doctor/pathologyreq"><i class="fa-regular fa-hand-point-right"></i>  Pathology Requisition</a></li>
+                    <li><a class="dropdown-item" href="/doctor/pathologyresult"><i class="fa-regular fa-hand-point-right"></i>  Pathology Result</a></li>
+                    <li><a class="dropdown-item" href="/doctor/radiologyreq"><i class="fa-regular fa-hand-point-right"></i>Radiology Requisition</a></li>
+                    <li><a class="dropdown-item" href="/doctor/radiationreq"><i class="fa-regular fa-hand-point-right"></i>Radiation Requisition</a></li>
+                  </div>
+                </ul>
+
+
+
+              </li> -->
+<!-- <li class="nav-item"><a class="nav-link" href="/report/opdreport">REPORTS</a></li> -->
+<!-- <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="mastersDropdown" role="button" data-bs-toggle="dropdown">
+                  MASTERS
+                </a>
+                <ul class="dropdown-menu masters-menu">
+                  <div class="dropdown-grid">
+
+                    <li><a class="dropdown-item" href="/master/doctormaster"><i class="fa-regular fa-hand-point-right"></i> Doctor</a></li>
+                    <li><a class="dropdown-item" href="/master/servicegroupmaster"><i class="fa-regular fa-hand-point-right"></i> Service Group</a></li>
+                    <li><a class="dropdown-item" href="/master/roommaster"><i class="fa-regular fa-hand-point-right"></i> Room & Bed</a></li>
+                  </div>
+                  <div class="dropdown-grid">
+                    <li><a class="dropdown-item" href="/master/opdservice"><i class="fa-regular fa-hand-point-right"></i> OPD Services</a></li>
+                    <li><a class="dropdown-item" href="/master/masteropdcharge"><i class="fa-regular fa-hand-point-right"></i> OPD Charge List</a></li>
+                    <li><a class="dropdown-item" href="/master/masteripdservice"><i class="fa-regular fa-hand-point-right"></i> IPD Service</a></li>
+                    <li><a class="dropdown-item" href="/master/masteripdcharge"><i class="fa-regular fa-hand-point-right"></i> IPD Charge List</a></li>
+
+
+                  </div>
+                  <div class="dropdown-grid">
+                    <li><a class="dropdown-item" href="/master/medicinemaster"><i class="fa-regular fa-hand-point-right"></i> Medicines</a></li>
+                    <li><a class="dropdown-item" href="/master/medicaltest"><i class="fa-regular fa-hand-point-right"></i> Medical Test</a></li>
+                    <li><a class="dropdown-item" href="/master/symptoms"><i class="fa-regular fa-hand-point-right"></i> Symptoms</a></li>
+                    <li><a class="dropdown-item" href="/master/symptomsgroup"><i class="fa-regular fa-hand-point-right"></i> Symptoms Group</a></li>
+
+                  </div>
+                </ul>
+              </li> -->
+
+<!-- </ul> -->
+
+<!-- <div class="user-menu">
+            <div class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="/superadmin" id="hmsDropdown" role="button" data-bs-toggle="dropdown">
+               Superadmin
+              </a>
+              <ul class="dropdown-menu ">
+                <div class="dropdown-grid"> -->
+<!-- <li><a class="dropdown-item" href="#"><i class="fa-solid fa-gear"></i>Centeral Store</a></li> -->
+<!-- <li><a class="dropdown-item" href="#"><i class="fa-solid fa-gear"></i> DR Sharing</a></li> -->
+<!-- <li><a class="dropdown-item" href="dashboard"><i class="fa-solid fa-gear"></i>HMS</a></li>
+                  <li><a class="dropdown-item" href="pathologylayout"><i class="fa-solid fa-gear"></i>Pathology</a></li>
+                  <li><a class="dropdown-item" href="/pharmalayout"><i class="fa-solid fa-gear"></i> Pharmacy</a></li>
+                  <li><a class="dropdown-item" href="/radiologylayout"><i class="fa-solid fa-gear"></i>Radiology</a></li>
+                  <li><a class="dropdown-item" href="/radiationlayout"><i class="fa-solid fa-gear"></i>Radiation</a></li> -->
+<!-- <li><a class="dropdown-item" href="#"><i class="fa-solid fa-gear"></i>Tally</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-gear"></i>Whatsapp</a></li> -->
+<!-- </div>
+              </ul>
+
+            </div> -->
+<!-- <div class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="hmsDropdown" role="button" data-bs-toggle="dropdown">
+                <i class="fa-solid fa-user-tie"></i>
+              </a>
+              <ul class="dropdown-menu ">
+                <div class="dropdown-grid">
+                  <li><a class="dropdown-item" href="/profilesetting"><i class="fa-solid fa-gear"></i>Profile</a></li>
+                  <li><a class="nav-link" [routerLink]="['/login']" routerLinkActive="router-link-active"><i class="fa-solid fa-gear"></i>Logout</a></li>
+                </div>
+              </ul>
+
+            </div> -->
+<!-- <a class="nav-link" [routerLink]="['/login']" routerLinkActive="router-link-active"><i class="fa-solid fa-user-tie"></i></a> -->
+<!-- </div>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div> -->

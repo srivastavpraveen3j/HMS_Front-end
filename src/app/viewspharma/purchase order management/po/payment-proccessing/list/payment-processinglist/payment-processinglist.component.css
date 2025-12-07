@@ -1,0 +1,317 @@
+/* payment-processinglist.component.css */
+
+.sbi-cheque-container {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 50%, #e1f5fe 100%);
+  border: 3px solid #1976d2;
+  border-radius: 8px;
+  padding: 25px;
+  font-family: 'Arial', sans-serif;
+  box-shadow: 0 8px 32px rgba(25, 118, 210, 0.15);
+  max-width: 850px;
+  margin: 0 auto;
+  position: relative;
+  min-height: 400px;
+}
+
+/* ✅ Top Section */
+.cheque-top-section {
+  border-bottom: 2px solid #1976d2;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.bank-logo-section {
+  text-align: center;
+}
+
+.bank-logo-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #1976d2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 5px;
+  font-size: 24px;
+}
+
+.logo-text {
+  font-size: 10px;
+  font-weight: bold;
+  color: #1976d2;
+}
+
+.bank-details {
+  text-align: left;
+}
+
+.bank-name-hindi {
+  font-size: 16px;
+  font-weight: bold;
+  color: #1976d2;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.bank-name-english {
+  font-size: 20px;
+  font-weight: bold;
+  color: #1976d2;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.bank-address {
+  margin-top: 5px;
+  color: #666;
+  font-size: 12px;
+}
+
+.cheque-number-section {
+  text-align: right;
+}
+
+.cheque-serial {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1976d2;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  font-family: 'Courier New', monospace;
+}
+
+.date-box {
+  border: 1px solid #1976d2;
+  padding: 5px 8px;
+  background: white;
+  border-radius: 4px;
+}
+
+.date-value {
+  font-weight: bold;
+  margin-left: 5px;
+  font-family: 'Courier New', monospace;
+}
+
+/* ✅ Pay Section */
+.pay-section {
+  margin: 25px 0;
+  padding: 15px 0;
+}
+
+.pay-label {
+  font-size: 16px;
+  color: #1976d2;
+  font-weight: bold;
+}
+
+.payee-line {
+  border-bottom: 2px solid #333;
+  padding: 8px 0;
+  font-size: 18px;
+  min-height: 35px;
+  display: flex;
+  align-items: center;
+}
+
+/* ✅ Rupees Section */
+.rupees-section {
+  margin: 25px 0;
+  padding: 15px 0;
+}
+
+.rupees-label {
+  font-size: 16px;
+  color: #1976d2;
+  font-weight: bold;
+}
+
+.amount-words-line {
+  border-bottom: 2px solid #333;
+  padding: 8px 0;
+  font-size: 16px;
+  min-height: 35px;
+  display: flex;
+  align-items: center;
+  text-transform: uppercase;
+}
+
+.amount-box-section {
+  border: 3px solid #1976d2;
+  background: white;
+  padding: 10px 15px;
+  border-radius: 6px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
+}
+
+.rupee-symbol {
+  font-size: 20px;
+  font-weight: bold;
+  color: #1976d2;
+  margin-right: 5px;
+}
+
+.amount-figure {
+  font-size: 22px;
+  font-weight: bold;
+  color: #1976d2;
+  font-family: 'Courier New', monospace;
+}
+
+/* ✅ Account Section */
+.account-section {
+  margin: 30px 0;
+  padding: 20px 0;
+}
+
+.account-number-box {
+  background: #f5f5f5;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.account-digits {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 14px;
+  margin-left: 8px;
+  letter-spacing: 1px;
+}
+
+.invoice-reference {
+  color: #666;
+  font-style: italic;
+}
+
+.current-ac-box {
+  background: #e3f2fd;
+  border: 1px solid #1976d2;
+  padding: 6px 12px;
+  text-align: center;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.signature-area {
+  text-align: center;
+}
+
+.signature-line-area {
+  border-top: 2px solid #333;
+  width: 150px;
+  margin: 20px auto 5px;
+}
+
+/* ✅ Bottom Section */
+.cheque-bottom {
+  border-top: 1px solid #ddd;
+  padding-top: 15px;
+  margin-top: 30px;
+}
+
+.multi-city-info {
+  color: #1976d2;
+  font-size: 12px;
+}
+
+.authorized-signature {
+  color: #666;
+  font-size: 11px;
+}
+
+/* ✅ MICR Code */
+.micr-code-section {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 2px solid #1976d2;
+  background: #f0f7ff;
+  margin: 20px -25px -25px -25px;
+  padding: 15px 25px;
+  border-radius: 0 0 8px 8px;
+}
+
+.micr-line {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  color: #1976d2;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+/* ✅ Print Styles */
+@media print {
+  .sbi-cheque-container {
+    box-shadow: none;
+    border: 3px solid #000;
+    background: white;
+    max-width: none;
+    width: 100%;
+    page-break-inside: avoid;
+    min-height: 350px;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .cheque-top-section {
+    border-bottom: 2px solid #000;
+  }
+
+  .bank-name-hindi,
+  .bank-name-english,
+  .bank-logo-circle {
+    color: #000 !important;
+    background: white !important;
+  }
+
+  .amount-box-section {
+    border-color: #000 !important;
+    background: white !important;
+  }
+
+  .rupee-symbol,
+  .amount-figure {
+    color: #000 !important;
+  }
+
+  .payee-line,
+  .amount-words-line {
+    border-bottom: 2px solid #000;
+  }
+
+  .micr-code-section {
+    background: white !important;
+    border-top: 2px solid #000;
+  }
+
+  .micr-line {
+    color: #000 !important;
+  }
+}
+
+/* ✅ Responsive Design */
+@media (max-width: 768px) {
+  .sbi-cheque-container {
+    padding: 15px;
+    font-size: 0.9rem;
+  }
+
+  .bank-name-english {
+    font-size: 16px;
+  }
+
+  .cheque-serial {
+    font-size: 14px;
+  }
+
+  .amount-figure {
+    font-size: 18px;
+  }
+}

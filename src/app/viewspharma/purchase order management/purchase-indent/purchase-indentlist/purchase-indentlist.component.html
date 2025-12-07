@@ -1,0 +1,159 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>PURCHASE INTENDED List</h2>
+    <button
+      class="list-cases-btn"
+      [routerLink]="['/inventorylayout/purchaseindent']"
+      routerLinkActive="router-link-active"
+      *ngIf="userPermissions?.permissions?.create">
+      ADD NEW PURCHASE INTEND
+    </button>
+  </div>
+
+  <!-- ✅ Date Filter Section -->
+  <div class="filters d-flex align-items-center mb-3">
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="today"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+      />
+      TODAY'S
+    </label>
+
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="dateRange"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+      />
+      Date Range
+    </label>
+
+    <!-- Date Inputs Visible Only for Date Range -->
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="startDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+      style="width: auto;"
+    />
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="endDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+      style="width: auto;"
+    />
+  </div>
+
+  <!-- ✅ Status Tabs -->
+  <div class="tab-bar">
+    <div
+      class="tab"
+      *ngFor="let status of statuses; let i = index"
+      (click)="onTabClick(status, i)"
+      [ngClass]="{ 'active-tab': selectedStatus === status }">
+      {{ status | titlecase }}
+    </div>
+    <div
+      class="tab-underline"
+      [style.transform]="'translateX(' + activeTabIndex * 100 + '%)'"></div>
+  </div>
+
+  <!-- ✅ Updated No Data Message -->
+  <div *ngIf="filteredRequisitions.length === 0" class="alert alert-warning text-center mt-3">
+    <ng-container *ngIf="activeFilter === 'today'">
+      No {{ selectedStatus }} requisitions found for today.
+    </ng-container>
+    <ng-container *ngIf="activeFilter === 'dateRange'">
+      No {{ selectedStatus }} requisitions found for the selected date range.
+    </ng-container>
+  </div>
+
+  <!-- ✅ Permission Alert -->
+  <div class="alert alert-danger text-center mt-3" *ngIf="!userPermissions?.permissions?.read">
+    🚫 You do not have access to read {{ module }} list.
+  </div>
+
+  <!-- ✅ Data Cards -->
+  <div class="row p-5" *ngIf="userPermissions?.permissions?.read && filteredRequisitions.length > 0">
+    <div class="col-md-6 mb-4" *ngFor="let pr of filteredRequisitions; let i = index">
+      <div class="card shadow rounded-3 border-0 position-relative card-hover-group"
+           (mouseenter)="pr.hover = true"
+           (mouseleave)="pr.hover = false">
+
+        <!-- Selection Circle -->
+        <div class="position-absolute bottom-0 end-0 m-2">
+          <input
+            type="checkbox"
+            class="form-check-input big-circle"
+            [checked]="isSelected(pr)"
+            (click)="toggleSelection(pr)"
+            *ngIf="pr.status?.toLowerCase() === 'pending'"
+            [style.opacity]="pr.hover || isSelected(pr) ? '1' : '0'"
+            style="transition: 0.3s"
+          />
+        </div>
+
+        <!-- Card Header -->
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center rounded-top">
+          <div class="fw-bold">Indent ID: {{ pr._id }}</div>
+          <span>Purchase Intended Date: {{ pr.createdAt | date : "mediumDate" }}</span>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body">
+          <h5 class="mb-3">Requested Items</h5>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Department</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of pr.sourcePurchaseRequisitions">
+                <td>{{ item.itemName }}</td>
+                <td>{{ item.category }}</td>
+                <td>{{ item.quantityRequired }}</td>
+                <td>{{ item.departmentName }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="text-center mt-3" *ngIf="isSelected(pr)">
+        <button class="btn btn-dark mx-2" type="submit" (click)="sendforRFQ(pr._id)">
+          Send for Quotation Request
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="pagination d-flex justify-content-center align-items-center my-3"
+       *ngIf="filteredRequisitions.length > 0">
+    <button class="pagination-btn btn btn-primary mx-2"
+            (click)="previousPage()"
+            [disabled]="currentPage === 1">
+      Previous
+    </button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button class="pagination-btn btn btn-primary mx-2"
+            (click)="nextPage()"
+            [disabled]="currentPage === totalPages">
+      Next
+    </button>
+  </div>
+</div>

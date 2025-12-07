@@ -1,0 +1,64 @@
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { MasterService } from '../../masterservice/master.service';
+
+@Component({
+  selector: 'app-doctormaster',
+  imports: [RouterModule, ReactiveFormsModule, CommonModule],
+  styleUrl: './doctormaster.component.css'
+})
+export class DoctormasterComponent {
+  doctorForm: FormGroup;
+
+  constructor(
+    private fb: FormBuilder,
+    private masterService: MasterService
+  ) {
+    this.doctorForm = this.fb.group({
+      name: ['', Validators.required],
+      mobile_no: ['', [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]],
+    });
+  }
+
+  allowOnlyNumbers(event: KeyboardEvent): void {
+    const charCode = event.which ? event.which : event.keyCode;
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+    }
+  }
+
+  async onSubmit() {
+    const Swal = (await import('sweetalert2')).default;
+
+    if (this.doctorForm.invalid) {
+      this.doctorForm.markAllAsTouched();
+      return;
+    }
+
+    const formData = this.doctorForm.value;
+
+    this.masterService.postDoctor(formData).subscribe({
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Doctor Saved',
+          text: 'Doctor added successfully!',
+          position: 'top-end',
+          toast: true,
+          timer: 3000,
+          showConfirmButton: false,
+        });
+        this.doctorForm.reset();
+      },
+      error: (error) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error?.error?.message || 'Failed to add doctor.',
+        });
+      },
+    });
+  }
+}

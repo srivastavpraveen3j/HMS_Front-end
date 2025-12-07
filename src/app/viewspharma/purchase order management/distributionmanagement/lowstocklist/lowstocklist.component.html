@@ -1,0 +1,728 @@
+<div class="form-meta">
+  <!-- Header -->
+  <div class="header">
+    <div class="">
+      <h2>Sub-Pharmacy Stock Alert Dashboard</h2>
+      <p>
+        Critical stock levels and expired medicines across sub-pharmacy
+        locations only
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        class="btn btn-secondary mx-2"
+        (click)="openTransferModal()"
+        [disabled]="selectedMedicines.length === 0"
+      >
+        Create Transfer Request ({{ selectedMedicines.length }})
+      </button>
+      <button class="btn btn-primary" routerLink="/inventorylayout/transfer">
+        Trasfer Request
+      </button>
+    </div>
+  </div>
+
+  <!-- Sub-Pharmacy Only Alert Summary Cards (Combined Totals) -->
+  <div class="alert-summary mt-4">
+    <div class="alert-card critical" (click)="switchToTab('expired')">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-info">
+        <div class="alert-number">{{ subPharmacyStats.totalExpired }}</div>
+        <div class="alert-label">Total Expired Items</div>
+      </div>
+    </div>
+
+    <div class="alert-card high" (click)="switchToTab('lowstock')">
+      <div class="alert-icon">🔥</div>
+      <div class="alert-info">
+        <div class="alert-number">{{ subPharmacyStats.totalZeroStock }}</div>
+        <div class="alert-label">Total Zero Stock</div>
+      </div>
+    </div>
+
+    <div class="alert-card medium" (click)="switchToTab('lowstock')">
+      <div class="alert-icon">📦</div>
+      <div class="alert-info">
+        <div class="alert-number">{{ subPharmacyStats.totalLowStock }}</div>
+        <div class="alert-label">Total Low Stock</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Individual Sub-Pharmacy Cards -->
+  <div class="individual-pharmacy-section" *ngIf="subPharmacies.length > 0">
+    <h3>Individual Pharmacy Status ({{ subPharmacies.length }} Locations)</h3>
+
+    <!-- Loop through each pharmacy and create individual cards -->
+    <div class="pharmacy-cards">
+      <div
+        class="pharmacy-card"
+        *ngFor="let pharmacy of subPharmacies; trackBy: trackPharmacyById"
+      >
+        <!-- Individual Pharmacy Card Header -->
+        <div class="card-header">
+          <div class="pharmacy-info">
+            <h3>{{ pharmacy.name }}</h3>
+            <div class="pharmacy-meta">
+              <span class="pharmacy-type">{{ pharmacy.type }}</span> •
+              <span class="pharmacy-location">{{ pharmacy.location }}</span>
+            </div>
+            <div class="pharmacist">👨‍⚕️ {{ pharmacy.pharmacist }}</div>
+          </div>
+
+          <!-- Individual Pharmacy Stats -->
+          <div class="pharmacy-individual-stats">
+            <div class="stat-mini-card expired">
+              <div class="stat-number">
+                {{ getPharmacyExpiredCount(pharmacy._id) }}
+              </div>
+              <div class="stat-label">Expired</div>
+            </div>
+            <div class="stat-mini-card low-stock">
+              <div class="stat-number">
+                {{ getPharmacyLowStockCount(pharmacy._id) }}
+              </div>
+              <div class="stat-label">Low Stock</div>
+            </div>
+            <div class="stat-mini-card zero-stock">
+              <div class="stat-number">
+                {{ getPharmacyZeroStockCount(pharmacy._id) }}
+              </div>
+              <div class="stat-label">Zero Stock</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Navigation for Individual Pharmacy -->
+        <div class="tab-navigation mt-4">
+          <button
+            class="tab-btn"
+            [class.active]="getActiveTab(pharmacy._id) === 'lowstock'"
+            (click)="switchPharmacyTab(pharmacy._id, 'lowstock')"
+          >
+            Low Stock ({{ getPharmacyLowStockCount(pharmacy._id) }})
+          </button>
+          <button
+            class="tab-btn"
+            [class.active]="getActiveTab(pharmacy._id) === 'expired'"
+            (click)="switchPharmacyTab(pharmacy._id, 'expired')"
+          >
+            Expired ({{ getPharmacyExpiredCount(pharmacy._id) }})
+          </button>
+        </div>
+
+        <!-- Stock Details Toggle -->
+        <div class="details-toggle" *ngIf="hasPharmacyData(pharmacy._id)">
+          <button
+            class="toggle-btn"
+            (click)="togglePharmacyStockDetails(pharmacy._id)"
+          >
+            {{ getStockDetailsVisible(pharmacy._id) ? "Hide" : "View" }}
+            {{
+              getActiveTab(pharmacy._id) === "lowstock"
+                ? "Low Stock"
+                : "Expired"
+            }}
+            Details
+            <span class="toggle-icon">{{
+              getStockDetailsVisible(pharmacy._id) ? "▼" : "▶"
+            }}</span>
+          </button>
+        </div>
+
+        <!-- Individual Pharmacy Stock Table -->
+        <div
+          class="stock-details"
+          *ngIf="
+            getStockDetailsVisible(pharmacy._id) &&
+            hasPharmacyData(pharmacy._id)
+          "
+        >
+          <!-- Low Stock Tab for This Pharmacy -->
+          <div *ngIf="getActiveTab(pharmacy._id) === 'lowstock'">
+            <div class="stock-table">
+              <div class="table-header">
+                <div class="col-select">
+                  <input
+                    type="checkbox"
+                    [checked]="isAllPharmacyMedicinesSelected(pharmacy._id)"
+                    (change)="selectAllPharmacyMedicines(pharmacy._id, $event)"
+                  />
+                </div>
+                <div class="col-medicine">Medicine</div>
+                <div class="col-category">Category</div>
+                <div class="col-current">Current</div>
+                <div class="col-required">Required</div>
+                <div class="col-priority">Priority</div>
+                <div class="col-status">Stock Level</div>
+              </div>
+
+              <div
+                class="table-row"
+                *ngFor="
+                  let medicine of getPharmacyLowStockMedicines(pharmacy._id);
+                  trackBy: trackMedicineById
+                "
+              >
+                <div class="col-select">
+                  <input
+                    type="checkbox"
+                    [checked]="isMedicineSelected(medicine._id || medicine.id)"
+                    (change)="onMedicineSelect(medicine._id || medicine.id)"
+                  />
+                </div>
+                <div class="col-medicine">
+                  <div class="medicine-name">
+                    {{
+                      medicine.medicine_name ||
+                        medicine.name ||
+                        "Unknown Medicine"
+                    }}
+                  </div>
+                  <!-- <small class="text-muted"
+                    >Batch: {{ medicine.batch_no || "N/A" }}</small
+                  > -->
+                </div>
+                <div class="col-category">{{ medicine.category }}</div>
+                <div class="col-current">{{ medicine.stock || 0 }}</div>
+                <div class="col-required">{{ medicine.minRequired }}</div>
+                <div class="col-priority">
+                  <span
+                    class="priority-badge"
+                    [ngClass]="getPriorityClass(medicine.priority)"
+                  >
+                    {{ medicine.priority }}
+                  </span>
+                </div>
+                <div class="col-status">
+                  <div class="progress-bar">
+                    <div
+                      class="progress-fill"
+                      [style.width.%]="getStockPercentage(medicine)"
+                    ></div>
+                    <span class="progress-text"
+                      >{{ getStockPercentage(medicine) }}%</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expired Tab for This Pharmacy -->
+          <div *ngIf="getActiveTab(pharmacy._id) === 'expired'">
+            <div class="stock-table">
+              <div class="table-header">
+                <div class="col-select">
+                  <input
+                    type="checkbox"
+                    [checked]="
+                      isAllPharmacyExpiredMedicinesSelected(pharmacy._id)
+                    "
+                    (change)="
+                      selectAllPharmacyExpiredMedicines(pharmacy._id, $event)
+                    "
+                  />
+                </div>
+                <div class="col-medicine">Medicine</div>
+                <div class="col-category">Category</div>
+                <div class="col-current">Current Stock</div>
+                <div class="col-expiry">Expiry Date</div>
+                <div class="col-status">Days Overdue</div>
+              </div>
+
+              <div
+                class="table-row"
+                *ngFor="
+                  let medicine of getPharmacyExpiredMedicines(pharmacy._id);
+                  trackBy: trackMedicineById
+                "
+              >
+                <div class="col-select">
+                  <input
+                    type="checkbox"
+                    [checked]="isMedicineSelected(medicine._id || medicine.id)"
+                    (change)="onMedicineSelect(medicine._id || medicine.id)"
+                  />
+                </div>
+                <div class="col-medicine">
+                  <div class="medicine-name">
+                    {{
+                      medicine.medicine_name ||
+                        medicine.name ||
+                        "Unknown Medicine"
+                    }}
+                  </div>
+                  <small class="text-muted"
+                    >Batch: {{ medicine.batch_no || "N/A" }}</small
+                  >
+                </div>
+                <div class="col-category">{{ medicine.category }}</div>
+                <div class="col-current">{{ medicine.stock || 0 }}</div>
+                <div class="col-expiry">
+                  {{ formatDate(medicine.expiry_date) }}
+                </div>
+                <div class="col-status">
+                  <span class="expired-badge">
+                    {{ getDaysOverdue(medicine.expiry_date) }} days
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Data Message for Individual Pharmacy -->
+        <div class="no-data-message" *ngIf="!hasPharmacyData(pharmacy._id)">
+          <div class="empty-state">
+            <div class="empty-icon">📦</div>
+            <h4>
+              No
+              {{
+                getActiveTab(pharmacy._id) === "lowstock"
+                  ? "Low Stock"
+                  : "Expired"
+              }}
+              Medicines Found
+            </h4>
+            <p>
+              {{
+                getActiveTab(pharmacy._id) === "lowstock"
+                  ? "All medicines are adequately stocked."
+                  : "No expired medicines detected."
+              }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Individual Pharmacy Actions -->
+        <div class="card-actions">
+          <button
+            class="btn btn-xs btn-outline"
+            (click)="viewStock(pharmacy._id)"
+          >
+            <i class="fa fa-eye"></i> View Full Stock
+          </button>
+          <!-- <button
+            class="btn btn-outline btn-sm"
+            *ngIf="hasPharmacyData(pharmacy._id)"
+            (click)="handlePharmacyAction(pharmacy._id)"
+          >
+            <i
+              class="fa"
+              [ngClass]="
+                getActiveTab(pharmacy._id) === 'expired'
+                  ? 'fa-trash'
+                  : 'fa-arrow-right'
+              "
+            ></i>
+            {{
+              getActiveTab(pharmacy._id) === "expired"
+                ? "Dispose Expired"
+                : "Request Stock"
+            }}
+          </button> -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Show message if no sub-pharmacies exist -->
+  <div class="no-subpharmacy-message" *ngIf="subPharmacies.length === 0">
+    <div class="alert alert-info text-center">
+      <div class="alert-content">
+        <div class="alert-icon-large">🏥</div>
+        <h4>No Sub-Pharmacies Found</h4>
+        <p>Please create sub-pharmacies first to view their stock alerts.</p>
+        <button class="btn btn-primary" (click)="navigateToCreatePharmacy()">
+          <i class="fa fa-plus"></i> Create Sub-Pharmacy
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selected Items Summary Bar (Fixed at bottom when items are selected) -->
+  <div
+    class="selection-summary"
+    *ngIf="selectedMedicines.length > 0"
+    [class.visible]="selectedMedicines.length > 0"
+  >
+    <div class="selection-content">
+      <div class="selection-info">
+        <strong>{{ selectedMedicines.length }}</strong> medicine(s) selected
+        <span
+          class="selection-details"
+          *ngIf="getSelectedMedicinesSummary() as summary"
+        >
+          • {{ summary.lowStock }} Low Stock • {{ summary.expired }} Expired
+        </span>
+      </div>
+      <div class="selection-actions">
+        <button
+          class="btn btn-sm btn-outline-secondary m-2"
+          (click)="clearSelection()"
+        >
+          Clear All
+        </button>
+        <button class="btn btn-sm btn-primary" (click)="openTransferModal()">
+          Create Transfer Request
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Transfer Request Modal -->
+<div
+  class="modal-overlay"
+  *ngIf="showTransferModal"
+  (click)="closeTransferModal()"
+>
+  <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fa fa-exchange"></i>
+          Create Transfer Request - {{ getTransferRequestTitle() }}
+        </h5>
+        <button
+          type="button"
+          class="modal-close"
+          (click)="closeTransferModal()"
+        >
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+
+      <form
+        [formGroup]="transferForm"
+        (ngSubmit)="submitTransferRequest()"
+        *ngIf="transferForm"
+      >
+        <div class="modal-body">
+          <!-- Request Overview -->
+          <div class="request-overview mb-4">
+            <div class="overview-stats">
+              <div class="stat-item">
+                <div class="stat-value">
+                  {{ getSelectedMedicinesDataForTemplate().length || 0 }}
+                </div>
+                <div class="stat-label">Medicines</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">{{ getUniquePharmaciesCount() }}</div>
+                <div class="stat-label">Pharmacies</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">
+                  {{
+                    getTotalRequestedValue()
+                      | currency : "INR" : "symbol" : "1.0-0"
+                  }}
+                </div>
+                <div class="stat-label">Est. Cost</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Request Configuration -->
+          <div class="request-config">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Request Type</label>
+                <select formControlName="request_type" class="form-control">
+                  <option value="expired_replacement">
+                    Expired Medicine Replacement
+                  </option>
+                  <option value="stock_replenishment">
+                    Stock Replenishment
+                  </option>
+                  <option value="urgent_request">Urgent Request</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label"
+                  >Priority <span class="text-danger">*</span></label
+                >
+                <select formControlName="priority" class="form-control">
+                  <option value="low">Low Priority</option>
+                  <option value="medium">Medium Priority</option>
+                  <option value="high">High Priority</option>
+                  <option value="critical">Critical Priority</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-12">
+                <label class="form-label">Request Notes</label>
+                <textarea
+                  formControlName="notes"
+                  class="form-control"
+                  rows="2"
+                  placeholder="Provide additional details about this transfer request..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Medicines Section -->
+          <div class="medicines-section">
+            <div class="section-header">
+              <h6>Selected Medicines</h6>
+              <div class="section-actions">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  (click)="recalculateQuantities()"
+                >
+                  Auto Calculate
+                </button>
+              </div>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading-state" *ngIf="isLoadingTransfer">
+              <div class="text-center p-4">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="sr-only"
+                    >Checking central inventory availability...</span
+                  >
+                </div>
+                <p class="mt-2 text-muted">Validating stock availability...</p>
+              </div>
+            </div>
+
+            <!-- Medicines Table -->
+            <!-- Medicines Table -->
+            <div
+              class="medicines-table"
+              *ngIf="!isLoadingTransfer && transferForm"
+            >
+              <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th width="30%">Medicine Details</th>
+                      <th width="15%">Source</th>
+                      <th width="15%">Available Stock</th>
+                      <th width="15%">Requested Qty</th>
+                      <th width="15%">Est. Cost</th>
+                      <th width="10%">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody formArrayName="requested_medicines">
+                    <tr
+                      *ngFor="
+                        let medicine of requestedMedicines?.controls;
+                        let i = index
+                      "
+                      [formGroupName]="i"
+                      class="medicine-row"
+                    >
+                      <td>
+                        <div class="medicine-info">
+                          <div class="medicine-name">
+                            {{ medicine.get("medicine_name")?.value }}
+                          </div>
+                          <small class="text-muted batch-info">
+                            Batch:
+                            {{
+                              getSelectedMedicinesDataForTemplate()[i]
+                                ?.batch_no || "N/A"
+                            }}
+                          </small>
+                          <div
+                            class="medicine-tags"
+                            *ngIf="medicine.get('disposal_reference')?.value"
+                          >
+                            <span class="badge badge-warning">{{
+                              medicine.get("disposal_reference")?.value
+                            }}</span>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td>
+                        <span class="source-badge">
+                          {{
+                            getSelectedMedicinesDataForTemplate()[i]
+                              ?.source_pharmacy || "Central Store"
+                          }}
+                        </span>
+                      </td>
+
+                      <td>
+                        <div class="stock-display">
+                          <span
+                            class="stock-badge"
+                            [ngClass]="
+                              getAvailableStockBadgeClass(getAvailableStock(i))
+                            "
+                          >
+                            {{ getAvailableStock(i) }}
+                          </span>
+                          <small class="stock-label">units</small>
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="quantity-input-container">
+                          <input
+                            type="number"
+                            formControlName="requested_quantity"
+                            class="form-control form-control-sm quantity-input"
+                            [max]="getAvailableStock(i)"
+                            min="1"
+                            [class.is-invalid]="isQuantityExceeded(i)"
+                            (input)="onQuantityInput($event, i)"
+                            placeholder="Enter qty"
+                          />
+
+                          <!-- Error message when quantity exceeds available stock -->
+                          <small
+                            class="invalid-feedback d-block"
+                            *ngIf="isQuantityExceeded(i)"
+                          >
+                            <i class="fa fa-exclamation-triangle"></i>
+                            Max available: {{ getAvailableStock(i) }}
+                          </small>
+
+                          <!-- Success indicator when quantity is valid -->
+                          <small
+                            class="valid-feedback d-block"
+                            *ngIf="
+                              !isQuantityExceeded(i) &&
+                              medicine.get('requested_quantity')?.value > 0
+                            "
+                          >
+                            <i class="fa fa-check-circle"></i>
+                            Valid quantity
+                          </small>
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="cost-display">
+                          <span class="cost-amount">
+                            {{
+                              getCostForMedicine(i)
+                                | currency : "INR" : "symbol" : "1.0-0"
+                            }}
+                          </span>
+                          <small class="cost-label">total</small>
+                        </div>
+                      </td>
+
+                      <td>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-danger remove-btn"
+                          (click)="removeMedicineFromRequest(i)"
+                          title="Remove from request"
+                        >
+                          <i class="fa fa-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- No Medicines Message -->
+            <div
+              class="empty-medicines"
+              *ngIf="
+                !isLoadingTransfer &&
+                (!requestedMedicines || requestedMedicines.length === 0)
+              "
+            >
+              <div class="text-center p-4">
+                <i class="fa fa-info-circle text-muted fa-2x mb-2"></i>
+                <p class="text-muted">
+                  No medicines selected for transfer request.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Request Summary -->
+          <div
+            class="request-summary"
+            *ngIf="!isLoadingTransfer && transferForm"
+          >
+            <div class="summary-card">
+              <div class="summary-header">
+                <h6>Request Summary</h6>
+              </div>
+              <div class="summary-body">
+                <div class="summary-row">
+                  <span class="summary-label">Total Medicines:</span>
+                  <span class="summary-value">{{
+                    requestedMedicines?.length || 0
+                  }}</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Total Quantity:</span>
+                  <span class="summary-value">{{
+                    getTotalRequestedQuantity()
+                  }}</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Estimated Cost:</span>
+                  <span class="summary-value highlight">{{
+                    getTotalRequestedValue()
+                      | currency : "INR" : "symbol" : "1.2-2"
+                  }}</span>
+                </div>
+                <div class="summary-row" *ngIf="hasInsufficientStock()">
+                  <span class="summary-label">
+                    <i class="fa fa-exclamation-triangle text-warning"></i>
+                    Insufficient Stock:
+                  </span>
+                  <span class="summary-value text-warning"
+                    >{{ getInsufficientStockCount() }} items</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <div class="footer-info">
+            <small class="text-muted">
+              <i class="fa fa-info-circle"></i>
+              Request will be submitted for approval by inventory manager
+            </small>
+          </div>
+          <div class="footer-actions">
+            <!-- <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="closeTransferModal()"
+            >
+              <i class="fa fa-times"></i> Cancel
+            </button> -->
+            <button
+              type="button"
+              class="btn btn-primary m-2"
+              (click)="submitTransferRequest()"
+            >
+              <span
+                *ngIf="isLoadingTransfer"
+                class="spinner-border spinner-border-sm"
+              ></span>
+              <!-- <i class="fa fa-paper-plane" *ngIf="!isLoadingTransfer"></i> -->
+              {{
+                isLoadingTransfer ? "Submitting..." : "Submit Transfer Request"
+              }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,101 @@
+<div class="form-meta">
+  <!-- <p>radiotestmasterparameter works!</p> -->
+<div class="header">
+  <h2>TEST MASTER PARAMETER</h2>
+  <!-- <button class="list-cases-btn" [routerLink]="['/radiologylayout/radiotestparametermasterlist']" routerLinkActive="router-link-active" >LIST CASES</button> -->
+  <span class="icons position-relative">
+  <i class="fa-solid fa-signal" [routerLink]="['/radiologylayout/radiotestparametermasterlist']" routerLinkActive="router-link-active"></i>
+</span>
+</div>
+
+<div class="" *ngIf="userPermissions.create">
+
+  <form action="" [formGroup]="medicalTest" (ngSubmit)="OnSubmit()">
+    <div class="opd-container">
+
+      <div class="form-row">
+  <div class="form-group">
+        <label>Test Name <span class="required">*</span></label>
+        <input type="text" class="form-control" placeholder="Test Name" formControlName="test_name">
+        <div *ngIf="medicalTest.get('test_name')?.touched && medicalTest.get('test_name')?.invalid" class="text-danger">
+        Test Name is Required
+        </div>
+
+      </div>
+
+      <!-- <div class="form-group">
+        <label>Parameter <span class="required">*</span></label>
+        <input type="text" class="form-control" placeholder="Parameter" formControlName="parameters">
+        <div *ngIf="medicalTest.get('parameters')?.touched && medicalTest.get('parameters')?.invalid" class="text-danger">
+          Parameters is Required
+          </div>
+      </div> -->
+      </div>
+
+
+      <div class="form-row">
+   <div class="form-group">
+        <label>Units <span class="required">*</span></label>
+        <input type="text" class="form-control" placeholder="Units" formControlName="units">
+        <div *ngIf="medicalTest.get('units')?.touched && medicalTest.get('units')?.invalid" class="text-danger">
+          Units is Required
+          </div>
+      </div>
+      <div class="form-group">
+        <label>Short Name <span class="required">*</span></label>
+        <input type="text" class="form-control" placeholder="shortname" formControlName="shortname">
+        <div *ngIf="medicalTest.get('shortname')?.touched && medicalTest.get('shortname')?.invalid" class="text-danger">
+          shortname is Required
+          </div>
+      </div>
+      </div>
+
+
+      <div class="form-group">
+        <label>Default <span class="required">*</span></label>
+        <input type="text" class="form-control" placeholder="default" formControlName="default">
+        <div *ngIf="medicalTest.get('default')?.touched && medicalTest.get('default')?.invalid" class="text-danger">
+          default is Required
+          </div>
+      </div>
+
+      <div class="form-row">
+     <div class="form-group">
+        <label>Min <span class="required">*</span></label>
+        <input type="text" class="form-control" placeholder="min" formControlName="min">
+        <div *ngIf="medicalTest.get('min')?.touched && medicalTest.get('min')?.invalid" class="text-danger">
+          Minimum Value is Required
+          </div>
+      </div>
+      <div class="form-group">
+        <label>Max Value <span class="required">*</span></label>
+        <input type="text" class="form-control" placeholder="max" formControlName="max">
+        <div *ngIf="medicalTest.get('max')?.touched && medicalTest.get('max')?.invalid" class="text-danger">
+          Maximum Value is Required
+          </div>
+      </div>
+      </div>
+
+  <!--
+      <div class="form-group">
+        <label>Price <span class="required">*</span></label>
+        <input type="text" class="form-control" placeholder="price" formControlName="price">
+
+      </div> -->
+
+
+
+      <div class="button-group">
+        <button class="btn save-list" [disabled]="medicalTest.invalid" >SAVE</button>
+        <!-- <button class="btn save-add mx-3">SAVE & ADD NEW</button>
+        <button class="btn cancel">CANCEL</button> -->
+      </div>
+
+      <!-- <p class="compulsory-note">MARK (*) FIELDS ARE COMPULSORY</p> -->
+    </div>
+  </form>
+</div>
+
+
+
+</div>

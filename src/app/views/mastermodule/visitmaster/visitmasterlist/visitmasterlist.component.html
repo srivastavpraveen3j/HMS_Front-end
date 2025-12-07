@@ -1,0 +1,331 @@
+<div class="form-meta">
+  <div class="header d-flex justify-content-between align-items-center">
+    <h2>VISIT TYPE MASTER LIST</h2>
+
+    <!-- <form [formGroup]="filterForm" class="d-flex gap-2">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search by head / doctor"
+        formControlName="searchText"
+      />
+      <select class="form-select w-auto" formControlName="recordsPerPage">
+        <option [value]="10">10</option>
+        <option [value]="25">25</option>
+        <option [value]="50">50</option>
+        <option [value]="100">100</option>
+      </select>
+    </form> -->
+       <button
+      class="list-cases-btn"
+      [routerLink]="['/master/visittypemaster']"
+      routerLinkActive="router-link-active"
+    >
+      ADD VISIT TYPE
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mt-3">
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'visit'"
+        (click)="changeTab('visit')"
+        type="button"
+      >
+        Visit Charges
+      </button>
+    </li>
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'procedure'"
+        (click)="changeTab('procedure')"
+        type="button"
+      >
+        Procedure Charges
+      </button>
+    </li>
+  </ul>
+
+  <!-- Visit tab -->
+  <div class="tab-content mt-3" *ngIf="activeTab === 'visit'">
+    <div class="table-responsive" *ngIf="userPermissions.read">
+      <table class="table table-bordered table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Head Name</th>
+            <th>Doctor Name</th>
+            <!-- <th>Status</th> -->
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let head of visitChargesList; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ head.headName }}</td>
+            <!-- <td>{{ getDoctorNames(head, "doctorRates") }}</td> -->
+            <td>
+              {{
+                head.doctorRates && head.doctorRates.length
+                  ? head.doctorRates[0]?.doctorId?.name
+                  : "-"
+              }}
+            </td>
+
+            <!-- <td>{{ head.status }}</td> -->
+            <td>
+              <i
+                class="fa fa-info-circle"
+                title="View room/bed charges"
+                (click)="openChargeModal(head, 'visit')"
+              ></i>
+              <i
+                class="fa-solid fa-pencil"
+                *ngIf="userPermissions.update"
+                (click)="editVisitType(head._id)"
+              ></i>
+              <i
+                class="fa-solid fa-trash"
+                *ngIf="userPermissions.delete"
+                (click)="deleteVisitType(head._id)"
+              ></i>
+            </td>
+          </tr>
+          <tr *ngIf="visitChargesList.length === 0">
+            <td colspan="5" class="text-center">No visit charges found</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pagination">
+        <button
+          class="pagination-btn"
+          (click)="previousPage()"
+          [disabled]="currentPage === 1"
+        >
+          Previous
+        </button>
+        Page {{ currentPage }} of {{ totalPages }}
+        <button
+          class="pagination-btn"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+
+ <!-- Procedure tab -->
+<div class="tab-content mt-3" *ngIf="activeTab === 'procedure'">
+  <div class="table-responsive" *ngIf="userPermissions.read">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Head Name</th>
+          <th>Doctor Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let head of procedureChargesList; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ head.headName }}</td>
+          <td>
+            {{
+              head.procedureServices && head.procedureServices.length
+                ? head.procedureServices[0]?.doctorId?.name
+                : '-'
+            }}
+          </td>
+          <td>
+            <i
+              class="fa fa-info-circle"
+              title="View room/bed & service charges"
+              (click)="openChargeModal(head, 'procedure')"
+            ></i>
+            <i
+              class="fa-solid fa-pencil"
+              *ngIf="userPermissions.update"
+              (click)="editVisitType(head._id)"
+            ></i>
+            <i
+              class="fa-solid fa-trash"
+              *ngIf="userPermissions.delete"
+              (click)="deleteVisitType(head._id)"
+            ></i>
+          </td>
+        </tr>
+        <tr *ngIf="procedureChargesList.length === 0">
+          <td colspan="4" class="text-center">No procedure charges found</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination">
+      <button
+        class="pagination-btn"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      Page {{ currentPage }} of {{ totalPages }}
+      <button
+        class="pagination-btn"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>
+
+
+ <!-- Modal -->
+<div
+  class="modal fade"
+  tabindex="-1"
+  [class.show]="isChargeModalOpen"
+  [ngStyle]="{ display: isChargeModalOpen ? 'block' : 'none' }"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ selectedChargeType === 'visit' ? 'Visit' : 'Procedure' }} Charges -
+          {{ selectedHead?.headName }}
+        </h5>
+        <i class="fas fa-times" (click)="closeChargeModal()"></i>
+      </div>
+
+      <div class="modal-body">
+        <!-- Visit charges detail -->
+        <div *ngIf="selectedChargeType === 'visit'">
+          <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>#</th>
+                <!-- <th>Doctor Name</th> -->
+                <th>Room/Bed Type</th>
+                <th>Visit Charge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let dr of selectedHead?.doctorRates; let i = index">
+                <td>{{ i + 1 }}</td>
+                <!-- <td>{{ dr.doctorId?.name }}</td> -->
+                <td>{{ dr.roomTypeId?.name || dr.bedTypeId?.name }}</td>
+                <td>{{ dr.roomRate }}</td>
+              </tr>
+              <tr
+                *ngIf="
+                  !selectedHead?.doctorRates ||
+                  selectedHead?.doctorRates.length === 0
+                "
+              >
+                <td colspan="4" class="text-center">
+                  No room/bed wise visit charges defined
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Procedure charges detail -->
+        <div *ngIf="selectedChargeType === 'procedure'">
+          <!-- Room/Bed type tabs -->
+          <ul class="nav nav-tabs mb-3" *ngIf="procedureRoomTabs.length">
+            <li class="nav-item" *ngFor="let room of procedureRoomTabs">
+              <button
+                type="button"
+                class="nav-link"
+                [class.active]="room === selectedRoomTab"
+                (click)="changeProcedureRoomTab(room)"
+              >
+                {{ room }}
+              </button>
+            </li>
+          </ul>
+
+          <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>#</th>
+                <!-- <th>Doctor Name</th>
+                <th>Room/Bed Type</th> -->
+                <th>Service</th>
+                <th>Service Charge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let ps of pagedProcedureServices;
+                  let i = index
+                "
+              >
+                <td>{{ (modalPage - 1) * modalPageSize + i + 1 }}</td>
+                <!-- <td>{{ ps.doctorId?.name }}</td>
+                <td>{{ ps.roomTypeId?.name || ps.bedTypeId?.name }}</td> -->
+                <td>{{ ps.serviceId?.name || '-' }}</td>
+                <td>{{ ps.serviceAmount || ps.serviceId?.charge || 0 }}</td>
+              </tr>
+              <tr
+                *ngIf="
+                  !pagedProcedureServices ||
+                  pagedProcedureServices.length === 0
+                "
+              >
+                <td colspan="5" class="text-center">
+                  No room/bed wise procedure/services defined
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Modal pagination -->
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              Page {{ modalPage }} of {{ modalTotalPages }}
+            </div>
+            <div>
+              <button
+                class="btn btn-sm btn-outline-secondary me-2"
+                (click)="modalPreviousPage()"
+                [disabled]="modalPage === 1"
+              >
+                Previous
+              </button>
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                (click)="modalNextPage()"
+                [disabled]="modalPage === modalTotalPages"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeChargeModal()"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>

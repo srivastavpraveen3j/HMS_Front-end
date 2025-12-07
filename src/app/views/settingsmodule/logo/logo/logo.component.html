@@ -1,0 +1,151 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>Logo Management</h2>
+  </div>
+
+  <div class="">
+    <!-- File Upload Section with Guidelines -->
+    <div class="form-group">
+      <label class="form-label">Choose File</label>
+
+      <!-- File Size Guidelines -->
+
+
+      <!-- File Input -->
+      <input
+        type="file"
+        class="form-control"
+        (change)="onFileSelected($event)"
+        accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+      />
+       <div class="file-guidelines">
+        <div class="guidelines-card">
+          <h4>Logo Requirements</h4>
+          <ul>
+            <li>File Size: Maximum 2MB (recommended under 500KB)</li>
+            <li>Formats: PNG, JPG, JPEG, SVG</li>
+            <li>Dimensions: 250×150px to 400×200px recommended</li>
+            <li>Quality: High resolution for best results</li>
+          </ul>
+        </div>
+      </div>
+      <!-- File Validation Messages -->
+      <div *ngIf="fileValidationMessage" class="validation-message" [ngClass]="fileValidationClass">
+        <i [class]="validationIcon"></i>
+        {{ fileValidationMessage }}
+      </div>
+
+      <!-- Selected File Info -->
+      <div *ngIf="selectedFile && !fileValidationError" class="file-info">
+        <div class="file-details">
+          <span class="file-name">📄 {{ selectedFile.name }}</span>
+          <span class="file-size">📏 {{ getFormattedFileSize(selectedFile.size) }}</span>
+          <span class="file-type">🎨 {{ selectedFile.type }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shape Customization Section -->
+    <div class="shape-controls">
+      <h3>Logo Shape</h3>
+
+      <div class="shape-options">
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="shapeType" value="rectangular"
+                   [(ngModel)]="shapeConfig.type"
+                   (change)="onShapeTypeChange('rectangular')">
+            <span>Rectangular</span>
+          </label>
+
+          <label class="radio-option">
+            <input type="radio" name="shapeType" value="rounded"
+                   [(ngModel)]="shapeConfig.type"
+                   (change)="onShapeTypeChange('rounded')">
+            <span>Rounded Corners</span>
+          </label>
+
+          <label class="radio-option">
+            <input type="radio" name="shapeType" value="circular"
+                   [(ngModel)]="shapeConfig.type"
+                   (change)="onShapeTypeChange('circular')">
+            <span>Circular</span>
+          </label>
+
+          <label class="radio-option">
+            <input type="radio" name="shapeType" value="custom"
+                   [(ngModel)]="shapeConfig.type"
+                   (change)="onShapeTypeChange('custom')">
+            <span>Custom</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Custom Radius Controls -->
+      <div *ngIf="showShapeControls" class="custom-controls">
+        <h4>Custom Corner Radius</h4>
+        <div class="radius-controls">
+          <div class="radius-group">
+            <label>Top Left</label>
+            <input type="range" min="0" max="50"
+                   [(ngModel)]="customRadiusValues.topLeft"
+                   (input)="onCustomRadiusChange()">
+            <span>{{customRadiusValues.topLeft}}px</span>
+          </div>
+
+          <div class="radius-group">
+            <label>Top Right</label>
+            <input type="range" min="0" max="50"
+                   [(ngModel)]="customRadiusValues.topRight"
+                   (input)="onCustomRadiusChange()">
+            <span>{{customRadiusValues.topRight}}px</span>
+          </div>
+
+          <div class="radius-group">
+            <label>Bottom Left</label>
+            <input type="range" min="0" max="50"
+                   [(ngModel)]="customRadiusValues.bottomLeft"
+                   (input)="onCustomRadiusChange()">
+            <span>{{customRadiusValues.bottomLeft}}px</span>
+          </div>
+
+          <div class="radius-group">
+            <label>Bottom Right</label>
+            <input type="range" min="0" max="50"
+                   [(ngModel)]="customRadiusValues.bottomRight"
+                   (input)="onCustomRadiusChange()">
+            <span>{{customRadiusValues.bottomRight}}px</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview Sections -->
+    <div *ngIf="logoUrl" class="current-logo-preview">
+      <h3>Current Logo</h3>
+      <img [src]="logoUrl" alt="Current Logo" [ngStyle]="getLogoStyle()" />
+    </div>
+
+    <div *ngIf="previewUrl" class="new-logo-preview">
+      <h3>New Logo Preview</h3>
+      <img [src]="previewUrl" alt="Logo Preview" [ngStyle]="getLogoStyle()" height="120"/>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="button-group">
+      <button
+        class="btn-upload"
+        (click)="uploadLogo()"
+        [disabled]="!selectedFile || fileValidationError">
+        Upload Logo
+      </button>
+
+      <button
+        class="btn-update-shape"
+        (click)="updateShapeOnly()"
+        *ngIf="logoUrl && !selectedFile">
+        Update Shape Only
+      </button>
+    </div>
+  </div>
+</div>

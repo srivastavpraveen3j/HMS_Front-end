@@ -1,0 +1,153 @@
+<div class="form-meta">
+  <!-- <p>request-for-quotationlist works!</p> -->
+<div class="header">
+  <h2>Request for Quotation List</h2>
+  <!-- <button class="list-cases-btn"  routerLinkActive="router-link-active" >Add New Cases</button> -->
+  <!-- <button
+    class="list-cases-btn"
+    [routerLink]="['/inventorylayout/requestquotation']"
+    routerLinkActive="router-link-active"
+  >
+   Request for Quotation
+  </button> -->
+</div>
+
+
+ <div class="filters d-flex align-items-center">
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="today"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+        checked
+      />
+      TODAY'S
+    </label>
+
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="dateRange"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+      />
+      Date Range
+    </label>
+
+    <!-- Date Inputs Visible Only for Date Range -->
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="startDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+    />
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="endDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+    />
+  </div>
+
+
+
+  @if(requisitions.length === 0 ){
+   <app-loader [patientData]="requisitions" [title]="module" [activeFilter]="activeFilter" [startDate]="startDate"
+    [endDate]="endDate"></app-loader>
+}@else{
+
+
+
+<div class="rfq-list-container mt-3" *ngIf="userPermissions.read">
+  <!-- <h2>Request for Quotation List</h2> -->
+
+  <table class="table table-bordered table-hover align-middle diagnosis-table">
+  <thead class="table-dark">
+    <tr>
+      <th>#</th>
+      <th>RFQ Number</th>
+      <th>Vendors</th>
+      <th>Date</th>
+      <th>Status</th>
+      <th>Item Count</th>
+      <th>Item Preview</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let rfq of requisitions; let i = index">
+      <td>{{ i + 1 }}</td>
+      <td>{{ rfq.rfqNumber }}</td>
+
+      <td>
+        <ul class="m-0 ps-3">
+          <li *ngFor="let v of rfq.sentToVendors">{{ v.vendorName }}</li>
+        </ul>
+      </td>
+
+      <td>{{ rfq.createdAt | date: 'mediumDate' }}</td>
+
+      <td>
+      <span class="badge rounded-pill"
+      [ngClass]="{
+        'bg-success' : rfq.status?.toLowerCase() === 'quotagiven',
+        'bg-dark' : rfq.status?.toLowerCase() === 'pogenerated',
+        'bg-danger' : rfq.status?.toLowerCase() === 'closed',
+        'bg-secondary' : rfq.status?.toLowerCase() === 'open'
+      }">
+  {{ rfq.status }}
+</span>
+
+      </td>
+
+      <td>{{ rfq.items?.length || 0 }}</td>
+
+      <td>
+        <ul class="m-0 ps-3">
+          <li *ngFor="let item of rfq.items">{{ item.itemName }} ({{ item.quantityRequired }})</li>
+        </ul>
+      </td>
+     <td>
+  <button
+    *ngIf="rfq.status?.toLowerCase() === 'quotagiven'"
+    [routerLink]="['/inventorylayout/quotation-comparison', rfq._id]"
+    class="btn btn-primary btn-sm">
+    View Quotations
+  </button>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+  <!-- Pagination Controls -->
+  <div class="pagination d-flex justify-content-center align-items-center my-3"  *ngIf="requisitions.length > 0 && userPermissions.read">
+    <button
+      class="pagination-btn btn btn-primary mx-2"
+      (click)="previousPage()"
+      [disabled]="currentPage === 1"
+    >
+      Previous
+    </button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button
+      class="pagination-btn btn btn-primary mx-2"
+      (click)="nextPage()"
+      [disabled]="currentPage === totalPages"
+    >
+      Next
+    </button>
+  </div>
+
+    <div class="alert alert-danger text-center mt-3" *ngIf="!userPermissions.read">
+    🚫 You do not have access to read {{module}} list.
+  </div>
+}
+
+
+</div>

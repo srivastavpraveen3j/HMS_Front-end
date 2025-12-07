@@ -1,0 +1,26 @@
+<div class="discount-box p-3 rounded shadow-md bg-white">
+  <h3 class="text-lg font-semibold mb-2">Discount</h3>
+
+  <form [formGroup]="discountForm" class="flex flex-col gap-3">
+    <div class="form-group">
+      <label for="discountPercent" class="block font-medium">Discount (%)</label>
+      <input
+        id="discountPercent"
+        type="number"
+        min="0"
+        max="100"
+        formControlName="discountPercent"
+        class="border p-2 w-full rounded"
+        placeholder="Enter discount %"
+      />
+      <small *ngIf="discountForm.get('discountPercent')?.invalid && discountForm.get('discountPercent')?.touched" class="text-red-500">
+        Value must be between 0 and 100
+      </small>
+    </div>
+
+    <div class="summary bg-gray-50 p-2 rounded text-sm">
+      <p>Total: <strong>{{ totalAmount | number : '1.2-2' }}</strong></p>
+      <p>Discount: <strong>{{ finalAmount() | number : '1.2-2' }}</strong></p>
+    </div>
+  </form>
+</div>

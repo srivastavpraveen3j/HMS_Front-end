@@ -1,0 +1,259 @@
+<div class="inventory-dashboard-wrapper">
+  <!-- Supply Metrics Row -->
+  <div class="dashboard-metrics">
+    <div class="metric-card pending-requests" routerLink="/inventorylayout/purchaserequestlist">
+      <i class="metric-icon">📋</i>
+      <div class="metric-info">
+        <div class="metric-number">{{ allRequisitions.length || 0 }}</div>
+        <div class="metric-label">Pending Material Requests</div>
+      </div>
+    </div>
+
+    <div class="metric-card quotation-requested" routerLink="/inventorylayout/requestquotationlist">
+      <i class="fa-solid fa-file-signature metric-icon"></i>
+      <div class="metric-info">
+        <div class="metric-number">{{requoation || 0}}</div>
+        <div class="metric-label">Requested Quotation</div>
+      </div>
+    </div>
+
+    <div class="metric-card quotation-given" routerLink="/inventorylayout/requestquotationlist">
+      <i class="fa-solid fa-file-invoice-dollar metric-icon"></i>
+      <div class="metric-info">
+        <div class="metric-number">{{quotagiven}}</div>
+        <div class="metric-label">Vendor Quotation Given</div>
+      </div>
+    </div>
+
+    <div class="metric-card active-orders" routerLink="/inventorylayout/purchaseordergenerationlist">
+      <i class="metric-icon">🛒</i>
+      <div class="metric-info">
+        <div class="metric-number">{{ allpurchaseOrders.length || 0 }}</div>
+        <div class="metric-label">Active Purchase Orders</div>
+      </div>
+    </div>
+
+    <div class="metric-card low-stock" routerLink="/inventorylayout/lowinventorystocklist">
+      <i class="metric-icon">⚠️</i>
+      <div class="metric-info">
+        <div class="metric-number">
+          {{ lowStockMedicinesFullList.length || 0 }}
+        </div>
+
+        <div class="metric-label">Low Stock Items</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Financial Collection & Quick Actions -->
+  <div class="main-content-row">
+    <div class="dashboard-card collection-card">
+      <h4 class="card-header">FINANCIAL COLLECTION</h4>
+      <div class="collection-grid">
+       <div class="collection-item" routerLink="/inventorylayout/lowstock">
+  <!-- <div class="collection-value">{{ totalMedicineValue | indianCurrency  }}</div>  -->
+  <div class="collection-value"> {{countexpired +  lowStockMedicinesFullList.length}}  </div>
+  <div class="collection-label">REQUESTED ITEMS FROM PHARMACY</div>
+</div>
+
+        <div class="collection-item" routerLink="/inventorylayout/distribution">
+          <div class="collection-value">{{this.stockTransfers.length}}</div>
+          <div class="collection-label">ISSUED ITEMS TO PHARMACY</div>
+        </div>
+        <div class="collection-item" routerLink="/inventorylayout/goodreceivenotelist">
+          <div class="collection-value">{{goodreceivenotes.length}}</div>
+          <div class="collection-label">INWARD VALUE FROM GRN</div>
+        </div>
+        <div class="collection-item" routerLink="/inventorylayout/invoiceverificationlist">
+          <div class="collection-value">{{invoiceList.length}}</div>
+          <div class="collection-label">NO. OF INVOICES GENERATED</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-card quick-actions-card">
+      <h4 class="card-header">QUICK ACTIONS</h4>
+      <div class="quick-actions-grid">
+        <button
+          class="quick-action-btn material-request"
+          routerLink="/inventorylayout/purchaseindent"
+        >
+          <span class="action-icon">📝</span>
+          <span class="action-text">Purchase Intend</span>
+        </button>
+        <button
+          class="quick-action-btn purchase-intent"
+          routerLink="/inventorylayout/paymentproccessinglist"
+        >
+          <span class="action-icon">💰</span>
+          <span class="action-text">Purchase Ledger</span>
+        </button>
+        <button
+          class="quick-action-btn quotation"
+          routerLink="/inventorylayout/requestquotationlist"
+        >
+          <span class="action-icon">📊</span>
+          <span class="action-text">Quotation</span>
+        </button>
+        <button
+          class="quick-action-btn vendor-mgmt"
+          routerLink="/inventorylayout/vendor"
+        >
+          <span class="action-icon">🏢</span>
+          <span class="action-text">Vendor Management</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expiry Products Section -->
+  <div class="dashboard-card expiry-products-card">
+    <div class="expiry-header">
+      <div class="expiry-tabs">
+        <span class="expiry-tab active-tab" routerLink="/inventorylayout/expiredmedicines">EXPIRY PRODUCTS : {{countexpired}}</span>
+        <span class="expiry-tab" routerLink="/inventorylayout/expiredmedicines" > View All</span>
+      </div>
+      <!-- <button class="export-button">📄 EXPORT</button> -->
+    </div>
+    <div class="expiry-table-container">
+      <table class="expiry-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Medicine Name</th>
+            <th>Supplier</th>
+            <!-- <th>Dose</th> -->
+            <th>Expiry Date</th>
+            <th>Manufacturing Date</th>
+            <th>Stock</th>
+            <!-- <th>Price</th> -->
+            <th>Batch No</th>
+            <!-- <th>Actions</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let medicine of expireproducts; let i = index"
+            class="urgent-expiry"
+          >
+            <td>{{ i + 1 }}</td>
+            <td>{{ medicine.medicine_name }}</td>
+            <td>{{ medicine?.supplier?.vendorName }}</td>
+            <!-- <td>{{ medicine.dose }}</td> -->
+            <td>{{ medicine.expiry_date | date }}</td>
+            <td>{{ medicine.mfg_date | date }}</td>
+            <td>
+              {{ medicine.stock }}
+              <span *ngIf="medicine.stock <= 10" class="badge bg-danger ms-2">
+                Only {{ medicine.stock }} left
+              </span>
+            </td>
+
+            <!-- <td>{{ medicine.price }}</td> -->
+            <td>{{ medicine.batch_no }}</td>
+            <!-- <td> -->
+            <!-- <i class="fa-solid fa-pencil action-btn" (click)="editmedicine(medicine._id)"></i> -->
+            <!-- <i class="fa-solid fa-trash action-btn"  (click)="deletemedicine(medicine._id)"></i> -->
+            <!-- </td> -->
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Operations Section -->
+  <div class="operations-row">
+    <!-- Material Requisitions -->
+    <div class="dashboard-card requisitions-card">
+      <div class="operations-header">
+        <h4 class="card-header">MATERIAL REQUISITIONS</h4>
+        <button
+          class="header-action-btn"
+          routerLink="/inventorylayout/purchaserequest"
+        >
+          + New Requisition
+        </button>
+      </div>
+
+      <div
+        *ngIf="!requisitions || requisitions.length === 0"
+        class="no-data-container"
+      >
+        <div class="no-data-icon">📋</div>
+        <span class="no-data-title">NO PENDING REQUISITIONS</span>
+        <p class="no-data-subtitle">
+          All material requests have been processed
+        </p>
+      </div>
+
+      <div
+        *ngIf="requisitions && requisitions.length > 0"
+        class="table-container"
+      >
+        <table class="operations-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Department</th>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Category</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let req of requisition; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ req.departmentName }}</td>
+              <td>{{ req.itemName }}</td>
+              <td>{{ req.quantityRequired }}</td>
+              <td>{{ req.category }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Purchase Orders -->
+    <div class="dashboard-card purchase-orders-card">
+      <div class="operations-header">
+        <h4 class="card-header">RECENT PURCHASE ORDERS</h4>
+        <button class="header-action-btn" routerLink="/inventorylayout/purchaseordergenerationlist">
+          View All
+        </button>
+      </div>
+
+      <div
+        *ngIf="purchaseOrders && purchaseOrders.length > 0"
+        class="table-container"
+      >
+        <table class="operations-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>PO Number</th>
+              <th>Vendor</th>
+              <th>Order Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let po of purchaseOrders; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ po.poNumber }}</td>
+              <td>{{ po?.vendor?.name || "N/A" }}</td>
+              <td>{{ po.createdAt | date : "dd/MM/yyyy" }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div
+        *ngIf="!purchaseOrders || purchaseOrders.length === 0"
+        class="no-data-container"
+      >
+        <div class="no-data-icon">🛒</div>
+        <span class="no-data-title">NO PURCHASE ORDERS</span>
+        <p class="no-data-subtitle">No recent purchase orders found</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,246 @@
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radiology Management Dashboard</title>
+</head>
+
+<div class="p-2">
+  <!-- Dashboard Overview Section -->
+  <div id="dashboard" class="section active">
+    <div class="stats-grid">
+      <div class="stat-card" routerLink="/radiologylayout/radiologylayoutopd" *ngIf="userPermissions">
+        <div class="stat-number">{{ totalFilteredOPDCases || 0 }}</div>
+        <div class="stat-label">OPD Radiology Patients Today</div>
+      </div>
+      <div class="stat-card" routerLink="/radiologylayout/radiologylayoutipd" *ngIf="ipdradiopermission">
+        <div class="stat-number">{{ totalFilteredIPDCases || 0 }}</div>
+        <div class="stat-label">IPD Radiology Patients Today</div>
+      </div>
+    </div>
+
+    <!-- <div class="quick-actions">
+      <div class="action-btn" routerLink="/radiologylayout/radiodeptreport">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem">📊</div>
+        <div>View Reports Department Wise</div>
+      </div>
+      <div class="action-btn" routerLink="/radiologylayout/radioreport">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem">📊</div>
+        <div>View Reports Test Wise</div>
+      </div>
+    </div> -->
+
+    <!-- Charts Section -->
+     <!-- <div class="dashboard-grid">
+        <div
+          class="card d-flex justify-content-center align-items-center"
+          style="min-height: 400px"
+        >
+          <canvas id="topTestsChart"></canvas>
+        </div>
+        <div
+          class="card d-flex justify-content-center align-items-center"
+          style="min-height: 400px"
+        >
+          <canvas id="incomePieChart"></canvas>
+        </div>
+      </div> -->
+      <div class="dashboard-grid">
+           <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <!-- <i class="fas fa-clock text-warning"></i> -->
+            Pending Test Requests
+          </div>
+          <!-- <button class="btn btn-warning btn-sm" (click)="refreshPendingRequests()">
+            <i class="fas fa-sync-alt"></i> Refresh
+          </button> -->
+        </div>
+        <div class="table-responsive">
+          <table class="data-table table table-striped table-hover">
+            <thead class="table-warning ">
+              <tr>
+                <th>DATE & TIME</th>
+                <th>PATIENT NAME</th>
+                <th>SOURCE</th>
+                <th>UHID NO</th>
+                <th>REQUEST NO</th>
+                <th>TESTS</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let request of filteredPendingRequests; let i = index"
+                  class="clickable-row"
+                  style="cursor: pointer;"
+                  (click)="navigateToRadiologyPage(request)">
+                <td>
+                  <small>{{ (request.createdAt || request.requestDate) | date:'dd/MM/yyyy' }}</small><br>
+                  <small class="text-muted">{{ (request.createdAt || request.requestDate) | date:'HH:mm' }}</small>
+                </td>
+                <td>
+                  <strong>{{ request.patientName || "N/A" }}</strong>
+                  <br>
+                  <small class="text-muted" *ngIf="request.bedNumber">
+                    Bed: {{ request.bedNumber }}
+                  </small>
+                </td>
+                <td>
+                  <span class="badge"
+                        [ngClass]="request.sourceType === 'ipd' ? 'bg-danger' : 'bg-primary'">
+                    {{ request.sourceType?.toUpperCase() || 'N/A' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge bg-info text-dark">
+                    {{ request.patientUhid?.uhid || request.patientUhid || "N/A" }}
+                  </span>
+                </td>
+                <td>
+                  <small>{{ request.requestNumber || "N/A" }}</small>
+                </td>
+                <td>
+                  <div *ngFor="let service of request.requestedServices?.slice(0, 2)">
+                    <small class="badge bg-warning text-dark me-1 mb-1">
+                      {{ service.serviceName }}
+                    </small>
+                  </div>
+                  <small *ngIf="request.requestedServices?.length > 2" class="text-muted">
+                    +{{ request.requestedServices.length - 2 }} more
+                  </small>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-outline-success"
+                          (click)="navigateToRadiologyPage(request); $event.stopPropagation()">
+                    <i class="fas fa-arrow-right"></i>
+                    {{ request.sourceType === 'ipd' ? 'Go to IPD' : 'Go to OPD' }}
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="filteredPendingRequests.length === 0">
+                <td colspan="7" class=" text-muted">
+                  <i class="fas fa-check-circle text-success"></i>
+                  No pending test requests found
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      </div>
+
+    <!-- Patient Tables Section -->
+    <div class="dashboard-grid">
+      <!-- OPD Radiology Patients Table -->
+      <div class="card" *ngIf="userPermissions">
+        <div class="card-header">
+          <div class="card-title">Recent OPD Radiology Patients</div>
+          <button class="btn btn-primary" routerLink="/radiologylayout/radiologylayoutopd">
+            View All
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table table table-striped table-hover">
+            <thead class="table-dark ">
+              <tr>
+                <th>DATE & TIME</th>
+                <th>PATIENT NAME</th>
+                <th>AGE / GENDER</th>
+                <th>UHID NO</th>
+                <th>REQUEST NO</th>
+                <th>STUDY</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of filteredOPDCases; let i = index">
+                <td>
+                  <small>{{ record.createdAt | date:'dd/MM/yyyy' }}</small><br>
+                  <small class="text-muted">{{ record.createdAt | date:'HH:mm' }}</small>
+                </td>
+                <td>{{ record.patientName || "N/A" }}</td>
+                <td>{{ record.age || "N/A" }} / {{ record.gender || "N/A" }}</td>
+                <td>
+                  <span class="badge bg-info text-dark">
+                    {{ record.patientUhid?.uhid || "N/A" }}
+                  </span>
+                </td>
+                <td>{{ record.requestNumber || "N/A" }}</td>
+                <td>
+                  <div *ngFor="let service of record.requestedServices">
+                    <small class="badge bg-primary me-1 mb-1">{{ service.serviceName }}</small>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="getStatusBadgeClass(record.reportStatus)">
+                    {{ record.reportStatus || 'Draft' }}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="filteredOPDCases.length === 0">
+                <td colspan="7" class=" text-muted">No OPD radiology patients found for today</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- IPD Radiology Patients Table -->
+      <div class="card" *ngIf="ipdradiopermission">
+        <div class="card-header">
+          <div class="card-title">Recent IPD Radiology Patients</div>
+          <button class="btn btn-primary" routerLink="/radiologylayout/radiologylayoutipd">
+            View All
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table table table-striped table-hover">
+            <thead class="table-dark ">
+              <tr>
+                <th>DATE & TIME</th>
+                <th>PATIENT NAME</th>
+                <th>AGE / GENDER</th>
+                <th>UHID NO</th>
+                <!-- <th>REQUEST NO</th> -->
+                <th>BED</th>
+                <th>Test Name</th>
+                <!-- <th>STATUS</th> -->
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of filteredIPDCases; let i = index">
+                <td>
+                  <small>{{ record.createdAt | date:'dd/MM/yyyy' }}</small><br>
+                  <small class="text-muted">{{ record.createdAt | date:'HH:mm' }}</small>
+                </td>
+                <td>{{ record.patientName || "N/A" }}</td>
+                <td>{{ record.age || "N/A" }} / {{ record.gender || "N/A" }}</td>
+                <td>
+                  <span class="badge bg-info text-dark">
+                    {{ record.patientUhid?.uhid || "N/A" }}
+                  </span>
+                </td>
+                <!-- <td>{{ record.requestNumber || "N/A" }}</td> -->
+                <td>
+                  <strong>{{ record.bedNumber || 'N/A' }}</strong><br>
+                </td>
+                <td>
+                  <div *ngFor="let service of record.requestedServices">
+                    <small class="badge bg-primary me-1 mb-1">{{ service.serviceName }}</small>
+                  </div>
+                </td>
+                <!-- <td>
+                  <span class="badge" [ngClass]="getStatusBadgeClass(record.reportStatus)">
+                    {{ record.reportStatus || 'Draft' }}
+                  </span>
+                </td> -->
+              </tr>
+              <tr *ngIf="filteredIPDCases.length === 0">
+                <td colspan="8" class=" text-muted">No IPD radiology patients found for today</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

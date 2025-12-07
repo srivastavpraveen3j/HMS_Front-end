@@ -1,0 +1,197 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 10px 20px;
+  border-bottom: 2px solid #ccc;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.list-cases-btn {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  cursor: pointer;
+}
+
+.opd-container {
+  display: flex;
+  padding: 20px;
+}
+
+form {
+  flex: 3;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input, select, button {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+
+
+/* .required {
+  border: 1px solid red;
+} */
+
+.calendar-btn, .clock-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.info-box {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  font-weight: bold;
+
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+
+/* Adjust Patient Name field */
+.d-flex select {
+  width: 15%;  /* Smaller width for "Mr." dropdown */
+  min-width: 60px;
+}
+
+.d-flex input[type="text"] {
+  width: 85%;  /* Larger width for the name field */
+}
+
+
+.file-upload {
+  border: 2px dashed #900C3F; /* Dark Red Border */
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 10px;
+  background-color: #f8f8f8;
+  color: #900C3F;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  transition: background 0.3s;
+}
+
+.file-upload:hover {
+  background-color: #e0e0e0;
+}
+
+.file-upload p {
+  margin: 0;
+}
+
+.file-upload input {
+  display: none;
+}
+
+
+
+form {
+  flex: 3;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.right-section {
+  flex: 1;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input, select, button {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+input[type="radio"] {
+  margin-right: 5px;
+}
+
+
+.calendar-btn, .clock-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.info-box {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: darkred;
+  border-bottom: 2px solid darkred;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

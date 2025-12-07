@@ -1,0 +1,41 @@
+<div class="btn-group" role="group">
+  <button
+    type="button"
+    class="btn btn-success"
+    [disabled]="request.discountStatus !== 'pending'"
+    (click)="approve()"
+  >
+    <i class="fa-solid fa-check"></i> Approve
+  </button>
+
+  <button
+    type="button"
+    class="btn btn-danger"
+    [disabled]="request.discountStatus !== 'pending'"
+    (click)="decline()"
+  >
+    <i class="fa-solid fa-ban"></i> Decline
+  </button>
+
+  <!-- Edit Button (Visible when not in edit mode) -->
+  <button
+    type="button"
+    class="btn btn-danger"
+    *ngIf="!request?.isEdit"
+    [disabled]="request.discountStatus !== 'pending'"
+    (click)="editRequest()"
+  >
+    <i class="fa-solid fa-pencil"></i> Edit
+  </button>
+
+  <!-- Update Button (Visible when in edit mode) -->
+  <button
+    type="button"
+    class="btn btn-success"
+    *ngIf="request?.isEdit"
+    [disabled]="request.discountStatus !== 'pending'"
+    (click)="submitUpdate()"
+  >
+    <i class="fa-solid fa-check"></i> Update
+  </button>
+</div>

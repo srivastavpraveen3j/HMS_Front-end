@@ -1,0 +1,16 @@
+.btn:hover{
+    background-color: rgb(102, 30, 3);
+}
+
+.nav-tabs .nav-link:hover{
+    background-color: rgb(102, 30, 3);
+    color: white;
+}
+
+:host {
+    display: block;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f3f6f9;
+    padding: 1rem;
+    color: #333;
+}

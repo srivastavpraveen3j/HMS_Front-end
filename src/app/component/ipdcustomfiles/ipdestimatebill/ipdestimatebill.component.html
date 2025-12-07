@@ -1,0 +1,141 @@
+<div #printSection id="opd-sheet">
+  <ng-container *ngFor="let pg of pages; let pageIdx = index">
+    <div class="page">
+      <!-- HEADER ON EVERY PAGE -->
+      <div class="header summary">
+        <app-letterheader></app-letterheader>
+      </div>
+
+      <!-- ================= SUMMARY PAGE ================= -->
+      <ng-container *ngIf="pg.pageType === 'summary'">
+        <h3 class="title summary">Indoor Patient Approximate Estimate</h3>
+
+        <div class="summary">
+          <div class="info-grid">
+            <div>
+              <div class="entry-details">
+                <strong>
+                  EntryBy: {{ estimateBill?.entryByUser }}
+                  At: {{ estimateBill?.createdAt | date:'medium' }}
+                </strong>
+              </div>
+              <p><strong>Patient Name:</strong> {{ estimateBill?.patient?.patient_name }}</p>
+              <p><strong>Address:</strong> {{ estimateBill?.patient?.area }}</p>
+            </div>
+            <div>
+              <p><strong>UHID:</strong> {{ estimateBill?.patient?.uhid }}</p>
+              <p>
+                <strong>Age / Sex:</strong>
+                {{ estimateBill?.patient?.age }} /
+                {{ estimateBill?.patient?.gender }}
+              </p>
+            </div>
+          </div>
+  
+          <div class="doa-info">
+            <p>
+              <strong>D.O.A. / Time:</strong>
+              {{ estimateBill?.patient?.dor | date:'dd-MM-yyyy / hh:mm a' }}
+            </p>
+            <p><strong>Doctor Name:</strong> {{ estimateBill?.admittingDoctor?.name }}</p>
+          </div>
+  
+          <hr class="divider" />
+  
+          <div class="summary-table">
+            <div class="summary-row">
+              <div>Registration Charges</div>
+              <div>{{ estimateBill?.registrationCharge | indianCurrency }}</div>
+            </div>
+            <div class="summary-row">
+              <div>Room Charges</div>
+              <div>{{ roomCharge | indianCurrency }}</div>
+            </div>
+            <div class="summary-row">
+              <div>Visiting Charges</div>
+              <div>{{ estimateBill?.visitingCharge | indianCurrency }}</div>
+            </div>
+            <div class="summary-row">
+              <div>Laboratory</div>
+              <div>{{ estimateBill?.laboratoryCharge | indianCurrency }}</div>
+            </div>
+            <div class="summary-row bold-row">
+              <div>Final Bill Amount</div>
+              <div>{{ total | indianCurrency }}</div>
+            </div>
+            <div class="summary-row">
+              <div>Deposit</div>
+              <div>{{ estimateBill?.deposit | indianCurrency }}</div>
+            </div>
+            <div class="summary-row bold-row">
+              <div>Net Refundable Amount</div>
+              <div>{{ estimateBill?.netRefundable | indianCurrency }}</div>
+            </div>
+          </div>
+  
+          <div class="amount-in-words">
+            <strong>Rupees {{ amount }} Only</strong>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ================ GENERIC DETAIL PAGES ================= -->
+      <ng-container *ngIf="pg.pageType === 'detail'">
+        <h3 class="title summary">Indoor Patient Approximate Estimate Details</h3>
+        <div class="d-flex justify-content-between border-bottom border-dark">
+          <p><strong>Patient Name : {{ estimateBill?.patient?.patient_name }}</strong></p>
+          <p><strong>IPD No : {{ estimateBill?.inpatientCaseNumber }} </strong></p>
+        </div>
+        
+        <h4 class="mt-3">{{ pg.title }}</h4>
+        <table class="charges-table">
+          <thead>
+            <tr>
+              <th *ngFor="let col of pg.columns">{{ col.label }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of pg.data">
+              <td *ngFor="let col of pg.columns">
+                <!-- Date cell -->
+                <ng-container *ngIf="col.isDate; else nonDateCell">
+                  {{ row[col.key] | date:'dd-MMM-yyyy' }}
+                </ng-container>
+
+                <!-- Non-date cell -->
+                <ng-template #nonDateCell>
+                  <ng-container *ngIf="col.isCurrency; else plainCell">
+                    {{ row[col.key] | indianCurrency }}
+                  </ng-container>
+                  <ng-template #plainCell>
+                    {{ row[col.key] }}
+                  </ng-template>
+                </ng-template>
+              </td>
+            </tr>
+
+            <!-- Total row -->
+            <tr class="final" *ngIf="pg.total != null">
+              <td [attr.colspan]="pg.columns.length - 1">
+                <strong>Total Amount :</strong>
+              </td>
+              <td>
+                <strong>{{ pg.total | indianCurrency }}</strong>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </ng-container>
+
+      <!-- ================ FOOTER ON EVERY PAGE ================= -->
+      <div class="footer print-footer">
+        Note: This is Approximate Estimate as per system entry record. Bill may
+        be increase or decrease when all entries done in system at the time of
+        discharge
+        <span class="footer-page-number">
+          Page {{ pageIdx + 1 }} of {{ pages.length }}
+        </span>
+      </div>
+    </div>
+  </ng-container>
+</div>

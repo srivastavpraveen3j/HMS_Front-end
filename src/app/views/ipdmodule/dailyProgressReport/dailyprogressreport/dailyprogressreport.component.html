@@ -1,0 +1,248 @@
+<div class="form-meta">
+    <div class="header">
+      <h2>DAILY PROGRESS</h2>
+    </div>
+    <div class="diagnosis-container" *ngIf="userPermissions.create">
+      <form action="" [formGroup]="progressReportForm" (ngSubmit)="OnSubmit()">
+        <div class="section patient-details mt-3">
+          <!-- <h4 class="m-4">Patient Details</h4>
+          <hr /> -->
+
+          <!-- <div class="d-flex"> -->
+            <!-- <div class="w-100"> -->
+              <div class="row">
+                <div class="form-group col-md-2">
+                  <label for="" class="form-label">UHID</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="UHID"
+                    formControlName="uhid"
+                    required
+                    readonly
+                  />
+                </div>
+                <div class="form-group col-md-2">
+                  <label>Patient*:</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Enter patient name"
+                    formControlName="patient_name"
+                    readonly
+                  />
+                </div>
+                <div class="form-group col-md-2">
+                  <label for="" class="form-label">Bed</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="bed"
+                    formControlName="bed_id"
+                    readonly
+                  />
+                </div>
+                  <div class="form-group col-md-2">
+                  <label for="" class="form-label">Consulting Doc.</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Consulting Doc."
+                    formControlName="consultingDoctor"
+                    readonly
+                  />
+                </div>
+                <div class="form-group col-md-2">
+                  <label for="" class="form-label">Age</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Age"
+                    formControlName="age"
+                    readonly
+                  />
+                </div>
+                <div class="form-group col-md-2">
+                  <label for="" class="form-label">Gender</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Gender"
+                    formControlName="gender"
+                    readonly
+                  />
+                </div>
+              </div>
+
+              <div class="row g-3">
+
+                <div class="form-group col-md-3">
+                  <label for="" class="form-label">Weight</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Weight"
+                    formControlName="weight"
+                    readonly
+                  />
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="" class="form-label">Doctor Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Doctor Name"
+                    formControlName="DoctorName"
+                  />
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="" class="form-label">Date</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Date"
+                    formControlName="Date"
+                    readonly
+                  />
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="" class="form-label">Time</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Time"
+                    formControlName="Time"
+                    readonly
+                  />
+                </div>
+              </div>
+            <!-- </div> -->
+          <!-- </div> -->
+        </div>
+
+
+        <div class="section diagnosisheet">
+          <h4 class="m-4">Vitals</h4>
+          <hr />
+
+          <div class="row g-4">
+            <div class="form-group col-md-3">
+              <label for="" class="form-label">Systolic</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Systolic"
+                formControlName="systolicBloodPressure"
+              />
+            </div>
+            <div class="form-group col-md-3">
+              <label for="" class="form-label">Diastolic</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Diastolic"
+                formControlName="diastolicBloodPressure"
+              />
+            </div>
+            <div class="form-group col-md-3">
+              <label class="form-label fw-semibold">Blood Group</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="bloodGroup"
+                readonly
+              />
+            </div>
+            <div class="form-group col-md-3">
+              <label for="" class="form-label">Temperature</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Temperature"
+                formControlName="temperature"
+              />
+            </div>
+          </div>
+          <div class="row g-4">
+            <div class="form-group col-md-3">
+              <label for="" class="form-label">Pulse</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Pulse"
+                formControlName="pulseRate"
+              />
+            </div>
+            <div class="form-group col-md-3">
+              <label for="" class="form-label">SPO2</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="SPO2"
+                formControlName="spo2"
+              />
+            </div>
+            <div class="form-group col-md-3">
+              <label for="" class="form-label">Blood Sugar</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="bloodSugar"
+                formControlName="bloodSugar"
+              />
+            </div>
+            <div class="form-group col-md-3">
+              <label for="" class="form-label">Respiratory Rate</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="respiratoryRate"
+                formControlName="respiratoryRate"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="section clinical-exam">
+          <h4 class="m-4">Case of Diagnosis</h4>
+          <hr />
+
+          <textarea
+            placeholder="Enter the details here..."
+            class="form-control"
+            formControlName="diagnosisCase"
+          ></textarea>
+        </div>
+        <div class="section diagnosis-exam">
+          <h4 class="m-4">Treatment</h4>
+          <hr />
+
+          <textarea
+            placeholder="Enter the details here..."
+            class="form-control"
+            formControlName="treatment"
+          ></textarea>
+        </div>
+        <div class="section diagnosis-exam">
+          <h4 class="m-4">Advice</h4>
+          <hr />
+
+          <textarea
+            placeholder="Enter the details here..."
+            class="form-control"
+            formControlName="advice"
+          ></textarea>
+        </div>
+
+        <div class="text-center">
+          <button
+            class="btn btn-dark"
+            type="submit"
+            [disabled]="progressReportForm.invalid"
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>

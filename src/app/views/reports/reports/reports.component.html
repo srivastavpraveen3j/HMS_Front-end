@@ -1,0 +1,107 @@
+<!-- <p>reports works!</p> -->
+<div class="header">
+  <h2>{{ title }}</h2>
+</div>
+<div class="opd-container d-flex">
+
+
+<!-- <div class=""> -->
+
+<!-- </div> -->
+
+</div>
+
+
+<div class=" d-flex container">
+  <div class="sidebar ">
+      <div class="form-group">
+        <label>Service Group <span class="required">*</span></label>
+        <select class="form-control">
+          <option>Select Service Group</option>
+          <option>All</option>
+          <option>OPD</option>
+          <option>IPD</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Service Name <span class="required">*</span></label>
+        <input type="text" class="form-control" placeholder="Service Name">
+      </div>
+
+      <div class="form-group">
+        <label>Patient Type <span class="required">*</span></label>
+        <select name="" id="" class="form-control">
+          <option value="" class="form-control"></option>
+          <option value="" class="form-control"></option>
+          <option value="" class="form-control"></option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Service Doctor <span class="required">*</span></label>
+        <select name="" id="" class="form-control">
+          <option value="" class="form-control"></option>
+          <option value="" class="form-control"></option>
+          <option value="" class="form-control"></option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Billing <span class="required">*</span></label>
+        <select name="" id="" class="form-control">
+          <option value="" class="form-control"></option>
+          <option value="" class="form-control"></option>
+          <option value="" class="form-control"></option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status <span class="required">*</span></label>
+        <select name="" id="" class="form-control">
+          <option value="" class="form-control"></option>
+          <option value="" class="form-control"></option>
+          <option value="" class="form-control"></option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Report View <span class="required">*</span></label>
+        <select name="" id="" class="form-control">
+          <option value="" class="form-control"></option>
+          <option value="" class="form-control"></option>
+          <option value="" class="form-control"></option>
+        </select>
+      </div>
+
+      <button (click)="generateReport()">Generate Report</button>
+      <button (click)="exportToExcel()">Export to Excel</button>
+  </div>
+  <div class="content" >
+    <canvas id="incomeChart" ></canvas>
+
+  </div>
+</div>
+
+
+
+
+<table class="container">
+ <thead class="table-dark text-center" >
+    <tr>
+      <th>UHID</th>
+      <th>PATIENT NAME</th>
+      <th>DOR</th>
+      <th>DOB</th>
+      <th>MOBILE NO.</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr >
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+
+    </tr>
+  </tbody>
+</table>
+
+

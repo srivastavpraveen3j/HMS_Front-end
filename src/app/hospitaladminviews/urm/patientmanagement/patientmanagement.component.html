@@ -1,0 +1,53 @@
+<div class="header">
+  <h2>PATIENT MANAGEMENT</h2>
+</div>
+
+<div class="m-5">
+  <h2>{{ hospital.name }} - Branch Wise Patient Management</h2>
+  <hr>
+
+  <!-- Flex container for branches -->
+  <div class="branches-flex">
+    <div class="branch" *ngFor="let branch of hospital.branches">
+
+      <div class="branch-header">
+        <h3>{{ branch.name }}</h3>
+        <p><strong>Total Patients:</strong> {{ branch.patients.length }}</p>
+
+        <!-- Filter Dropdown -->
+        <!-- <label for="filter-{{ branch.name }}">Filter by Case Type: </label> -->
+
+
+
+      </div>
+
+      <label for="filter-{{ branch.name }}">Filter by Case Type: </label>
+      <select #caseTypeSelect (change)="onFilterChange(branch.name, caseTypeSelect.value)" class="form-control w-50">
+        <option value="all">All</option>
+        <option value="OPD">OPD</option>
+        <option value="IPD">IPD</option>
+        <option value="Surgery">Surgery</option>
+      </select>
+
+      <div class="patient-list mt-5">
+        <div class="patient-card"
+             *ngFor="let patient of getFilteredPatients(branch.name)">
+          <div class="patient-info">
+            <h4>{{ patient.name }}</h4>
+            <p><strong>Case Type:</strong> {{ patient.caseType }}</p>
+            <p><strong>Age:</strong> {{ patient.age }}</p>
+            <p><strong>Gender:</strong> {{ patient.gender }}</p>
+            <p><strong>Status:</strong> {{ patient.status }}</p>
+          </div>
+          <div class="status-tag" [ngClass]="{
+            'opd': patient.caseType === 'OPD',
+            'ipd': patient.caseType === 'IPD',
+            'surgery': patient.caseType === 'Surgery'
+          }">
+            {{ patient.caseType }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

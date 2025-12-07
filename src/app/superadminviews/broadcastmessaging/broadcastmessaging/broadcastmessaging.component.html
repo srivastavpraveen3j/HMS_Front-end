@@ -1,0 +1,90 @@
+<!-- <p>broadcastmessaging works!</p> -->
+<div class="header">
+  <h2>BROADCAST MESSAGE</h2>
+  <button class="list-cases-btn" [routerLink]="['/superadmin/braodcastingmessagelist']">LIST CASES</button>
+</div>
+
+<div class="opd-container">
+  <form [formGroup]="broadcastingform" (ngSubmit)="onSubmit()">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Title</label>
+        <input formControlName="title" type="text" placeholder="Enter title" />
+        <div *ngIf="broadcastingform.get('title')?.invalid && broadcastingform.get('title')?.touched" class="error-message">
+          Title is required.
+        </div>
+      </div>
+    </div>
+
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Message</label>
+        <textarea formControlName="message" rows="4"  placeholder="Enter your message"></textarea>
+        <div *ngIf="broadcastingform.get('message')?.invalid && broadcastingform.get('message')?.touched" class="error-message">
+          Message is required.
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Schedule Date</label>
+        <!-- <app-customcalendar formControlName="scheduleDate"></app-customcalendar> -->
+         <!-- <app-customcalendar formControlName="scheduleDate"></app-customcalendar> -->
+         <input type="date" name="" id="" formControlName="scheduleDate" class="form-control">
+         <div *ngIf="broadcastingform.get('scheduleDate')?.invalid && broadcastingform.get('scheduleDate')?.touched" class="error-message">
+          Schedule Date is required.
+        </div>
+
+      </div>
+      <div class="form-group">
+        <label>Schedule Time</label>
+        <!-- <app-customtimepicker formControlName="scheduleTime"></app-customtimepicker> -->
+     <!-- <app-customappointmenttimepicker formControlName="scheduleTime"></app-customappointmenttimepicker> -->
+      <input type="time" name="" id="" formControlName="scheduleTime" class="form-control">
+      <div *ngIf="broadcastingform.get('scheduleTime')?.invalid && broadcastingform.get('scheduleTime')?.touched" class="error-message">
+        Schedule Time is required.
+      </div>
+    </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Target Audience</label>
+        <select formControlName="targetAudience">
+          <option value="all">All Hospitals</option>
+          <option value="hospital">Specific Hospital</option>
+          <option value="role">Role Based</option>
+        </select>
+        <div *ngIf="broadcastingform.get('targetAudience')?.invalid && broadcastingform.get('targetAudience')?.touched" class="error-message">
+         Selection of Audience is required.
+        </div>
+      </div>
+      <div class="form-group" *ngIf="broadcastingform.get('targetAudience')?.value === 'hospital'">
+        <label>Select Hospital</label>
+        <select formControlName="hospitalId">
+          <!-- Populate with hospital list -->
+          <option value="1">PP Maniya Hospital</option>
+          <option value="2">Shree Krishna Hospital</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Message Type</label>
+        <select formControlName="type">
+          <option value="info">Information</option>
+          <option value="alert">Alert</option>
+          <option value="marketing">Marketing</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="text-center mt-3">
+      <button class="btn btn-dark mx-2" type="submit" [disabled]="broadcastingform.invalid">Submit</button>
+      <button class="btn btn-secondary" type="button">Cancel</button>
+    </div>
+  </form>
+</div>

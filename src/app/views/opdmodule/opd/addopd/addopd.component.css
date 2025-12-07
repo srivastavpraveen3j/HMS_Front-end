@@ -1,0 +1,105 @@
+.doctor-suggestion-list {
+  max-height: 250px; /* Adjust height as needed */
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-top: 2px;
+  width: 100%;
+  z-index: 1000;
+}
+
+.doctor-suggestion-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.doctor-suggestion-list::-webkit-scrollbar-thumb {
+  background-color: #b0b0b0;
+  border-radius: 3px;
+}
+
+.four-col-layout {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
+  gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden; /* prevent horizontal scroll */
+}
+
+.field-pane {
+  border: 1px solid #ccc;
+  padding: 0.6rem;
+  border-radius: 4px;
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field-pane.full-width {
+  grid-column: span 4; /* span all 4 columns */
+}
+
+.radio-group {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Responsive behavior */
+@media (max-width: 1200px) {
+  .four-col-layout {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .four-col-layout {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .four-col-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 3-column form layout */
+/* .three-col-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+} */
+
+/* Each input pane box */
+/* .field-pane {
+  border: 1px solid #ccc;
+  padding: 0.75rem;
+  border-radius: 4px;
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+} */
+
+/* Full-width fields (like Address) */
+/* .field-pane.full-width {
+  grid-column: span 3;
+} */
+
+/* Make radios/checkboxes neat inside pane */
+/* .field-pane .radio-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+} */
+
+.self-option {
+  font-weight: bold;
+  background-color: #f5f5f5;
+  cursor: pointer;
+}
+.self-option:hover {
+  background-color: #e0e0e0;
+}

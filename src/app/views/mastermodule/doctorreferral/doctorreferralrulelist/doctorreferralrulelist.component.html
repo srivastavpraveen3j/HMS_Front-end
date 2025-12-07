@@ -1,0 +1,48 @@
+<div class="header">
+    <h2>Referral Rule LIST</h2>
+    <button class="list-cases-btn" routerLink="/master/doctorreferralrule">ADD NEW RULE</button>
+</div>
+
+<form [formGroup]="referralForm" class="top-bar p-3">
+    <input type="text" placeholder="Search..." formControlName="searchText" />
+</form>
+
+<div class="table-responsive" *ngIf="userPermissions.read">
+    <table class="table table-bordered table-hover align-middle diagnosis-table">
+        <thead class="table-dark text-center">
+            <tr>
+                <th>#</th>
+                <th>Department</th>
+                <th>Service Name</th>
+                <th>Referral (%)</th>
+                <th>Cap/Limit</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let rule of allRules; let i = index">
+                <td>{{ (currentPage - 1) * referralForm.get('recordsPerPage')?.value + i + 1 }}</td>
+                <td>{{ rule.department }}</td>
+                <td>{{ rule.serviceName?.name }}</td>
+                <td>{{ rule.referralPercent }}</td>
+                <td> {{ rule.capLimit }} </td>
+                <td>
+                    <i class="fa-solid fa-pencil action-btn mx-3"
+                        (click)="editservice(rule._id)"></i>
+                    <!-- <i class="fa-solid fa-trash action-btn" *ngIf="userPermissions.delete" (click)="deleteservice(rule._id)"></i> -->
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination d-flex justify-content-center align-items-center my-3">
+        <button class="pagination-btn btn btn-primary mx-2" (click)="previousPage()" [disabled]="currentPage === 1">
+            Previous
+        </button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button class="pagination-btn btn btn-primary mx-2" (click)="nextPage()"
+            [disabled]="currentPage === totalPages">
+            Next
+        </button>
+    </div>
+</div>

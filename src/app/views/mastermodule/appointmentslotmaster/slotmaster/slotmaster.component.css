@@ -1,0 +1,27 @@
+.custom-select-wrapper {
+    position: relative;
+}
+
+.custom-select-wrapper select {
+    appearance: none;
+    /* Remove default arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 30px;
+    /* Space for the custom arrow */
+    background: white;
+    /* Needed to hide default arrow in some browsers */
+}
+
+.custom-select-wrapper::after {
+    content: "▼";
+    /* Arrow symbol */
+    font-size: 9px;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    /* Click goes through arrow to select */
+    color: #333;
+}

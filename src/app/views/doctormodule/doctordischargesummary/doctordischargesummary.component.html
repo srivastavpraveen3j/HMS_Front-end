@@ -1,0 +1,240 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>DISCHARGE Summary</h2>
+    <div class="">
+      <!-- <button class="list-cases-btn mx-3"   ><i class="fa-solid fa-user-group"></i></button> -->
+      <!-- <span class="icons"> <i class="fa-solid fa-user-tie mx-2"></i><i class="fa-solid fa-signal" routerLink="/doctor/doctordischargelist"></i></span> -->
+      <span class="icons position-relative">
+        <!-- <i
+          class="fa-solid fa-user-tie mx-2"
+          (click)="showUHIDDropdown = !showUHIDDropdown"
+        ></i>
+        <i
+          class="fa-solid fa-signal"
+          [routerLink]="['/doctor/doctordischargelist']"
+          routerLinkActive="router-link-active"
+        ></i> -->
+
+        <!-- Dropdown -->
+        <!-- Dropdown -->
+        <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+          <div
+            *ngIf="uhidTodayRecords?.length === 0"
+            class="text-center text-muted py-2"
+          >
+            No InPatient Discharged today.
+          </div>
+
+          <ul class="uhid-list">
+            <li
+              *ngFor="let record of uhidTodayRecords"
+              (click)="selectPatientFromUHID(record)"
+              style="cursor: pointer"
+            >
+              <div class="uhid-name">{{ record?.patient_name }}</div>
+              <div class="uhid-meta">
+                UHID: {{ record?.uhid }} | Age: {{ record?.age }}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </span>
+    </div>
+  </div>
+  <div class="opd-container" *ngIf="userPermissions.create">
+    <form [formGroup]="dischargesummary" (ngSubmit)="OnSubmit()">
+      <!-- <h4 class="m-4">Patient Details</h4>
+      <hr /> -->
+      <div class="row">
+        <div class="form-group col-md-3">
+          <label class="form-label">UHID</label>
+          <input
+            type="text"
+            placeholder="UHID No"
+            class="form-control"
+            formControlName="uhid"
+            (input)="onUhidInput()"
+            readonly
+          />
+          <div
+            *ngIf="
+              dischargesummary.get('uhid')?.invalid &&
+              dischargesummary.get('uhid')?.touched
+            "
+            class="error-message"
+          >
+            UHID no. is required.
+          </div>
+        </div>
+
+        <div class="form-group col-md-3">
+          <label class="form-label">Patient</label>
+          <input
+            type="text"
+            class="input-text form-control"
+            placeholder="Enter patient name"
+            formControlName="patientName"
+            (input)="onPatientInput()"
+            (focus)="onFocus()"
+            (blur)="hideSuggestionsWithDelay()"
+            readonly
+          />
+
+          <!-- Suggestion Dropdown -->
+          <div
+            *ngIf="showSuggestions && filteredPatients.length > 0"
+            class="suggestions-container"
+          >
+            <ul class="suggestions">
+              <li
+                *ngFor="let patient of filteredPatients"
+                (mousedown)="selectPatient(patient)"
+              >
+                {{ patient.patient_name }}
+                {{ patient.mobile_no ? "| " + patient.mobile_no : "" }}
+                {{ patient.uhid ? "| " + patient.uhid : "" }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- No matching result -->
+          <div
+            *ngIf="
+              dischargesummary.get('patientName')?.value?.length > 2 &&
+              !filteredPatients.length &&
+              !manuallySelected
+            "
+            class="text-danger"
+          >
+            No matching patients found
+          </div>
+
+          <!-- Validation -->
+          <div
+            *ngIf="
+              dischargesummary.get('patientName')?.touched &&
+              dischargesummary.get('patientName')?.invalid
+            "
+            class="text-danger"
+          >
+            Patient name is required
+          </div>
+        </div>
+        <div class="form-group col-md-3">
+          <label>Age</label>
+          <input type="text" class="form-control" placeholder="Age" formControlName="age" readonly/>
+          <div
+            *ngIf="
+              dischargesummary.get('age')?.invalid &&
+              dischargesummary.get('age')?.touched
+            "
+            class="error-message"
+          >
+            Age is required.
+          </div>
+        </div>
+
+          <div class="form-group col-md-3">
+          <label>Consulting doctor</label>
+          <input
+            type="text"
+            placeholder="Cons. Doctor"
+            class="form-control"
+            formControlName="cons_doc"
+            readonly
+          />
+        </div>
+        <!-- <div class="form-group">
+            <label>Patient Type:</label>
+            <select formControlName="patient_type">
+              <option>Cash</option>
+              <option>Medi Claim</option>
+            </select>
+            <div *ngIf="dischargesummary.get('patient_type')?.invalid && dischargesummary.get('patient_type')?.touched"
+              class="error-message">
+              Patient Type is required.
+            </div>
+          </div> -->
+      </div>
+      <div class="row g-2">
+
+        <div class="form-group col-md-6" hidden>
+          <label>Address</label>
+          <input type="text" class="form-control" placeholder="area" formControlName="area" readonly/>
+        </div>
+      </div>
+
+
+      <h4 class="m-4">Summary Details</h4>
+      <hr />
+
+      <div class="summary-container d-flex">
+        <!-- Sidebar -->
+        <div class="summary-sidebar p-3">
+          <!-- <ul class="section-list">
+            <li
+              *ngFor="let section of sections"
+              (click)="selectSection(section)"
+              [class.active]="selectedSection === section"
+            >
+              {{ section }}
+            </li>
+          </ul> -->
+          <ul class="section-list">
+            <li
+              *ngFor="let section of sections"
+              (click)="selectSection(section)"
+              [class.active]="selectedSection === section"
+            >
+              {{ sectionLabels[section] }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Content Area -->
+        <div class="summary-content p-3 flex-fill">
+          <h4 class="section-title p-2">
+            {{ selectedSection || "Select a Section" }}
+          </h4>
+
+          <!-- <textarea
+            *ngIf="selectedSection"
+            [(ngModel)]="sectionContent[selectedSection]"
+            [ngModelOptions]="{ standalone: true }"
+            class="form-control section-textarea"
+            placeholder="Enter details for {{ selectedSection }}"
+            rows="29"
+          ></textarea> -->
+          <textarea
+            *ngIf="selectedSection"
+            [(ngModel)]="sectionContent[selectedSection]"
+            [ngModelOptions]="{ standalone: true }"
+            class="form-control section-textarea"
+            [placeholder]="
+              'Enter details for ' + sectionLabels[selectedSection]
+            "
+            rows="33"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Save button outside so not included in PDF -->
+      <!-- <button class="button mt-3" (click)="saveTemplate()">
+        Save Template
+      </button> -->
+
+      <div class="text-center mt-3">
+        <button
+          class="btn btn-dark mx-2"
+          type="submit"
+          [disabled]="dischargesummary.invalid"
+        >
+          Submit
+        </button>
+        <!-- <button class="btn btn-secondary" type="button" (click)="resetForm()">
+          Cancel
+        </button> -->
+      </div>
+    </form>
+  </div>
+</div>

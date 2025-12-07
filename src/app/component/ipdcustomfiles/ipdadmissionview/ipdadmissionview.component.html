@@ -1,0 +1,122 @@
+<!-- Page 1: Summary Bill -->
+<div id="opd-sheet"  *ngIf="patientData">
+  <div class="">
+    <div class="border border-dark">
+      <!-- <div class=""> -->
+           <app-letterheader class="header"></app-letterheader>
+      <!-- </div> -->
+    </div>
+
+    <h3 class="title">INDOOR CASE RECORD</h3>
+
+    <div class="border border-dark px-2">
+      <div class="patient-info">
+        <div>
+          <p>
+            <strong class="me-5 mx-2">Indoor No:</strong> {{ patientData.inpatientCaseNumber || patientData.ipdNumber  }}</p>
+          <p><strong class="me-4 mx-2">Patient Name:</strong> {{ patientData.uniqueHealthIdentificationId?.patient_name }}</p>
+          <p><strong class="me-4 mx-2">Under C/O. :</strong>{{ patientData.admittingDoctorId?.name || patientData.consulting_Doctor?.name }}</p>
+          <p *ngIf="patientData.referringDoctorId"><strong class="me-4 mx-2">Refer Dr. :</strong> {{ patientData.referringDoctorId?.name }}</p>
+          <p><strong class="me-3 mx-2">Birth Date :</strong>{{ patientData.uniqueHealthIdentificationId?.dob | date: 'dd-MMM-yyyy hh:mm a' }}</p>
+          <p>
+            <strong class="me-4 mx-2">Age/Sex :</strong> {{ patientData.uniqueHealthIdentificationId?.age }} / {{ patientData.uniqueHealthIdentificationId?.gender }}
+          </p>
+          <p class="me-4 mx-2">Occupation :</p>
+          <p><strong class="me-4 mx-2">Address:</strong> {{ patientData.uniqueHealthIdentificationId?.area }}</p>
+          <p class="me-4 mx-2">Mobile No. : {{ patientData.uniqueHealthIdentificationId?.mobile_no }}</p>
+          <!-- <p>Ref Dr. :</p>
+          <p>Ref To Dr. :</p> -->
+          <p *ngIf="patientData.patient_type" class="me-4 mx-2">
+            Mediclaim: {{ patientData.patient_type === 'cash' ? 'No' : 'Yes' }}</p>
+            <p *ngIf="patientData.patient_type !== 'cash'">
+              Company Name: {{ patientData.companyName }}</p>
+
+        </div>
+        <div>
+          <div class="">
+            <h6><strong class="me-3">Bed No. : {{ patientData.bed_id?.bed_number }} </strong></h6>
+            <p><strong class="me-3">UHID: {{ patientData.uniqueHealthIdentificationId?.uhid }} </strong></p>
+          </div>
+          <div class="mt-4">
+            <p>
+              <strong>Wt. : {{patientData.vitals?.[0]?.weight || patientData.weight}} kg</strong>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="doa-info">
+        <div class="">
+          <p class="mx-2">
+            <strong class="me-4">D.O.A. / Time:</strong>
+            {{ patientData.admissionDate || patientData.admitDate | date: 'dd-MMM-yyyy' }} &nbsp;&nbsp;&nbsp;&nbsp;
+            at &nbsp;&nbsp; {{ patientData.admissionDate || patientData.admitTime | date: 'hh:mm:ss a' }}
+          </p>
+          <p *ngIf="patientData.isDischarge"><strong>D.O.D / Time:</strong></p>
+        </div>
+      </div>
+      <div *ngIf="patientData.isDischarge" class="d-flex justify-content-end type">
+        <p>Discharge Type :</p>
+      </div>
+    </div>
+
+    <div class="mt-2">
+      <p *ngIf="patientData.patient_type" class="mx-3">
+        Cashless: {{ patientData.patient_type === 'cash' ? 'No' : 'Yes' }}
+      </p>
+      <p *ngIf="patientData.patient_type" class="mx-3">
+  Medical Legal Case: {{ patientData.isMedicoLegalCase ? 'Yes' : 'No' }}
+</p>
+
+      <!-- <p>Medico Legal Case : {{patientData.isMedicoLegalCase}}</p> -->
+    </div>
+
+
+
+    <div>
+      <p class="ms-3"><strong>ADMISSION CONSENT</strong></p>
+
+      <div class="border border-dark px-1 py-1">
+        <p class="ms-3">
+          1. I <strong>{{ patientData.uniqueHealthIdentificationId?.patient_name }}</strong> Knowing that I am
+          suffering from a condition requiring diagnosis and medical and/or
+          surgical treatment, do hereby voluntarily consent to such diagnostic
+          procedures and hospital care and to such medical, surgical or X-ray
+          treatment as may be necessary in the judgment of the physicians
+          responsible for my care.
+        </p>
+        <p class="ms-3">
+          2. I acknowledge that no guarantee having been assured to me as to the
+          result of treatment or examination in the hospital.
+        </p>
+        <p class="ms-3">
+          3. Implication of this consent form have been fully explained to me and
+          I certify that I have understood its contents.
+        </p>
+        <p class="ms-3">Witness:</p>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <p><strong>Signature of Patient    &nbsp; &nbsp; &nbsp; &nbsp; _______________________________________</strong></p>
+
+      <div class="d-flex justify-content-between">
+        <p><strong>Signature of Close Relative  &nbsp; &nbsp; &nbsp; &nbsp;  _________________________________</strong></p>
+        <p><strong>Prepared By:</strong> &nbsp;  {{ user }} </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- <footer class="m-3 d-flex justify-content-between">
+  <button class="btn btn-dark" (click)="printOPDSheet()">
+    Print <i class="fa-solid fa-print action-btn"></i>
+  </button>
+</footer> -->
+
+
+<footer class="text-end mt-3 no-print">
+    <button class="btn  btn-sm" (click)="printOPDSheet()">
+    <i class="fa-solid fa-download me-2"></i>Print
+  </button>
+</footer>

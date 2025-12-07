@@ -1,0 +1,103 @@
+<div class="form-meta">
+  <div class="header">
+      <h2 class="page-title">
+        <i class="fas fa-bed me-3"></i>
+        ROOM WISE BED OCCUPANCY
+      </h2>
+      <div class="stats-summary">
+        <div class="stat-card occupied">
+          <div class="stat-number">{{ getOccupiedCount() }}</div>
+          <div class="stat-label">OCCUPIED</div>
+        </div>
+        <div class="stat-card available">
+          <div class="stat-number">{{ getAvailableCount() }}</div>
+          <div class="stat-label">AVAILABLE</div>
+        </div>
+        <div class="stat-card total">
+          <div class="stat-number">{{ selectedBeds.length }}</div>
+          <div class="stat-label">TOTAL</div>
+        </div>
+      </div>
+  </div>
+                    
+  <div class="filter-section">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="select-wrapper">
+          <label class="form-label">
+            Ward Selection
+          </label>
+          <select [(ngModel)]="selectedWard" (change)="onWardSelect()"
+                  class="form-select">
+            <option value="" disabled selected>General ward</option>
+            <option *ngFor="let ward of wards" [value]="ward">{{ ward }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="select-wrapper">
+          <label class="form-label">
+            Room Selection
+          </label>
+          <select [(ngModel)]="selectedRoom" (change)="onRoomSelect()"
+                  class="form-select" [disabled]="!selectedWard">
+            <option value="" disabled selected>Room Gen-103 (3 beds)</option>
+            <option *ngFor="let room of rooms" [value]="room.roomId">
+              Room {{ room.roomNumber }} - {{ room.roomType }} ({{ room.beds.length }} beds)
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- <div class="col-md-4">
+        <div class="filter-actions">
+          <button class="btn btn-refresh" (click)="refreshData()">
+            <i class="fas fa-sync-alt me-2"></i>Refresh
+          </button>
+          <button class="btn btn-export" (click)="exportData()">
+            <i class="fas fa-download me-2"></i>Export
+          </button>
+        </div>
+      </div> -->
+    </div>
+  </div>
+
+  <!-- Bed Cards Layout -->
+  <div class="bed-container" *ngIf="selectedBeds.length > 0">
+    <div class="bed-grid">
+      <div *ngFor="let bed of selectedBeds" class="bed-card">
+        <!-- Patient Info Section -->
+        <div class="patient-info" *ngIf="bed.isOccupied">
+          <div class="occupied-label">Occupied by: {{ bed.patientName }}</div>
+        </div>
+
+        <!-- Bed Visual -->
+        <div class="bed-visual">
+          <img
+            [src]="bed.isOccupied ? 'double-bed.png' : 'double-bed (1).png'"
+            alt="Bed"
+            width="60"
+            height="60"
+            class="mb-1"
+          />
+        </div>
+
+        <!-- Bed Info -->
+        <div class="bed-info">
+          <div class="bed-number">Bed {{ bed.bedNumber }}</div>
+          <span class="status-badge" [ngClass]="bed.isOccupied ? 'occupied' : 'available'">
+            {{ bed.isOccupied ? 'Occupied' : 'Available' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="selectedWard && selectedRoom && selectedBeds.length === 0">
+    <p class="text-muted text-center mt-4">
+      No beds found for this room.
+    </p>
+  </div>
+</div>

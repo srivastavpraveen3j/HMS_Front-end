@@ -1,0 +1,100 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>APPOINTMENT SLOT LIST</h2>
+    <button class="list-cases-btn" routerLink="/master/slotmaster">
+      ADD NEW APPOINTMENT SLOT
+    </button>
+  </div>
+
+  <div class="form-group position-relative top-bar p-3 w-50">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Search doctor name..."
+      [(ngModel)]="doctorSearchText"
+      (input)="onDoctorSearchChange(doctorSearchText)"
+      autocomplete="off"
+    />
+
+    <ul
+      *ngIf="filteredDoctors.length > 0 && doctorSearchText.trim().length > 0"
+      class="list-group position-absolute w-100 zindex-dropdown"
+      style="max-height: 200px; overflow-y: auto"
+    >
+      <li
+        class="list-group-item list-group-item-action"
+        *ngFor="let doctor of filteredDoctors"
+        (click)="onDoctorSelected(doctor.name)"
+      >
+        {{ doctor.name }}
+      </li>
+    </ul>
+  </div>
+
+  <!-- <app-loader [patientData]="tableData" [title]="module"></app-loader> -->
+
+  <div class="" *ngIf="userPermissions.read">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Doctor</th>
+          <th>Day</th>
+          <th>Time Range</th>
+          <th>Duration</th>
+          <th>Max Appointments</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let row of tableData; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ row.doctor }}</td>
+          <td>{{ row.days.join(", ") }}</td>
+          <td>{{ row.startTime }} - {{ row.endTime }}</td>
+          <td>{{ row.slotDuration }}</td>
+          <td>{{ row.maxAppointments }}</td>
+          <td>
+            <span
+              [ngClass]="
+                row.isAvailable ? 'badge bg-success' : 'badge bg-danger'
+              "
+            >
+              {{ row.isAvailable ? "Active" : "Inactive" }}
+            </span>
+          </td>
+          <td>
+            <i
+              *ngIf="userPermissions.update"
+              class="fa-solid fa-pencil action-btn"
+              (click)="editSlot(row.id)"
+            ></i>
+            <!-- <i *ngIf="userPermissions.delete" class="fa-solid fa-trash action-btn"></i> -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination">
+      <button
+        class="pagination-btn"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      Page {{ currentPage }} of {{ totalPages }}
+      <button
+        class="pagination-btn"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>

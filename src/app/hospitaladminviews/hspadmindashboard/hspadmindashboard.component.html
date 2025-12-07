@@ -1,0 +1,61 @@
+<!-- <p>hspadmindashboard works!</p> -->
+
+<!-- <p>suepradmindashboard works!</p> -->
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="header">
+    <h2>HOSPITAL OVERVIEW</h2>
+
+  </div>
+
+  <!-- Filters Section -->
+  <!-- <div class="filters text-center d-flex ">
+    <label class="m-3"><input type="radio" name="filter" checked> TODAY'S</label>
+    <label class="m-3"><input type="radio" name="filter"> OCCUPANCY</label>
+    <label class="m-3"><input type="radio" name="filter"> ADMISSION</label>
+    <label class="m-3"><input type="radio" name="filter"> DISCHARGED</label>
+    <label class="m-3"><input type="radio" name="filter"> PATIENT</label>
+    <label class="m-3"><input type="radio" name="filter"> DATE</label>
+    <button class="mx-5 btn"><i class="fas fa-print"></i> PRINT</button>
+  </div> -->
+
+<!-- parent.component.html -->
+<!-- <app-thread-note [hospitalData]="hospitalDataArray"></app-thread-note> -->
+<!-- <div class="d-flex"> -->
+  <div class="branches-wrapper">
+  <h2 class="heading">PP Maniya Hospital - Branch Overview</h2>
+
+  <div class="branch-card" *ngFor="let branch of branch">
+    <h3>{{ branch.name }}</h3>
+    <div class="metrics">
+      <div><strong>Branch Admin Contact:</strong> {{ branch.contact_email }}</div>
+      <!-- <div><strong>Beds:</strong> {{ branch.details.beds }}</div>
+      <div><strong>Doctors:</strong> {{ branch.details.doctors }}</div>
+      <div><strong>Nurses:</strong> {{ branch.details.nurses }}</div>
+      <div><strong>OPD:</strong> {{ branch.details.opd }}</div>
+      <div><strong>IPD:</strong> {{ branch.details.ipd }}</div>
+      <div><strong>Staff:</strong> {{ branch.details.staff }}</div>
+      <div><strong>Radiology:</strong> {{ branch.details.radiology ? 'Yes' : 'No' }}</div>
+      <div><strong>Pathology:</strong> {{ branch.details.pathology ? 'Yes' : 'No' }}</div>
+      <div><strong>Cancer Treatment:</strong> {{ branch.details.cancerTreatment ? 'Yes' : 'No' }}</div> -->
+    </div>
+    <!-- <div class="financials">
+      <div><strong>Daily Income:</strong> ₹{{ branch.details.dailyIncome | number }}</div>
+      <div><strong>Daily Expense:</strong> ₹{{ branch.details.dailyExpense | number }}</div>
+    </div> -->
+  </div>
+</div>
+
+<!-- </div> -->
+
+
+
+
+
+
+
+
+
+
+
+</div>

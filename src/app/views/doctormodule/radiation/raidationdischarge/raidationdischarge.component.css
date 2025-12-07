@@ -1,0 +1,312 @@
+
+
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 10px 20px;
+  border-bottom: 2px solid #ccc;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.list-cases-btn {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  cursor: pointer;
+}
+
+.opd-container {
+  display: flex;
+  padding: 20px;
+}
+
+form {
+  flex: 3;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.right-section {
+  flex: 1;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input, select, button {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+input[type="radio"] {
+  margin-right: 5px;
+}
+
+
+.calendar-btn, .clock-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.info-box {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: darkred;
+  border-bottom: 2px solid darkred;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.billing-section {
+  background-color: #eef2ef;
+  padding: 15px;
+  border-radius: 6px;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.billing-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #6d0f15;
+  color: white;
+  font-weight: bold;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  border-top-left-radius: 6px;
+}
+
+.billing-label {
+  background-color: #6d0f15;
+  padding: 10px 15px;
+  font-size: 14px;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+}
+
+.billing-label::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 0;
+  width: 10px;
+  height: 100%;
+  background-color: #6d0f15;
+  clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+}
+
+.billing-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 40px 15px 15px;
+}
+
+.billing-column {
+  width: 48%;
+}
+
+.billing-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.billing-item label {
+  font-weight: bold;
+  color: #333;
+  width: 50%;
+}
+
+.billing-item input {
+  width: 50%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  text-align: right;
+  font-weight: bold;
+}
+
+
+.d-flex.w-100 {
+  gap: 20px !important; /* Adjust the gap as needed */
+  justify-content: space-between;
+}
+
+.w-50 {
+  width: 48%; /* Adjust width to ensure spacing */
+}
+
+
+
+
+.sidebar {
+  width: 30%;
+  background: #f4f4f4;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #ddd;
+}
+
+.sidebar li.active {
+  background-color: #660000;
+  color: white;
+}
+
+.content {
+  flex-grow: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+textarea {
+  width: 100%;
+  flex-grow: 1;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.button {
+  margin-top: 10px;
+  padding: 10px 15px;
+  background-color: #660000;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.button:hover {
+  background-color: #7c0303;
+}
+
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+.right-section {
+  flex: 1;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input, select, button {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+input[type="radio"] {
+  margin-right: 5px;
+}
+
+
+.calendar-btn, .clock-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.info-box {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: darkred;
+  border-bottom: 2px solid darkred;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

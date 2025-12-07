@@ -1,0 +1,11 @@
+.date-group {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.date-group input {
+  width: 60px;
+  padding: 4px;
+  text-align: center;
+}

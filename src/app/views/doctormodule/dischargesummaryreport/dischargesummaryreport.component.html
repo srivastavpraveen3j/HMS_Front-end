@@ -1,0 +1,92 @@
+<div id="opd-sheet" class="opd-sheet mb-2" *ngIf="summary">
+  <!-- Header -->
+  <div class="header">
+    <app-letterheader class="header"></app-letterheader>
+  </div>
+
+  <!-- Title -->
+  <h3 class="center-title">DISCHARGE SUMMARY</h3>
+
+  <!-- Info Section -->
+  <div class="info-grid">
+    <div class="left-info">
+      <!-- <p><strong>CASE NO :</strong> {{ summaryData.uniqueHealthIdentificationId?.uhid }}</p> -->
+      <p>
+        <strong>NAME :</strong>
+        {{ summary.uniqueHealthIdentificationId?.patient_name }}
+      </p>
+      <p>
+        <strong>DOCTOR NAME :</strong>
+        {{ summary.inpatientCaseId?.admittingDoctorId?.name }}
+      </p>
+      <!-- <p><strong>Discharge Type :</strong></p> -->
+      <p>
+        <strong>DOA & Time :</strong>
+        {{
+        summary.inpatientCaseId?.admissionDate | date : "medium"
+        }}
+      </p>
+
+      <p>
+        <strong>Weight :</strong>
+        {{ summary.inpatientCaseId.vitals?.[0]?.weight }}
+      </p>
+    </div>
+    <div class="right-info">
+      <p>
+        <strong>AGE / SEX :</strong>
+        {{ summary.uniqueHealthIdentificationId?.age }} /
+        {{
+        summary.uniqueHealthIdentificationId?.gender === "male"
+        ? "Male"
+        : "Female"
+        }}
+      </p>
+      <p>
+        <strong>IPD No. :</strong>
+        {{ summary.inpatientCaseId?.inpatientCaseNumber }}
+      </p>
+      <p><strong>Room Type :</strong> {{ summary.inpatientCaseId?.room_id?.roomNumber }}</p>
+      <p>
+        <strong>DOD & Time :</strong>
+        {{
+        summary.inpatientCaseId?.admissionDate | date : "medium"
+        }}
+      </p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+  <div class="summary-details" *ngIf="summary?.summaryDetails as details">
+    <div *ngFor="let key of sectionKeys" class="">
+      <div class="row my-2">
+        <div class="col-md-4 font-weight-bold">
+          <strong> {{ sectionLabels[key] || key }} </strong>
+        </div>
+        <div class="col-md-8 white-space-pre-line">
+          <strong>:</strong> {{ details[key] }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr />
+  <div class="row g-2">
+    <div class="col-md-6">
+      <p><strong>Prepared By:</strong> {{ user }} </p>
+    </div>
+    <div class="col-md-6 text-center">
+      <strong>
+        <p>
+          {{ summary.inpatientCaseId?.admittingDoctorId?.name }}
+        </p>
+      </strong>
+      <p class="mx-3"><strong> Signature</strong></p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="d-flex justify-content-end">
+    <button class="btn"><i class="fa fa-print" (click)="printDischargeSummaryReport()"></i></button>
+  </div>
+</footer>

@@ -1,0 +1,301 @@
+<div class="form-meta">
+  <!-- <p>ipddeposit works!</p> -->
+  <div class="header">
+    <h2>ADD NEW IPD DEPOSIT DATA</h2>
+    <!-- <button class="list-cases-btn" [routerLink]="['/ipd/ipddepositlist']" routerLinkActive="router-link-active">DEPOSIT LIST</button> -->
+    <span class="icons position-relative">
+      <!-- <i class="fa-solid fa-user-tie mx-2" (click)="showUHIDDropdown = !showUHIDDropdown"></i> -->
+      <!-- <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/ipd/ipddepositlist']"
+        routerLinkActive="router-link-active"
+      ></i> -->
+
+      <!-- Dropdown -->
+      <!-- Dropdown -->
+      <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+        <div
+          *ngIf="uhidTodayRecords?.length === 0"
+          class="text-center text-muted py-2"
+        >
+          No InPatient Case Created today.
+        </div>
+
+        <ul class="uhid-list">
+          <li
+            *ngFor="let record of uhidTodayRecords"
+            (click)="selectPatientFromUHID(record)"
+            style="cursor: pointer"
+          >
+            <div class="uhid-name">
+              {{ record.uniqueHealthIdentificationId?.patient_name }}
+            </div>
+            <div class="uhid-meta">
+              UHID: {{ record.uniqueHealthIdentificationId?.uhid }} | Age:
+              {{ record.uniqueHealthIdentificationId?.age }}
+            </div>
+          </li>
+        </ul>
+      </div>
+    </span>
+  </div>
+
+  <div class="opd-container" *ngIf="userPermissions.create">
+    <form [formGroup]="ipddepositform" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <div class="form-group col-md-6">
+          <label class="form-label">Patient Name:</label>
+          <input
+            type="text"
+            class="input-text form-control"
+            placeholder="Enter patient name"
+            formControlName="patient_name"
+            (focus)="showSuggestions = true"
+            (blur)="hideSuggestionsWithDelay()"
+            readonly
+          />
+          <!-- </div> -->
+          <!-- Patient Suggestions Dropdown - MOVED OUTSIDE BUT STILL IN THE FORM-GROUP -->
+          <div
+            *ngIf="showSuggestions && filteredPatients.length > 0"
+            class="suggestions-container"
+          >
+            <ul class="suggestions">
+              <li
+                *ngFor="let patient of filteredPatients"
+                (mousedown)="selectPatient(patient)"
+              >
+                {{ patient?.uniqueHealthIdentificationId?.patient_name }}
+                {{
+                  patient?.uniqueHealthIdentificationId?.mobile_no
+                    ? "| " + patient?.uniqueHealthIdentificationId?.mobile_no
+                    : ""
+                }}
+                {{
+                  patient?.uniqueHealthIdentificationId?.uhid
+                    ? "| " + patient?.uniqueHealthIdentificationId?.uhid
+                    : ""
+                }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Debug info - MODIFIED to check for manuallySelected flag -->
+          <div
+            *ngIf="
+              ipddepositform.get('patient_name')?.value &&
+              ipddepositform.get('patient_name')?.value.length > 2 &&
+              !filteredPatients.length &&
+              !manuallySelected
+            "
+            class="text-danger"
+          >
+            No matching patients found
+          </div>
+          <div
+            *ngIf="
+              ipddepositform.get('patient_name')?.touched &&
+              ipddepositform.get('patient_name')?.invalid
+            "
+            class="text-danger"
+          >
+            Patient name is required
+          </div>
+        </div>
+
+        <div class="form-group col-md-6">
+          <label class="form-label">UHID Number:</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="uhid"
+            formControlName="uhid"
+            (input)="onUhidInput()"
+            readonly
+          />
+        </div>
+
+        </div>
+
+        <!-- <label>Bill Amount</label>
+        <input type="number" class="form-control" placeholder="Bill Amount" formControlName="billAmount" />
+        <div *ngIf="ipddepositform.get('billAmount')?.invalid && ipddepositform.get('billAmount')?.touched" class="error-message">
+          Bill Amount is required and must be a positive number.
+        </div> -->
+       <div class="row">
+
+       <div class="col-md-6 form-group">
+         <label class="form-label">Amount Deposited</label>
+        <input
+          type="number"
+          class="form-control"
+          placeholder="Amount Deposit"
+          formControlName="amountDeposited"
+        />
+        <div
+          *ngIf="
+            ipddepositform.get('amountDeposited')?.invalid &&
+            ipddepositform.get('amountDeposited')?.touched
+          "
+          class="text-danger"
+        >
+          Amount Deposited is required and must be a positive number.
+        </div>
+       </div>
+       <div class="col-md-6 form-group">
+         <label class="form-label">Depositer Name</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Receiver Name"
+          formControlName="depositorFullName"
+        />
+        <div
+          *ngIf="
+            ipddepositform.get('depositorFullName')?.invalid &&
+            ipddepositform.get('depositorFullName')?.touched
+          "
+          class="text-danger"
+        >
+          Depositer Name is required.
+        </div>
+       </div>
+       <!-- <label>Payment Mode</label>
+        <div class="radio-group mx-3">
+          <input type="radio" formControlName="paymentMode" value="cash" /> Cash
+          <input type="radio" formControlName="paymentMode" value="upi" /> UPI
+          <input type="radio" formControlName="paymentMode" value="card" /> Card
+        </div>
+        <div *ngIf="ipddepositform.get('paymentMode')?.invalid && ipddepositform.get('paymentMode')?.touched" class="error-message">
+          Payment Mode is required.
+        </div> -->
+
+        <div class="form-group col-md-6">
+          <label class="form-label">Payment Method</label>
+          <div class="radio-group mx-3">
+            <label
+              ><input
+                type="radio"
+                formControlName="paymentMode"
+                value="cash"
+              />CASH</label
+            >
+            <label
+              ><input
+                type="radio"
+                formControlName="paymentMode"
+                value="upi"
+              />UPI</label
+            >
+            <label
+              ><input
+                type="radio"
+                formControlName="paymentMode"
+                value="card"
+              />CARD</label
+            >
+          </div>
+          <div
+            *ngIf="
+              ipddepositform.get('paymentMode')?.invalid &&
+              ipddepositform.get('paymentMode')?.touched
+            "
+            class="text-danger"
+          >
+            Payment Mode is required.
+          </div>
+        </div>
+
+        <!-- Show UPI Transaction ID input only if UPI is selected -->
+        <div
+          class="form-group"
+          *ngIf="ipddepositform.get('paymentMode')?.value === 'upi'"
+        >
+          <label>Transaction ID</label>
+          <input
+            type="text"
+            formControlName="transactionId"
+            class="form-control"
+            placeholder="Enter UPI Transaction ID"
+          />
+          <div
+            *ngIf="
+              ipddepositform.get('transactionId')?.invalid &&
+              ipddepositform.get('transactionId')?.touched
+            "
+            class="text-danger"
+          >
+            Transaction ID is required
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-3">
+        <button
+          type="submit"
+          class="btn btn-dark mx-2"
+          [disabled]="ipddepositform.invalid"
+        >
+          Submit
+        </button>
+        <!-- <button type="button" class="btn btn-secondary" (click)="resetForm()">
+          Cancel
+        </button> -->
+      </div>
+    </form>
+
+    <!-- <div class="right-section">
+      Show selected patient details
+      <div class="info-box" *ngIf="selectedPatientDetails">
+        <h5 style="color: darkred">Patient Details</h5>
+        <hr />
+        <p>
+          Admit Time:
+          {{ selectedPatientDetails.admissionTime | date : "shortTime" }}
+        </p>
+        <p>Admit Date: {{ selectedPatientDetails.admissionDate | date }}</p>
+        <p>
+          Gender:
+          {{ selectedPatientDetails.uniqueHealthIdentificationId?.gender }}
+        </p>
+        <p>Age: {{ selectedPatientDetails?.uniqueHealthIdentificationId?._id }}</p>
+        <p>
+          Age: {{ selectedPatientDetails.uniqueHealthIdentificationId?.age }}
+        </p>
+        <p>
+          DOB:
+          {{ selectedPatientDetails.uniqueHealthIdentificationId?.dob | date }}
+        </p>
+        <p>
+          Mobile Number:
+          {{ selectedPatientDetails.uniqueHealthIdentificationId?.mobile_no }}
+        </p>
+        <p>Bed Alloted: {{ selectedPatientDetails?.bed_id?.bed_number }}</p>
+        <p>
+          Consulted Doctor :
+          {{ selectedPatientDetails?.admittingDoctorId?.name }}
+        </p>
+        <p>Total Amount: {{ selectedPatientDetails.totalamount }}</p>
+    <p>Amount Paid: {{ selectedPatientDetails.amountreceived }}</p>
+    <p>Amount Left: {{ selectedPatientDetails.totalamount - selectedPatientDetails.amountreceived }}</p>
+    <p>Payment Method: {{ selectedPatientDetails.paymentmethod }}</p>
+      </div>
+
+      Fallback only if search was made, not after selection
+      <div
+        *ngIf="
+          !manuallySelected &&
+          filteredPatients.length === 0 &&
+          ipddepositform.get('patient_name')?.value?.length > 2
+        "
+      >
+        <p>No patients found.</p>
+      </div>
+
+      <div class="info-box">
+        <h5 style="color: darkred;">Billing  Details</h5>
+
+      </div>
+    </div> -->
+  </div>
+</div>

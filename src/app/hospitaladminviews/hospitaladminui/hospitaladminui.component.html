@@ -1,0 +1,112 @@
+<div class="header">
+    <div class="header-content d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">User Role management</h2>
+
+        <div>
+            <i class="fa-solid fa-gear customize-gear" (click)="toggleCustomization()" [class.active]="isCustomizing"
+                title="Customize Card Order"></i>
+        </div>
+
+        <!-- <div class="header-controls d-flex align-items-center gap-3">
+      <div class="voice-controls">
+        <button
+          class="voice-btn"
+          [class.listening]="isVoiceListening"
+          [disabled]="!voiceService.isSupported()"
+          (click)="isVoiceListening ? stopVoiceRecognition() : startVoiceRecognition()"
+          title="Voice Commands: Say 'open [card name]'">
+          <i class="fa-solid" [ngClass]="isVoiceListening ? 'fa-microphone-slash' : 'fa-microphone'"></i>
+        </button>
+
+        <div class="voice-status" [class.active]="isVoiceListening">
+          <span *ngIf="isVoiceListening" class="listening-text">🎤 Listening...</span>
+          <span *ngIf="!isVoiceListening && !voiceService.isSupported()" class="error-text">❌ Not supported</span>
+        </div>
+      </div>
+
+    </div> -->
+    </div>
+
+    <!-- Voice Feedback Panel -->
+    <div class="voice-feedback" *ngIf="lastTranscript || lastCommand || voiceError">
+        <div class="feedback-item" *ngIf="lastTranscript">
+            <small><strong>Heard:</strong> "{{ lastTranscript }}"</small>
+        </div>
+        <div class="feedback-item" *ngIf="lastCommand">
+            <small><strong>Command:</strong> {{ lastCommand }}</small>
+        </div>
+        <div class="feedback-item error" *ngIf="voiceError">
+            <small><strong>Error:</strong> {{ voiceError }}</small>
+        </div>
+    </div>
+</div>
+
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" *ngIf="isCustomizing" (click)="toggleCustomization()"></div>
+
+<!-- Customization Sidebar -->
+<div class="customization-sidebar" [class.open]="isCustomizing">
+    <div class="sidebar-header">
+        <h3><i class="fa-solid fa-gear"></i> Customize Outpatient Card</h3>
+        <button class="close-btn" (click)="toggleCustomization()">
+            <i class="fa-solid fa-times"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-content">
+        <p>Reorder your Outpatient module cards to match your workflow. Changes are saved automatically.</p>
+        <div class="card-order-list">
+            <div class="order-item" *ngFor="let card of userCardOrder; let i = index"
+                [class.disabled]="!shouldShowCard(card)">
+                <div class="order-info">
+                    <span class="order-number">{{ i + 1 }}</span>
+                    <div class="card-details">
+                        <span class="card-title">{{ card.title }}</span>
+                        <span class="card-status" *ngIf="!shouldShowCard(card)">
+                            (Hidden - No Permission)
+                        </span>
+                    </div>
+                </div>
+
+                <div class="order-controls">
+                    <button class="order-btn up-btn" (click)="moveCardUp(i)" [disabled]="i === 0" title="Move Up">
+                        <i class="fa-solid fa-chevron-up"></i>
+                    </button>
+                    <button class="order-btn down-btn" (click)="moveCardDown(i)"
+                        [disabled]="i === userCardOrder.length - 1" title="Move Down">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-actions">
+            <button class="reset-btn" (click)="resetToDefaultOrder()">
+                <i class="fa-solid fa-refresh"></i>
+                Reset to Default
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Cards Grid -->
+<div class="cards-grid" [class.sidebar-open]="isCustomizing">
+    <div class="card" *ngFor="let card of getVisibleCards(); let i = index" [class.customizing]="isCustomizing">
+        <!-- Card order indicator in customization mode -->
+        <div class="card-order-indicator" *ngIf="isCustomizing">
+            {{ i + 1 }}
+        </div>
+
+        <div class="card-content">
+            <div class="card-header">
+                <h3>{{ card.title }}</h3>
+            </div>
+            <div class="card-footer">
+                <a [routerLink]="card.routerLink" (click)="executeCardAction(card)">
+                    VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,33 @@
+.card {
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.card::-webkit-scrollbar,
+div[style*="overflow: auto"]::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.card::-webkit-scrollbar-thumb,
+div[style*="overflow: auto"]::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 10px;
+}
+
+.card::-webkit-scrollbar-thumb:hover,
+div[style*="overflow: auto"]::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+.card .name{
+    background-color: #fffcfc;
+    color: black;
+    padding: 15px;
+    border: 1px solid rgb(237, 234, 234);
+    font-size: 12px;
+}
+
+.card .name:hover{
+    background-color: var(--dropdown-color);
+}

@@ -1,0 +1,32 @@
+<!-- <p>chemotherapylist works!</p> -->
+<div class="header">
+  <h2>CHEMOTHERAPY DISCHARGE CARD LIST</h2>
+  <button class="list-cases-btn"  routerLinkActive="router-link-active" [routerLink]="['/doctor/chemotherapy']" routerLinkActive="router-link-active"  >ADD CHEMOTHERAPY DISCHARGE CARD</button>
+</div>
+
+
+  <table class="table table-bordered table-hover align-middle diagnosis-table">
+ <thead class="table-dark text-center" >
+    <tr>
+      <th>UHID</th>
+      <th>PATIENT NAME</th>
+      <th>DOR</th>
+      <th>DOB</th>
+      <th>MOBILE NO.</th>
+      <th>ACTIONS</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let patient of filteredPatients()">
+      <td>{{ patient.uhid }}</td>
+      <td>{{ patient.name }}</td>
+      <td>{{ patient.dor }}</td>
+      <td>{{ patient.dob }}</td>
+      <td>{{ patient.mobile }}</td>
+      <td>
+        <i class="fa-solid fa-eye action-btn"  (click)="viewPatient(patient)"></i>
+        <i class="fa-solid fa-pencil action-btn" (click)="editPatient(patient)"></i>
+      </td>
+    </tr>
+  </tbody>
+</table>

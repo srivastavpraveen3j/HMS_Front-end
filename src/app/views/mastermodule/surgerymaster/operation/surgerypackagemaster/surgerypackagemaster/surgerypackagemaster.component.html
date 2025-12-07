@@ -1,0 +1,399 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>OPERATION GROUP MASTER</h2>
+    <span class="icons position-relative">
+      <div class="btn-group">
+        <button
+          class="btn btn-outline-primary"
+          [class.active]="uploadMode === 'single'"
+          (click)="uploadMode = 'single'"
+        >
+          Single Entry
+        </button>
+        <button
+          class="btn btn-outline-success"
+          [class.active]="uploadMode === 'bulk'"
+          (click)="uploadMode = 'bulk'"
+        >
+          Bulk Upload
+        </button>
+      </div>
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/master/surgerypackagemasterlist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div>
+    <!-- Bulk Upload Section -->
+    <div *ngIf="uploadMode === 'bulk'">
+      <label>Import Surgery Packages in Bulk (CSV):</label>
+      <div class="d-flex align-items-center mt-3">
+        <h5 class="mx-3">Sample Surgery Csv File</h5>
+        <a
+          href="https://digitalks-crm-bucket.s3.ap-south-1.amazonaws.com/HIMS/surgery_packages_all_latest+1.csv"
+          download
+        >
+          <i class="fa-solid fa-file-csv"></i>
+        </a>
+      </div>
+      <input
+        type="file"
+        (change)="onFileSelected($event)"
+        accept=".csv"
+        class="form-control mt-3"
+      />
+      <div class="text-center mt-3">
+        <button
+          class="btn btn-dark mx-2"
+          type="button"
+          (click)="uploadCSV()"
+          [disabled]="!selectedFile || isSubmitting"
+        >
+          Submit Bulk
+        </button>
+      </div>
+    </div>
+    <!-- Single Entry Form -->
+    <div *ngIf="uploadMode === 'single'">
+      <div class="form-check form-switch mb-2">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          [(ngModel)]="packageBreakdownEnabled"
+          id="packageBreakdownEnabled"
+        />
+        <label class="form-check-label" for="packageBreakdownEnabled"
+          >Enable Package Charge Breakdown</label
+        >
+      </div>
+      <div class="form-check form-switch mb-2">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          [(ngModel)]="roomBreakdownEnabled"
+          id="roomBreakdownEnabled"
+        />
+        <label class="form-check-label" for="roomBreakdownEnabled"
+          >Enable Room-wise Package Variants</label
+        >
+      </div>
+      <form [formGroup]="packageForm" (ngSubmit)="savePackage()">
+        <!-- BASIC INFO -->
+        <div class="row">
+          <div class="col-md-6 position-relative">
+            <label class="form-label">Name *</label>
+            <input
+              formControlName="name"
+              class="form-control"
+              autocomplete="off"
+              (focus)="onNameFocus()"
+              (blur)="onNameBlur()"
+              placeholder="Type or select surgery..."
+            />
+            <div
+              *ngIf="showSurgeryDropdown && surgerySearchResults?.length"
+              class="suggestion-container"
+            >
+              <ul
+                class="suggestions"
+                *ngFor="let s of surgerySearchResults"
+                (mousedown)="selectSurgeryFromDropdown(s)"
+              >
+                <li>
+                  {{ s.name }} | {{ s.amount }} |
+                  <span *ngIf="isArray(s.category)">
+                    {{ s.category.join(", ") }}
+                  </span>
+                  <span *ngIf="!isArray(s.category)">
+                    {{ s.category }}
+                  </span>
+                </li>
+              </ul>
+              <div
+                class="dropdown-item text-secondary"
+                *ngIf="surgerySearchLoading"
+              >
+                Loading...
+              </div>
+              <div
+                class="dropdown-item"
+                *ngIf="!surgerySearchResults.length && !surgerySearchLoading"
+              >
+                No matches found
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Type (Category)</label>
+            <input
+              type="text"
+              formControlName="type"
+              class="form-control"
+              placeholder="Auto filled or manual"
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <label class="form-label">Total Price *</label>
+            <input
+              type="number"
+              formControlName="totalPrice"
+              class="form-control"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Duration (days) *</label>
+            <input
+              type="number"
+              formControlName="duration"
+              class="form-control"
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <label class="form-label">Note</label>
+            <textarea
+              class="form-control"
+              formControlName="note"
+              rows="1"
+            ></textarea>
+          </div>
+        </div>
+        <!-- PACKAGE BREAKDOWN -->
+        <div class="col-md-12 mt-3" *ngIf="packageBreakdownEnabled">
+          <div [formGroup]="breakdown">
+            <table
+              class="table table-bordered table-hover align-middle diagnosis-table"
+            >
+              <thead class="table-dark">
+                <tr>
+                  <th>Charge Type</th>
+                  <th>Amount (₹)</th>
+                  <th>Percentage (%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let ct of chargeTypes">
+                  <ng-container [formGroupName]="ct.key">
+                    <td>{{ ct.label }}</td>
+                    <td>
+                      <input
+                        type="number"
+                        formControlName="amount"
+                        class="input-table"
+                        [readonly]="true"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        formControlName="percentage"
+                        class="input-table"
+                        [max]="100"
+                        [min]="0"
+                        [ngClass]="{
+                          'error-cell': packageForm.hasError('percentOver')
+                        }"
+                      />
+                    </td>
+                  </ng-container>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td class="total-cell">TOTAL</td>
+                  <td class="total-cell">
+                    {{ getBreakdownTotal() | indianCurrency }}
+                  </td>
+                  <td class="total-cell">{{ getBreakdownPercent() }}%</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div
+            *ngIf="packageForm.hasError('percentOver')"
+            class="text-danger"
+            style="font-weight: bold"
+          >
+            Total percentage cannot exceed 100%.
+          </div>
+        </div>
+
+        <!-- ROOM-WISE BREAKDOWN -->
+        <div class="col-md-12" *ngIf="roomBreakdownEnabled">
+          <div class="variant-card">
+            <h4>Room-wise Package Variants</h4>
+            <table
+              class="table table-bordered table-hover align-middle diagnosis-table"
+            >
+              <thead class="table-dark">
+                <tr>
+                  <th>Room Type</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Price/Day</th>
+                  <th>Package Price (₹)</th>
+                  <th>Dr Charge</th>
+                  <th>Anesthesia</th>
+                  <th>OT</th>
+                  <th>Assistant</th>
+                  <th>Consumables</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody formArrayName="roomWiseBreakdown">
+                <tr
+                  *ngFor="
+                    let group of roomWiseBreakdown.controls;
+                    let i = index
+                  "
+                  [formGroupName]="i"
+                >
+                  <td>
+                    <select
+                      formControlName="roomTypeId"
+                      (change)="onRoomTypeSelect(i)"
+                      class="form-control"
+                    >
+                      <option value="">Select</option>
+                      <option
+                        *ngFor="let rt of roomTypes"
+                        [value]="rt._id"
+                        [disabled]="isRoomTypeSelected(rt._id, i)"
+                      >
+                        {{ rt.name }}
+                      </option>
+                    </select>
+                    <div
+                      *ngIf="roomWiseBreakdown.at(i).errors?.['duplicateRoomType']"
+                      class="text-danger"
+                      style="font-size: 12px"
+                    >
+                      Room type is already used in another row.
+                    </div>
+                  </td>
+                  <td>
+                    <input
+                      formControlName="roomName"
+                      class="input-table"
+                      readonly
+                    />
+                  </td>
+                  <td>
+                    <input
+                      formControlName="roomDescription"
+                      class="input-table"
+                      readonly
+                    />
+                  </td>
+                  <td>
+                    <input
+                      formControlName="roomPrice"
+                      class="input-table"
+                      readonly
+                    />
+                  </td>
+                  <td>
+                    <input
+                      formControlName="packagePrice"
+                      type="number"
+                      class="input-table"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      formControlName="drCharge"
+                      type="number"
+                      class="input-table"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      formControlName="anesthesia"
+                      type="number"
+                      class="input-table"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      formControlName="ot"
+                      type="number"
+                      class="input-table"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      formControlName="assistant"
+                      type="number"
+                      class="input-table"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      formControlName="consumables"
+                      type="number"
+                      class="input-table"
+                    />
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn-delete"
+                      (click)="removeRoomWiseBreakdown(i)"
+                    >
+                      <i class="fa fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <!-- error row for split sum -->
+                <tr
+                  *ngFor="
+                    let group of roomWiseBreakdown.controls;
+                    let i = index
+                  "
+                >
+                  <td
+                    colspan="11"
+                    *ngIf="roomWiseBreakdown.at(i).errors?.['splitOver']"
+                  >
+                    <span class="text-danger" style="font-weight: bold">
+                      Split fields (Dr/Anesthesia/OT/Assistant/Consumables)
+                      exceed package price for this room.
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <button
+              type="button"
+              class="btn-addrow"
+              (click)="addRoomWiseBreakdown()"
+              [disabled]="!roomBreakdownEnabled"
+            >
+              + Add Room Variant
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-dark mt-4"
+          [disabled]="
+            isSubmitting ||
+            (packageBreakdownEnabled && packageForm.hasError('percentOver')) ||
+            hasInvalidRooms
+          "
+        >
+          Save Package
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

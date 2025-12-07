@@ -1,0 +1,145 @@
+
+.search-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.patient-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-color: #007bff;
+}
+
+.card-header {
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+  padding: 12px;
+}
+
+/* Subtle Colors */
+.card-header.bg-cash {
+  background-color: #f8f9fa !important;
+  border-left: 4px solid #28a745;
+}
+
+.card-header.bg-cashless {
+  background-color: #fff3cd !important;
+  border-left: 4px solid #ffc107;
+}
+
+.card-header.bg-mediclaim {
+  background-color: #d1ecf1 !important;
+  border-left: 4px solid #17a2b8;
+}
+.card-header.bg-danger {
+  background-color: #d67010 !important;
+  border-left: 4px solid #db1414;
+}
+.card-footer.bg-danger {
+  background-color: #d1ecf1 !important;
+  border-left: 4px solid #db1414;
+}
+
+.patient-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.patient-type-info {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.section-header {
+  background-color: #f8f9fa;
+  color: #333;
+  text-align: center;
+  font-weight: 600;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.details-table td {
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  vertical-align: top;
+}
+
+.details-table td:first-child {
+  background: #f8f9fa;
+  width: 45%;
+  font-weight: 500;
+  color: #555;
+}
+
+.details-table td:last-child {
+  color: #333;
+}
+
+.card-footer {
+  border-top: 1px solid #ddd;
+  background: #f8f9fa;
+  padding: 8px;
+}
+
+.status-badge {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+}
+
+.list-group-item:hover {
+  background-color: #e9ecef;
+  cursor: pointer;
+}
+
+.pagination-section {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .col-md-6 {
+    margin-bottom: 15px;
+  }
+
+  .details-table {
+    font-size: 12px;
+  }
+
+  .header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .header h2 {
+    margin-bottom: 10px;
+  }
+
+  .patient-name {
+    font-size: 0.9rem;
+  }
+
+  .patient-type-info {
+    font-size: 0.75rem;
+  }
+}

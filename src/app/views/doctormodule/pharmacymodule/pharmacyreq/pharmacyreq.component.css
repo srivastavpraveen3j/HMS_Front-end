@@ -1,0 +1,251 @@
+/* Enhanced Package Selection Styles */
+.package-suggestion:hover {
+  background-color: #f8f9fa;
+}
+
+.selected-package-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.selected-package-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.remove-package-btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Medicine Table Enhancements */
+.diagnosis-table {
+  font-size: 0.9rem;
+}
+
+.medicine-name-input {
+  border: none;
+  background-color: transparent;
+  font-weight: 500;
+}
+
+.dosage-checkboxes {
+  min-width: 120px;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  margin: 0;
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  margin-right: 0.25rem;
+}
+
+.quantity-input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.quantity-input {
+  width: 80px;
+  text-align: center;
+}
+
+.stock-info {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.charge-input-container {
+  position: relative;
+  width: 100px;
+  margin: 0 auto;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  pointer-events: none;
+}
+
+.charge-input {
+  padding-left: 20px;
+  text-align: right;
+
+}
+
+.source-badge {
+  font-size: 0.75rem;
+}
+
+.source-badge.bg-info {
+  /* background-color: #0dcaf0 !important;   */
+  color: black !important;
+}
+
+.remove-medicine-btn {
+  padding: 0.375rem;
+}
+
+/* Medicine Search Results */
+.medicine-search-results {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+}
+
+.medicine-result-item {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.medicine-result-item:last-child {
+  border-bottom: none;
+}
+
+.medicine-result-item:hover:not([disabled]) {
+  background-color: #f8f9fa;
+}
+
+/* Empty State */
+.empty-state {
+  background-color: #f8f9fa;
+  border-radius: 0.375rem;
+  border: 2px dashed #dee2e6;
+}
+
+/* Action Buttons */
+.action-buttons {
+  padding: 2rem 0;
+  border-top: 1px solid #dee2e6;
+  margin-top: 2rem;
+}
+
+/* Patient Details */
+.patient-details-title {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.patient-info p {
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.patient-info strong {
+  color: #495057;
+  font-weight: 600;
+}
+
+/* Save as Package Modal */
+.modal.show {
+  display: block !important;
+}
+
+.modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-title {
+  color: #495057;
+  font-weight: 600;
+}
+
+.medicine-preview-container {
+  background-color: #f8f9fa;
+}
+
+.medicine-preview-item {
+  background-color: white;
+  border-radius: 0.25rem;
+  padding: 0.75rem !important;
+  margin-bottom: 0.5rem;
+}
+
+.medicine-preview-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Form Enhancements */
+.form-label.fw-bold {
+  color: #495057;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Suggestions container */
+.suggestions-container {
+  position: absolute;
+  z-index: 1000;
+  width: 100%;
+  top: 100%;
+  left: 0;
+}
+
+.suggestions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.suggestions li {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+.suggestions li:hover {
+  background-color: #f5f5f5;
+}
+
+.suggestions li:last-child {
+  border-bottom: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .checkbox-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .quantity-input, .charge-input {
+    width: 100%;
+  }
+
+  .diagnosis-table {
+    font-size: 0.8rem;
+  }
+
+  .selected-package-card {
+    margin-bottom: 1rem;
+  }
+
+  .modal-dialog {
+    margin: 1rem;
+  }
+}

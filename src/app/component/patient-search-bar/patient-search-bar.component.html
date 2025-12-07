@@ -1,0 +1,16 @@
+<div class="field-pane">
+
+  <input type="text" class="form-control uhid-name" placeholder="Search UHID / Patient Name / Mobile..."
+    [formControl]="searchControl" (focus)="onFocus()" (blur)="onBlur()" />
+
+  <!-- Suggestion Dropdown -->
+  <div *ngIf="showList" class="suggestion-container">
+    <ul class="suggestions">
+      <li *ngFor="let item of suggestions" (mousedown)="selectItem(item)">
+        {{ item.uniqueHealthIdentificationId.patient_name }}
+        <span *ngIf="item.mobile_no"> | {{ item.mobile_no }}</span>
+        <span *ngIf="item.uhid"> | {{ item.uhid }}</span>
+      </li>
+    </ul>
+  </div>
+</div>

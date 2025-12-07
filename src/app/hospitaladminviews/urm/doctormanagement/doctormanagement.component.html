@@ -1,0 +1,44 @@
+<div class="header">
+  <h2>DOCTOR MANAGEMENT</h2>
+
+</div>
+
+<!-- <div class="container"> -->
+
+
+
+  <div class="m-5">
+    <h2>{{ hospital.name }} - Branch Wise Doctor Management</h2>
+    <hr>
+
+    <!-- Flex container for branches -->
+    <div class="branches-flex">
+      <div class="branch" *ngFor="let branch of hospital.branches">
+        <div class="branch-header">
+          <h3>{{ branch.name }}</h3>
+          <p><strong>Total Doctors:</strong> {{ branch.doctors.length }}</p>
+        </div>
+
+        <div class="patient-list">
+          <div class="patient-card" *ngFor="let doctor of branch.doctors">
+            <div class="group-header">
+              <div class="status-dot" [ngClass]="doctor.status === 'Available' ? 'dot-available' : 'dot-unavailable'"></div>
+              <h3>{{ doctor.name }}</h3>
+              <p>{{ doctor.email }}</p>
+              <p><strong>Department:</strong> {{ doctor.department }}</p>
+              <p><strong>Speciality:</strong> {{ doctor.speciality }}</p>
+              <p><strong>Field:</strong> {{ doctor.field }}</p>
+              <p><strong>Status:</strong> {{ doctor.status }}</p>
+            </div>
+            <div class="group-members">
+              <img class="member-avatar" [src]="doctor.image" alt="Doctor Image" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+<!-- </div> -->

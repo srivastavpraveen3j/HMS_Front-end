@@ -1,0 +1,41 @@
+<!-- <div class="modal-content mt-3">
+
+  <i class="fa-solid fa-close" style="float: right !important; color: red;"  (click)="closeModal()" ></i>
+  <div class="barcode-container">
+    <svg #barcode></svg>
+  </div>
+  <h3>Patient Barcode</h3>
+  <p>UHID: {{ data.uhid }}</p>
+  <p>Name:{{ data.patient_name }}</p>
+  <p>Gender: {{ data.gender }}</p>
+  <p>Date of Birth: {{ data.dob | date:'yyyy-MM-dd' }}</p>
+  <p>Mobile: {{ data.mobile_no }}</p>
+  <p>Registration Date: {{ data.dor  | date:'yyyy-MM-dd' }}</p>
+
+
+
+</div> -->
+<span class="d-flex justify-content-end">
+<i class="fa-solid fa-close close-btn" (click)="closeModal()"></i>
+<i class="fa-solid fa-print" (click)="printLabel()"></i>
+</span>
+
+
+<div id="print-label" class="label-container">
+  <div><strong>Name</strong> : {{ data?.patient_name?.toUpperCase() }}</div>
+  <div>
+    <strong>Age</strong> :{{ data.age}}
+    Sex: {{ data.gender }}
+  </div>
+  <div><strong>Address</strong> : {{ data.area }}</div>
+  <div><strong>Dr. Name</strong> : <strong>{{ data?.consultingDoctorName }}</strong></div>
+  <div><strong>MOB</strong> : {{ data.mobile_no }}</div>
+  <div><strong>Ref. Dr.</strong> : {{ data.referringDoctorName || 'SELF' }}</div>
+  <div><strong>UHID</strong> : <strong>{{ data.uhid }}</strong></div>
+
+  <div class="barcode-container">
+    <svg #barcode></svg>
+  </div>
+</div>
+<!-- <button (click)="printLabel()">🖨️ Print Label</button> -->
+

@@ -1,0 +1,172 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>SURGERY MASTER</h2>
+    <span class="icons position-relative">
+      <div class="btn-group">
+        <button
+          class="btn btn-outline-primary"
+          [class.active]="uploadMode === 'single'"
+          (click)="uploadMode = 'single'"
+        >
+          Single Entry
+        </button>
+        <button
+          class="btn btn-outline-success"
+          [class.active]="uploadMode === 'bulk'"
+          (click)="uploadMode = 'bulk'"
+        >
+          Bulk Upload
+        </button>
+      </div>
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/master/surgerymasterlist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div *ngIf="userPermissions.create">
+    <!-- Bulk Upload Section -->
+    <div *ngIf="uploadMode === 'bulk'">
+      <label>Import Surgery Services in Bulk (CSV):</label>
+      <div class="d-flex align-items-center mt-3">
+        <h5 class="mx-3">Sample Surgery Service Csv File</h5>
+        <a
+          href="https://digitalks-crm-bucket.s3.ap-south-1.amazonaws.com/HIMS/surgery_services+(1)+(1).csv"
+          download
+        >
+          <i class="fa-solid fa-file-csv"></i>
+        </a>
+      </div>
+      <input
+        type="file"
+        (change)="onFileSelected($event)"
+        accept=".csv"
+        class="form-control mt-3"
+      />
+      <div class="text-center mt-3">
+        <button
+          class="btn btn-dark mx-2"
+          type="submit"
+          (click)="uploadCSV()"
+          [disabled]="!selectedFile"
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+
+    <!-- Single Entry Form -->
+    <div *ngIf="uploadMode === 'single'">
+      <form [formGroup]="surgerymaster" (ngSubmit)="onSubmit()">
+        <div class="form-container">
+          <div class="form-half">
+            <div class="form-group">
+              <label>Surgery Name <span class="required">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="name"
+                placeholder="Enter surgery name"
+              />
+              <div
+                *ngIf="surgerymaster.get('name')?.touched && surgerymaster.get('name')?.invalid"
+                class="text-danger"
+              >
+                Name is Required
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Grade <span class="required">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="grade"
+                placeholder="Enter grade"
+              />
+              <div
+                *ngIf="surgerymaster.get('grade')?.touched && surgerymaster.get('grade')?.invalid"
+                class="text-danger"
+              >
+                Grade is Required
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Risk</label>
+              <label><input type="checkbox" formControlName="risk" /> Risk</label>
+            </div>
+            <div class="form-group">
+              <label>Emergency</label>
+              <label><input type="radio" formControlName="emergency" /> Emergency</label>
+            </div>
+            <div class="form-group">
+              <label>Amount <span class="required">*</span></label>
+              <input
+                type="number"
+                class="form-control"
+                formControlName="amount"
+                placeholder="Enter Amount"
+              />
+              <div
+                *ngIf="surgerymaster.get('amount')?.touched && surgerymaster.get('amount')?.invalid"
+                class="text-danger"
+              >
+                Amount is Required
+              </div>
+            </div>
+          </div>
+          <div class="form-half">
+            <div class="form-group">
+              <label>Category <span class="required">*</span></label>
+              <div class="multi-select-container">
+                <div class="selected-tags">
+                  <span *ngFor="let c of selectedCategories" class="tag">
+                    {{ c }}
+                    <span class="remove" (click)="removeCategory(c)">×</span>
+                  </span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Select category"
+                    [formControl]="categorySearchControl"
+                    (focus)="dropdownOpenCategory = true"
+                  />
+                </div>
+                <div
+                  class="dropdown"
+                  *ngIf="dropdownOpenCategory && filteredCategories.length > 0"
+                >
+                  <div
+                    *ngFor="let c of filteredCategories"
+                    (click)="selectCategory(c)"
+                    class="dropdown-option"
+                    [class.selected]="isCategorySelected(c)"
+                    style="cursor: pointer; padding: 6px;"
+                  >
+                    {{ c }}
+                  </div>
+                </div>
+              </div>
+              <div
+                *ngIf="surgerymaster.get('category')?.touched && surgerymaster.get('category')?.invalid"
+                class="text-danger"
+              >
+                Category is Required
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions text-center mt-3">
+          <button
+            type="submit"
+            class="btn btn-dark mx-2"
+            [disabled]="surgerymaster.invalid || isSubmitting"
+          >
+            {{ editMode ? "UPDATE" : "SAVE" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

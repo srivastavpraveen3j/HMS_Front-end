@@ -1,0 +1,129 @@
+.opd-sheet {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #000;
+    width: 100%;
+    padding: 20px;
+    border: 1px solid #000;
+}
+
+.header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    border-bottom: 1px solid #000;
+    padding-bottom: 10px;
+}
+
+.header {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+}
+
+.logo {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    border: 1px solid black;
+}
+
+ body {
+     font-family: 'Segoe UI', sans-serif;
+     margin: 40px;
+     background: #fff;
+     color: #000;
+ }
+
+ .summary-container {
+     width: 100%;
+     margin: auto;
+     padding: 30px;
+     border: 1px solid #ccc;
+     border-radius: 10px;
+ }
+
+ h1,
+ h2,
+ h3 {
+     /* color: #0056b3; */
+     color: rgb(159, 78, 78);
+     border-bottom: 1px solid #ddd;
+     padding-bottom: 4px;
+ }
+
+ .section {
+     margin-top: 25px;
+ }
+
+ table {
+     width: 100%;
+     border-collapse: collapse;
+     margin-top: 10px;
+ }
+
+ th,
+ td {
+     padding: 8px;
+     border: 1px solid #ccc;
+ }
+
+ .row {
+     display: flex;
+     justify-content: space-between;
+     flex-wrap: wrap;
+ }
+
+ .row p {
+     margin: 0;
+     width: 48%;
+ }
+
+ .label {
+     font-weight: bold;
+ }
+
+ .footer {
+     margin-top: 40px;
+     text-align: center;
+     font-size: 0.9em;
+     color: #666;
+ }
+
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #opd-sheet,
+    #opd-sheet * {
+        visibility: visible;
+    }
+
+    #opd-sheet {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        overflow: visible !important;
+        /* Remove scroll for print */
+        height: auto !important;
+        /* Expand full height */
+    }
+
+    /* Remove modal restrictions */
+    .modal,
+    .modal-dialog,
+    .modal-content {
+        position: static !important;
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+}
+
+ .print-button {
+     margin-bottom: 20px;
+ }

@@ -1,0 +1,52 @@
+<!-- <p>certificateslist works!</p> -->
+<div class="header">
+  <h2 class="fw-bold text-uppercase">COMPILANCES CERTIFICATE LIST</h2>
+  <button class="list-cases-btn" [routerLink]="['/superadmin/compilancescertificates']" routerLinkActive="router-link-active" >COMPILANCES CERTIFICATE </button>
+</div>
+
+
+
+<div class="top-bar p-3">
+  <select formControl="recordsPerPage">
+    <option *ngFor="let num of [25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+  </select>
+
+  <input type="text" placeholder="Search..." formControl="searchText" />
+
+</div>
+<!-- Certificate Listing -->
+<div class="opd-container">
+  <table class="table table-striped table-bordered shadow-sm">
+    <thead class="table-dark">
+      <tr>
+        <th>#</th>
+        <th>Title</th>
+        <th>Type</th>
+        <th>Valid From</th>
+        <th>Valid To</th>
+        <th>Assigned To</th>
+        <th>Mandatory</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- <tr *ngFor="let cert of certificates; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ cert.title }}</td>
+        <td>{{ cert.type }}</td>
+        <td>{{ cert.fromDate | date }}</td>
+        <td>{{ cert.toDate | date }}</td>
+        <td>{{ getHospitalName(cert.assignedTo) }}</td>
+        <td>{{ cert.mandatory ? 'Yes' : 'No' }}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary" (click)="viewCertificate(cert)">
+            View
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="certificates.length === 0">
+        <td colspan="8" class="text-center text-muted">No certificates uploaded yet.</td>
+      </tr> -->
+    </tbody>
+  </table>
+</div>

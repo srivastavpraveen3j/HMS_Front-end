@@ -1,0 +1,573 @@
+<div class="form-meta">
+  <!-- <p>radiodashboard works!</p> -->
+<!-- <p>pharmadashboard works!</p> -->
+<!-- <p>pathodashboard works!</p> -->
+<div class="header">
+  <h2 class="dashboard-title">OUTPATIENT RADIOLOGY DASHBOARD</h2>
+
+
+  <div class="toggle-buttons">
+      <!-- <button class="btn active" [routerLink]="['/radiologylayout/radiologylayoutopd']" routerLinkActive="router-link-active">OPD</button> -->
+      <button class="toggle ipd btn " [routerLink]="['/radiologylayout/radiologylayout']"  routerLinkActive="router-link-active" *ngIf="ipdradiopermission">IPD</button>
+      <!-- <button class="toggle ipd btn " [routerLink]="['/radiologylayout/radiologylayoutwalkin']"  routerLinkActive="router-link-active">Walk-In</button> -->
+    </div>
+</div>
+ <div class="dashboard-container">
+    <!-- Filter Section -->
+    <div class="filters d-flex align-items-center m-3">
+      <!-- Search Input -->
+      <div class="form-group position-relative w-50">
+        <input
+          type="text"
+          [(ngModel)]="searchText"
+          (input)="onSearchChange()"
+          placeholder="Search by UHID/Patient Name/Request Number"
+          class="form-control"
+        />
+        <!-- <i class="fas fa-search position-absolute" style="right: 10px; top: 50%; transform: translateY(-50%); color: #6c757d;"></i> -->
+      </div>
+
+      <!-- Date Filter Options -->
+      <label class="m-3">
+        <input
+          type="radio"
+          name="filter"
+          value="today"
+          [(ngModel)]="activeFilter"
+          (change)="onFilterChange()"
+        />
+        TODAY'S
+      </label>
+
+      <label class="m-3">
+        <input
+          type="radio"
+          name="filter"
+          value="dateRange"
+          [(ngModel)]="activeFilter"
+          (change)="onFilterChange()"
+        />
+        Date Range
+      </label>
+
+      <!-- Date Inputs for Date Range -->
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="startDate"
+        (change)="onFilterChange()"
+        class="form-control mx-2"
+        style="width: auto;"
+      />
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="endDate"
+        (change)="onFilterChange()"
+        class="form-control mx-2"
+        style="width: auto;"
+      />
+    </div>
+
+    <!-- Loader Component -->
+    <!-- <app-loader
+      [patientData]="filteredCases"
+      [title]="'radiology inward record found'"
+      [activeFilter]="activeFilter"
+      [startDate]="startDate"
+      [endDate]="endDate"
+    ></app-loader> -->
+
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class=" py-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading radiology records...</p>
+    </div>
+
+    <!-- Data Table -->
+    <div class="" *ngIf="userPermissions.read && filteredCases.length > 0 && !isLoading">
+      <div class="table-responsive">
+        <table class="data-table table table-striped table-hover">
+          <thead class="table-dark ">
+            <tr>
+              <th>SR. NO</th>
+              <th>DATE & TIME</th>
+              <th>PATIENT NAME</th>
+              <th>AGE / GENDER</th>
+              <th>UHID NO</th>
+              <th>REQUEST NO</th>
+              <th>BED / WARD</th>
+              <th>STUDY</th>
+              <th>STATUS</th>
+              <th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let record of filteredCases; let i = index">
+              <!-- Serial Number -->
+              <td class="">{{ (currentPage - 1) * recordsPerPage + i + 1 }}</td>
+
+              <!-- Date & Time -->
+              <td class="">
+                <small>{{ record.createdAt | date:'dd/MM/yyyy' }}</small><br>
+                <small class="text-muted">{{ record.createdAt | date:'HH:mm' }}</small>
+              </td>
+
+              <!-- Patient Name -->
+              <td>
+                <strong>{{ record.patientName || 'N/A' }}</strong>
+              </td>
+
+              <!-- Age / Gender -->
+              <td class="">
+                {{ record.age || 'N/A' }} / {{ record.gender  || 'N/A' }}
+              </td>
+
+              <!-- UHID -->
+              <td class="">
+                <span class="badge bg-info text-dark">{{ record.patientUhid?.uhid || 'N/A' }}</span>
+              </td>
+
+              <!-- Request Number -->
+              <td class="">
+                <small>{{ record.requestNumber || 'N/A' }}</small>
+              </td>
+
+              <!-- Bed / Ward -->
+              <td class="">
+                <strong>{{ record.bedNumber || 'N/A' }}</strong><br>
+                <small class="text-muted">{{ record.ward || 'N/A' }}</small>
+              </td>
+
+              <!-- Study/Test Names -->
+              <td>
+                <div class="test-names">
+                  <ng-container *ngFor="let service of record.requestedServices; let last = last">
+                    <small class="badge bg-primary me-1 mb-1">{{ service.serviceName }}</small>
+                  </ng-container>
+                  <span *ngIf="!record.requestedServices || record.requestedServices.length === 0" class="text-muted">N/A</span>
+                </div>
+              </td>
+
+              <!-- Status -->
+              <td class="">
+                <span
+                  class="badge"
+                  [ngClass]="getStatusBadgeClass(record.reportStatus)"
+                >
+                  {{ record.reportStatus  || 'Draft' }}
+                </span>
+                <br>
+                <small class="text-muted">{{ record.urgency  || 'Routine' }}</small>
+              </td>
+
+              <!-- Action -->
+              <td class="">
+                <div class="btn-group-vertical">
+
+                    <i class="fa-solid fa-eye"  (click)="viewPatient(record._id)"></i>
+                  <!-- ✅ Added Print Report Button -->
+                  <!-- <button
+                    class="btn btn-sm btn-outline-success"
+                    (click)="printReport(record._id)"
+                    title="Print Report"
+                    [disabled]="!record.protocol && !record.observation && !record.impression"
+                  >
+                    <i class="fa-solid fa-print"></i> Print
+                  </button> -->
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <nav *ngIf="totalPages > 1" class="d-flex justify-content-center mt-4">
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button class="page-link" (click)="previousPage()" [disabled]="currentPage === 1">
+              <i class="fas fa-chevron-left"></i> Previous
+            </button>
+          </li>
+
+          <li class="page-item" [class.active]="currentPage === page" *ngFor="let page of [].constructor(totalPages); let i = index">
+            <button class="page-link" (click)="goToPage(i + 1)">{{ i + 1 }}</button>
+          </li>
+
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">
+              Next <i class="fas fa-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Records Info -->
+      <!-- <div class=" mt-3">
+        <small class="text-muted">
+          Showing {{ (currentPage - 1) * recordsPerPage + 1 }} -
+          {{ Math.min(currentPage * recordsPerPage, totalRecords) }} of {{ totalRecords }} records
+        </small>
+      </div> -->
+    </div>
+
+    <!-- No Data Message -->
+    <div *ngIf="!isLoading && filteredCases.length === 0" class=" py-5">
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle fa-2x mb-3"></i>
+        <h5>No Radiology Records Found</h5>
+        <p class="mb-0">No outpatient radiology records match your current filters.</p>
+        <small class="text-muted">Try adjusting your search criteria or date range.</small>
+      </div>
+    </div>
+
+    <!-- Access Denied Message -->
+    <div *ngIf="!userPermissions.read" class=" py-5">
+      <div class="alert alert-warning">
+        <i class="fas fa-lock fa-2x mb-3"></i>
+        <h5>Access Denied</h5>
+        <p class="mb-0">You don't have permission to view radiology records.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden letterheader for print content extraction -->
+  <div style="display: none">
+    <div #letterheaderRef>
+      <app-letterheader></app-letterheader>
+    </div>
+  </div>
+
+  <!-- Patient Details Modal -->
+  <div class="modal-backdrop" *ngIf="selectedPatient">
+    <div
+      class="modal-content-box"
+      style="max-width: 900px; max-height: 90vh; overflow-y: auto"
+    >
+      <div class="modal-header">
+        <h3>Radiology Record Details</h3>
+        <div>
+          <button class="close-btn" (click)="closeModal()">×</button>
+        </div>
+      </div>
+
+      <!-- Letterheader in modal display -->
+      <div class="letterheader-section">
+        <app-letterheader></app-letterheader>
+      </div>
+
+      <hr />
+
+      <div class="modal-body">
+        <!-- Patient Information Header -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h5><i class="fas fa-user"></i> Patient Information</h5>
+            <div class="info-card">
+              <p>
+                <strong>Name:</strong>
+                {{ selectedPatient.patientName || "N/A" }}
+              </p>
+              <p>
+                <strong>UHID:</strong>
+                {{ selectedPatient.patientUhid?.uhid || "N/A" }}
+              </p>
+              <p>
+                <strong>Age/Sex:</strong> {{ selectedPatient.age || "N/A" }} /
+                {{ selectedPatient.gender || "N/A" }}
+              </p>
+              <!-- <p><strong>Mobile:</strong> {{ selectedPatient.mobile || 'N/A' }}</p> -->
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h5><i class="fas fa-hospital"></i> Study Details</h5>
+            <div class="info-card">
+              <p><strong>Study:</strong> {{ getTestNames(selectedPatient) }}</p>
+              <p>
+                <strong>Request No:</strong>
+                {{ selectedPatient.requestNumber || "N/A" }}
+              </p>
+              <p>
+                <strong>Date:</strong>
+                {{ selectedPatient.createdAt | date : "dd/MM/yyyy" }}
+              </p>
+              <!-- <p><strong>Referred By:</strong> Dr. {{ selectedPatient.consultingDoctor?.name || 'N/A' }}</p> -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Bed/Ward Information for IPD -->
+        <div class="row mb-4" *ngIf="selectedPatient.sourceType === 'ipd'">
+          <div class="col-md-6">
+            <h5><i class="fas fa-bed"></i> Admission Details</h5>
+            <div class="info-card">
+              <!-- <p>
+                <strong>Bed:</strong> {{ selectedPatient.bedNumber || "N/A" }}
+              </p> -->
+              <!-- <p><strong>Ward:</strong> {{ selectedPatient.ward || 'N/A' }}</p> -->
+              <p>
+                <strong>Source:</strong>
+                {{ selectedPatient.sourceType?.toUpperCase() || "N/A" }}
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h5><i class="fas fa-clipboard-list"></i> Status Information</h5>
+            <div class="info-card">
+              <p>
+                <strong>Status:</strong>
+                <span
+                  class="badge"
+                  [ngClass]="getStatusBadgeClass(selectedPatient.reportStatus)"
+                >
+                  {{ selectedPatient.reportStatus || "Draft" }}
+                </span>
+              </p>
+              <p>
+                <strong>Urgency:</strong>
+                {{ selectedPatient.urgency || "Routine" }}
+              </p>
+              <p>
+                <strong>Priority:</strong>
+                {{ selectedPatient.priority || "Normal" }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clinical Information -->
+        <!-- <div class="row mb-4" *ngIf="selectedPatient.clinicalHistory || selectedPatient.clinicalIndication">
+        <div class="col-12">
+          <h5><i class="fas fa-notes-medical"></i> Clinical Information</h5>
+          <div class="info-card">
+            <div class="mb-3" *ngIf="selectedPatient.clinicalHistory">
+              <h6><strong>Clinical History:</strong></h6>
+              <p class="bg-light p-2 rounded">{{ selectedPatient.clinicalHistory }}</p>
+            </div>
+            <div class="mb-3" *ngIf="selectedPatient.clinicalIndication">
+              <h6><strong>Clinical Indication:</strong></h6>
+              <p class="bg-light p-2 rounded">{{ selectedPatient.clinicalIndication }}</p>
+            </div>
+          </div>
+        </div>
+      </div> -->
+
+        <!-- Requested Services -->
+        <!-- <div class="row mb-4" *ngIf="selectedPatient.requestedServices?.length > 0">
+        <div class="col-12">
+          <h5><i class="fas fa-list"></i> Requested Studies</h5>
+          <div class="info-card">
+            <div class="row">
+              <div class="col-12">
+                <div *ngFor="let service of selectedPatient.requestedServices" class="service-item mb-2 p-2 border rounded">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-primary me-2">{{ service.serviceName }}</span>
+                    <span *ngIf="service.charge" class="text-muted">₹{{ service.charge }}</span>
+                  </div>
+                  <small class="text-muted" *ngIf="service.status">Status: {{ service.status }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+
+        <!-- Report Content -->
+        <div
+          class="row mb-4"
+          *ngIf="
+            selectedPatient.protocol ||
+            selectedPatient.observation ||
+            selectedPatient.impression
+          "
+        >
+          <div class="col-12">
+            <h5><i class="fas fa-file-medical"></i> Radiology Report</h5>
+
+            <!-- Protocol -->
+            <div class="report-section mb-3" *ngIf="selectedPatient.protocol">
+              <h6><strong>PROTOCOL:</strong></h6>
+              <div class="report-content bg-light p-3 rounded">
+                <p
+                  style="
+                    white-space: pre-line;
+                    line-height: 1.6;
+                    text-align: justify;
+                  "
+                >
+                  {{ selectedPatient.protocol }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Clinical Profile -->
+            <div
+              class="report-section mb-3"
+              *ngIf="selectedPatient.clinicalProfile"
+            >
+              <h6><strong>CLINICAL PROFILE:</strong></h6>
+              <div class="report-content bg-light p-3 rounded">
+                <p
+                  style="
+                    white-space: pre-line;
+                    line-height: 1.6;
+                    text-align: justify;
+                  "
+                >
+                  {{ selectedPatient.clinicalProfile }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Observation/Findings -->
+            <div
+              class="report-section mb-3"
+              *ngIf="selectedPatient.observation"
+            >
+              <h6><strong>FINDINGS:</strong></h6>
+              <div class="report-content bg-light p-3 rounded">
+                <div
+                  style="
+                    white-space: pre-line;
+                    line-height: 1.6;
+                    text-align: justify;
+                  "
+                >
+                  {{ selectedPatient.observation }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Impression -->
+            <div class="report-section mb-3" *ngIf="selectedPatient.impression">
+              <h6><strong>IMPRESSION:</strong></h6>
+              <div class="report-content bg-light p-3 rounded">
+                <div style="line-height: 1.6; text-align: justify">
+                  <ul
+                    *ngIf="selectedPatient.impression.includes('•')"
+                    class="impression-list"
+                  >
+                    <li
+                      *ngFor="
+                        let point of selectedPatient.impression
+                          .split('•')
+                          .slice(1)
+                      "
+                    >
+                      {{ point.trim() }}
+                    </li>
+                  </ul>
+                  <p *ngIf="!selectedPatient.impression.includes('•')">
+                    {{ selectedPatient.impression }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Additional Findings -->
+            <div class="report-section mb-3" *ngIf="selectedPatient.findings">
+              <h6><strong>ADDITIONAL FINDINGS:</strong></h6>
+              <div class="report-content bg-light p-3 rounded">
+                <p style="line-height: 1.6; text-align: justify">
+                  {{ selectedPatient.findings }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Radiologist Information -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h5><i class="fas fa-user-md"></i> Referred  Doctor Information</h5>
+            <div class="info-card">
+              <p>
+                <strong>Consultant:</strong> Dr.
+                {{ getRadiologistName(selectedPatient) }}
+              </p>
+
+              <!-- <p><strong>Qualification:</strong> MBBS DMRD</p>
+              <p><strong>Designation:</strong> CONSULTANT RADIOLOGIST</p> -->
+
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h5><i class="fas fa-user-md"></i> Radiologist Information</h5>
+            <div class="info-card">
+               <p>
+                <strong>Reported By:</strong> Dr.
+                {{ selectedPatient.reportedBy?.name || "N/A" }}
+              </p>
+              <!-- <p><strong>Qualification:</strong> MBBS DMRD</p>
+              <p><strong>Designation:</strong> CONSULTANT RADIOLOGIST</p> -->
+
+            </div>
+          </div>
+
+          <!-- <div class="col-md-6" *ngIf="selectedPatient.totalAmount">
+          <h5><i class="fas fa-rupee-sign"></i> Payment Information</h5>
+          <div class="info-card">
+            <p><strong>Total Amount:</strong> ₹{{ selectedPatient.totalAmount || '0' }}</p>
+            <p><strong>Amount Received:</strong> ₹{{ selectedPatient.amountReceived || '0' }}</p>
+            <p><strong>Due Amount:</strong> ₹{{ selectedPatient.dueAmount || '0' }}</p>
+          </div>
+        </div> -->
+        </div>
+
+        <!-- Digital Signature -->
+        <div class="row mb-4" *ngIf="selectedPatient.radiologistSignature">
+          <div class="col-12">
+            <h5><i class="fas fa-signature"></i> Digital Signature</h5>
+            <div class="info-card text-center">
+              <img
+                [src]="selectedPatient.radiologistSignature.signatureData"
+                alt="Radiologist Signature"
+                class="img-fluid border"
+                style="max-height: 100px; background: white; padding: 10px"
+              />
+              <p class="text-muted mt-2">
+                <small
+                  >Digitally signed on:
+                  {{
+                    selectedPatient.radiologistSignature.createdAt
+                      | date : "medium"
+                  }}</small
+                >
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div
+        class="modal-footer"
+        style="
+          padding: 15px;
+          border-top: 1px solid #dee2e6;
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px;
+        "
+      >
+        <button
+          class="btn btn-success"
+          (click)="printReport(selectedPatient._id)"
+          [disabled]="
+            !selectedPatient.protocol &&
+            !selectedPatient.observation &&
+            !selectedPatient.impression
+          "
+        >
+          <i class="fas fa-print"></i> Print Report
+        </button>
+        <button class="btn btn-secondary" (click)="closeModal()">
+          <i class="fas fa-times"></i> Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

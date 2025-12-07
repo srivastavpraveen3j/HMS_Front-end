@@ -1,0 +1,255 @@
+<div class="form-meta">
+  <!-- Form Header -->
+  <div class="header">
+    <h2>SERVICES</h2>
+    <span class="icons position-relative">
+      <div class="btn-group">
+        <button
+          class="btn btn-outline-primary"
+          [class.active]="uploadMode === 'single'"
+          (click)="uploadMode = 'single'"
+        >
+          Single Entry
+        </button>
+        <button
+          class="btn btn-outline-success"
+          [class.active]="uploadMode === 'bulk'"
+          (click)="uploadMode = 'bulk'"
+        >
+          Bulk Upload
+        </button>
+      </div>
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/master/opdmasterservice']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div *ngIf="userPermissions.create">
+    <!-- Bulk Upload Section -->
+    <div *ngIf="uploadMode === 'bulk'">
+      <label>Import Services in Bulk (CSV):</label>
+      <div class="d-flex align-items-center mt-3">
+        <h5 class="mx-3">Sample Service CSV File</h5>
+        <a
+          href="https://digitalks-crm-bucket.s3.ap-south-1.amazonaws.com/HIMS/ipd_services_sample.csv"
+          download
+        >
+          <i class="fa-solid fa-file-csv"></i>
+        </a>
+      </div>
+      <input
+        type="file"
+        (change)="onFileSelected($event)"
+        accept=".csv"
+        class="form-control mt-3"
+      />
+      <div class="text-center mt-3">
+        <button
+          class="btn btn-dark mx-2"
+          type="submit"
+          (click)="uploadCSV()"
+          [disabled]="!selectedFile"
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+
+    <!-- Single Entry Form -->
+    <div *ngIf="uploadMode === 'single'">
+      <form [formGroup]="serviceform" (ngSubmit)="OnSubmit()">
+        <!-- First Row -->
+        <!-- <div class="form-row"> -->
+        <div class="row">
+          <div class="col-md-6">
+            <label>Service Name <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Service Name"
+              formControlName="name"
+            />
+            <div
+              *ngIf="
+                serviceform.get('name')?.touched &&
+                serviceform.get('name')?.invalid
+              "
+              class="text-danger"
+            >
+              Service name is required
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label>Charge <span class="required">*</span></label>
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Base Charge"
+              formControlName="charge"
+              min="0"
+              step="0.01"
+            />
+            <div
+              *ngIf="
+                serviceform.get('charge')?.touched &&
+                serviceform.get('charge')?.invalid
+              "
+              class="text-danger"
+            >
+              charge is required
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Service Type <span class="required">*</span></label>
+          <select formControlName="type" class="form-control">
+            <option value="">Select Type</option>
+            <option value="ipd">IPD</option>
+            <option value="opd">OPD</option>
+            <option value="radiology">Radiology</option>
+          </select>
+          <div
+            *ngIf="
+              serviceform.get('type')?.touched &&
+              serviceform.get('type')?.invalid
+            "
+            class="text-danger"
+          >
+            Service type is required
+          </div>
+        </div>
+        <!-- </div> -->
+
+        <!-- Second Row - Billing Configuration -->
+        <!-- <div class="form-row"> -->
+        <div class="row">
+          <div class="col-md-6">
+            <label>Billing Type <span class="required">*</span></label>
+            <select
+              formControlName="billingType"
+              class="form-control"
+              (change)="onBillingTypeChange()"
+            >
+              <option value="fixed">Fixed Charge</option>
+              <option value="hourly">Per Hour</option>
+              <option value="daily">Per Day</option>
+              <option value="session">Per Session</option>
+              <option value="quantity">Per Quantity</option>
+            </select>
+          </div>
+
+          <!-- Unit Label - Shows only for non-fixed billing -->
+          <div class="col-md-6" *ngIf="showRatePerUnit">
+            <label>Unit Label</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Unit label (e.g., hour, day, session)"
+              formControlName="unitLabel"
+            />
+            <small class="text-muted">
+              Default: {{ getDefaultUnitLabel() }}
+            </small>
+          </div>
+        </div>
+
+        <!-- Rate Per Unit - Shows only for non-fixed billing -->
+        <div class="form-group" *ngIf="showRatePerUnit" hidden>
+          <label
+            >Rate Per {{ getUnitDisplayName() }}
+            <span class="required">*</span></label
+          >
+          <input
+            type="number"
+            class="form-control"
+            placeholder="Rate per unit"
+            formControlName="ratePerUnit"
+            min="0"
+            step="0.01"
+          />
+          <div
+            *ngIf="
+              serviceform.get('ratePerUnit')?.touched &&
+              serviceform.get('ratePerUnit')?.invalid
+            "
+            class="text-danger"
+          >
+            Rate per unit is required
+          </div>
+        </div>
+
+        <!-- <div class="form-row" *ngIf="showRatePerUnit">
+            <div class="form-group">
+              <label>Minimum Units</label>
+              <input
+                type="number"
+                class="form-control"
+                placeholder="Minimum units"
+                formControlName="minUnits"
+                min="0"
+                step="0.01"
+              />
+              <small class="text-muted">Default: 1</small>
+            </div>
+
+            <div class="form-group">
+              <label>Maximum Units</label>
+              <input
+                type="number"
+                class="form-control"
+                placeholder="Maximum units (optional)"
+                formControlName="maxUnits"
+                min="0"
+                step="0.01"
+              />
+              <small class="text-muted">Leave blank for no limit</small>
+            </div>
+
+            <div class="form-group">
+              <label>Status</label>
+              <select formControlName="isActive" class="form-control">
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label>Description</label>
+              <textarea
+                class="form-control"
+                placeholder="Service description (optional)"
+                formControlName="description"
+                rows="3"
+              ></textarea>
+            </div>
+          </div> -->
+
+        <!-- </div> -->
+
+        <div class="form-actions text-center mt-4">
+          <!-- <button
+            type="button"
+            class="btn btn-secondary mx-2"
+            (click)="resetForm()"
+          >
+            RESET
+          </button> -->
+          <button
+            type="submit"
+            class="btn btn-dark mx-2"
+            [disabled]="serviceform.invalid"
+          >
+            {{ editMode ? "UPDATE" : "SAVE" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,94 @@
+<div #pdfContent>
+  <div class="header d-flex justify-content-between align-items-center mb-3">
+    <h2>IPD SUMMARY {{ subTitle }}</h2>
+    <div class="d-flex justify-content-end gap-2 my-3 filter-tab">
+      <button
+        class="btn btn-dark no-print"
+        [ngClass]="{ active: selectedFilter === 'today' }"
+        (click)="selectedFilter = 'today'; setFilter('today')"
+      >
+        Today
+      </button>
+      <button
+        class="btn btn-dark no-print"
+        [ngClass]="{ active: selectedFilter === 'week' }"
+        (click)="selectedFilter = 'week'; setFilter('week')"
+      >
+        This Week
+      </button>
+      <button
+        class="btn btn-dark no-print"
+        [ngClass]="{ active: selectedFilter === 'month' }"
+        (click)="selectedFilter = 'month'; setFilter('month')"
+      >
+        This Month
+      </button>
+      <button
+        class="btn btn-dark no-print"
+        [ngClass]="{ active: selectedFilter === 'year' }"
+        (click)="selectedFilter = 'year'; setFilter('year')"
+      >
+        This Year
+      </button>
+    </div>
+  </div>
+
+  <div class="alert alert-secondary my-2 text-end">
+    Total IPD Case: {{ filteredPatients.length }}
+  </div>
+
+  <div *ngIf="(isPrinting ? filteredPatients.length : summary.length) > 0">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark text-center">
+        <tr>
+          <th>#</th>
+          <th>UHID</th>
+          <th>Patient Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Consulting Doctor</th>
+          <th>Created At</th>
+          <th>Date of Treatment</th>
+          <th>Mobile No</th>
+          <th>Area</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let patient of (isPrinting ? filteredPatients : summary); let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ patient.uniqueHealthIdentificationId?.uhid }}</td>
+          <td style="cursor: pointer; color: blue">
+            {{ patient.uniqueHealthIdentificationId?.patient_name }}
+          </td>
+          <td>{{ patient.uniqueHealthIdentificationId?.age }}</td>
+          <td>{{ patient.uniqueHealthIdentificationId?.gender }}</td>
+          <td>{{ patient.admittingDoctorId?.name }}</td>
+          <td>{{ patient.createdAt | date : "yyyy-MM-dd" }}</td>
+          <td>{{ patient.uniqueHealthIdentificationId?.dot }}</td>
+          <td>{{ patient.uniqueHealthIdentificationId?.mobile_no }}</td>
+          <td>{{ patient.uniqueHealthIdentificationId?.area }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination no-print">
+      <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+        Previous
+      </button>
+      Page {{ currentPage }} of {{ totalPages }}
+      <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+    </div>
+
+    <div class="d-flex justify-content-end">
+      <button (click)="downloadPDF()" class="btn btn-dark mb-3 no-print">
+        Download
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-loader [patientData]="summary" [title]="title" [activeFilter]="selectedFilter"></app-loader>

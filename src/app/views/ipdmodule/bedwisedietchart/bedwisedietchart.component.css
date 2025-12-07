@@ -1,0 +1,124 @@
+.diet-chart-container {
+  padding: 20px;
+}
+
+
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.diet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.diet-card {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.diet-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.diet-card.has-diet {
+  border-color: #28a745;
+}
+
+.patient-header {
+  background: #f8f9fa;
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.patient-name {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.bed-info {
+  margin-top: 5px;
+}
+
+.patient-details {
+  padding: 10px 12px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+.diet-status {
+  padding: 15px 12px;
+}
+
+.has-diet-chart {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+}
+
+.diet-info h6 {
+  color: #28a745;
+  margin-bottom: 5px;
+}
+
+.no-diet-chart {
+  text-align: center;
+}
+
+.meal-card {
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 15px;
+  background: #f9f9f9;
+}
+
+.meal-title {
+  color: #495057;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal.show {
+  background: rgba(0,0,0,0.5);
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+@media (max-width: 768px) {
+  .diet-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .header h2 {
+    margin-bottom: 10px;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

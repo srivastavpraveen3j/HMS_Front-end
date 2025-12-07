@@ -1,0 +1,86 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>SERVCIES GROUP LIST</h2>
+    <button class="list-cases-btn" routerLink="/master/masteropdcharge">
+      ADD SERVICES GROUP
+    </button>
+  </div>
+
+  <!-- <div class="form-group"> -->
+  <!-- <label>Service Group <span class="required">*</span></label> -->
+  <!-- <select class="form-control w-25">
+      <option>Select Service Group</option>
+    </select> -->
+  <!-- </div> -->
+
+  <div class="top-bar p-3">
+    <form [formGroup]="filterForm">
+      <input type="text" placeholder="Search..." formControlName="searchText" />
+    </form>
+  </div>
+
+  <div class="table-responsive" *ngIf="userPermissions.read">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Type</th>
+          <!-- <th>Master Group</th> -->
+          <th>Service Group</th>
+          <th>Service Name</th>
+          <!-- <th>Dr Required</th> -->
+          <!-- <th>Print Dr. Name</th>
+          <th>Dr. Name</th>
+          <th>Rate Editable</th>
+          <th>Rate</th>
+          <th>Active</th> -->
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let servicegroup of serviceGroup; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ servicegroup.type }}</td>
+          <td>{{ servicegroup.group_name }}</td>
+          <!-- <td >{{ servicegroup.services.name }}</td> -->
+          <td>
+            <ul>
+              <li *ngFor="let med of servicegroup.services">{{ med.name }}</li>
+            </ul>
+          </td>
+          <!-- <td></td>
+         <td></td>
+         <td></td>
+         <td></td>-->
+          <td>
+            <i
+              class="fa-solid fa-pencil mx-3"
+              *ngIf="userPermissions.update"
+              (click)="editServicegroup(servicegroup._id)"
+            ></i>
+            <!-- <i class="fa-solid fa-trash action-btn"  *ngIf="userPermissions.delete" (click)="deleteServicegroup(servicegroup._id)"></i> -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination">
+    <button
+      class="pagination-btn"
+      (click)="previousPage()"
+      [disabled]="currentPage === 1"
+    >
+      Previous
+    </button>
+    Page {{ currentPage }} of {{ totalPages }}
+    <button
+      class="pagination-btn"
+      (click)="nextPage()"
+      [disabled]="currentPage === totalPages"
+    >
+      Next
+    </button>
+  </div>
+</div>

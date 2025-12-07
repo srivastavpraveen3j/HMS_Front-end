@@ -1,0 +1,137 @@
+<div class="form-meta">
+  <!-- <p>pathodashboard works!</p> -->
+<div class="header">
+  <h2 class="dashboard-title">OUTPATIENT Radiology DASHBOARD</h2>
+
+    <div class="toggle-buttons">
+      <button class="btn" [routerLink]="['/radiologylayout/radiologylayoutopd']" routerLinkActive="router-link-active" *ngIf="userPermissions">OPD</button>
+      <button class="toggle ipd btn " [routerLink]="['/radiologylayout/radiologylayout']"  routerLinkActive="router-link-active" *ngIf="ipdradiopermission">IPD</button>
+      <!-- <button class="toggle ipd btn active" [routerLink]="['/radiologylayout/radiologylayoutwalkin']"  routerLinkActive="router-link-active">Walk-In</button> -->
+    </div>
+</div>
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <!-- Filter by Today or Date Range -->
+  <div class="filters d-flex align-items-center m-3">
+
+    <div class="form-group position-relative w-50">
+      <input type="text" [(ngModel)]="searchText" (input)="applyFilters()" placeholder="Search by patient name"
+        class="form-control" />
+    </div>
+
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="today"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+        checked
+      />
+      TODAY'S
+    </label>
+
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="dateRange"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+      />
+      Date Range
+    </label>
+
+    <!-- Date Inputs Visible Only for Date Range -->
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="startDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+    />
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="endDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+    />
+  </div>
+
+<app-loader [patientData]="filteredCases" [title]="module" [activeFilter]="activeFilter" [startDate]="startDate"
+  [endDate]="endDate"></app-loader>
+
+
+  <!-- Data Table -->
+  <div class="" *ngIf="userPermissions.read && filteredCases.length > 0">
+    <table class="data-table">
+      <thead class="table-dark ">
+        <tr>
+          <th>INWARD ID</th>
+          <th>DATE TIME</th>
+          <th>PATIENT DETAILS</th>
+          <th>AGE / GENDER</th>
+          <th>REFERENCE DOCTOR</th>
+          <th>TEST NAME</th>
+          <th>STATUS</th>
+          <th>ACTION</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of filteredCases; let i = index">
+          <!-- <td>{{ record.inpatientDepartmentId || 'N/A' }}</td> -->
+
+          <td>{{ i + 1 }}</td>
+          <td>{{ record.createdAt | date : "short" }}</td>
+          <td>{{ record?.walkInPatient?.name || "N/A" }}</td>
+          <td>{{ record?.walkInPatient?.age || "N/A" }}/{{ record?.walkInPatient?.gender || "N/A" }}</td>
+          <td>{{ record?.walkInPatient?.referenceDoctor || "N/A" }}</td>
+          <td>
+            <div *ngFor="let test of record.testMaster">
+              {{ test.testGroup }}
+            </div>
+          </td>
+          <td>
+            <div *ngFor="let test of record.testMaster">
+              {{ test.status }}
+            </div>
+          </td>
+          <td>
+            <i
+              class="fa-solid fa-eye action-btn"
+              (click)="viewPatient(record?._id)"
+            ></i>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" *ngIf="selectedPatient">
+    <div class="modal-content-box">
+      <div class="modal-header">
+        <h3 style="visibility: hidden">Patient Details</h3>
+        <button class="close-btn" (click)="closeModal()">×</button>
+      </div>
+      <hr />
+      <div class="modal-body">
+        <!-- <app-patient-opdmedicine-request [patientData]="selectedPatient"></app-patient-opdmedicine-request> -->
+        <!-- <app-patient-opdpharmabill [patientData]="selectedPatient"></app-patient-opdpharmabill> -->
+<!--
+        <app-test
+          *ngIf="selectedPatient"
+          [patientData]="[selectedPatient]"
+        ></app-test> -->
+
+        <app-walkinpathotest   *ngIf="selectedPatient"
+          [patientData]="[selectedPatient]"></app-walkinpathotest>
+      </div>
+    </div>
+  </div>
+  <!-- Modal -->
+</div>
+
+
+</div>

@@ -1,0 +1,198 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>USER LIST</h2>
+    <button
+      class="list-cases-btn"
+      routerLinkActive="router-link-active"
+      routerLink="/master/usermaster"
+    >
+      ADD NEW USER
+    </button>
+  </div>
+
+  <div class="top-bar p-3" [formGroup]="filterForm">
+    <input
+      type="text"
+      placeholder="Search User..."
+      formControlName="searchText"
+    />
+  </div>
+
+  <div *ngIf="users.length > 0">
+    <div class="card">
+      <div class="table-wrapper" *ngIf="userPermissions.read">
+        <table
+          class="table table-bordered table-hover align-middle diagnosis-table"
+        >
+          <thead class="table-dark">
+            <tr>
+              <th>Sr. No.</th>
+              <th>NAME / ROLE</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>
+                <div class="role-name">{{ user.name }}</div>
+                <div class="permissions text-muted" style="font-size: 0.9rem">
+                  {{ user.role?.name }}
+                </div>
+              </td>
+
+              <td>{{ user.email }}</td>
+
+              <td>
+                <!-- View permissions in modal -->
+                <i
+                  class="fa fa-info-circle"
+                  title="View Permissions"
+                  (click)="openPermissionModal(user)"
+                ></i>
+
+                <!-- Edit user -->
+                <i
+                  class="fa-solid fa-pencil action-btn mx-1"
+                  *ngIf="userPermissions.update"
+                  title="Edit User"
+                  (click)="edituser(user._id)"
+                ></i>
+
+                <!-- Delete user -->
+                <!-- <i
+                  class="fa-solid fa-trash action-btn mx-1"
+                  *ngIf="userPermissions.delete"
+                  title="Delete User"
+                  (click)="deleteuser(user._id)"
+                ></i> -->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERMISSION MODAL -->
+  <div
+    class="modal fade show"
+    tabindex="-1"
+    role="dialog"
+    *ngIf="showPermissionModal"
+    style="display: block; background: rgba(0, 0, 0, 0.4)"
+  >
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            Permissions - {{ selectedUser?.name }} ({{
+              selectedUser?.role?.name
+            }})
+          </h5>
+          <!-- <button
+            type="button"
+            class="btn-close"
+            (click)="closePermissionModal()"
+          ></button> -->
+          <i class="fas fa-times"  (click)="closePermissionModal()"></i>
+        </div>
+
+        <div class="modal-body">
+          <table
+            class="table table-sm table-bordered mb-0"
+            *ngIf="selectedUser?.role?.permission?.length"
+          >
+            <thead class="table-primary">
+              <tr>
+                <th>Permission</th>
+                <!-- <th class="text-center" style="width: 12%">Create</th>
+                <th class="text-center" style="width: 12%">View</th>
+                <th class="text-center" style="width: 12%">Update</th>
+                <th class="text-center" style="width: 12%">Delete</th> -->
+              </tr>
+            </thead>
+            <tbody>
+              <td>
+                <table class="table table-sm table-bordered mb-0">
+                  <tbody>
+                    <tr *ngFor="let perm of selectedUser.role.permission">
+                      <td>{{ perm.name }}</td>
+                      <td>
+                        <ng-template #permBadge let-label let-enabled="enabled">
+                          <span
+                            class="badge"
+                            [ngClass]="
+                              enabled
+                                ? 'bg-success text-white'
+                                : 'bg-danger text-white'
+                            "
+                            style="margin-left: 0.5rem; font-size: 0.8rem"
+                          >
+                            {{ label }}
+                          </span>
+                        </ng-template>
+
+                        <ng-container
+                          *ngTemplateOutlet="
+                            permBadge;
+                            context: {
+                              $implicit: 'CREATE',
+                              enabled: perm.create
+                            }
+                          "
+                        ></ng-container>
+                        <ng-container
+                          *ngTemplateOutlet="
+                            permBadge;
+                            context: { $implicit: 'VIEW', enabled: perm.read }
+                          "
+                        ></ng-container>
+                        <ng-container
+                          *ngTemplateOutlet="
+                            permBadge;
+                            context: {
+                              $implicit: 'UPDATE',
+                              enabled: perm.update
+                            }
+                          "
+                        ></ng-container>
+                        <ng-container
+                          *ngTemplateOutlet="
+                            permBadge;
+                            context: {
+                              $implicit: 'DELETE',
+                              enabled: perm.delete
+                            }
+                          "
+                        ></ng-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tbody>
+          </table>
+
+          <div
+            *ngIf="!selectedUser?.role?.permission?.length"
+            class="text-muted"
+          >
+            No permissions configured for this role.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary btn-sm"
+            (click)="closePermissionModal()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

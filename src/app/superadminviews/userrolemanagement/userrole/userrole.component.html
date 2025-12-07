@@ -1,0 +1,83 @@
+<!-- <p>userrole works!</p> -->
+<div class="header">
+  <h2>HOSPITAL MANAGEMENT</h2>
+  <!-- <button class="list-cases-btn"  routerLinkActive="router-link-active" [routerLink]="['/superHospital/userrolemanagementlist']" routerLinkActive="router-link-active"  >HOSPITAL LIST</button> -->
+</div>
+<div class="container">
+  <!-- 👑 Selected Hospital at Top -->
+  <div class="card d-flex">
+    <img src="Hospital pic.png" alt="Hospital" class="avatar" />
+    <div class="d-flex">
+      <div class="details">
+        <div class="info-grid">
+          <div><strong>Hospital Name:</strong> {{ selectedHospital.name }}</div>
+          <div>
+            <strong>Hospital id:</strong> {{ selectedHospital.adminId }}
+          </div>
+          <div>
+            <strong>Subscription plan:</strong> {{ selectedHospital.plan }}
+          </div>
+          <div>
+            <strong>Start date:</strong> {{ selectedHospital.startDate }}
+          </div>
+          <div><strong>Role:</strong> {{ selectedHospital.role }}</div>
+          <div><strong>End date:</strong> {{ selectedHospital.endDate }}</div>
+          <div>
+            <strong>Status:</strong>
+            <span class="status">{{ selectedHospital.status }}</span>
+          </div>
+          <div><strong>hospital id:</strong> {{ selectedHospital.id }}</div>
+          <div>
+            <strong>Hims api key:</strong> {{ selectedHospital.himsKey }}
+          </div>
+          <div>
+            <strong>Hims group id:</strong> {{ selectedHospital.himsGroupId }}
+          </div>
+          <div>
+            <strong>Group Name:</strong> {{ selectedHospital.groupName }}
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="branches d-flex">
+        <div *ngFor="let branch of selectedHospital" class="branch-box">
+          <img src="Hospital pic.png" alt="Hospital" class="avatar" />
+
+          <div><strong>Branch:</strong> {{ branch.name }}</div>
+          <div><strong>City:</strong> {{ branch.city }}</div>
+          <div><strong>Beds:</strong> {{ branch.beds }}</div>
+          <div><strong>Doctors:</strong> {{ branch.doctors }}</div>
+        </div>
+      </div>
+    </div> -->
+
+    <!-- 🏥 Branches -->
+
+    <!-- <button class="btn add-btn" routerLink="/superadmin/adduserroles">Add Branch</button> -->
+  </div>
+
+  <!-- 💳 Subscription Plan -->
+  <div class="subscription-card">
+    <div class="subscription-header">
+      <div class="title">Active Subscription Plan</div>
+    </div>
+    <div class="price">$326 <span class="per-month">per month</span></div>
+  </div>
+
+  <!-- 🏥 Other Hospitals -->
+  <div class="d-flex flex-wrap" style="gap: 45px">
+    <div *ngFor="let hospital of hospitals" class="card w-fit">
+      <img src="Hospital pic.png" alt="Hospital" class="avatar" />
+      <div class="text-sm">
+        <strong>Hospital Name:</strong> {{ hospital.name }}
+      </div>
+      <div class="text-sm"><strong>City:</strong> {{ hospital.city }}</div>
+      <div class="text-sm">
+        <strong>Country:</strong> {{ hospital.country }}
+      </div>
+      <button class="add-btn mt-2" (click)="toggleHospital(hospital._id)">
+        View Details
+      </button>
+    </div>
+  </div>
+</div>

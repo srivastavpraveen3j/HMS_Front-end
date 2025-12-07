@@ -1,0 +1,316 @@
+<!-- <p>raidationdischarge works!</p> -->
+<!-- <p>doctordischargesummary works!</p> -->
+<div class="header">
+  <h2>RADIATION DISCHARGE SUMMARY</h2>
+  <div class="">
+    <button class="list-cases-btn mx-3"   ><i class="fa-solid fa-user-group"></i></button>
+    <button class="list-cases-btn mx-3" routerLink="/doctor/radiationdischargelist"   >DISCHARGE SUMMARY LIST</button>
+  </div>
+</div>
+<div class="opd-container">
+  <form [formGroup]="raditationdischarge" (ngSubmit)="OnSubmit()">
+    <h4 class="m-4">Patient Details</h4>
+    <hr>
+
+    <div class="form-row">
+
+      <div class="form-group">
+        <label>UHID:</label>
+        <input type="text" placeholder="UHID" class="required" formControlName="uhidno">
+        <div class="text-danger small"
+        *ngIf="raditationdischarge.get('uhidno')?.invalid && raditationdischarge.get('uhidno')?.touched">
+        UHID No is required.
+      </div>
+      </div>
+
+      <div class="form-group">
+        <label>DOA:</label>
+         <app-customcalendar formControlName="doa"></app-customcalendar>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Patient Name*:</label>
+        <input type="text" placeholder="Patient Name" class="required" formControlName="patient_name">
+        <div class="text-danger small"
+        *ngIf="raditationdischarge.get('patient_name')?.invalid && raditationdischarge.get('patient_name')?.touched">
+       Patient Name is required.
+      </div>
+      </div>
+
+      <div class="form-group">
+        <label>Age/Gender:</label>
+        <input type="text" placeholder="Age/Gender" formControlName="age">
+        <div class="text-danger small"
+        *ngIf="raditationdischarge.get('age')?.invalid && raditationdischarge.get('age')?.touched">
+       Age is required.
+      </div>
+      </div>
+
+      <!-- <div class="form-group">
+        <label>Sex:</label>
+        <select>
+          <option value="">Select</option>
+          <option value="M">Male</option>
+          <option value="F">Female</option>
+        </select>
+      </div> -->
+      <div class="form-group">
+        <label>Birth Date:</label>
+        <app-customcalendar  ></app-customcalendar>
+
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Start of EBRT:</label>
+        <app-customcalendar ></app-customcalendar>
+      </div>
+
+      <div class="form-group">
+        <label>End of EBRT:</label>
+        <app-customcalendar></app-customcalendar>
+      </div>
+
+      <div class="form-group">
+        <label>Date:</label>
+        <app-customcalendar></app-customcalendar>
+      </div>
+
+    </div>
+
+    <div class="form-row">
+
+
+      <div class="form-group">
+        <label>Category:</label>
+        <input type="text" placeholder="Category"  formControlName="category">
+      </div>
+
+      <div class="form-group">
+        <label>RT No.:</label>
+        <input type="text"  formControlName="category">
+      </div>
+
+      <div class="form-group">
+        <label>Referred From:</label>
+        <input type="text" formControlName="rtnumber" >
+      </div>
+
+    </div>
+
+    <!-- <div class="form-row">
+      <div class="form-group">
+        <label>Religion:</label>
+        <input type="text">
+      </div>
+
+      <div class="form-group">
+        <label>Marital Status:</label>
+        <select>
+          <option value="">Select</option>
+          <option>Single</option>
+          <option>Married</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Citizenship:</label>
+        <input type="text">
+      </div>
+    </div> -->
+
+    <!-- <div class="form-row">
+      <div class="form-group">
+        <label>Contact1:</label>
+        <input type="text">
+      </div>
+
+      <div class="form-group">
+        <label>Contact2:</label>
+        <input type="text">
+      </div>
+
+      <div class="form-group">
+        <label>Passport No.:</label>
+        <input type="text">
+      </div>
+    </div> -->
+
+    <!-- <div class="form-row"> -->
+      <!-- <div class="form-group">
+        <label>Father/Husband's Name:</label>
+        <input type="text">
+      </div>
+
+      <div class="form-group">
+        <label>Address:</label>
+        <input type="text">
+      </div> -->
+
+
+    <!-- </div> -->
+
+    <h4 class="m-4">Medical & Examination Details</h4>
+    <hr>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Final Diagnosis:</label>
+        <textarea formControlName="finaldiagnosis"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>ICD10 Codes:</label>
+        <textarea formControlName="icdnotes"></textarea>
+      </div>
+
+      <!-- <div class="form-group">
+        <label>Past History:</label>
+        <textarea></textarea>
+      </div> -->
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>History of Present Illness:</label>
+        <textarea formControlName="patientillness"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Performance Score:</label>
+        <textarea formControlName="performancescore"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Addiction:</label>
+        <textarea formControlName="addiction"></textarea>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Biopsy With Date:</label>
+        <textarea formControlName="biopsy" ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Family History:</label>
+        <textarea formControlName="familyhistory"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>RT Technique:</label>
+        <select formControlName="rttechnique">
+          <option >Select</option>
+          <option value="IMRT">IMRT</option>
+          <option value="3DCRT">3DCRT</option>
+          <option value="other">Others</option>
+        </select>
+      </div>
+    </div>
+<!--
+    <div class="form-row">
+      <div class="form-group">
+        <label>Previous Examination:</label>
+        <textarea></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Previous Investigations:</label>
+        <textarea></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Previous Treatment Received:</label>
+        <textarea></textarea>
+      </div>
+    </div> -->
+
+    <!-- <div class="form-row">
+      <div class="form-group">
+        <label>Histopatho Report:</label>
+        <textarea></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Recent Blood Test:</label>
+        <textarea></textarea>
+      </div>
+    </div> -->
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>General Examination:</label>
+        <textarea formControlName="genreralexamination"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Systemic Examination:</label>
+        <textarea formControlName="systematicexamination"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Local Examination:</label>
+        <textarea formControlName="localexamination"></textarea>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>CT Simulation and Treatment Planning:</label>
+        <textarea formControlName="ctstimulation" ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Advice:</label>
+        <textarea formControlName="advice"></textarea>
+      </div>
+    </div>
+
+
+    <div class="section medican-exam">
+      <!-- Header Section -->
+      <h4 class="m-4">Visits</h4>
+      <hr>
+
+      <!-- Table Section -->
+      <div class="table-container">
+          <table class="table table-bordered table-hover align-middle diagnosis-table">
+         <thead class="table-dark text-center" >
+            <tr>
+              <!-- <th>SR. NO.</th> -->
+              <th>Visit</th>
+              <th>Date</th>
+              <th>Follo-Up Visit</th>
+
+            </tr>
+          </thead>
+
+          <tbody >
+            <tr >
+              <td><input type="text" placeholder="1st Visit" class="form-control" readonly formControlName="folllowvisit"></td>
+              <td><app-customcalendar></app-customcalendar></td>
+              <td>
+                <input type="text" placeholder="in Days" class="form-control" formControlName="folllowvisitdays"></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="text-center mt-3">
+      <button class="btn btn-dark mx-2" type="submit" [disabled]="raditationdischarge.invalid">Submit</button>
+      <button class="btn btn-secondary">Cancel</button>
+    </div>
+  </form>
+
+
+  <div class="right-section">
+    <div class="info-box">Previous Treatment Details</div>
+    <div class="info-box">VISIT HISTORY</div>
+</div>
+</div>

@@ -1,0 +1,147 @@
+.opd-container {
+  padding: 20px !important;
+  border-radius: 8px !important;
+  max-width: 600px !important;
+  margin-left: 400px !important;
+  margin-top: 10px !important;
+}
+
+.list-cases-btn {
+  background-color: black !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 15px !important;
+  cursor: pointer !important;
+}
+
+.section-title {
+  font-size: 20px !important;
+  font-weight: bold !important;
+  margin-bottom: 15px !important;
+}
+
+.form-group {
+  margin-bottom: 15px !important;
+}
+
+label {
+  display: block !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #444 !important;
+  margin-bottom: 5px !important;
+}
+
+.required {
+  color: red !important;
+}
+
+.form-control {
+  width: 100% !important;
+  padding: 8px !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+}
+
+.radio-group {
+  display: flex !important;
+  gap: 15px !important;
+  align-items: center !important;
+}
+
+.radio-group label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+.btn {
+  padding: 10px 15px !important;
+  border-radius: 4px !important;
+  border: none !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+}
+
+.save-list {
+  background: black !important;
+  color: white !important;
+}
+
+.save-add {
+  background: black !important;
+  color: white !important;
+}
+
+.cancel {
+  background: black !important;
+  color: white !important;
+}
+
+.compulsory-note {
+  color: red !important;
+  font-size: 12px !important;
+  margin-top: 10px !important;
+}
+
+.multi-select-container {
+  position: relative;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 5px;
+  min-height: 50px;
+  cursor: pointer;
+  background: #fff;
+  width: 100%;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+
+.tag {
+  background-color: #000;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.tag .remove {
+  margin-left: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+input[readonly] {
+  border: none;
+  outline: none;
+  flex-grow: 1;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ccc;
+  z-index: 1000;
+  border-top: none;
+}
+
+.dropdown-option {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.dropdown-option:hover,
+.dropdown-option.selected {
+  background-color: #eee;
+}

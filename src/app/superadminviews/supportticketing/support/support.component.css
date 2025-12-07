@@ -1,0 +1,169 @@
+/* support-ticket.component.css */
+
+.support-container {
+  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f9f9f9;
+}
+
+.support-container h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.filter-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-row select,
+.filter-row input[type="date"] {
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn-refresh {
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px solid #333;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.ticket-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ticket-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  padding: 16px;
+  border-bottom: 4px solid #721c24  ;
+  position: relative;
+}
+
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.ticket-id {
+  font-weight: bold;
+}
+
+.status {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status.open {
+  color: green;
+}
+
+.status.in\ progress {
+  color: #d89b00;
+}
+
+.status.closed {
+  color: red;
+}
+
+.ticket-body h4 {
+  margin: 5px 0;
+  font-size: 18px;
+}
+
+.ticket-body p {
+  margin: 2px 0;
+  font-size: 14px;
+}
+
+.ticket-footer {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.view-btn,
+.chat-btn {
+  padding: 6px 10px;
+  border: 1px solid #333;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.ticket-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+}
+
+.chat-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid #ccc;
+  padding: 16px;
+  z-index: 1000;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.chat-box {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 6px;
+  background: #f1f1f1;
+}
+
+.chat-panel input[type="text"] {
+  width: calc(100% - 170px);
+  padding: 6px 10px;
+  margin-right: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.chat-panel button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid #333;
+  background: white;
+  cursor: pointer;
+  font-weight: 500;
+  margin-right: 5px;
+}

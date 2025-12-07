@@ -1,0 +1,14 @@
+<div class="mb-3">
+    <div class="d-flex justify-content-between mb-1">
+        <strong>{{ formatDate(startTimestamp) }}</strong>
+        <strong>{{ formatDate(endTimestamp) }}</strong>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+        <input type="range" class="form-range flex-fill" [min]="minTimestamp" [max]="maxTimestamp" [step]="oneDay"
+            [(ngModel)]="startTimestamp" (input)="onSliderChange()" />
+
+        <input type="range" class="form-range flex-fill" [min]="minTimestamp" [max]="maxTimestamp" [step]="oneDay"
+            [(ngModel)]="endTimestamp" (input)="onSliderChange()" />
+    </div>
+</div>

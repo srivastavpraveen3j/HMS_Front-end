@@ -1,0 +1,66 @@
+.status-paid {
+    color: green;
+    font-weight: bold;
+}
+
+.status-pending {
+    color: orange;
+    font-weight: bold;
+}
+
+.rule-box {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: #f9f9f9;
+}
+
+.dashboard-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+canvas {
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+.card {
+    border-radius: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    background-color: #ffffff;
+}
+
+.chart-card {
+    height: 100%;
+    max-height: 350px;
+    overflow-y: auto;
+    background-color: #f8f9fc;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e3e6f0;
+}
+
+#dynamicTopServicesChart,
+#topDoctorsBarChart {
+    max-height: 280px !important;
+    height: auto !important;
+}
+
+.chart-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.chart-type-toggle {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-check-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+}

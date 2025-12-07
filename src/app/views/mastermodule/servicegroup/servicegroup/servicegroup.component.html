@@ -1,0 +1,59 @@
+<div class="header">
+  <h2>MASTER SERVICES GROUP</h2>
+  <button class="list-cases-btn" routerLink="/master/servicegroupmasterlist" >SERVICES GROUP LIST</button>
+</div>
+<!-- <div class="container"> -->
+
+
+  <div class="opd-container">
+
+    <div class="form-group">
+      <label>Service Group <span class="required">*</span></label>
+      <select class="form-control">
+        <option>Select Service Group</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Service Name <span class="required">*</span></label>
+      <input type="text" class="form-control" placeholder="Service Name">
+    </div>
+
+    <div class="form-group">
+      <label>DR Required <span class="required">*</span></label>
+      <div class="radio-group mx-3">
+        <label><input type="radio" name="drRequired"> YES</label>
+        <label><input type="radio" name="drRequired"> NO</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Rate <span class="required">*</span></label>
+      <input type="text" class="form-control" placeholder="Rate">
+    </div>
+
+    <div class="form-group">
+      <label>Rate Editable <span class="required">*</span></label>
+      <div class="radio-group mx-3">
+        <label><input type="radio" name="rateEditable"> YES</label>
+        <label><input type="radio" name="rateEditable"> NO</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Status <span class="required">*</span></label>
+      <div class="radio-group mx-3">
+        <label><input type="radio" name="status" checked> ACTIVE</label>
+        <label><input type="radio" name="status"> IN-ACTIVE</label>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button class="btn save-list">SAVE & LIST</button>
+      <button class="btn save-add mx-3">SAVE & ADD NEW</button>
+      <button class="btn cancel">CANCEL</button>
+    </div>
+
+    <!-- <p class="compulsory-note">MARK (*) FIELDS ARE COMPULSORY</p> -->
+  </div>
+

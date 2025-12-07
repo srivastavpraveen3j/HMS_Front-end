@@ -1,0 +1,75 @@
+<!-- <p>support works!</p> -->
+<!-- support-ticket.component.html -->
+
+
+ <div class="header">
+  <h2>SUPPORT & TICKETING</h2>
+</div>
+
+
+<div class="support-container">
+
+  <!-- Filter Section -->
+  <div class="filter-row">
+    <select>
+      <option>All Hospitals</option>
+      <option>PP Maniya Hospital</option>
+    </select>
+
+    <select>
+      <option>All Branches</option>
+      <option>Rajkot Branch</option>
+    </select>
+
+    <select>
+      <option>Status: All</option>
+      <option>Open</option>
+      <option>In Progress</option>
+      <option>Closed</option>
+    </select>
+
+    <input type="date" />
+    <button class="btn-refresh">Refresh</button>
+  </div>
+
+  <!-- Ticket Cards -->
+  <div class="ticket-list">
+    <div class="ticket-card" *ngFor="let ticket of tickets">
+      <div class="ticket-header">
+        <span class="ticket-id">#{{ ticket.id }}</span>
+        <span class="status" [ngClass]="ticket.status.toLowerCase()">{{ ticket.status }}</span>
+      </div>
+      <div class="ticket-body">
+        <h4>{{ ticket.subject }}</h4>
+        <p><strong>Hospital:</strong> {{ ticket.hospital }}</p>
+        <p><strong>Branch:</strong> {{ ticket.branch }}</p>
+        <p><strong>Priority:</strong> {{ ticket.priority }}</p>
+        <p><strong>Last Updated:</strong> {{ ticket.lastUpdated }}</p>
+      </div>
+      <div class="ticket-footer">
+        <button class="view-btn" (click)="openTicket(ticket)">View</button>
+        <button class="chat-btn" (click)="openChat(ticket)">Chat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticket Modal -->
+  <div class="ticket-modal" *ngIf="selectedTicket">
+    <div class="modal-content">
+      <h3>{{ selectedTicket.subject }}</h3>
+      <p>{{ selectedTicket.description }}</p>
+      <button (click)="closeTicketModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- Chat Panel -->
+  <div class="chat-panel" *ngIf="chattingWith">
+    <h4>Live Chat: {{ chattingWith.subject }}</h4>
+    <div class="chat-box">
+      <div *ngFor="let msg of chatMessages">{{ msg }}</div>
+    </div>
+    <input [(ngModel)]="newMessage" placeholder="Type a message...">
+    <button (click)="sendMessage()">Send</button>
+    <button (click)="endChat()">End Chat</button>
+  </div>
+</div>

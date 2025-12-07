@@ -1,0 +1,149 @@
+<div
+  id="opd-sheet"
+  class="opd-sheet"
+  *ngIf="patientData?.length && patientVitals"
+>
+  <!-- Header -->
+  <div class="header">
+    <img src="P P Maniya_page-0001.jpg" alt="Logo" class="logo" />
+    <!-- <img src="data:P P Maniya_page-0001.jpg;base64,PUT_YOUR_BASE64_STRING_HERE" alt="Logo" class="logo" /> -->
+
+    <!-- https://hims-praveen-fork.vercel.app/dashboard -->
+  </div>
+
+  <!-- Title -->
+  <h3 class="center-title">INPATIENT CASE - DIAGNOSIS SHEET</h3>
+
+  <!-- Info Section -->
+  <div class="info-grid">
+    <div class="left-info">
+      <p><strong>CASE NO :</strong> {{ patient?.uhid }}</p>
+      <p><strong>NAME :</strong> {{ patient?.patient_name }}</p>
+      <p><strong>ADDRESS :</strong> {{ patient?.area || "----" }}</p>
+      <p>
+        <strong>CONS. DR. :</strong>
+        {{ patient?.outpatientcases?.consulting_Doctor?.[0]?.name }}
+      </p>
+    </div>
+
+    <div class="right-info">
+      <p>
+        <strong>DATE TIME :</strong>
+        {{ patient?.diagnosis?.createdAt | date : "short" }}
+      </p>
+      <p>
+        <strong>AGE / SEX :</strong> {{ patient?.age }} / {{ patient?.gender }}
+      </p>
+      <p><strong>PHONE NO. :</strong> {{ patient?.mobile_no }}</p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Vitals + Complaint -->
+  <div class="vitals-complaints">
+    <div class="vitals-box">
+      <h4>VITALS</h4>
+      <hr />
+      <p>
+        HEIGHT : {{ patient?.outpatientcases?.height || "____________" }} Cm
+      </p>
+      <p>
+        WEIGHT : {{ patient?.outpatientcases?.weight || "____________" }} KG
+      </p>
+      <p>
+        TEMP :
+        {{ patientVitals?.[0]?.vitals?.[0]?.temperature || '____________' }}
+      </p>
+      <p>
+        PULSE :
+        {{ patientVitals?.[0]?.vitals?.[0]?.pulseRate || '____________' }} /MIN
+      </p>
+      <p>
+        BP :
+        {{ patientVitals?.[0]?.vitals?.[0]?.systolicBloodPressure || '___' }}
+        MM/HG
+      </p>
+      <p>
+        SPO2 : {{ patientVitals?.[0]?.vitals?.[0]?.spo2 || '____________' }} %
+      </p>
+      <p>
+        RS :
+        {{ patientVitals?.[0]?.vitals?.[0]?.respiratoryRate || '____________' }}
+        /MIN
+      </p>
+
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <p><u>Investigation</u></p>
+      <p>{{ patient?.diagnosis?.clinicalExamination || "___" }}</p>
+      <p>{{ patient?.diagnosis?.diagnosis || "___" }}</p>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <!-- <p><u>Followup Date</u></p>
+<p>
+  {{ diagnosis?.diagnosis?.[0]?.nextFollowUpDate
+     ? (diagnosis?.diagnosis?.[0]?.nextFollowUpDate | date: 'mediumDate')
+     : '___' }}
+</p> -->
+    </div>
+    <div class="vertical-dashed-line">
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+    </div>
+
+    <div class="complaint-box">
+      <h4>PRESENTING COMPLAINS :</h4>
+      <hr />
+      <ul>
+        <li *ngFor="let symptom of patient?.diagnosis?.symptoms">
+          {{ symptom.name }} - {{ symptom.properties }}
+        </li>
+      </ul>
+
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="spaced-lines" style="visibility: hidden"></div>
+      <div class="footer">
+        <div class="footer" style="margin-top: 20px">
+          <div style="float: right">
+            DR. {{ patient?.outpatientcases?.consulting_Doctor?.[0]?.name }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr />
+<footer class="m-3 d-flex justify-content-between">
+  <div style="visibility: hidden">
+    <div class="">
+      <input type="checkbox" name="" id="" />
+      Include Header
+    </div>
+    <div class="">
+      <input type="checkbox" name="" id="" />
+      Include Footer
+    </div>
+  </div>
+  <button class="btn btn-dark" (click)="printOPDSheet()">
+    Print <i class="fa-solid fa-print action-btn"></i>
+  </button>
+</footer>

@@ -1,0 +1,36 @@
+<div class="container">
+  <label for="wardSelect" style="font-weight: bold;">Select Ward:</label>
+  <select
+    id="wardSelect"
+    [(ngModel)]="selectedWard"
+    (change)="onWardChange($event)"
+    [ngModelOptions]="{ standalone: true }"
+    class="form-select required"
+    style="margin-bottom: 20px;"
+    required
+  >
+    <option value="" disabled selected>Select a ward</option>
+    <option *ngFor="let ward of wardList" [value]="ward">{{ ward }}</option>
+  </select>
+
+  <div *ngIf="selectedWard">
+    <div style="color: maroon; font-weight: bold;">{{ selectedWard }}</div>
+    <div class="beds" style="display: flex; gap: 20px; margin-top: 10px; flex-wrap: wrap;">
+      <div *ngFor="let bed of getBeds(selectedWard)"
+           class="bed-item"
+           [style.backgroundColor]="bed.occupied ? 'red' : bed.booked ? 'orange' : 'transparent'"
+           style="padding: 10px; border-radius: 5px; position: relative; text-align: center; cursor: pointer;"
+           (click)="selectSingleBed(bed)">
+        <img [src]="getBedImage(selectedWard)" alt="bed" style="max-width: 50px;">
+        <div>Bed {{ bed.id }}</div>
+        <div *ngIf="bed.occupied" class="occupied-text">Occupied</div>
+        <div *ngIf="bed.booked && !bed.occupied" class="booked-text">Booked</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Display selected ward and bed -->
+  <div *ngIf="selectedBed">
+    <div style="color: green; font-weight: bold;">Selected: {{ selectedBed }}</div>
+  </div>
+</div>

@@ -1,0 +1,102 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>TREATMENT SHEET</h2>
+  </div>
+  <div class="m-5" *ngIf="userPermissions.update || userPermissions.create">
+    <form action="" [formGroup]="treatmentSheetForm" (ngSubmit)="OnSubmit()">
+      <div class="d-flex">
+        <!-- <div class="patient-details w-50"> -->
+          <div class="row g-6">
+            <div class="col-md-2">
+              <label class="form-label"
+                >UHID NO.:
+                <input
+                  type="text"
+                  placeholder="Uhid No."
+                  required
+                  class="form-control"
+                  formControlName="uhid"
+                />
+              </label>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Patient Name:</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter patient name"
+                formControlName="patient_name"
+              />
+            </div>
+               <div class="col-md-2">
+              <label class="form-label"
+                >AGE:
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Age / Gender"
+                  formControlName="age"
+                />
+              </label>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label"
+                >Bed No:
+                <input
+                  type="text"
+                  formControlName="bed_id"
+                  class="form-control"
+                />
+              </label>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label"
+                >Weight:
+                <input
+                  type="text"
+                  formControlName="weight"
+                  class="form-control"
+                />
+              </label>
+            </div>
+          </div>
+          <!-- <div class="row g-3">
+
+          </div> -->
+        <!-- </div> -->
+      </div>
+
+      <div class="data-table">
+        <table
+          class="table table-bordered table-hover align-middle diagnosis-table"
+        >
+          <thead class="table-dark">
+            <tr>
+              <th>Drug</th>
+              <th>Dose</th>
+              <th>Route</th>
+              <th>Frequency</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="text" formControlName="drug" /></td>
+              <td><input type="text" formControlName="dose" /></td>
+              <td><input type="text" formControlName="route" /></td>
+              <td><input type="text" formControlName="frequency" /></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="text-center m-4">
+          <button
+            class="btn btn-dark"
+            type="submit"
+            [disabled]="treatmentSheetForm.invalid"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

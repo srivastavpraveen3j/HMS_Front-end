@@ -1,0 +1,569 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>Operation Entry</h2>
+    <div class="">
+      <span class="icons position-relative">
+        <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+          <div
+            *ngIf="uhidTodayRecords?.length === 0"
+            class="text-center text-muted py-2"
+          >
+            No InPatient Case Created today.
+          </div>
+          <ul class="uhid-list">
+            <li
+              *ngFor="let record of uhidTodayRecords"
+              (click)="selectPatientFromUHID(record)"
+              style="cursor: pointer"
+            >
+              <div class="uhid-name">
+                {{ record.uniqueHealthIdentificationId?.patient_name }}
+              </div>
+              <div class="uhid-meta">
+                UHID: {{ record.uniqueHealthIdentificationId?.uhid }} | Age:
+                {{ record.uniqueHealthIdentificationId?.age }}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </span>
+    </div>
+  </div>
+
+  <div class="opd-container" *ngIf="userPermissions.create">
+    <form [formGroup]="otsheet" (ngSubmit)="OnSubmit()">
+      <!-- <h4 class="m-4">Patient Details</h4>
+      <hr /> -->
+      <!-- <div class="form-row"> -->
+
+      <!-- </div> -->
+      <div class="row">
+        <div class="col-md-3">
+          <!-- <div class="form-group"> -->
+          <label class="form-label">UHID No*:</label>
+          <input
+            type="text"
+            placeholder="UHID No"
+            class="form-control"
+            formControlName="uhid"
+            (input)="onUhidInput()"
+            readonly
+          />
+          <!-- </div> -->
+        </div>
+        <div class="col-md-3 position-relative">
+          <!-- <div class="form-group"> -->
+          <label class="form-label">Patient Name:</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Enter patient name"
+            formControlName="patient_name"
+            (input)="onPatientInput()"
+            (focus)="showSuggestions = true"
+            (blur)="hideSuggestionsWithDelay()"
+            readonly
+          />
+          <div
+            *ngIf="showSuggestions && filteredPatients.length > 0"
+            class="suggestions-container position-absolute w-100"
+          >
+            <ul class="list-group">
+              <li
+                class="list-group-item"
+                *ngFor="let patient of filteredPatients"
+                (mousedown)="selectPatient(patient)"
+              >
+                {{ patient.uniqueHealthIdentificationId?.patient_name }}
+                {{
+                  patient.uniqueHealthIdentificationId?.mobile_no
+                    ? "| " + patient?.uniqueHealthIdentificationId?.mobile_no
+                    : ""
+                }}
+                {{
+                  patient.uniqueHealthIdentificationId?.uhid
+                    ? "| " + patient?.uniqueHealthIdentificationId?.uhid
+                    : ""
+                }}
+                <br />
+                <small class="text-muted">
+                  Room: {{ patient.room_id?.room_type_id?.name }} ({{
+                    patient.room_id?.room_type_id?.price_per_day
+                      | indianCurrency
+                  }}/day)
+                </small>
+              </li>
+            </ul>
+          </div>
+          <!-- </div> -->
+        </div>
+        <div class="col-md-3">
+          <!-- <div class="form-group"> -->
+          <label class="form-label">Age*:</label>
+          <input
+            type="text"
+            placeholder="Age/Gender"
+            class="form-control"
+            formControlName="age"
+            readonly
+          />
+          <!-- </div> -->
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Bed</label>
+          <input
+            type="text"
+            placeholder="Room/Bed"
+            formControlName="bed_id"
+            class="form-control"
+            readonly
+          />
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4">
+          <label class="form-label">Sechedule*:</label>
+          <input
+            type="text"
+            placeholder="Cons. Doctor"
+            class="required form-control"
+            formControlName="admittingDoctorId"
+            readonly
+          />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Height</label>
+          <input
+            type="text"
+            placeholder="height"
+            formControlName="height"
+            class="form-control"
+            readonly
+          />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Weight</label>
+          <input
+            type="text"
+            placeholder="weight"
+            formControlName="weight"
+            class="form-control"
+            readonly
+          />
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label>Surgery Date:</label>
+          <input
+            type="date"
+            formControlName="surgeryDate"
+            class="form-control"
+          />
+        </div>
+        <div class="col-md-4">
+          <label>Time From:</label>
+          <input
+            type="time"
+            formControlName="surgeryStartTime"
+            class="form-control"
+          />
+        </div>
+        <div class="col-md-4">
+          <label>Time To:</label>
+          <input
+            type="time"
+            formControlName="surgeryEndTime"
+            class="form-control"
+          />
+        </div>
+      </div>
+
+      <h4 class="m-4">Surgeries Details</h4>
+      <hr />
+
+      <div class="mb-2 text-end">
+        <button
+          class="btn btn-outline-primary"
+          type="button"
+          (click)="toggleManualEntry()"
+        >
+          {{ manualEntryEnabled ? "Cancel Manual Entry" : "Manual Entry" }}
+        </button>
+      </div>
+
+      <div *ngIf="!manualEntryEnabled">
+        <table class="table table-bordered">
+          <thead class="table-dark">
+            <tr>
+              <!-- <th>
+              <i class="fa-solid fa-plus" (click)="addSurgery()"></i>
+            </th> -->
+              <th>Surgery Name</th>
+              <th>Surgery Type</th>
+              <th hidden>Room Price</th>
+              <th hidden>Duration</th>
+              <th hidden>Pricing Details</th>
+              <!-- <th>High-Risk</th>
+            <th>Emergency</th> -->
+              <!-- <th>Actions</th> -->
+            </tr>
+          </thead>
+          <tbody formArrayName="surgeryPackageId">
+            <tr
+              *ngFor="let group of surgeries.controls; let i = index"
+              [formGroupName]="i"
+            >
+              <!-- <td>
+              <i class="fa-solid fa-minus" (click)="removeSurgery(i)"></i>
+            </td> -->
+              <td>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="name"
+                  placeholder="Search surgery name"
+                  (input)="onSurgeryInput(i)"
+                  (focus)="showSurgerySuggestions[i] = true"
+                  (blur)="hideSurgerySuggestionsWithDelay(i)"
+                />
+                <div
+                  *ngIf="
+                    showSurgerySuggestions[i] && filteredSurgeryList[i]?.length
+                  "
+                  class="suggestions-container"
+                >
+                  <ul class="suggestions">
+                    <li
+                      *ngFor="let s of filteredSurgeryList[i]"
+                      (mousedown)="selectSurgery(s, i)"
+                    >
+                      {{ s.name }}
+                    </li>
+                  </ul>
+                </div>
+              </td>
+              <td hidden>
+                <div class="price-display">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="basePrice"
+                    readonly
+                  />
+                  <small class="text-info d-block">
+                    {{ group.get("pricingSource")?.value }}
+                  </small>
+                </div>
+              </td>
+              <td hidden>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="duration"
+                  readonly
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="type"
+                  readonly
+                />
+              </td>
+              <td hidden>
+                <div class="pricing-details">
+                  <!-- Show room-specific pricing info -->
+                  <div *ngIf="getSurgeryPricingInfo(i) as pricingInfo">
+                    <!-- Fixed price package (no room breakdown) -->
+                    <div *ngIf="pricingInfo.isFixedPrice" class="mb-1">
+                      <span class="badge bg-info">Fixed Package</span>
+                      <div class="small text-muted">
+                        Uses total package price
+                      </div>
+                    </div>
+
+                    <!-- Has room breakdown but found matching room -->
+                    <div
+                      *ngIf="
+                        !pricingInfo.isFixedPrice && pricingInfo.hasRoomPricing
+                      "
+                      class="mb-1"
+                    >
+                      <span class="badge bg-success"
+                        >{{ pricingInfo.roomName }} Match</span
+                      >
+                      <div
+                        class="small"
+                        *ngIf="pricingInfo.priceDifference !== 0"
+                      >
+                        <span
+                          *ngIf="pricingInfo.priceDifference > 0"
+                          class="text-success"
+                        >
+                          +{{ pricingInfo.priceDifference | indianCurrency }} vs
+                          base
+                        </span>
+                        <!-- <span
+                        *ngIf="pricingInfo.priceDifference < 0"
+                        class="text-primary"
+                      >
+                        -{{
+                          Math.abs(pricingInfo.priceDifference) | indianCurrency
+                        }}
+                        vs base
+                      </span> -->
+                      </div>
+                      <div
+                        class="small text-success"
+                        *ngIf="pricingInfo.priceDifference === 0"
+                      >
+                        Same as base price
+                      </div>
+                    </div>
+
+                    <!-- Has room breakdown but no matching room found -->
+                    <div
+                      *ngIf="
+                        !pricingInfo.isFixedPrice &&
+                        !pricingInfo.hasRoomPricing &&
+                        selectedPatientRoomType
+                      "
+                      class="mb-1"
+                    >
+                      <span class="badge bg-warning"
+                        >{{ pricingInfo.roomName }} Not Available</span
+                      >
+                      <div class="small text-muted">
+                        Using base package price
+                      </div>
+                    </div>
+
+                    <!-- Has room breakdown but no patient selected -->
+                    <div
+                      *ngIf="
+                        !pricingInfo.isFixedPrice && !selectedPatientRoomType
+                      "
+                      class="mb-1"
+                    >
+                      <span class="badge bg-secondary">Base Price</span>
+                      <div class="small text-muted">
+                        Select patient for room pricing
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Show breakdown if available -->
+                  <div
+                    *ngIf="getSelectedSurgery(i)?.breakdown?.length"
+                    class="mt-2"
+                  >
+                    <span class="badge bg-primary mb-1">Charge Breakdown</span>
+                    <div class="small-charges">
+                      <div
+                        *ngFor="let charge of getSelectedSurgery(i).breakdown"
+                        class="charge-item"
+                      >
+                        <span class="charge-type"
+                          >{{ charge.chargeType }}:</span
+                        >
+                        <span class="charge-amount"
+                          >{{ charge.amount | indianCurrency }} ({{
+                            charge.percentage
+                          }}%)</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- <td><input type="checkbox" formControlName="risk" /></td>
+            <td><input type="checkbox" formControlName="emergency" /></td> -->
+              <!-- <td>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                (click)="viewSurgeryDetails(i)"
+                type="button"
+              >
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </td> -->
+            </tr>
+          </tbody>
+        </table>
+        <!-- <button class="btn btn-dark" type="button" (click)="addSurgery()">
+          + Add Surgery
+        </button> -->
+      </div>
+
+      <div *ngIf="manualEntryEnabled">
+        <form
+          [formGroup]="manualSurgeryForm"
+          (ngSubmit)="onManualEntrySubmit()"
+          autocomplete="off"
+        >
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Operation Name*</label>
+              <input
+                class="form-control"
+                formControlName="name"
+                placeholder="Type or select surgery..."
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Operation Type*</label>
+              <select class="form-control" formControlName="ottype">
+                <option value="otcharge">Operation Charge</option>
+                <option value="deliverycharge">Delivery Charge</option>
+              </select>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <label class="form-label">Total Price *</label>
+              <input
+                type="number"
+                class="form-control"
+                formControlName="totalPrice"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Note</label>
+              <input type="text" class="form-control" formControlName="note" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <table class="table table-bordered">
+              <thead class="table-dark">
+                <tr>
+                  <th>Charge Type</th>
+                  <th>Amount (₹)</th>
+                  <th>Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let type of chargeTypeOptions; let i = index"
+                  [formGroup]="asFormGroup(breakdown.at(i))"
+                >
+                  <td>{{ type }}</td>
+                  <td>
+                    <input
+                      type="number"
+                      formControlName="amount"
+                      class="form-control"
+                      min=""
+                    />
+                  </td>
+                  <td style="position: relative">
+                    <input
+                      type="text"
+                      formControlName="staffName"
+                      class="form-control"
+                      [placeholder]="getStaffPlaceholder(type)"
+                      autocomplete="off"
+                      (input)="
+                        onStaffSearch(
+                          getInputValue($event),
+                          asFormGroup(breakdown.at(i)),
+                          i
+                        )
+                      "
+                      (focus)="onStaffFocus(i)"
+                      (blur)="onStaffBlur()"
+                    />
+                    <div
+                      class="suggestion-container"
+                      *ngIf="
+                        showStaffDropdownIndex === i && filteredStaff.length
+                      "
+                    >
+                      <ul class="suggestions">
+                        <li
+                          *ngFor="let user of filteredStaff"
+                          (mousedown)="
+                            onStaffSelect(user, asFormGroup(breakdown.at(i)), i)
+                          "
+                        >
+                          {{ user.name }} | {{ user.role?.name }}
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- <div class="text-end">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="manualSurgeryForm.invalid"
+            >
+              Save Manual Entry
+            </button>
+          </div> -->
+        </form>
+      </div>
+
+      <h4 class="m-4">Extra Charge Details</h4>
+      <hr />
+      <div class="extra-charges">
+        <div class="form-group">
+          <label>Type of Anaesthesia</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Anaesthesia Type"
+            formControlName="anesthesiaType"
+          />
+        </div>
+        <div class="form-group">
+          <label>Implant Used</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Implant Used"
+            formControlName="implantDetails"
+          />
+        </div>
+        <div class="form-group">
+          <label>Equipment Used By (Surgeon / Hospital)</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Equipment Used By (Surgeon / Hospital)"
+            formControlName="equipmentUsed"
+          />
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" formControlName="highRisk" /> Anaesthesia
+            Risk
+          </label>
+        </div>
+      </div>
+      <div class="net-amount" hidden>
+        <label>Net Amount</label>
+        <input
+          type="indianCurrency"
+          class="form-control"
+          formControlName="netAmount"
+          readonly
+        />
+      </div>
+      <div class="text-center mt-3">
+        <button class="btn btn-dark mx-2" [disabled]="otsheet.invalid">
+          Submit
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

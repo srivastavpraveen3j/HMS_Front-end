@@ -1,0 +1,227 @@
+<div class="form-meta">
+      <!-- Header Section -->
+  <div class="header">
+    <h2>DASHBOARD</h2>
+    <div class="toggle-buttons">
+      <!-- <button class="icon-btn btn"><i class="fas fa-edit"></i></button>
+      <button class="icon-btn btn"><i class="fas fa-random"></i></button> -->
+      <!-- <button
+        class="toggle opd btn active"
+        *ngIf="userPermissions"
+        [routerLink]="['/opddashboard']"
+        routerLinkActive="router-link-active"
+      >
+        OPD
+      </button> -->
+      <!-- <button
+        class="toggle ipd btn"
+        *ngIf="useripdreportPermissions.read"
+        [routerLink]="['/dashboard']"
+        routerLinkActive="router-link-active"
+      >
+        IPD
+      </button> -->
+    </div>
+  </div>
+
+
+
+
+
+
+<div class="dashboard-container">
+
+
+
+
+
+
+  <!-- Filters Section -->
+  <div
+    class="filters text-center m-3 d-flex justify-content-between align-items-center"
+  >
+    <!-- Doctor Select -->
+    <div class="form-group w-50 mx-3 position-relative" *ngIf="!isDoctor">
+      <!-- <label>Search Doctor</label> -->
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Serach by doctor name..."
+        [(ngModel)]="doctorSearchText"
+        (input)="onDoctorSearchChange(doctorSearchText)"
+        autocomplete="off"
+      />
+
+      <ul
+        *ngIf="filteredDoctors.length > 0 && doctorSearchText.trim().length > 0"
+        class="list-group position-absolute w-100 zindex-dropdown"
+        style="max-height: 200px; overflow-y: auto"
+      >
+        <li
+          class="list-group-item list-group-item-action"
+          *ngFor="let doctor of filteredDoctors"
+          (click)="onDoctorSelected(doctor.name)"
+        >
+          {{ doctor.name }}
+        </li>
+      </ul>
+    </div>
+
+    <div class="form-group position-relative w-50">
+      <input type="text" [(ngModel)]="searchText" (input)="applyFilters()" placeholder="Search by uhid/patient/mobile"
+        class="form-control" />
+    </div>
+
+    <!-- Filter by Today or Date Range -->
+    <div class="filters d-flex align-items-center">
+      <label class="m-3">
+        <input
+          type="radio"
+          name="filter"
+          value="today"
+          [(ngModel)]="activeFilter"
+          (change)="applyFilters()"
+          checked
+        />
+        TODAY'S
+      </label>
+
+      <label class="m-3">
+        <input
+          type="radio"
+          name="filter"
+          value="dateRange"
+          [(ngModel)]="activeFilter"
+          (change)="applyFilters()"
+        />
+        Date Range
+      </label>
+
+      <!-- Date Inputs Visible Only for Date Range -->
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="startDate"
+        (change)="applyFilters()"
+        class="form-control mx-2"
+      />
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="endDate"
+        (change)="applyFilters()"
+        class="form-control mx-2"
+      />
+    </div>
+  </div>
+
+  <app-loader
+    [patientData]="filteredCases"
+    [title]="module"
+    [activeFilter]="activeFilter"
+    [startDate]="startDate"
+    [endDate]="endDate"
+  ></app-loader>
+
+  <!-- OPD Cases Table -->
+  <div class="" *ngIf="filteredCases.length > 0">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table table-responsive"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>UHID</th>
+          <th>Patient Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Consulting Doctor</th>
+          <th>Date of Treatment</th>
+          <th>Time of Treatment</th>
+          <!-- <th>Email</th> -->
+          <!-- <th>PAN Card</th> -->
+          <th>Medical Case</th>
+          <th>Mobile No</th>
+          <th>Area</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let patient of filteredCases; let i = index">
+          <td>{{ (currentPage - 1) * recordsPerPage + i + 1 }}</td>
+          <td>{{ patient.uniqueHealthIdentificationId?.uhid }}</td>
+          <td
+            (click)="viewPatient(patient._id)"
+            style="cursor: pointer; color: blue"
+          >
+            {{ patient.uniqueHealthIdentificationId?.patient_name }}
+          </td>
+          <td>{{ patient.uniqueHealthIdentificationId?.age }}</td>
+          <td>{{ patient.uniqueHealthIdentificationId?.gender }}</td>
+          <td>{{ patient.consulting_Doctor?.name }}</td>
+          <td>{{ patient.createdAt | date : "yyyy-MM-dd" }}</td>
+          <td>{{ patient.uniqueHealthIdentificationId?.dot }}</td>
+          <!-- <td>{{ patient.emailAddress }}</td> -->
+          <!-- <td>{{ patient.panCardNumber }}</td> -->
+          <td>
+            <span
+              class="badge"
+              [ngClass]="
+                patient.isMedicoLegalCase ? 'bg-warning' : 'bg-secondary'
+              "
+            >
+              {{ patient.isMedicoLegalCase ? "Yes" : "No" }}
+            </span>
+          </td>
+
+          <td>{{ patient.uniqueHealthIdentificationId?.mobile_no }}</td>
+          <td>{{ patient.uniqueHealthIdentificationId?.area }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div *ngIf="opdcases.length > 0">
+      <div
+        class="pagination d-flex justify-content-center align-items-center my-3"
+      >
+        <button
+          class="pagination-btn btn btn-primary mx-2"
+          (click)="previousPage()"
+          [disabled]="currentPage === 1"
+        >
+          Previous
+        </button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button
+          class="pagination-btn btn btn-primary mx-2"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" *ngIf="selectedPatient">
+  <div class="modal-content-box">
+    <div class="modal-header">
+      <h3 style="visibility: hidden">Patient Details</h3>
+      <button class="close-btn" (click)="closeModal()">×</button>
+    </div>
+    <hr />
+    <div class="modal-body">
+      <app-patientdeatails
+        [patientData]="selectedPatient"
+      ></app-patientdeatails>
+    </div>
+  </div>
+</div>
+<!-- modal -->
+
+
+
+
+</div>

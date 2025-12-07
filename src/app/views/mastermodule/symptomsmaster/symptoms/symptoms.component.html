@@ -1,0 +1,114 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>SYMPTOMS</h2>
+    <span class="icons position-relative">
+      <div class="btn-group">
+        <button
+          class="btn btn-outline-primary"
+          [class.active]="uploadMode === 'single'"
+          (click)="uploadMode = 'single'"
+        >
+          Single Entry
+        </button>
+        <button
+          class="btn btn-outline-success"
+          [class.active]="uploadMode === 'bulk'"
+          (click)="uploadMode = 'bulk'"
+        >
+          Bulk Upload
+        </button>
+      </div>
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/master/symptomslist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div *ngIf="userPermissions.create">
+    <!-- Bulk Upload Section -->
+    <div *ngIf="uploadMode === 'bulk'">
+      <label>Import Symptoms in Bulk (CSV):</label>
+      <div class="d-flex align-items-center mt-3">
+        <h5 class="mx-3">Sample Symptoms Csv File</h5>
+        <a href="https://digitalks-crm-bucket.s3.ap-south-1.amazonaws.com/HIMS/symptomsinbulk+(1).csv" download>
+          <i class="fa-solid fa-file-csv"></i>
+        </a>
+      </div>
+      <input
+        type="file"
+        (change)="onFileSelected($event)"
+        accept=".csv"
+        class="form-control mt-3"
+      />
+      <div class="text-center mt-3">
+        <button class="btn btn-dark mx-2" type="submit" (click)="uploadCSV()" [disabled]="!selectedFile">
+          Submit
+        </button>
+      </div>
+    </div>
+
+    <!-- Single Entry Form -->
+    <div *ngIf="uploadMode === 'single'">
+      <form [formGroup]="symptomsform" (ngSubmit)="OnSubmit()">
+        <div class="form-container">
+          <div class="form-half">
+            <div class="form-group">
+              <label>Symptoms Name*</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Symptoms Name"
+                formControlName="name"
+                required
+              />
+              <div
+                *ngIf="symptomsform.get('name')?.touched && symptomsform.get('name')?.invalid"
+                class="text-danger"
+              >
+                Symptoms Name is Required
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Properties*</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="properties"
+                placeholder="Properties"
+              />
+              <div
+                class="text-danger small"
+                *ngIf="symptomsform.get('properties')?.invalid && symptomsform.get('properties')?.touched"
+              >
+                Properties Name is Required
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Remarks*</label>
+              <input
+                type="text"
+                formControlName="remark"
+                class="form-control"
+                placeholder="Remarks"
+              />
+              <div
+                *ngIf="symptomsform.get('remark')?.touched && symptomsform.get('remark')?.invalid"
+                class="text-danger"
+              >
+                Remarks is Required
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions text-center mt-3">
+          <button class="btn btn-dark mx-2" type="submit" [disabled]="symptomsform.invalid">
+            Submit
+          </button>
+          <!-- <button class="btn btn-secondary" type="reset" (click)="resetForm()">Cancel</button> -->
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,339 @@
+<div class="form-meta">
+  <div class="header">
+    <h2 class="page-title">
+      <!-- <i class="fas fa-pills text-danger me-2"></i> -->
+      INVENTORY EXPIRED MEDICINE LIST
+    </h2>
+
+    <div class="action-buttons">
+      <button
+        class="btn btn-outline-secondary"
+        routerLink="/inventorylayout/disposedexpiredmed"
+      >
+        <!-- <i class="fas fa-trash-alt me-2"></i> -->
+        Disposed Medicine
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="text-center py-4">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Loading expired medicines...</p>
+  </div>
+
+  <!-- Summary Cards -->
+  <div
+    class="row m-4"
+    *ngIf="expireproducts && expireproducts.length > 0 && !isLoading"
+  >
+    <div class="col-md-6 col-lg-3">
+      <div class="card border-danger summary-card">
+        <div class="card-body text-center">
+          <i class="fas fa-exclamation-triangle text-danger fa-2x mb-2"></i>
+          <h5 class="card-title text-danger mb-1">Expired Medicines</h5>
+          <h3 class="text-danger mb-0">{{ countexpired }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card border-warning summary-card">
+        <div class="card-body text-center">
+          <i class="fas fa-check-square text-warning fa-2x mb-2"></i>
+          <h5 class="card-title text-warning mb-1">Selected</h5>
+          <h3 class="text-warning mb-0">{{ selectedMedicines.length }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card border-info summary-card">
+        <div class="card-body text-center">
+          <i class="fas fa-calendar-times text-info fa-2x mb-2"></i>
+          <h5 class="card-title text-info mb-1">Total Items</h5>
+          <h3 class="text-info mb-0">{{ expireproducts.length }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card border-success summary-card">
+        <div class="card-body text-center">
+          <i class="fas fa-rupee-sign text-success fa-2x mb-2"></i>
+          <h5 class="card-title text-success mb-1">Est. Loss</h5>
+          <h3 class="text-success mb-0">
+            {{ calculateTotalLoss() | indianCurrency }}
+          </h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div
+    class="row mb-3"
+    *ngIf="expireproducts && expireproducts.length > 0 && !isLoading"
+  >
+    <div class="col-md-8">
+      <form [formGroup]="filterForm">
+        <div class="input-group">
+          <!-- <span class="input-group-text"> -->
+            <!-- <i class="fas fa-search"></i> -->
+          <!-- </span> -->
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search by medicine name, supplier, or batch number..."
+            formControlName="searchText"
+          />
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            (click)="clearSearch()"
+            *ngIf="filterForm.get('searchText')?.value"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+    <!-- <div class="col-md-4">
+      <div class="d-flex gap-2">
+        <button
+          class="btn btn-outline-primary btn-sm"
+          (click)="exportToCSV()"
+          title="Export to CSV"
+        >
+          <i class="fas fa-download me-1"></i>
+          Export
+        </button>
+        <button
+          class="btn btn-outline-info btn-sm"
+          (click)="refreshData()"
+          title="Refresh Data">
+          <i class="fas fa-sync-alt me-1"></i>
+          Refresh
+        </button>
+      </div>
+    </div> -->
+  </div>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="
+      (!expireproducts || expireproducts.length === 0) && !isLoading;
+      else showTable
+    "
+    class="text-center py-5"
+  >
+    <div class="empty-state">
+      <i class="fas fa-check-circle text-success fa-4x mb-3"></i>
+      <h4 class="text-muted">{{ message }}</h4>
+      <p class="text-muted">All medicines are within their expiry dates.</p>
+      <button class="btn btn-primary" (click)="refreshData()">
+        <i class="fas fa-sync-alt me-2"></i>
+        Refresh Data
+      </button>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <ng-template #showTable>
+    <div
+      class="table-responsive mt-3"
+      *ngIf="!isLoading && expireproducts && expireproducts.length > 0"
+    >
+      <!-- Bulk Actions -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="bulk-actions" *ngIf="selectedMedicines.length > 0">
+          <button
+            class="btn btn-danger"
+            (click)="disposeSelectedMedicines()"
+            [disabled]="selectedMedicines.length === 0"
+          >
+            <i class="fas fa-trash-alt me-2"></i>
+            Dispose Selected ({{ selectedMedicines.length }})
+          </button>
+          <button
+            class="btn btn-outline-secondary ms-2"
+            (click)="clearSelection()"
+            title="Clear Selection"
+          >
+            <i class="fas fa-times me-2"></i>
+            Clear Selection
+          </button>
+        </div>
+        <div class="table-info">
+          <small class="text-muted">
+            Showing {{ expireproducts.length }} expired medicine(s)
+            <span *ngIf="filterForm.get('searchText')?.value">
+              for "{{ filterForm.get("searchText")?.value }}"
+            </span>
+          </small>
+        </div>
+      </div>
+
+      <table
+        class="table table-bordered table-hover align-middle diagnosis-table"
+      >
+        <thead class="table-dark">
+          <tr>
+            <th width="50">
+              <input
+                type="checkbox"
+                [checked]="areAllMedicinesSelected()"
+                (change)="selectAllMedicines($event)"
+                class="form-check-input"
+                title="Select All"
+              />
+            </th>
+            <th width="60">#</th>
+            <th>Medicine Details</th>
+            <th>Supplier</th>
+            <!-- <th>Dose</th> -->
+            <th>Expiry Status</th>
+            <th>Manufacturing Date</th>
+            <th>Stock</th>
+            <th>Price</th>
+            <th>Batch No</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let medicine of expireproducts;
+              let i = index;
+              trackBy: trackByMedicineId
+            "
+            [class.table-danger]="isMedicineSelected(medicine._id)"
+            [class.table-warning]="
+              !isMedicineSelected(medicine._id) &&
+              isExpiringSoon(medicine.expiry_date)
+            "
+          >
+            <td>
+              <input
+                type="checkbox"
+                [checked]="isMedicineSelected(medicine._id)"
+                (change)="onMedicineSelect(medicine._id, $event)"
+                class="form-check-input"
+              />
+            </td>
+            <td>{{ i + 1 }}</td>
+            <td>
+              <div class="medicine-info">
+                <strong class="medicine-name">{{
+                  medicine?.medicine_name || "N/A"
+                }}</strong>
+                <div class="medicine-badges mt-1">
+                  <span
+                    *ngIf="isExpired(medicine?.expiry_date)"
+                    class="badge bg-danger"
+                  >
+                    <i class="fas fa-exclamation-triangle"></i> Expired
+                  </span>
+                  <span
+                    *ngIf="
+                      !isExpired(medicine?.expiry_date) &&
+                      isExpiringSoon(medicine?.expiry_date)
+                    "
+                    class="badge bg-warning text-dark"
+                  >
+                    <i class="fas fa-clock"></i> Expiring Soon
+                  </span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="supplier-info">
+                <strong>{{ medicine?.supplier?.vendorName || "N/A" }}</strong>
+                <small class="text-muted d-block">
+                  {{ medicine?.supplier?.vendorName }}
+                </small>
+              </div>
+            </td>
+            <!-- <td>
+              <span class="badge bg-info">{{ medicine?.dose || "N/A" }}</span>
+            </td> -->
+            <td>
+              <div class="expiry-info">
+                <span class="text-danger fw-bold d-block">
+                  {{ medicine?.expiry_date | date : "dd/MM/yyyy" }}
+                </span>
+                <small class="text-muted">
+                  {{ getExpiryStatus(medicine?.expiry_date) }}
+                </small>
+              </div>
+            </td>
+            <td>{{ medicine?.mfg_date | date : "dd/MM/yyyy" }}</td>
+            <td>
+              <div class="stock-info text-center">
+                <span [class]="getStockBadgeClass(medicine?.stock || 0)">
+                  {{ medicine?.stock || 0 }}
+                </span>
+                <div
+                  *ngIf="(medicine?.stock || 0) <= 10"
+                  class="text-danger small mt-1"
+                >
+                  <i class="fas fa-exclamation-triangle"></i>
+                  Low Stock
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="fw-bold"
+                >₹{{ medicine?.price || 0 | number : "1.2-2" }}</span
+              >
+            </td>
+            <td>
+              <code class="batch-code">{{ medicine?.batch_no || "N/A" }}</code>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination Controls -->
+      <div
+        class="pagination-container d-flex justify-content-between align-items-center my-4"
+      >
+        <div class="pagination-info">
+          <small class="text-muted">
+            Page {{ currentPage }} of {{ totalPages }}
+            <span *ngIf="expireproducts && expireproducts.length > 0">
+              ({{ expireproducts.length }} items)
+            </span>
+          </small>
+        </div>
+        <nav aria-label="Table pagination">
+          <div
+            class="pagination d-flex justify-content-center align-items-center"
+          >
+            <button
+              class="btn btn-outline-primary me-2"
+              (click)="previousPage()"
+              [disabled]="currentPage === 1 || isLoading"
+            >
+              <i class="fas fa-chevron-left me-1"></i>
+              Previous
+            </button>
+            <div class="page-numbers mx-3">
+              <span class="current-page badge bg-primary">{{
+                currentPage
+              }}</span>
+              <span class="mx-2">of</span>
+              <span class="total-pages">{{ totalPages }}</span>
+            </div>
+            <button
+              class="btn btn-outline-primary ms-2"
+              (click)="nextPage()"
+              [disabled]="currentPage === totalPages || isLoading"
+            >
+              Next
+              <i class="fas fa-chevron-right ms-1"></i>
+            </button>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </ng-template>
+</div>

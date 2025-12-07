@@ -1,0 +1,260 @@
+<!--
+<div id="opd-sheet" class="opd-sheet" *ngIf="patientData?.length">
+  <div class="header">
+    <img src="P P Maniya_page-0001.jpg" alt="Logo" class="logo" />
+  </div>
+ <h3 class="center-title">
+  {{ patientData[0]?.
+pharmaceuticalRequestId
+?.patientType === 'inpatientDepartment' ? 'IN PATIENT MEDICINE PRESCRIPTION' : 'OUT PATIENT MEDICINE PRESCRIPTION' }}
+</h3>
+<div class="info-grid">
+  <div class="left-info">
+    <p><strong>NAME :</strong> {{ patientData[0]?.walkInPatient?.name }}</p>
+    <p><strong>AGE / SEX :</strong>
+      {{ patientData[0]?.walkInPatient?.age }} /
+      {{ patientData[0]?.walkInPatient?.gender }}
+    </p>
+  </div>
+  <div class="right-info">
+    <p><strong>DATE TIME :</strong> {{ patientData[0]?.createdAt | date: 'medium' }}</p>
+
+    <p><strong>PHONE NO. :</strong> {{ patientData[0]?.walkInPatient?.mobile_no }}</p>
+<p *ngIf="patientData[0]?.walkInPatient?.doctor_name">
+  <strong>Reference Doctor:</strong> {{ patientData[0]?.walkInPatient?.doctor_name }}
+</p>
+
+  </div>
+</div>
+
+  <hr class="divider" />
+<p >Invoice No: <b>
+{{ patientData[0]?.inwardSerialNumber}}
+</b> </p>
+
+<table style="width: 100%; border-collapse: collapse;" border="1" class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Sr. No</th>
+      <th>Medicine Name</th>
+      <th>Quantity</th>
+      <th>Charge</th>
+      <th>Morning</th>
+      <th>Noon</th>
+      <th>Night</th>
+      <th>Dosage Instruction</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of patientData[0]?.packages; let i = index">
+      <td>{{ i + 1 }}</td>
+      <td>{{ item.medicineName }}</td>
+      <td>{{ item.quantity }}</td>
+      <td>{{ item.charge }}</td>
+      <td><input type="checkbox" [checked]="item.checkbox?.morning" disabled /></td>
+      <td><input type="checkbox" [checked]="item.checkbox?.noon" disabled /></td>
+      <td><input type="checkbox" [checked]="item.checkbox?.night" disabled /></td>
+      <td *ngIf="item.dosageInstruction">{{ item.dosageInstruction }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<div style="text-align: right; margin-top: 10px;">
+  <strong>Total: ₹{{ patientData[0]?.total }}</strong><br />
+  <strong>Payment Mode: {{ patientData[0]?.PaymentMode | titlecase }}</strong>
+</div>
+
+
+</div>
+
+<hr>
+<footer class="m-3 d-flex justify-content-between"  >
+
+  <div style="visibility: hidden;">
+    <div class="">
+      <input type="checkbox" name="" id="">
+      Include Header
+    </div>
+    <div class="">
+      <input type="checkbox" name="" id="">
+      Include Footer
+    </div>
+  </div>
+  <button class="btn btn-dark" (click)="printOPDSheet()">Print  <i class="fa-solid fa-print action-btn"></i></button>
+</footer> -->
+<div id="opd-sheet" class="opd-sheet" *ngIf="patientData?.length">
+  <!-- Bill Container -->
+  <div class="bill-container">
+
+    <!-- Header -->
+    <div class="header-section">
+      <!-- <div class="hospital-name">PP MANIYA PHARMACY LLP</div>
+      <div class="address-line">C-1 GANGASAGAR NR: AARTI HOTEL GOKUL DHAM</div>
+      <div class="address-line">VASTRAL AHMEDABAD-82</div> -->
+      <app-letterheader></app-letterheader>
+      <div class="gst-invoice">GST NO: 24AAFPP5689K1Z5 | INVOICE</div>
+    </div>
+
+    <!-- Customer Information -->
+    <div class="customer-info">
+      <div>
+        <strong>Customer:</strong><br>
+        {{ patientData[0]?.walkInPatient?.name || 'Walk-In Patient' }}<br>
+        Phone: {{ patientData[0]?.walkInPatient?.mobile_no || 'N/A' }}
+      </div>
+      <div style="text-align: right;">
+        <strong>Date:</strong> {{ patientData[0]?.createdAt | date: 'dd/MM/yyyy' }}<br>
+        <strong>Time:</strong> {{ patientData[0]?.createdAt | date: 'HH:mm:ss' }}<br>
+        <strong>Bill No:</strong> {{ patientData[0]?.inwardSerialNumber }}
+      </div>
+    </div>
+
+    <!-- Description Section -->
+    <div class="description-section">
+      <div class="desc-row">
+        <div><strong>S. Description:</strong></div>
+        <div><strong>HSN Code:</strong></div>
+      </div>
+      <ng-container *ngFor="let pkg of patientData[0]?.packages?.slice(0, 2); let i = index">
+        <div class="desc-row">
+          <div><strong>{{ i + 1 }}. {{ pkg.medicineName?.toUpperCase() || 'MEDICINE' }}</strong></div>
+          <div><strong>-</strong></div>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Medicine Table -->
+    <table class="medicine-table">
+      <thead>
+        <tr>
+          <th style="width: 4%">S.</th>
+          <th style="width: 22%">Description</th>
+          <th style="width: 8%">HSN Code</th>
+          <th style="width: 8%">Mfg</th>
+          <th style="width: 10%">Batch No</th>
+          <th style="width: 10%">Exp Date</th>
+          <th style="width: 6%">Qty</th>
+          <th style="width: 8%">M.R.P</th>
+          <!-- <th style="width: 8%">Rate</th> -->
+          <th style="width: 8%">Disc %</th>
+          <th style="width: 8%">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pkg of patientData[0]?.packages; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td class="left">{{ pkg.medicineName || 'N/A' }}</td>
+          <td>-</td>
+          <td>{{ getMedicineDetails(pkg.medicineName).mfg_date }}</td>
+          <td>{{ getMedicineDetails(pkg.medicineName).batch_no }}</td>
+          <td>{{ getMedicineDetails(pkg.medicineName).expiry_date }}</td>
+          <td>{{ pkg.quantity || 0 }}</td>
+          <td class="right">{{ pkg.charge || 0 }}</td>
+          <!-- <td class="right">{{ pkg.charge || 0 }}</td> -->
+          <td>0.00</td>
+          <td class="right">{{ (pkg.quantity * pkg.charge) || 0 }}</td>
+        </tr>
+
+        <!-- Fill empty rows to maintain format -->
+        <!-- <tr *ngFor="let empty of getEmptyRows(); let i = index">
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr> -->
+      </tbody>
+    </table>
+
+    <!-- Totals Section -->
+    <div class="totals-section">
+      <div class="left-info">
+        <div><strong>CREATING MEMO:</strong></div>
+        <div>GST NO: 24AAFPP5689K1Z5</div>
+        <div><strong>SUBJECT TO AHMEDABAD JURISDICTION</strong></div>
+        <div><strong>HAVE A FAST RECOVERY AND GOOD HEALTH</strong></div>
+
+        <div style="margin-top: 6px;">
+          <div><strong>Patient Info:</strong></div>
+          <div style="font-size: 7px;">
+            Name: {{ patientData[0]?.walkInPatient?.name || 'N/A' }}<br>
+            Age/Gender: {{ patientData[0]?.walkInPatient?.age || 'N/A' }}/{{ patientData[0]?.walkInPatient?.gender || 'N/A' }}<br>
+            <span *ngIf="patientData[0]?.walkInPatient?.doctor_name">Doctor: {{ patientData[0]?.walkInPatient?.doctor_name }}</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 6px;">
+          <div><strong>Medicine Instructions:</strong></div>
+          <div *ngFor="let pkg of patientData[0]?.packages" style="font-size: 6px; margin: 1px 0;">
+            • {{ pkg.medicineName }}: {{ pkg.dosageInstruction || 'As directed' }}
+            <span *ngIf="pkg.checkbox?.morning"> Morning</span>
+            <span *ngIf="pkg.checkbox?.noon"> Noon</span>
+            <span *ngIf="pkg.checkbox?.night"> Night</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-totals">
+        <table class="totals-table">
+          <tr>
+            <td><strong>GROSS TOTAL:</strong></td>
+            <td class="right">{{ getSubtotal().toFixed(2) }}</td>
+          </tr>
+          <tr>
+            <td>DISCOUNT:</td>
+            <td class="right">0.00</td>
+          </tr>
+          <tr>
+            <td>Round Off:</td>
+            <td class="right">0.00</td>
+          </tr>
+          <tr>
+            <td>GST (18%):</td>
+            <td class="right">{{ getGSTAmount().toFixed(2) }}</td>
+          </tr>
+          <tr style="border-top: 2px solid #000;">
+            <td><strong>NET:</strong></td>
+            <td class="right"><strong>{{ getTotal().toFixed(2) }}</strong></td>
+          </tr>
+        </table>
+
+        <div class="payment-mode">
+         <strong>Payment Mode:</strong> {{ getPaymentModeDisplay(patientData[0]) }}
+          <!-- <div *ngIf="patientData[0]?.transactionId">
+            <strong>Txn ID:</strong> {{ patientData[0]?.transactionId }}
+          </div> -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div><strong>***** Thank You Visit Again *****</strong></div>
+      <div>Software By: VAIDIK SOFT Pvt Ltd | Contact: +91 9829047844</div>
+      <div>Bill Generated: {{ getCurrentDateTime() }}</div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+<footer class="m-3 d-flex justify-content-between">
+  <div style="visibility: hidden;">
+    <div class="">
+      <input type="checkbox" name="" id="">
+      Include Header
+    </div>
+    <div class="">
+      <input type="checkbox" name="" id="">
+      Include Footer
+    </div>
+  </div>
+  <button class="btn btn-dark" (click)="print()">Print <i class="fa-solid fa-print action-btn"></i></button>
+  <!-- <button class="btn btn-secondary ms-2" (click)="printOPDSheet()">PDF <i class="fa-solid fa-file-pdf"></i></button> -->
+</footer>

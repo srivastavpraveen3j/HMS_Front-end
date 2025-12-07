@@ -1,0 +1,30 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>OPD BILL</h2>
+    <!-- Header icons & dropdown remain here -->
+    <app-opd-dropdown></app-opd-dropdown>
+  </div>
+
+  <form [formGroup]="opdbillForm" (ngSubmit)="onSubmit()" novalidate>
+    <!-- 1. Patient Details -->
+    <app-patient-details [parentForm]="opdbillForm" [convertFromAppointment]="convertFromAppointment"
+      [opdTodayRecords]="opdTodayRecords" (patientSelected)="selectPatient($event)">
+    </app-patient-details>
+
+    <!-- 2. Service Details -->
+    <app-service-details [parentForm]="opdbillForm" (servicesSelected)="onSelectedServices($event)">
+    </app-service-details>
+
+    <!-- 3. Payment Details (Inline instead of Modal) -->
+    <div class="payment-section mt-4 p-3 border rounded shadow-sm">
+      <h5 class="mb-3">Payment Details</h5>
+      <app-payment-details [parentForm]="opdbillForm" (requestDiscount)="requestDiscount()">
+      </app-payment-details>
+    </div>
+
+    <!-- 4. Submit Button -->
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-dark">Save & Print</button>
+    </div>
+  </form>
+</div>

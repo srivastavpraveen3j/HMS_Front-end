@@ -1,0 +1,135 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>Operation Entry LIST</h2>
+    <div class="">
+      <!-- <button class="list-cases-btn mx-3"   ><i class="fa-solid fa-user-group"></i></button> -->
+      <!-- <button
+        class="list-cases-btn"
+        [routerLink]="['/ipd/otsheet']"
+        routerLinkActive="router-link-active"
+      >
+        ADD OPERATION ENTRY
+      </button> -->
+    </div>
+  </div>
+
+  <!-- <div class="top-bar p-3">
+    <form [formGroup]="filterForm" class="top-bar p-3">
+      <input type="text" placeholder="Search..." formControlName="searchText" />
+    </form>
+
+
+
+  </div> -->
+
+  <!-- Filter by Today or Date Range -->
+  <div class="filters d-flex align-items-center m-3">
+    <div class="form-group position-relative w-50">
+      <input
+        type="text"
+        [(ngModel)]="searchText"
+        (input)="applyFilters()"
+        placeholder="Search by uhid/patient/mobile"
+        class="form-control"
+      />
+    </div>
+
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="today"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+        checked
+      />
+      TODAY'S
+    </label>
+
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="dateRange"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+      />
+      Date Range
+    </label>
+
+    <!-- Date Inputs Visible Only for Date Range -->
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="startDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+    />
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="endDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+    />
+  </div>
+
+  <div
+    *ngIf="filteredCases && filteredCases.length === 0"
+    class="alert alert-warning text-center"
+  >
+    No {{ module }} created today.
+  </div>
+  <div
+    class="loader-wrapper"
+    *ngIf="filteredCases.length === 0 && !filteredCases"
+  >
+    <div class="loader">
+      <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+    </div>
+  </div>
+
+  <div *ngIf="userPermissions.read && filteredCases.length > 0">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>UHID</th>
+          <th>Patient Name</th>
+          <th>Surgery Name</th>
+          <th>Surgery Date</th>
+          <th>Surgery Time</th>
+          <th>Equipment Used</th>
+          <th>Implant Details</th>
+          <!-- <th>Amount</th> -->
+          <!-- <th>Action</th> -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ot of filteredCases; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ ot.uhid }}</td>
+          <td>{{ ot.patient_name }}</td>
+          <td>{{ ot?.operationTheatresheets?.surgeryPackageId?.name }}</td>
+          <td>{{ ot?.operationTheatresheets?.surgeryDate | date }}</td>
+          <td>
+            {{ ot?.operationTheatresheets?.surgeryStartTime }} -
+            {{ ot?.operationTheatresheets?.surgeryEndTime }}
+          </td>
+          <td>{{ ot?.operationTheatresheets?.equipmentUsed }}</td>
+          <td>{{ ot?.operationTheatresheets?.implantDetails }}</td>
+          <!-- <td>{{ ot?.operationTheatresheets?.netAmount }}</td> -->
+          <!-- <td>
+            <i
+              class="fa-solid fa-trash action-btn"
+              *ngIf="userPermissions.delete"
+              (click)="deleteOT(ot?.operationTheatresheets?._id)"
+            ></i>
+          </td> -->
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

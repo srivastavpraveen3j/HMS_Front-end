@@ -1,0 +1,127 @@
+<!-- <p>addusersroles works!</p>  -->
+<!-- <p>ipdadmission works!</p> -->
+<div class="header">
+  <h2>NEW BRANCH  </h2>
+  <button class="list-cases-btn" [routerLink]="['/hospitaladmin/hospitalmanagement']"
+    routerLinkActive="router-link-active">HOSPITALS</button>
+</div>
+<div class="opd-container">
+  <form [formGroup]="branchform" (ngSubmit)="OnSubmit()">
+    <!-- <h4 class="m-4">Branch Details</h4> -->
+    <h4>Branch Admin Credentials</h4>
+
+    <hr>
+
+    <div class="form-row">
+      <!-- <div class="form-group">
+        <label class="form-label">Hospital Logo:</label>
+        <div class="file-upload" (click)="triggerFileInput()" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+          <input type="file" #fileInput (change)="onFileSelected($event)" hidden />
+          <p *ngIf="!selectedFile">DROP / CLICK HERE TO UPLOAD FILES</p>
+          <p *ngIf="selectedFile">{{ selectedFile.name }}</p>
+        </div>
+      </div> -->
+
+
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Branch Admin Name:</label>
+        <input type="text" class="form-control" placeholder="Branch Name" formControlName="name">
+        <div *ngIf="branchform.get('name')?.invalid && branchform.get('name')?.touched" class="text-danger">Branch Name is required</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" >Branch Admin Email Address:</label>
+        <input type="text" class="form-control" placeholder="Email Address" formControlName="contact_email">
+         <div *ngIf="branchform.get('contact_email')?.invalid && branchform.get('contact_email')?.touched" class="text-danger">Email is required</div>
+
+      </div>
+      <!-- <div class="form-group">
+        <label class="form-label" >Email:</label>
+        <input type="email" class="form-control" placeholder="Email">
+      </div> -->
+      <!-- <div class="form-group">
+        <label class="form-label" >Phone:</label>
+        <input type="tel" class="form-control" placeholder="Phone">
+      </div> -->
+
+
+    </div>
+    <!-- <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">OPD Rooms:</label>
+        <input type="text" class="form-control" placeholder="Name">
+      </div>
+      <div class="form-group">
+        <label class="form-label" >IPD Rooms:</label>
+        <input type="text" class="form-control" placeholder="Address">
+      </div>
+      <div class="form-group">
+        <label class="form-label" >ICU Rooms:</label>
+        <input type="email" class="form-control" placeholder="Email">
+      </div>
+
+
+
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" >Beds:</label>
+        <input type="tel" class="form-control" placeholder="Phone">
+      </div>
+      <div class="form-group">
+        <label class="form-label" >Doctors:</label>
+        <input type="tel" class="form-control" placeholder="Phone">
+      </div>
+      <div class="form-group">
+        <label class="form-label" >Staffs:</label>
+        <input type="tel" class="form-control" placeholder="Phone">
+      </div>
+    </div> -->
+
+
+
+
+    <hr>
+
+    <div class="form-row">
+      <!-- <div class="form-group">
+        <label class="form-label" >User Name:</label>
+        <input type="text" class="form-control" placeholder="user name">
+      </div> -->
+     <!-- <div class="form-group">
+  <label>Role</label>
+  <select class="form-control" formControlName="role">
+    <option value="">Select Role</option>
+    <option *ngFor="let role of roles" [value]="role.name">{{ role.name }}</option>
+  </select>
+  <div *ngIf="branchform.get('role')?.touched && branchform.get('role')?.invalid" class="text-danger">
+    Role is required
+  </div>
+</div> -->
+
+      <!-- <div class="form-group">
+        <label class="form-label" >Email ID:</label>
+        <input type="email" class="form-control" placeholder="email">
+      </div> -->
+      <!-- <div class="form-group">
+        <label class="form-label" >Password:</label>
+        <input type="password" class="form-control" placeholder="Password">
+      </div> -->
+
+
+    </div>
+
+
+
+    <div class="text-center mt-3">
+      <button class="btn btn-dark mx-2" [disabled]="branchform.invalid">Submit</button>
+      <button class="btn btn-secondary">Cancel</button>
+    </div>
+
+
+
+  </form>
+
+</div>

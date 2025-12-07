@@ -1,0 +1,87 @@
+<div #pdfContent>
+  <div class="header d-flex justify-content-between align-items-center mb-3">
+    <h2 *ngIf="idExists && selectedPatientName">
+      Patient Balance Report - {{ selectedPatientName }}
+    </h2>
+    <h2 *ngIf="!idExists">
+      Patient Balance Report -
+      {{
+        activeTab === "admitted" ? "ADMITTED PATIENTS" : "DISCHARGED PATIENTS"
+      }}
+    </h2>
+
+    <ul *ngIf="!idExists" class="nav nav-tabs mb-0">
+      <li class="nav-item">
+        <a
+          class="nav-link no-print"
+          [ngClass]="{ active: activeTab === 'admitted' }"
+          (click)="setActiveTab('admitted')"
+        >
+          Admitted Patients
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link no-print"
+          [ngClass]="{ active: activeTab === 'discharge' }"
+          (click)="setActiveTab('discharge')"
+        >
+          Discharged Patients
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div *ngIf="filteredPatients.length > 0">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark text-center">
+        <tr>
+          <th>#</th>
+          <th>Patient Name</th>
+          <th>Date</th>
+          <th>Inpatient Chrages</th>
+          <th>Medical Charges</th>
+          <th>Operation Theatre Charges</th>
+          <th>Pharmacy Charges</th>
+          <th>Total Room charges</th>
+          <th>Deposit Amount</th>
+          <th>Net Pay Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let patient of filteredPatients; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td style="cursor: pointer; color: blue">
+            {{ patient.patientName }}
+          </td>
+          <td>{{ patient.createdAt | date : "yyyy-MM-dd" }}</td>
+          <td>{{ patient.totalInpatientCharges }}</td>
+          <td>{{ patient.totalMedicalCharges }}</td>
+          <td>{{ patient.totalOperationTheaterCharges }}</td>
+          <td>{{ patient.totalPharmacyCharges }}</td>
+          <td>{{ patient.totalRoomCharges }}</td>
+          <td>{{ getDepositAmount(patient.inpatientCase?.[0]?._id) }}</td>
+          <td>{{ patient.netPayableAmount }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="d-flex justify-content-end">
+      <button (click)="downloadPDF()" class="btn btn-dark mb-3 no-print">
+        Download
+      </button>
+    </div>
+  </div>
+  <div
+    *ngIf="idExists && filteredPatients.length === 0"
+    class="alert alert-warning text-center"
+  >
+    No balance report exist now for this patient.
+  </div>
+
+  <app-loader *ngIf="!idExists"
+    [patientData]="filteredPatients"
+    [title]="activeTab === 'admitted' ? 'Admitted patients' : 'Discharged patients'"
+  ></app-loader>
+</div>

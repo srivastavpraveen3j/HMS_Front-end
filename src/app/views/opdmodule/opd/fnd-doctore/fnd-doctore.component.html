@@ -1,0 +1,21 @@
+<div class="form-group position-relative">
+  <label>Consultant Dr.</label>
+  <input
+    type="text"
+    class="form-control"
+    placeholder="Search Doctor by Name"
+    [formControl]="doctorSearchControl"
+    (focus)="showDoctorSuggestions = true"
+    (blur)="hideSuggestionsLater()"
+  />
+  <div class="suggestion-container" *ngIf="showDoctorSuggestions">
+    <ul class="suggestions" *ngIf="filteredDoctors.length > 0">
+      <li *ngFor="let doc of filteredDoctors" (mousedown)="selectDoctor(doc)">
+        {{ doc.name }}
+      </li>
+    </ul>
+    <div *ngIf="filteredDoctors.length === 0" class="placeholder">
+      No doctors found.
+    </div>
+  </div>
+</div>

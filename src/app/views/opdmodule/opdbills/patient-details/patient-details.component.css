@@ -1,0 +1,54 @@
+.patient-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centers horizontally */
+  justify-content: center;
+
+  .section-title {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .form-row-centered {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around; /* spreads inputs evenly */
+    align-items: center;
+    gap: 16px;
+    width: 95%;
+    max-width: 100vw;
+    background: #fff;
+    padding: 20px;
+    margin:2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
+
+  .form-item {
+    display: flex;
+    flex-direction: column;
+    width: 180px; /* consistent width for nice grid layout */
+
+    label {
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 4px;
+    }
+
+    input {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 0.9rem;
+      transition: border-color 0.2s ease;
+    }
+
+    input:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+  }
+}

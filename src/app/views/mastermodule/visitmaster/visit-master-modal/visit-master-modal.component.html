@@ -1,0 +1,288 @@
+<div class="form-meta">
+  <form [formGroup]="visitForm" (ngSubmit)="submitVisit()">
+    <!-- Manual entry toggle -->
+    <div class="row mb-2">
+      <div class="col-md-6 d-flex align-items-center">
+        <input
+          type="checkbox"
+          id="manualEntryToggle"
+          class="form-check-input me-2"
+          formControlName="isManualEntry"
+          (change)="onManualToggle()" />
+        <label for="manualEntryToggle" class="form-check-label">
+          Manual Entry (Outside Doctor)
+        </label>
+      </div>
+    </div>
+
+    <div class="header">
+      <h2>Record Doctor Visit / Procedure</h2>
+    </div>
+
+    <div class="form-body fomr-meta">
+      <div *ngIf="submitting" class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Saving visit...</p>
+      </div>
+
+      <div *ngIf="!submitting">
+        <!-- Patient top row (patched from IPD case via route) -->
+        <div class="row">
+          <div class="col-md-3">
+            <label class="form-label">UHID No*:</label>
+            <input
+              type="text"
+              placeholder="UHID No"
+              class="form-control"
+              formControlName="uhid"
+              readonly />
+          </div>
+          <div class="col-md-3 position-relative">
+            <label class="form-label">Patient Name:</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Enter patient name"
+              formControlName="patient_name"
+              readonly />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Age*:</label>
+            <input
+              type="text"
+              placeholder="Age/Gender"
+              class="form-control"
+              formControlName="age"
+              readonly />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Room/Bed Type</label>
+            <span>
+              {{ roomTypeName || 'Loading...' }} /
+              {{ bedTypeName || 'Loading...' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Manual head + doctor -->
+        <div class="row" *ngIf="isManualEntry">
+          <div class="form-group col-md-6">
+            <label class="form-label">
+              Head Name <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="headName" />
+          </div>
+
+          <div class="form-group col-md-6">
+            <label class="form-label">
+              Doctor <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search Doctor by Name"
+              [formControl]="doctorSearchControl"
+              (focus)="showDoctorSuggestions = true"
+              (blur)="hideDoctorSuggestionsLater()"
+              autocomplete="off" />
+
+            <div
+              class="suggestion-container"
+              *ngIf="showDoctorSuggestions && filteredDoctors.length > 0">
+              <ul class="suggestions list-group">
+                <li
+                  class="list-group-item list-group-item-action"
+                  *ngFor="let doc of filteredDoctors"
+                  (mousedown)="selectDoctor(doc)">
+                  {{ doc.name }}
+                  {{ doc.specialization ? ' | ' + doc.specialization : '' }}
+                  {{ doc.experience ? ' | ' + doc.experience + ' yrs' : '' }}
+                </li>
+              </ul>
+            </div>
+
+            <!-- <small
+              class="text-danger"
+              *ngIf="
+                visitForm.get('manualDoctorId')?.errors?.['required'] &&
+                visitForm.get('manualDoctorId')?.touched
+              ">
+              Doctor is required
+            </small> -->
+          </div>
+        </div>
+
+        <!-- Head + Visit Type (auto mode only) -->
+        <div class="row">
+          <div class="form-group col-md-6" *ngIf="!isManualEntry">
+            <label class="form-label">Visit Type / Head *</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search visit head..."
+              formControlName="headName"
+              (focus)="!isManualEntry && (showSuggestions = filteredHeads.length > 0)"
+              (blur)="hideSuggestionsWithDelay()" />
+
+            <div
+              *ngIf="!isManualEntry && showSuggestions && filteredHeads.length > 0"
+              class="suggestion-container">
+              <ul class="suggestions">
+                <li
+                  *ngFor="let head of filteredHeads"
+                  (mousedown)="selectHead(head)">
+                  {{ head.headName }} | {{ head.visitType | titlecase }}
+                </li>
+              </ul>
+            </div>
+
+            <div
+              *ngIf="
+                !isManualEntry &&
+                visitForm.get('headName')?.value &&
+                visitForm.get('headName')?.value.length > 2 &&
+                !filteredHeads.length &&
+                !manuallySelected
+              "
+              class="text-danger">
+              No matching heads found
+            </div>
+            <div
+              *ngIf="
+                visitForm.get('headName')?.touched &&
+                visitForm.get('headName')?.invalid
+              "
+              class="text-danger">
+              Visit head is required
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">
+              Visit Type <span class="text-danger">*</span>
+            </label>
+            <select
+              formControlName="visitType"
+              class="form-control"
+              (change)="onVisitTypeChange()">
+              <option value="">Select Visit Type</option>
+              <option *ngFor="let vt of visitTypeEnum" [value]="vt">
+                {{ vt }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- No. of visits + Amount -->
+        <div class="row">
+          <div class="form-group col-md-6">
+            <label>No. of Visits</label>
+            <input
+              type="number"
+              formControlName="noOfVisits"
+              min="1"
+              class="form-input"
+              (input)="calculateAmount()" />
+            <div
+              *ngIf="f['noOfVisits']?.invalid && f['noOfVisits']?.touched"
+              class="error">
+              Minimum 1 visit required
+            </div>
+          </div>
+
+          <div class="form-group col-md-6">
+            <label class="form-label">Amount (₹) *</label>
+            <input
+              type="number"
+              formControlName="amount"
+              min="0"
+              step="0.01"
+              class="form-control" />
+            <div
+              *ngIf="f['amount']?.invalid && f['amount']?.touched"
+              class="error">
+              Amount is required and must be greater than 0
+            </div>
+            <small class="info" *ngIf="!isManualEntry">
+              Auto-calculated from visit head, room & bed, multiplied by number
+              of visits.
+            </small>
+            <small class="info" *ngIf="isManualEntry">
+              Enter amount manually for this doctor and visit.
+            </small>
+          </div>
+        </div>
+
+        <!-- Procedure services (auto mode only) -->
+        <div
+          *ngIf="!isManualEntry && f['visitType']?.value === 'procedure'"
+          class="form-section">
+          <h4>Procedure Services for this Doctor & Room</h4>
+
+          <div class="services-section">
+            <div
+              class="service-item selectable"
+              *ngFor="let ps of availableProcedureServices"
+              (click)="addService(ps)">
+              <div>
+                <strong>{{ ps.serviceId?.name }}</strong>
+                <small>Base: ₹{{ ps.serviceAmount }}</small>
+              </div>
+              <span class="add-link">Add</span>
+            </div>
+
+            <div *ngIf="selectedServices.length > 0" class="selected-services">
+              <h5>Selected</h5>
+              <div
+                *ngFor="let s of selectedServices; let i = index"
+                class="service-item">
+                <span>{{ s.name }}</span>
+                <div class="qty-group">
+                  <label>Qty</label>
+                  <input
+                    type="number"
+                    min="1"
+                    [value]="s.quantity"
+                    (input)="changeServiceQuantity(i, +$any($event.target).value)"
+                    class="qty-input" />
+                </div>
+                <button
+                  type="button"
+                  class="remove-btn"
+                  (click)="removeService(i)">
+                  ×
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remarks -->
+        <div class="form-group">
+          <label>Remarks</label>
+          <textarea
+            formControlName="remarks"
+            rows="3"
+            class="form-input textarea"
+            placeholder="Optional remarks..."></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="close()">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="btn-primary">
+            {{ submitting ? 'Saving...' : 'Record Visit' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

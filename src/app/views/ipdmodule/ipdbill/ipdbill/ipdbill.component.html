@@ -1,0 +1,610 @@
+<div class="modal-overlay" *ngIf="showQuantityDialog" (click)="closeQuantityDialog()">
+  <div class="quantity-dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <h4>{{ selectedServiceForQuantity?.name }}</h4>
+      <button class="close-btn" (click)="closeQuantityDialog()">×</button>
+    </div>
+
+    <div class="dialog-body">
+      <div class="billing-type-info mb-3">
+        <div class="billing-badge" [style.background-color]="getBillingTypeConfig(selectedServiceForQuantity?.billingType).color">
+          {{ getBillingTypeConfig(selectedServiceForQuantity?.billingType).icon }}
+          {{ getBillingTypeConfig(selectedServiceForQuantity?.billingType).label }}
+        </div>
+      </div>
+
+      <form [formGroup]="quantityForm">
+        <div class="form-group">
+          <label>
+            Enter Quantity ({{ quantityForm.get('unitLabel')?.value }}s)
+          </label>
+          <input
+            type="number"
+            class="form-control form-control-lg"
+            formControlName="quantity"
+            min="0.01"
+            step="0.01"
+            placeholder="Enter quantity"
+            autofocus
+          />
+          <small class="text-muted">
+            Rate: {{ quantityForm.get('ratePerUnit')?.value | number:'1.2-2' }}
+            per {{ quantityForm.get('unitLabel')?.value }}
+          </small>
+        </div>
+
+        <div class="total-display">
+          <div class="total-label">Total Amount</div>
+          <div class="total-amount">
+            {{ calculatedTotal | number:'1.2-2' }}
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="dialog-footer">
+      <button
+        class="btn btn-secondary"
+        (click)="closeQuantityDialog()"
+      >
+        Cancel
+      </button>
+      <button
+        class="btn btn-primary"
+        (click)="addServiceWithQuantity()"
+        [disabled]="quantityForm.invalid"
+      >
+        Add to Bill
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="form-meta">
+  <div class="header">
+    <h2>IPD CHARGE POSTING</h2>
+    <div>
+      <!-- ✅ Enhanced Company Rate Indicator -->
+      <div *ngIf="isCompanyPatient" class="company-indicator alert alert-success d-inline-block p-2 m-2">
+        <i class="fa-solid fa-building-shield"></i>
+        <strong>{{ companyInfo?.companyName }}</strong> - Company Rates Active
+        <span class="badge badge-light ml-2">
+          {{ (lockedRates?.lockedServiceRates?.length || 0) }} Services
+        </span>
+      </div>
+
+      <span class="icons position-relative">
+        <i
+          class="fa-solid fa-user-tie mx-2"
+          (click)="showUHIDDropdown = !showUHIDDropdown"
+          style="cursor: pointer"
+          title="Today's IPD Cases"
+        ></i>
+
+        <!-- ✅ Enhanced UHID Dropdown with Company Indicators -->
+        <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+          <div
+            *ngIf="uhidTodayRecords?.length === 0"
+            class="text-center text-muted py-2"
+          >
+            No IPD Cases Created today.
+          </div>
+
+          <ul class="uhid-list">
+            <li
+              *ngFor="let record of uhidTodayRecords"
+              (click)="selectPatientFromUHID(record)"
+              style="cursor: pointer"
+              [class.company-patient]="record.patient_type === 'cashless'"
+            >
+              <div class="uhid-name">
+                {{ record.uniqueHealthIdentificationId?.patient_name }}
+              </div>
+              <div class="uhid-meta">
+                UHID: {{ record.uniqueHealthIdentificationId?.uhid }} | Age:
+                {{ record.uniqueHealthIdentificationId?.age }}
+                <!-- ✅ Enhanced Company indicator -->
+                <span *ngIf="record.patient_type === 'cashless'" class="badge badge-success ml-2">
+                  <i class="fa-solid fa-building"></i> {{ record.companyName || 'Company' }}
+                </span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </span>
+    </div>
+  </div>
+
+  <div class="opd-container" *ngIf="userPermissions.create">
+    <form [formGroup]="ipdForm" (ngSubmit)="onSubmit()">
+      <!-- <h4 class="m-4">Patient Details</h4>
+      <hr /> -->
+
+      <!-- ✅ Enhanced Company Information Display -->
+      <div *ngIf="isCompanyPatient" class="alert alert-info mb-3">
+        <div class="row">
+          <div class="col-md-8">
+            <h6><i class="fa-solid fa-building text-primary"></i> <strong>{{ companyInfo?.companyName }}</strong></h6>
+            <small class="text-muted">Type: {{ companyInfo?.type }} | Short Name: {{ companyInfo?.companyShortName }}</small>
+          </div>
+          <div class="col-md-4 text-right">
+            <span class="badge badge-success">
+              <i class="fa-solid fa-check-circle"></i> Company Rates Active
+            </span>
+            <div class="mt-1">
+              <small class="text-success">
+                {{ (lockedRates?.lockedServiceRates?.length || 0) }} Services Available
+              </small>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <small class="text-info">
+          <i class="fa-solid fa-info-circle"></i>
+          Company-specific rates will be applied to selected services automatically.
+        </small>
+      </div>
+
+      <div class="row g-6">
+        <div class="form-group col-md-2">
+          <label>UHID</label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="uhid"
+            (input)="onUhidInput()"
+            placeholder="Enter UHID"
+            readonly
+          />
+          <div
+            *ngIf="ipdForm.get('uhid')?.invalid && ipdForm.get('uhid')?.touched"
+            class="text-danger"
+          >
+            UHID No is required
+          </div>
+        </div>
+
+        <div class="form-group col-md-2">
+          <label>Patient name</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Enter patient name"
+            formControlName="patient_name"
+            (input)="onPatientInput()"
+            (focus)="showSuggestions = true"
+            (blur)="hideSuggestionsWithDelay()"
+            readonly
+          />
+
+          <!-- ✅ Enhanced Patient Suggestions with Company Indicators -->
+          <div
+            *ngIf="showSuggestions && filteredPatients.length > 0"
+            class="suggestions-container"
+          >
+            <ul class="suggestions">
+              <li
+                *ngFor="let patient of filteredPatients"
+                (mousedown)="selectPatient(patient)"
+                class="suggestion-item"
+                [class.company-patient]="patient.patient_type === 'cashless'"
+              >
+                <div class="patient-info">
+                  <div class="patient-name">
+                    <strong>{{ patient?.uniqueHealthIdentificationId?.patient_name }}</strong>
+                  </div>
+                  <div class="patient-meta">
+                    <span *ngIf="patient?.uniqueHealthIdentificationId?.mobile_no">
+                      📞 {{ patient?.uniqueHealthIdentificationId?.mobile_no }}
+                    </span>
+                    <span *ngIf="patient?.uniqueHealthIdentificationId?.uhid" class="ml-2">
+                      🆔 {{ patient?.uniqueHealthIdentificationId?.uhid }}
+                    </span>
+                    <span *ngIf="patient?.uniqueHealthIdentificationId?.age" class="ml-2">
+                      📅 {{ patient?.uniqueHealthIdentificationId?.age }}
+                    </span>
+                    <!-- ✅ Enhanced Company indicator -->
+                    <span *ngIf="patient.patient_type === 'cashless'" class="badge badge-success ml-2">
+                      <i class="fa-solid fa-building"></i> {{ patient.companyName || 'Company Patient' }}
+                    </span>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div
+            *ngIf="
+              ipdForm.get('patient_name')?.value &&
+              ipdForm.get('patient_name')?.value.length > 2 &&
+              !filteredPatients.length &&
+              !manuallySelected
+            "
+            class="text-danger"
+          >
+            No matching patients found
+          </div>
+        </div>
+
+         <div class="form-group col-md-2">
+          <label>Bed No</label>
+          <input type="text" class="form-control" formControlName="bed_id" readonly />
+        </div>
+
+        <div class="form-group col-md-2">
+          <label>Age</label>
+          <input type="text" class="form-control" formControlName="age" readonly />
+        </div>
+
+         <div class="form-group col-md-2">
+          <label>Patient Type</label>
+          <input type="text" class="form-control" formControlName="patient_type" readonly />
+        </div>
+
+        <div class="form-group col-md-2">
+          <label>Admit Date</label>
+          <input type="date" class="form-control" formControlName="admissionDate" readonly />
+        </div>
+      </div>
+
+      <div class="row g-2">
+        <div class="form-group col-md-6">
+          <label for="" class="form-label"> Bill Date</label>
+          <input type="date" class="form-control" formControlName="billingDate" />
+        </div>
+        <div class="form-group col-md-6">
+          <label for="" class="form-label">Bill Time</label>
+          <input type="time" class="form-control" formControlName="billingTime" />
+        </div>
+      </div>
+
+      <div class="section services mt-4">
+        <h4>SERVICE DETAILS</h4>
+        <div class="form-group mb-2">
+          <input
+            type="text"
+            class="form-control"
+            [formControl]="searchTextControl"
+            placeholder="Search service group..."
+          />
+        </div>
+
+        <div class="services-layout">
+          <!-- Service Groups (Left Panel) -->
+          <div class="panel service-groups-panel">
+            <div class="panel-header">
+              <h5><i class="fas fa-layer-group"></i> Service Groups</h5>
+            </div>
+            <div class="panel-body scrollable">
+              <ng-container *ngIf="services.length > 0; else loadingGroups">
+                <div
+                  *ngFor="let group of services; trackBy: trackByGroupId"
+                  (click)="showService(group)"
+                  class="group-tag"
+                  [class.active]="selectedGroup?.id === group._id"
+                >
+                  <span class="group-name">{{ group.group_name }}</span>
+                  <small class="service-count"
+                    >{{ group.services.length || 0 }} services</small
+                  >
+                </div>
+              </ng-container>
+              <ng-template #loadingGroups>
+                <div class="loading-state">
+                  <div class="spinner"></div>
+                  <p>Loading service groups...</p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+
+          <!-- Group Services (Middle Panel) -->
+          <div class="panel group-services-panel">
+            <div class="panel-header">
+              <h5><i class="fas fa-list"></i> Services in Group</h5>
+              <small *ngIf="selectedGroup" class="text-muted">{{
+                selectedGroup.group_name
+              }}</small>
+            </div>
+            <div class="panel-body scrollable">
+              <div class="search-container mb-2">
+                <input
+                  type="text"
+                  class="form-control form-control-sm service-search"
+                  placeholder="🔍 Search services..."
+                  (input)="filterGroupServices($event)"
+                />
+              </div>
+              <div *ngIf="selectedGroup; else noGroupSelected">
+                <div
+                  *ngFor="
+                    let srv of filteredGroupServices;
+                    trackBy: trackByServiceId
+                  "
+                  class="service-item"
+                  (click)="selectService(srv)"
+                >
+                  <div class="service-details">
+                    <div class="service-name-container">
+                      <span class="service-name">{{ srv.name }}</span>
+
+                      <!-- ✅ NEW: Billing Type Badge -->
+                      <!-- <span class="billing-type-badge"
+                            [style.background-color]="getBillingTypeConfig(srv.billingType || 'fixed').color">
+                        {{ getBillingTypeConfig(srv.billingType || 'fixed').icon }}
+                        {{ getBillingTypeConfig(srv.billingType || 'fixed').label }}
+                      </span> -->
+
+                      <small *ngIf="srv.description" class="text-muted d-block">
+                        {{ srv.description }}
+                      </small>
+                    </div>
+
+                    <!-- ✅ Enhanced Service Rates Display -->
+                    <div class="service-rates">
+                      <!-- Standard Rate -->
+                      <div class="rate-container">
+                        <!-- <span class="rate-label">
+                          {{ srv.billingType === 'fixed' ? 'Charge:' : 'Rate:' }}
+                        </span> -->
+                        <span class="service-charge standard-rate">
+                          {{ srv.charge | indianCurrency }}
+                          <span *ngIf="srv.billingType && srv.billingType !== 'fixed'" class="unit-label">
+                            / {{ srv.unitLabel || getUnitLabel(srv.billingType) }}
+                          </span>
+                        </span>
+                      </div>
+
+                      <!-- Company Rate (if applicable) -->
+                      <div
+                        *ngIf="isCompanyPatient && hasCompanyDiscount(srv._id)"
+                        class="rate-container company-rate-container"
+                      >
+                        <span class="rate-label text-success">Company:</span>
+                        <span class="service-charge company-rate text-success">
+                          {{ getLockedServiceRate(srv._id) | indianCurrency }}
+                          <span *ngIf="srv.billingType && srv.billingType !== 'fixed'" class="unit-label">
+                            / {{ srv.unitLabel || getUnitLabel(srv.billingType) }}
+                          </span>
+                        </span>
+                        <small class="savings-badge text-success">
+                          <i class="fa-solid fa-tag"></i>
+                          Save {{ getSavingsAmount(srv._id) | indianCurrency }}
+                        </small>
+                      </div>
+
+                      <!-- Same Rate Indicator -->
+                      <div
+                        *ngIf="isCompanyPatient && !hasCompanyDiscount(srv._id)"
+                        class="rate-container"
+                      >
+                        <!-- <small class="text-muted">
+                          <i class="fa-solid fa-equals"></i> Same as standard rate
+                        </small> -->
+                      </div>
+
+                      <!-- Non-company patient indicator -->
+                      <!-- <div *ngIf="!isCompanyPatient" class="rate-container">
+                        <small class="text-muted">
+                          <i class="fa-solid fa-money-bill"></i> Standard billing
+                        </small>
+                      </div> -->
+                    </div>
+                  </div>
+                </div>
+                <div
+                  *ngIf="filteredGroupServices.length === 0"
+                  class="empty-state"
+                >
+                  <i class="fas fa-search"></i> No services found
+                </div>
+              </div>
+              <ng-template #noGroupSelected>
+                <div class="empty-state">
+                  <i class="fas fa-hand-point-left"></i> Select a service group
+                </div>
+              </ng-template>
+            </div>
+          </div>
+
+          <!-- Selected Services (Right Panel) -->
+          <div class="panel selected-services-panel">
+            <div class="panel-header">
+              <h5><i class="fas fa-check-circle"></i> Selected Services</h5>
+              <small class="text-muted">{{ serviceId.length }} selected</small>
+            </div>
+            <div class="panel-body scrollable">
+              <table
+                class="table table-sm table-hover"
+                *ngIf="serviceId && serviceId.length > 0; else noServicesSelected"
+              >
+                <thead class="table-dark">
+                  <tr>
+                    <th>Service</th>
+                    <!-- <th>Type</th> -->
+                    <th>Qty</th>
+                    <th>Rate</th>
+                    <th>Total</th>
+                    <th width="100">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of serviceId.controls; let i = index"
+                      [class.company-service]="row.value.isCompanyRate">
+                    <td>
+                      <div class="service-info">
+                        <strong>{{ row.value.name }}</strong>
+
+                        <!-- ✅ Enhanced Service Rate Indicators -->
+                        <div class="service-badges mt-1">
+                          <!-- Company rate indicator -->
+                          <div *ngIf="row.value.isCompanyRate" class="company-applied-badge">
+                            <small class="badge badge-success">
+                              <i class="fa-solid fa-building"></i> Company Rate Applied
+                            </small>
+                          </div>
+
+                          <!-- Standard rate indicator -->
+                          <!-- <div *ngIf="!row.value.isCompanyRate" class="standard-rate-badge">
+                            <small class="badge badge-secondary">
+                              <i class="fa-solid fa-money-bill"></i> Standard Rate
+                            </small>
+                          </div> -->
+                        </div>
+
+                        <!-- Show original rate if different -->
+                        <div *ngIf="row.value.isCompanyRate && row.value.originalCharge !== row.value.charge">
+                          <small class="text-muted">
+                            Original: <s>{{ row.value.originalCharge | indianCurrency }}</s>
+                            <span class="text-success ml-1">
+                              Saved: {{ (row.value.originalCharge - row.value.charge) | indianCurrency }}
+                            </span>
+                          </small>
+                        </div>
+                      </div>
+                    </td>
+                    <!-- <td>
+                      <span class="billing-type-badge-sm"
+                            [style.background-color]="getBillingTypeConfig(row.value.billingType || 'fixed').color">
+                        {{ getBillingTypeConfig(row.value.billingType || 'fixed').icon }}
+                        {{ getBillingTypeConfig(row.value.billingType || 'fixed').label }}
+                      </span>
+                    </td> -->
+                    <td>
+                      {{ row.value.quantity || 1 }}
+                      <small class="text-muted d-block">
+                        {{ row.value.unitLabel || 'service' }}{{ (row.value.quantity || 1) > 1 ? 's' : '' }}
+                      </small>
+                    </td>
+                    <td>
+                      <div class="charge-display">
+                        <span [class.text-success]="row.value.isCompanyRate"
+                              class="rate-display">
+                          {{ row.value.ratePerUnit || row.value.charge | indianCurrency }}
+                        </span>
+                        <small *ngIf="row.value.billingType !== 'fixed'" class="text-muted d-block">
+                          per {{ row.value.unitLabel }}
+                        </small>
+
+                        <!-- <div class="rate-type-indicator">
+                          <small *ngIf="row.value.isCompanyRate" class="text-success">
+                            <i class="fa-solid fa-check-circle"></i> Company Rate
+                          </small>
+                          <small *ngIf="!row.value.isCompanyRate" class="text-muted">
+                            <i class="fa-solid fa-money-bill"></i> Standard Rate
+                          </small>
+                        </div> -->
+                      </div>
+                    </td>
+                    <td>
+                      <strong class="total-amount">
+                        {{ row.value.totalAmount || row.value.charge | indianCurrency }}
+                      </strong>
+                    </td>
+                    <td>
+                      <button
+                        *ngIf="row.value.billingType !== 'fixed'"
+                        type="button"
+                        class="btn btn-outline-primary btn-sm mr-1"
+                        (click)="editServiceQuantity(i)"
+                        title="Edit Quantity"
+                      >
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-outline-danger btn-sm"
+                        (click)="removeService(i)"
+                        title="Remove"
+                      >
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr class="table-info">
+                    <td colspan="4">
+                      <strong>Total</strong>
+                      <!-- <div class="total-info">
+                        <small *ngIf="isCompanyPatient" class="text-success">
+                          <i class="fa-solid fa-building"></i> With Company Rates
+                        </small>
+                        <small *ngIf="!isCompanyPatient" class="text-muted">
+                          <i class="fa-solid fa-money-bill"></i> Standard Rates
+                        </small>
+                      </div> -->
+                    </td>
+                    <td>
+                      <strong class="total-amount" [class.text-success]="isCompanyPatient">
+                        {{ getTotalCharge() | indianCurrency }}
+                      </strong>
+                      <div class="savings-summary" *ngIf="isCompanyPatient && getTotalSavings() !== 0">
+                        <small [class.text-success]="getTotalSavings() > 0" [class.text-warning]="getTotalSavings() < 0">
+                          {{ getTotalSavings() > 0 ? 'Saved' : 'Additional' }}:
+                          {{ Math.abs(getTotalSavings()) | indianCurrency }}
+                        </small>
+                      </div>
+                    </td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+              <ng-template #noServicesSelected>
+                <div class="empty-state">
+                  <i class="fas fa-plus-circle"></i> No services selected yet
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="billing-section mt-3">
+        <div class="billing-header">
+          <span class="billing-label">BILLING DETAILS</span>
+          <span *ngIf="isCompanyPatient" class="company-billing-indicator">
+            <i class="fa-solid fa-building-shield text-success"></i>
+            {{ companyInfo?.companyName }} Billing Active
+          </span>
+        </div>
+
+        <div class="billing-container">
+          <div class="billing-column">
+            <div class="billing-item">
+              <label>TOTAL BILL AMOUNT</label>
+              <input
+                type="number"
+                class="form-control"
+                formControlName="totalBillAmount"
+                [class.company-rate]="isCompanyPatient"
+                readonly
+              />
+              <!-- <div class="billing-info mt-1">
+                <small *ngIf="isCompanyPatient" class="text-success">
+                  <i class="fa-solid fa-check-circle"></i> Company rates applied
+                </small>
+                <small *ngIf="!isCompanyPatient" class="text-muted">
+                  <i class="fa-solid fa-money-bill"></i> Standard rates applied
+                </small>
+              </div> -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <button class="btn btn-primary btn-lg mx-2" type="submit" [disabled]="ipdForm.invalid">
+          <i class="fa-solid fa-save"></i> Submit Bill
+          <span *ngIf="isCompanyPatient" class="ml-1">
+            ({{ companyInfo?.companyName }})
+          </span>
+        </button>
+
+        <!-- <button class="btn btn-secondary mx-2" type="button" (click)="resetForm()">
+          <i class="fa-solid fa-refresh"></i> Reset Form
+        </button> -->
+      </div>
+    </form>
+  </div>
+</div>

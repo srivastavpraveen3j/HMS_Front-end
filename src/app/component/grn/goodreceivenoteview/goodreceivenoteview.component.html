@@ -1,0 +1,457 @@
+<div class="" id="grn-sheet">
+  <!-- Company Header -->
+  <app-letterheader class="grn-header-section"></app-letterheader>
+
+  <!-- Document Title Bar -->
+  <div class="document-title-bar">
+    <h2>GOODS RECEIPT NOTE (GRN)</h2>
+    <!-- <div class="grn-status-badge">
+       <span class="badge" [ngClass]="{
+        'bg-success': purchaseOrder.grnStatus === 'approved',
+        'bg-warning': purchaseOrder.grnStatus === 'pending',
+        'bg-danger': purchaseOrder.grnStatus === 'rejected'
+      }">
+        {{ purchaseOrder.grnStatus?.toUpperCase() || 'RECEIVED' }}
+      </span>
+    </div> -->
+  </div>
+
+  <!-- GRN Information Section -->
+  <div class="po-info-section mb-4">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="info-card grn-details">
+          <h4> GRN Details</h4>
+          <div class="detail-row">
+            <span class="label">GRN Number:</span>
+            <span class="value grn-number">{{ purchaseOrder.grnNumber }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">GRN Date:</span>
+            <span class="value">{{ purchaseOrder.createdAt | date: 'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">PO Reference:</span>
+            <span class="value po-number">{{ purchaseOrder.poNumber }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">RFQ Number:</span>
+            <span class="value">{{ purchaseOrder.rfq.number }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="info-card delivery-info">
+          <h4>Delivery Information</h4>
+          <div class="detail-row">
+            <span class="label">Delivery Date:</span>
+            <span class="value">{{ purchaseOrder.deliveryDate | date: 'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Receipt Time:</span>
+            <span class="value">{{ purchaseOrder.createdAt | date: 'HH:mm' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">QC Completion:</span>
+            <span class="value">{{ purchaseOrder.qcSummary.qcCompletedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Return Initiated:</span>
+            <span class="value">
+              <span class="badge" [ngClass]="purchaseOrder.returnInitiated ? 'bg-warning' : 'bg-success'">
+                {{ purchaseOrder.returnInitiated ? 'YES' : 'NO' }}
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supplier and Receiver Information -->
+  <div class="po-parties mb-4">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="party-box vendor-section">
+          <div class="card-header">
+            <h4>Supplier Details</h4>
+          </div>
+          <div class="card-body">
+            <div class="supplier-name">Venodr Name: {{ purchaseOrder.vendor?.name }}</div>
+            <div class="contact-info">
+              <div class="contact-row">
+                <span>Address: {{ purchaseOrder.vendor?.id?.address || 'Address not available' }}</span>
+              </div>
+              <div class="contact-row">
+                <span>Phone Number : {{ purchaseOrder.vendor?.phone }}</span>
+              </div>
+              <div class="contact-row">
+                <span>Email :{{ purchaseOrder.vendor?.email }}</span>
+              </div>
+              <div class="contact-row" *ngIf="purchaseOrder.vendor?.gstNumber">
+                <span>GST: {{ purchaseOrder.vendor?.gstNumber }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="party-box buyer-section">
+          <div class="card-header">
+            <h4>  Received By</h4>
+          </div>
+          <div class="card-body">
+            <div class="receiver-name">Received By: {{ purchaseOrder.createdBy.name }}</div>
+            <div class="contact-info">
+              <div class="contact-row">
+                <span>Designation : {{ purchaseOrder.createdBy.designation || 'Store Manager' }}</span>
+              </div>
+              <div class="contact-row">
+                <span>Email: {{ purchaseOrder.createdBy.email }}</span>
+              </div>
+              <div class="contact-row">
+                <span>Received Date & Time :{{ purchaseOrder.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+              <div class="contact-row">
+                <span>Department : {{ purchaseOrder.department || 'CENTRAL STORE PHARMACY' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QC Summary Section -->
+  <!-- <div class="qc-summary-section mb-4" *ngIf="purchaseOrder.qcSummary">
+    <div class="section-header">
+      <h4>🔍 Quality Control Summary</h4>
+      <div class="qc-badges">
+        <span class="badge bg-info">QC: {{ purchaseOrder.qcCompletionPercentage }}% Complete</span>
+        <span class="badge bg-warning">Rejection: {{ purchaseOrder.rejectionRate }}%</span>
+      </div>
+    </div>
+
+    <div class="row qc-metrics">
+      <div class="col-md-3">
+        <div class="metric-card">
+          <div class="metric-value">{{ purchaseOrder.qcSummary.totalItems }}</div>
+          <div class="metric-label">Total Items</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="metric-card passed">
+          <div class="metric-value">{{ purchaseOrder.qcSummary.passedItems }}</div>
+          <div class="metric-label">Passed Items</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="metric-card rejected">
+          <div class="metric-value">{{ purchaseOrder.qcSummary.rejectedItems }}</div>
+          <div class="metric-label">Rejected Items</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="metric-card defective">
+          <div class="metric-value">{{ purchaseOrder.qcSummary.defectiveItems }}</div>
+          <div class="metric-label">Defective Items</div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- Items Section -->
+  <div class="items-section">
+      <h4> Items Received   <div class="summary-badges">
+        <span class="badge bg-primary">Total Items: {{ purchaseOrder.items?.length || 0 }}</span>
+        <span class="badge bg-success">Accepted: {{ getTotalQuantityPassed() }}</span>
+        <span class="badge bg-danger">Rejected: {{ getTotalQuantityRejected() }}</span>
+      </div></h4>
+
+
+      <table class="table table-bordered po-table">
+        <thead class="table-dark">
+          <tr>
+            <th style="width: 4%">#</th>
+            <th style="width: 20%">Item Description</th>
+            <th style="width: 8%">Batch No</th>
+            <th style="width: 8%">Expiry</th>
+            <th style="width: 8%">Ordered</th>
+            <th style="width: 8%">Received</th>
+            <th style="width: 8%">Accepted</th>
+            <th style="width: 8%">Rejected</th>
+            <th style="width: 10%">Rate (₹)</th>
+            <th style="width: 8%">QC Status</th>
+            <th style="width: 10%">Amount (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of purchaseOrder.items; let i = index"
+              [ngClass]="{
+                'table-success': item.qcStatus === 'passed',
+                'table-warning': item.qcStatus === 'partial_reject',
+                'table-danger': item.qcStatus === 'rejected'
+              }">
+            <td class="text-center">{{ i + 1 }}</td>
+            <td>
+              <div class="item-info">
+                <strong class="item-name">{{ item.name }}</strong>
+                <small class="item-category d-block text-muted">
+                  {{ item.category }}
+                </small>
+              </div>
+            </td>
+            <td class="text-center">
+              <small>{{ item.batchNo || 'N/A' }}</small>
+            </td>
+            <td class="text-center">
+              <small>{{ item.expiryDate | date: 'MM/yyyy' }}</small>
+            </td>
+            <td class="text-center">
+              <span class="qty-ordered">{{ item.quantityOrdered | number: '1.0-0' }}</span>
+            </td>
+            <td class="text-center">
+              <span class="qty-received">{{ item.quantityReceived | number: '1.0-0' }}</span>
+            </td>
+            <td class="text-center">
+              <span class="qty-accepted text-success fw-bold">
+                {{ item.quantityPassed | number: '1.0-0' }}
+              </span>
+            </td>
+            <td class="text-center">
+              <span class="qty-rejected text-danger fw-bold">
+                {{ item.quantityRejected | number: '1.0-0' }}
+              </span>
+              <i class="fas fa-exclamation-triangle text-warning ms-1" *ngIf="item.quantityRejected > 0"></i>
+            </td>
+            <td class="text-end">{{ item.unitPrice | currency: '₹':'symbol':'1.2-2' }}</td>
+            <td class="text-center">
+              <span class="badge qc-status-badge" [ngClass]="{
+                'bg-success': item.qcStatus === 'passed',
+                'bg-warning': item.qcStatus === 'partial_reject',
+                'bg-danger': item.qcStatus === 'rejected'
+              }">
+                {{ getQcStatusText(item.qcStatus) }}
+              </span>
+            </td>
+            <td class="text-end fw-bold">
+              {{ item.totalPrice | currency: '₹':'symbol':'1.2-2' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  </div>
+
+  <!-- Defect Details Section -->
+  <div class="defects-section mb-4" *ngIf="hasDefects()">
+    <div class="alert alert-danger">
+      <h5><i class="fas fa-bug"></i> Defect Details</h5>
+      <div *ngFor="let item of purchaseOrder.items; let itemIndex = index">
+        <div *ngIf="item.defectDetails && item.defectDetails.length > 0" class="item-defects">
+          <h6><strong>{{ item.name }}</strong></h6>
+          <div *ngFor="let defect of item.defectDetails; let defectIndex = index" class="defect-item">
+            <div class="row">
+              <div class="col-md-3">
+                <strong>Serial:</strong> {{ defect.serialNumber }}
+              </div>
+              <div class="col-md-3">
+                <strong>Type:</strong>
+                <span class="badge bg-secondary">{{ defect.defectType }}</span>
+              </div>
+              <div class="col-md-3">
+                <strong>Severity:</strong>
+                <span class="badge" [ngClass]="{
+                  'bg-danger': defect.defectSeverity === 'major',
+                  'bg-warning': defect.defectSeverity === 'minor',
+                  'bg-info': defect.defectSeverity === 'critical'
+                }">{{ defect.defectSeverity }}</span>
+              </div>
+              <div class="col-md-3">
+                <strong>Action:</strong> {{ defect.actionRequired }}
+              </div>
+            </div>
+            <div class="defect-reason mt-2">
+              <strong>Reason:</strong> {{ defect.defectReason }}
+            </div>
+            <div class="defect-reporter">
+              <small class="text-muted">
+                Reported on: {{ defect.reportedAt | date: 'dd/MM/yyyy HH:mm' }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quality Control & Financial Summary -->
+  <div class="grn-summary mb-4">
+    <div class="row">
+      <div class="col-md-8">
+        <!-- Quality Control Information -->
+        <div class="inspection-section">
+          <h5>Quality Control Report</h5>
+          <div class="qc-info">
+            <div class="qc-row">
+              <span class="label">QC Performed By:</span>
+              <span class="value">{{ purchaseOrder.qcSummary?.qcPerformedBy?.name || 'N/A' }}</span>
+            </div>
+            <div class="qc-row">
+              <span class="label">QC Started:</span>
+              <span class="value">{{ purchaseOrder.qcSummary?.qcStartedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="qc-row">
+              <span class="label">QC Completed:</span>
+              <span class="value">{{ purchaseOrder.qcSummary?.qcCompletedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="qc-row">
+              <span class="label">QC Completion :</span>
+              <span class="value">
+                <span class="badge bg-info">{{ purchaseOrder.qcCompletionPercentage }}%</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- QC Notes -->
+          <div class="qc-notes mt-3" *ngIf="purchaseOrder.qcSummary?.qcNotes">
+            <h6>QC Notes:</h6>
+            <div class="notes-box">
+              {{ purchaseOrder.qcSummary.qcNotes }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <!-- Financial Summary -->
+        <div class="financial-summary">
+          <!-- <h5>Financial Summary</h5> -->
+          <table class="table table-sm summary-table">
+            <tbody>
+              <tr>
+                <td>Original Total:</td>
+                <td class="text-end">{{ purchaseOrder.total | currency: '₹':'symbol':'1.2-2' }}</td>
+              </tr>
+              <tr>
+                <td>Approved Value:</td>
+                <td class="text-end text-success">{{ purchaseOrder.approvedTotal | currency: '₹':'symbol':'1.2-2' }}</td>
+              </tr>
+              <tr>
+                <td>Rejected Value:</td>
+                <td class="text-end text-danger">{{ purchaseOrder.rejectedTotal | currency: '₹':'symbol':'1.2-2' }}</td>
+              </tr>
+              <tr class="table-success fw-bold">
+                <td>Final Accepted Total:</td>
+                <td class="text-end">{{ purchaseOrder.approvedTotal | currency: '₹':'symbol':'1.2-2' }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Loss Percentage -->
+          <div class="loss-info mt-3" *ngIf="purchaseOrder.rejectedTotal > 0">
+            <div class="alert alert-warning p-2">
+              <small>
+                <strong>Financial Loss:</strong>
+                {{ ((purchaseOrder.rejectedTotal / purchaseOrder.total) * 100) | number: '1.1-1' }}%
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Items -->
+  <div class="action-items mb-4" *ngIf="purchaseOrder.returnInitiated">
+    <div class="alert alert-warning">
+      <h5><i class="fas fa-exclamation-triangle"></i> Action Items</h5>
+      <ul class="mb-0">
+        <li><strong>Return Initiated:</strong> Items have been marked for return to vendor</li>
+        <li *ngIf="!purchaseOrder.returnPOGenerated">
+          <strong>Pending:</strong> Return Purchase Order generation is pending
+        </li>
+        <li><strong>Follow-up Required:</strong> Coordinate with vendor for replacement/credit note</li>
+        <li><strong>Inventory Update:</strong> Accepted items have been added to inventory</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Approval & Signatures Section -->
+  <div class="signatures-section">
+    <!-- <h5 class="section-title">📝 Verification & Approval</h5> -->
+    <div class="row">
+      <div class="col-md-3">
+        <div class="signature-card">
+          <div class="signature-area"></div>
+          <div class="signature-info">
+            <div class="role">Goods Received By</div>
+            <div class="name">{{ purchaseOrder.createdBy.name }}</div>
+            <div class="date">{{ purchaseOrder.createdAt | date: 'dd/MM/yyyy' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="signature-card">
+          <div class="signature-area"></div>
+          <div class="signature-info">
+            <div class="role">Quality Checked By</div>
+            <div class="name">{{ purchaseOrder.qcSummary?.qcPerformedBy?.name || 'QC Inspector' }}</div>
+            <div class="date">{{ purchaseOrder.qcSummary?.qcCompletedAt | date: 'dd/MM/yyyy' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="signature-card">
+          <div class="signature-area"></div>
+          <div class="signature-info">
+            <div class="role">Approved By</div>
+            <div class="name">{{ purchaseOrder.approvedBy?.name || 'Store Manager' }}</div>
+            <div class="date">{{ purchaseOrder.approvalDate | date: 'dd/MM/yyyy' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="signature-card">
+          <div class="signature-area"></div>
+          <div class="signature-info">
+            <div class="role">Purchase Manager</div>
+            <div class="name">Purchase Head</div>
+            <div class="date">__/__/____</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Information -->
+  <div class="grn-footer mt-4">
+    <div class="footer-info text-center">
+      <small class="text-muted">
+        This GRN is electronically generated and serves as proof of goods receipt.
+        Reference: {{ purchaseOrder.grnNumber }} | Generated on: {{ purchaseOrder.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+        | QC Completion: {{ purchaseOrder.qcCompletionPercentage }}%
+      </small>
+    </div>
+  </div>
+</div>
+
+<!-- Print Button -->
+<footer class="text-end mt-3 no-print">
+  <!-- <button class="btn btn-dark btn-lg" (click)="printOPDSheet()">
+    <i class="fa-solid fa-print me-2"></i>Print GRN
+  </button> -->
+
+    <button class="btn  btn-sm" (click)="printOPDSheet()" [disabled]="!purchaseOrder">
+    <i class="fa-solid fa-download me-2"></i>Download GRN
+  </button>
+  <button class="btn  btn-sm"  [disabled]="!purchaseOrder"  (click)="print()">
+    <i class="fa-solid fa-print me-2"></i>Print GRN
+  </button>
+  <button class="btn  btn-sm ms-2" (click)="goBack()" >
+    <i class="fa-solid fa-arrow-left me-2"></i>Back to List
+  </button>
+</footer>

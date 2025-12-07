@@ -1,0 +1,180 @@
+.search-bar {
+  margin: 20px 20px 0 0;
+}
+
+.search-bar input {
+  width: 25%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.doctor-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.doctor-card {
+  width: 320px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.doctor-card:hover {
+  transform: translateY(-5px);
+}
+
+.doctor-name {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.doctor-detail {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.tag {
+  display: inline-block;
+  background-color: darkred;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.dashboard-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.dashboard-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #2b3e50;
+  margin-bottom: 15px;
+}
+
+.dashboard-sections {
+  display: flex;
+  gap: 15px;
+}
+
+.card {
+  background: #f9fbfc;
+  border-radius: 5px;
+  padding: 15px;
+  flex: 1;
+  border: 1px solid #e0e0e0;
+}
+
+.section-title {
+  border-bottom: 2px solid #a94442;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+  color: #a94442;
+  font-weight: bold;
+}
+
+.collection-grid {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.collection-item {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+}
+
+.collection-item span {
+  display: block;
+  font-weight: bold;
+  margin-top: 4px;
+  background-color: white;
+  padding: 5px;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+.tab {
+  cursor: pointer;
+  padding: 5px 10px;
+  border-bottom: 2px solid transparent;
+  font-weight: bold;
+}
+
+.active-tab {
+  padding: 5px 10px;
+  border-bottom: 2px solid #a52a2a;
+  color: #a52a2a;
+}
+
+.active-tab {
+  color: #a94442;
+  font-weight: bold;
+  border-bottom: 2px solid #a94442;
+}
+
+.table-wrapper {
+  position: relative;
+}
+
+.excel-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 12px;
+  padding: 5px 10px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 25px;
+  font-size: 14px;
+}
+
+table th,
+table td {
+  border: 1px solid #ccc;
+  padding: 6px;
+  text-align: left;
+}
+
+.requisition-card {
+  margin-top: 20px;
+}
+
+.count:hover {
+  cursor: pointer;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: black;
+  color: white;
+  margin: 5px;
+  font-size: 14px;
+}
+
+.badge-pill {
+  border-radius: 50px;
+}

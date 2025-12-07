@@ -1,0 +1,253 @@
+<div id="opd-sheet" class="opd-sheet" *ngIf="patientData && opdPatient">
+  <div class="header">
+    <img src="P P Maniya_page-0001.jpg" alt="Logo" class="logo" />
+  </div>
+
+  <div class="summary-container" *ngIf="patientData.length > 0">
+    <h1>Outpatient Department (OPD) - Patient Summary</h1>
+
+    <div *ngFor="let summary of patientData; let i = index">
+      <div class="section">
+        <h2>Patient Information</h2>
+        <div class="row">
+          <p>
+            <span class="label">Patient Name:</span> {{ summary.patientName }}
+          </p>
+          <p><span class="label">UHID:</span> {{ summary.uhid }}</p>
+          <p>
+            <span class="label">Age / Gender: </span> {{ summary.age }} /
+            {{ opdPatient.uniqueHealthIdentificationId?.gender }}
+          </p>
+          <p>
+            <span class="label">Visit Date:</span>
+            {{ opdPatient.createdAt | date : "dd-MM-yyyy" }}
+          </p>
+          <p>
+            <span class="label">Consulting Doctor:</span>
+            {{ opdPatient.consulting_Doctor?.name }}
+          </p>
+          <p>
+            <span class="label">Mobile No.:</span>
+            {{ summary.mobile }}
+          </p>
+          <!-- <p><span class="label">Department:</span> General Medicine</p> -->
+        </div>
+      </div>
+
+      <div class="section" *ngIf="summary.bills.length > 0">
+        <h2>Consultation</h2>
+        <div *ngFor="let bill of summary.bills">
+          <ul>
+            <li *ngFor="let service of bill.services">{{ service.name }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Not grouped  -->
+      <!-- <div
+        class="section"
+        *ngIf="getPathoForPatient(summary.id).length > 0; else noPatho">
+        <h2>Lab Tests</h2>
+        <div>
+          <table
+            *ngFor="let item of getPathoForPatient(summary.id)"
+            class="table table-sm table-bordered w-100 mb-4">
+            <thead class="thead-light">
+              <tr>
+                <th>Test Group Name ({{ item.requestedDepartment }})</th>
+                <th>Charge</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let test of item.testMaster">
+                <td>{{ test.testGroup }}</td>
+                <td>₹{{ test.price }}</td>
+                <td>{{ test.status }}</td>
+              </tr>
+              <tr class="bg-light font-weight-bold">
+                <td colspan="3">
+                  <div class="d-flex justify-content-end">
+                    <strong>Payment Mode :</strong> {{ item.PaymentMode }}
+                  </div>
+                  <div class="d-flex justify-content-end">
+                    <strong>Total Amount :</strong> ₹ {{ item.total }}
+                  </div>
+                  <div class="d-flex justify-content-end">
+                    <strong>Amount Received :</strong> {{ item.amountReceived }}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div> -->
+
+      <div
+        class="section"
+        *ngIf="getPathoForPatient(summary.id).length > 0; else noPatho"
+      >
+        <h2>Lab Tests</h2>
+        <div>
+          <table class="table table-sm table-bordered w-100">
+            <thead class="thead-light">
+              <tr>
+                <th>Test Group Name</th>
+                <th>Charge</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let item of getPathoForPatient(summary.id)">
+                <!-- Group Header Row -->
+                <tr class="table-secondary">
+                  <td colspan="3" class="fw-bold">
+                    ({{ item.requestedDepartment }})
+                  </td>
+                </tr>
+
+                <!-- Tests under the group -->
+                <tr *ngFor="let test of item.testMaster">
+                  <td>{{ test.testGroup }}</td>
+                  <td>₹{{ test.price }}</td>
+                  <td>{{ test.status }}</td>
+                </tr>
+
+                <!-- Payment Summary Row -->
+                <tr class="bg-light font-weight-bold">
+                  <td colspan="3">
+                    <div class="d-flex justify-content-end">
+                      <strong>Payment Mode :</strong> {{ item.PaymentMode }}
+                    </div>
+                    <div class="d-flex justify-content-end">
+                      <strong>Total Amount :</strong> ₹ {{ item.total }}
+                    </div>
+                    <div class="d-flex justify-content-end">
+                      <strong>Amount Received :</strong>
+                      {{ item.amountReceived }}
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <ng-template #noPatho>
+        <p class="text-muted">No Pathology Data Available</p>
+      </ng-template>
+
+      <div
+        class="section"
+        *ngIf="getPharmaForPatient(summary.id).length > 0; else noPharma">
+        <div class="mt-4">
+          <h2>Pharmacy - Prescribed Medicines</h2>
+          <!-- Package details -->
+          <table class="table table-sm table-bordered w-100 mb-0">
+            <thead class="thead-light">
+              <tr>
+                <th>Medicine Name</th>
+                <th>Quantity</th>
+                <th>Charge</th>
+                <th>Dosage Instruction</th>
+                <th>Timing</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container
+                *ngFor="let item of getPharmaForPatient(summary.id)"
+              >
+                <tr *ngFor="let pack of item.packages">
+                  <td>{{ pack.medicineName }}</td>
+                  <td>{{ pack.quantity }}</td>
+                  <td>₹{{ pack.charge }}</td>
+                  <td>{{ pack.dosageInstruction }}</td>
+                  <td>
+                    <span *ngIf="pack.checkbox.morning">Morning </span>
+                    <span *ngIf="pack.checkbox.noon">Noon </span>
+                    <span *ngIf="pack.checkbox.evening">Evening </span>
+                    <span *ngIf="pack.checkbox.night">Night</span>
+                  </td>
+                </tr>
+                <tr class="bg-light font-weight-bold">
+                  <td colspan="5">
+                    <div class="d-flex justify-content-end">
+                      <strong>Payment Mode :</strong> {{ item.PaymentMode }}
+                    </div>
+                    <div class="d-flex justify-content-end">
+                      <strong>Total Amount :</strong> ₹ {{ item.total }}
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <ng-template #noPharma>
+        <p class="text-muted">No Pharmacy Data Available</p>
+      </ng-template>
+
+      <div class="section" *ngIf="summary.bills">
+        <h2>Billing Summary</h2>
+      
+        <table>
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Received (₹)</th>
+              <th>Total (₹)</th>
+            </tr>
+          </thead>
+      
+          <tbody>
+            <tr *ngFor="let bill of summary.bills">
+              <td>Consultation</td>
+              <td>₹{{ bill.amountReceived }}</td>
+              <td>₹{{ bill.totalAmount }} </td>
+            </tr>
+            <tr>
+              <td>Lab Tests</td>
+              <td>₹{{ labTotalAmount.amountReceived }}</td>
+              <td>₹{{ labTotalAmount.total }}</td>
+            </tr>
+            <tr>
+              <td>Pharmacy</td>
+              <td>₹{{ pharmaTotal }}</td>
+              <td>₹{{ pharmaTotal }}</td>
+            </tr>
+            <!-- <tr >
+              <th>Total</th>
+              <th>
+                ₹{{ bill.amountReceived + labTotalAmount.amountReceived + pharmaTotal }}
+              </th>
+              <th> ₹{{ bill.totalAmount + labTotalAmount.total + pharmaTotal }} </th>
+            </tr> -->
+          </tbody>
+        </table>
+      
+        <!-- Final summary (outside ngFor) -->
+        <div style="margin-top: 1rem;">
+          <div><strong>Grand Total:</strong> ₹{{ getGrandTotal(summary.bills) }}</div>
+          <div><strong>Paid:</strong> ₹{{ getPaidTotal(summary.bills) }}</div>
+          <div><strong>Discount:</strong> ₹{{ getTotalDiscount(summary.bills) }}</div>
+          <div><strong>Net Pay:</strong>₹{{ getGrandTotal(summary.bills) - getTotalDiscount(summary.bills)  - getPaidTotal(summary.bills) }}</div>
+        </div>
+      </div>
+
+
+      <div class="section">
+        <h2>Remarks / Follow-up</h2>
+        <p>
+         
+        </p>
+      </div>
+    </div>
+    <div class="footer">
+      Generated by Hospital Management System | Date:
+      {{ date | date : "dd-MM-yyyy" }}
+    </div>
+  </div>
+</div>
+  <button class="btn btn-dark mt-2" (click)="printOPDSheet()">🖨️ Print Summary</button>

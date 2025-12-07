@@ -1,0 +1,175 @@
+/* Navbar styling */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #660000;
+  padding: 10px 20px;
+}
+
+/* Logo styling */
+
+.logo-container {
+  background-color: white; /* Ensures a white background around the logo */
+  padding: 5px; /* Adds spacing around the logo */
+  border-radius: 5px; /* Adds rounded corners */
+  display: flex; /* Ensures logo stays aligned */
+  align-items: center;
+  justify-content: center;
+}
+
+.logo img {
+  width: 120px; /* Adjust size */
+  height: auto;
+  display: block;
+}
+
+
+.title {
+  font-family: Rammetto;
+  font-size: 24px;
+  margin-right: 5px;
+}
+
+.subtitle {
+  font-size: 10px;
+}
+
+/* Navigation links */
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+  margin-bottom: 0;
+}
+
+.nav-links li {
+  position: relative;
+  padding: 10px;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  padding: 8px 12px;
+  display: block;
+}
+
+/* Dropdown menu fixes */
+.dropdown-menu {
+  background-color: black;
+  padding: 10px;
+
+  border-radius: 5px;
+  position: absolute; /* Ensuring proper dropdown placement */
+  top: 100%; /* Making sure it opens below the parent */
+  left: 0;
+  display: none; /* Hiding by default */
+  z-index: 1000;
+  width: 700px; /* Adjust width */
+  display: none; /* Hide it by default */
+  flex-wrap: wrap; /* Allow it to wrap properly */
+  padding: 15px;
+}
+
+/* Fix for Masters dropdown */
+
+
+/* Fix dropdown visibility on hover */
+.nav-item.dropdown:hover .dropdown-menu {
+  display: flex; /* Show only when hovered */
+}
+
+/* Dropdown items */
+.dropdown-menu a {
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+
+}
+
+.dropdown-menu a i {
+  margin-right: 10px;
+}
+
+.dropdown-menu a:hover {
+  background-color: grey;
+  width: fit-content;
+}
+
+
+
+.dropdown-grid {
+  width: 50%; /* Makes two equal columns */
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+
+/* Fix for Masters dropdown */
+
+
+/* Ensure 3 columns */
+.dropdown-grid {
+  width: 33.33%; /* Divide evenly into 3 columns */
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+/* Dropdown items */
+
+.user-menu {
+  display: flex;
+  padding: 5px;
+  gap: 20px;
+  color: white;
+  position: relative; /* Ensure proper alignment */
+}
+
+
+
+.user-menu  .dropdown-menu {
+  background-color: black;
+  padding: 10px;
+
+  border-radius: 5px;
+  position: absolute; /* Ensuring proper dropdown placement */
+  right: 0;
+  left: auto;
+  display: none; /* Hiding by default */
+  z-index: 1000;
+  width: fit-content; /* Adjust width */
+  display: none; /* Hide it by default */
+  flex-wrap: wrap; /* Allow it to wrap properly */
+  padding: 15px;
+}
+
+
+.settingmenu {
+  background-color: black;
+  padding: 10px;
+
+  border-radius: 5px;
+  position: absolute; /* Ensuring proper dropdown placement */
+  top: 100%; /* Making sure it opens below the parent */
+  left: 0;
+  display: none; /* Hiding by default */
+  z-index: 1000;
+  width: fit-content; /* Adjust width */
+  display: none; /* Hide it by default */
+  flex-wrap: wrap; /* Allow it to wrap properly */
+  padding: 15px;
+}
+
+
+
+
+
+.w-25{
+  width: 8% !important;
+}
+
+.w-75{
+  width: 92% !important;
+}

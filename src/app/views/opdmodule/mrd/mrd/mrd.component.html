@@ -1,0 +1,97 @@
+<div class="header">
+  <h2>ADD MEDICAL RECORD DATA</h2>
+  <button class="list-cases-btn" [routerLink]="['/opd/mrdlist']" routerLinkActive="router-link-active">MRD LIST</button>
+</div>
+
+<div class="opd-container">
+  <form [formGroup]="mrdForm" (ngSubmit)="onSubmit()">
+    <div class="form-half">
+      <label>TYPE</label>
+      <div class="radio-group mx-3">
+        <input type="radio" formControlName="drType" value="ipd" /> IPD
+        <input type="radio" formControlName="drType" value="opd" /> OPD
+      </div>
+      <div *ngIf="mrdForm.get('drType')?.invalid && mrdForm.get('drType')?.touched" class="error-message">
+        Type is required.
+      </div>
+
+
+      <label>Case No</label>
+      <input type="text" formControlName="caseNo" class="form-control" placeholder="Case No" />
+      <div *ngIf="mrdForm.get('caseNo')?.invalid && mrdForm.get('caseNo')?.touched" class="error-message">
+        Case No is required and must contain alphanumeric characters.
+      </div>
+
+      <label>UHID</label>
+      <input type="text" formControlName="uhid" class="form-control" placeholder="UHID" />
+      <div *ngIf="mrdForm.get('uhid')?.invalid && mrdForm.get('uhid')?.touched" class="error-message">
+        UHID is required and must be 12 digits long.
+      </div>
+
+      <label>Patient Name</label>
+      <input type="text" formControlName="patientName" class="form-control" placeholder="Patient Name" />
+      <div *ngIf="mrdForm.get('patientName')?.invalid && mrdForm.get('patientName')?.touched" class="error-message">
+        Patient Name is required and must be at least 3 characters long.
+      </div>
+
+      <label>Upload File</label>
+      <div class="file-upload" (click)="triggerFileInput()" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+        <input type="file" #fileInput (change)="onFileSelected($event)" hidden />
+        <p *ngIf="!selectedFile">DROP / CLICK HERE TO UPLOAD FILES</p>
+        <p *ngIf="selectedFile">{{ selectedFile.name }}</p>
+      </div>
+      <div *ngIf="mrdForm.get('file')?.invalid && mrdForm.get('file')?.touched" class="error-message">
+        File upload is required.
+      </div>
+    </div>
+
+    <div class="text-center mt-3">
+      <button class="btn btn-dark mx-2" [disabled]="mrdForm.invalid" type="submit">Submit</button>
+      <button class="btn btn-secondary" type="button">Cancel</button>
+    </div>
+  </form>
+
+  <div class="right-section">
+    <div class="info-box">
+      <h5 style="color: darkred;">Patient Document List</h5>
+      <table class="mt-3">
+       <thead class="table-dark text-center" >
+          <tr>
+            <th>Date</th>
+            <th>Document Name</th>
+            <th>Upload By</th>
+            <th>Select</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box">
+      <h5 style="color: darkred;">Documents by Hospital</h5>
+      <table class="mt-3">
+       <thead class="table-dark text-center" >
+          <tr>
+            <th>Date</th>
+            <th>Document Name</th>
+            <th>View</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,110 @@
+<!-- <p>subscription works!</p> -->
+
+<div class="header">
+  <h2>Subscription Plan </h2>
+</div>
+<div class="opd-container">
+  <form [formGroup]="branchForm" (ngSubmit)="onSubmit()">
+    <div formArrayName="branches">
+      <h4 class="m-2"> Requirement Details </h4>
+      <hr>
+      <div *ngFor="let branch of branches.controls; let i = index" [formGroupName]="i" class="border p-3 my-3 rounded shadow-sm">
+        <h4 class="m-2">Branch {{i+1}} Details </h4>
+        <hr>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Branch Name:</label>
+            <input type="text" class="form-control" formControlName="branchName" placeholder="Name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address:</label>
+            <input type="text" class="form-control" formControlName="address" placeholder="Address">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">OPD Rooms:</label>
+            <input type="text" class="form-control" formControlName="opdRooms">
+          </div>
+          <div class="form-group">
+            <label class="form-label">IPD Rooms:</label>
+            <input type="text" class="form-control" formControlName="ipdRooms">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ICU Rooms:</label>
+            <input type="text" class="form-control" formControlName="icuRooms">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Beds:</label>
+            <input type="text" class="form-control" formControlName="beds">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Doctors:</label>
+            <input type="text" class="form-control" formControlName="doctors">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Staffs:</label>
+            <input type="text" class="form-control" formControlName="staffs">
+          </div>
+        </div>
+
+        <h4 class="m-2">Branch Admin Credentials</h4>
+        <hr>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">User Name:</label>
+            <input type="text" class="form-control" formControlName="adminUsername" placeholder="user name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email ID:</label>
+            <input type="email" class="form-control" formControlName="adminEmail" placeholder="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password:</label>
+            <input type="text" class="form-control" formControlName="adminPassword" placeholder="Password">
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-danger btn-sm mt-2" (click)="removeBranch(i)" *ngIf="branches.length > 1">Remove Branch</button>
+      </div>
+    </div>
+
+    <div class="text-center mt-3">
+      <button type="button" class="btn btn-primary mx-2" (click)="addBranch()">Add Another Branch</button>
+      <button type="submit" class="btn btn-dark mx-2">Submit</button>
+    </div>
+  </form>
+
+
+  <div class="right-section">
+    <div class="info-box" *ngIf="showBilling"> <h3>Billing Summary ({{ billingPlan }})</h3>
+      <hr>
+
+      <div *ngFor="let branch of submittedData; let i = index" class="mb-3 p-3 border rounded bg-light">
+        <h5>Branch :  {{ branch.branchName }}</h5>
+        <hr>
+        <p><strong>Address:</strong> {{ branch.address }}</p>
+        <p><strong>OPD Rooms:</strong> {{ branch.opdRooms || '-' }}</p>
+        <p><strong>IPD Rooms:</strong> {{ branch.ipdRooms || '-' }}</p>
+        <p><strong>ICU Rooms:</strong> {{ branch.icuRooms || '-' }}</p>
+        <p><strong>Beds:</strong> {{ branch.beds || '-' }}</p>
+        <p><strong>Doctors:</strong> {{ branch.doctors || '-' }}</p>
+        <p><strong>Staffs:</strong> {{ branch.staffs || '-' }}</p>
+      </div>
+
+      <button class="btn btn-success">Pay Now</button>
+      <h4>Total Billing Amount: ₹{{ totalBill }}</h4></div>
+
+
+</div>
+
+
+
+
+
+</div>

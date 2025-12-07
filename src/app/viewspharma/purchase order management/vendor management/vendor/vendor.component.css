@@ -1,0 +1,81 @@
+
+
+
+.doctor-form {
+  max-width: 900px;
+  margin: auto;
+  background: #f5f7fa;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.form-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.form-half {
+  width: 48%;
+}
+
+label {
+  display: block;
+  margin: 10px 0 5px;
+  font-weight: bold;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.mobile-input {
+  display: flex;
+  align-items: center;
+}
+
+.country-code {
+  background: #900;
+  color: white;
+  padding: 8px;
+  border-radius: 5px 0 0 5px;
+}
+
+.mobile-input input {
+  flex: 1;
+  border-radius: 0 5px 5px 0;
+}
+
+.radio-group {
+  display: flex;
+  gap: 15px;
+  margin-top: 5px;
+}
+
+.tds-input {
+  display: flex;
+  align-items: center;
+}
+
+.percentage {
+  background: #900;
+  color: white;
+  padding: 8px;
+  border-radius: 0 5px 5px 0;
+}
+
+.coin-section {
+  margin-top: 20px;
+}
+
+.form-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+

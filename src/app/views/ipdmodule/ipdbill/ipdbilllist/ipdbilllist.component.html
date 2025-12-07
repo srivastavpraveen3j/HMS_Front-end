@@ -1,0 +1,172 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>CHARGE POSTING LIST</h2>
+    <!-- <button
+      class="list-cases-btn"
+      [routerLink]="['/ipd/ipdbill']"
+      routerLinkActive="router-link-active"
+    >
+      ADD CHARGE POSTING
+    </button> -->
+  </div>
+
+  <!-- <div class="top-bar p-3">
+    <form [formGroup]="filterForm" class="top-bar p-3">
+      <input type="text" placeholder="Search..." formControlName="searchText" />
+    </form>
+
+  </div> -->
+
+  <!-- Filter by Today or Date Range -->
+  <div class="filters d-flex align-items-center m-3">
+    <!-- <div class="form-group w-50 mx-3 position-relative">
+      <input type="text" class="form-control" placeholder="Search by doctor name..." [(ngModel)]="doctorSearchText"
+        (input)="onDoctorSearchChange(doctorSearchText)" autocomplete="off" />
+
+      <ul *ngIf="filteredDoctors.length > 0 && doctorSearchText.trim().length > 0"
+        class="list-group position-absolute w-100 zindex-dropdown" style="max-height: 200px; overflow-y: auto">
+        <li class="list-group-item list-group-item-action" *ngFor="let doctor of filteredDoctors"
+          (click)="onDoctorSelected(doctor.name)">
+          {{ doctor.name }}
+        </li>
+      </ul>
+    </div> -->
+
+    <div class="form-group position-relative w-50">
+      <input
+        type="text"
+        [(ngModel)]="searchText"
+        (input)="applyFilters()"
+        placeholder="Search by uhid/patient/mobile"
+        class="form-control"
+      />
+    </div>
+
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="today"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+        checked
+      />
+      TODAY'S
+    </label>
+
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="dateRange"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+      />
+      Date Range
+    </label>
+
+    <!-- Date Inputs Visible Only for Date Range -->
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="startDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+    />
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="endDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+    />
+  </div>
+
+  <app-loader
+    [patientData]="filteredCases"
+    [title]="module"
+    [activeFilter]="activeFilter"
+    [startDate]="startDate"
+    [endDate]="endDate"
+  ></app-loader>
+
+  <div
+    class="table-responsive"
+    *ngIf="userPermissions.read && filteredCases.length > 0"
+  >
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Bill Number</th>
+          <th>Uhid No</th>
+          <th>Patient Name</th>
+          <th>Gender</th>
+          <th>Age</th>
+          <th>Services Taken</th>
+          <th>Total Amount</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let patient of filteredCases; let i = index">
+          <tr *ngFor="let billing of patient.inpatientbillings; let j = index">
+            <td>{{ i + 1 }}.{{ j + 1 }}</td>
+            <td>{{ billing.billNumber }}</td>
+            <td>{{ patient.uhid }}</td>
+            <td>{{ patient.patient_name }}</td>
+            <td>
+              {{
+                patient.gender === true || patient.gender === "male"
+                  ? "Male"
+                  : "Female"
+              }}
+            </td>
+            <td>{{ patient.age }}</td>
+            <td>
+              <ul>
+                <li *ngFor="let name of billing.serviceDetails">
+                  {{ name.name }}
+                </li>
+              </ul>
+            </td>
+            <td>{{ billing.totalBillAmount }}</td>
+            <td>
+              <!-- <i class="fa-solid fa-eye action-btn" (click)="viewPatient(patient._id)"></i> -->
+              <i
+                class="fa-solid fa-pencil action-btn"
+                *ngIf="userPermissions.update"
+                (click)="editPatientipd(billing._id)"
+              ></i>
+              <!-- <i
+                class="fa-solid fa-trash action-btn"
+                *ngIf="userPermissions.delete"
+                (click)="deletPatientipd(billing._id)"
+              ></i> -->
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+
+    <div class="pagination">
+      <button
+        class="pagination-btn"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      Page {{ currentPage }} of {{ totalPages }}
+      <button
+        class="pagination-btn"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>

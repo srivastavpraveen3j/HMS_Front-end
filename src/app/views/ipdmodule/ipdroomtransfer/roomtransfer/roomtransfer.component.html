@@ -1,0 +1,352 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>ROOM TRANSFER</h2>
+    <!-- <div class=""> -->
+      <!-- <button class="list-cases-btn mx-3">
+        <i class="fa-solid fa-user-group"></i>
+      </button> -->
+      <!-- <i
+        class="fa solid fa-signal"
+        [routerLink]="['/ipd/ipdroomtransferlist']"
+        routerLinkActive="router-link-active"
+      >
+      </i> -->
+    <!-- </div> -->
+  </div>
+
+  <div class="opd-container" *ngIf="userPermissions.create">
+    <form [formGroup]="roomtransfer" (ngSubmit)="OnSubmit()">
+      <!-- <h4 class="m-4">Patient Details</h4>
+      <hr /> -->
+      <div class="row g-3">
+        <div class="form-group col-md-4">
+          <label>UHID No:</label>
+          <input
+            type="text"
+            placeholder="UHID No"
+            class="form-control"
+            formControlName="uhid"
+            readonly
+          />
+          <div
+            *ngIf="
+              roomtransfer.get('uhid')?.invalid &&
+              roomtransfer.get('uhid')?.touched
+            "
+            class="text-danger"
+          >
+            UHID no. is required.
+          </div>
+        </div>
+
+        <div class="form-group col-md-4">
+          <label>Patient*:</label>
+          <input
+            type="text"
+            class="input-text form-control"
+            placeholder="Enter patient name"
+            formControlName="patient_name"
+            (input)="onPatientInput()"
+            (focus)="showSuggestions = true"
+            (blur)="hideSuggestionsWithDelay()"
+            readonly
+          />
+          <!-- </div> -->
+          <!-- Patient Suggestions Dropdown - MOVED OUTSIDE BUT STILL IN THE FORM-GROUP -->
+          <div
+            *ngIf="showSuggestions && filteredPatients.length > 0"
+            class="suggestions-container"
+          >
+            <ul class="suggestions">
+              <li
+                *ngFor="let patient of filteredPatients"
+                (mousedown)="selectPatient(patient)"
+              >
+                {{ patient?.uniqueHealthIdentificationId?.patient_name }}
+                {{
+                  patient?.uniqueHealthIdentificationId?.mobile_no
+                    ? "| " + patient?.uniqueHealthIdentificationId?.mobile_no
+                    : ""
+                }}
+                {{
+                  patient?.uniqueHealthIdentificationId?.uhid
+                    ? "| " + patient?.uniqueHealthIdentificationId?.uhid
+                    : ""
+                }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Debug info - MODIFIED to check for manuallySelected flag -->
+          <div
+            *ngIf="
+              roomtransfer.get('patient_name')?.value &&
+              roomtransfer.get('patient_name')?.value.length > 2 &&
+              !filteredPatients.length &&
+              !manuallySelected
+            "
+            class="text-danger"
+          >
+            No matching patients found
+          </div>
+          <div
+            *ngIf="
+              roomtransfer.get('patient_name')?.touched &&
+              roomtransfer.get('patient_name')?.invalid
+            "
+            class="text-danger"
+          >
+            Patient name is required
+          </div>
+        </div>
+
+        <div class="form-group col-md-4">
+          <label>Age*:</label>
+          <input type="text" class="form-control" placeholder="age/gender" formControlName="age" readonly/>
+          <div
+            *ngIf="
+              roomtransfer.get('age')?.invalid &&
+              roomtransfer.get('age')?.touched
+            "
+            class="text-danger"
+          >
+            Age is required.
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="form-group col-md-4">
+          <label>Transfer Type</label>
+          <select formControlName="transferType">
+            <option value="">Select transfer type</option>
+            <option value="temporary">Temporary</option>
+            <option value="permanent">Permanent</option>
+          </select>
+          <div
+            *ngIf="
+              roomtransfer.get('transferType')?.invalid &&
+              roomtransfer.get('transferType')?.touched
+            "
+            class="text-danger"
+          >
+            Transfer type is required
+          </div>
+        </div>
+
+        <div class="form-group col-md-4">
+          <label>Transfer Reason</label>
+          <input
+            formControlName="transferReason"
+            placeholder="Enter transfer reason"
+          />
+          <div
+            *ngIf="
+              roomtransfer.get('transferReason')?.invalid &&
+              roomtransfer.get('transferReason')?.touched
+            "
+            class="text-danger"
+          >
+            Transfer reason is required
+          </div>
+        </div>
+
+        <div class="form-group col-md-4">
+          <label>Ramark</label>
+          <input formControlName="remark" placeholder="remark" />
+        </div>
+      </div>
+
+      <div class="row g-2">
+        <div class="form-group col-md-6">
+          <label>Transfer Start Time:</label>
+          <input
+            type="datetime-local"
+            name=""
+            id=""
+            [(ngModel)] = "startTime"
+            formControlName="transferStartTime"
+          />
+          <div
+            *ngIf="
+              roomtransfer.get('transferStartTime')?.invalid &&
+              roomtransfer.get('transferStartTime')?.touched
+            "
+            class="text-danger"
+          >
+            Transfer start time is required
+          </div>
+        </div>
+        <div class="form-group col-md-6">
+          <label>Transfer End Time:</label>
+          <input type="datetime-local" formControlName="transferEndTime" />
+        </div>
+      </div>
+
+      <div class="d-flex w-100 gap-4">
+        <!-- CURRENT ROOM DETAILS -->
+        <div class="w-50">
+          <h4 class="m-4">Current Room Details</h4>
+          <hr />
+
+          <!-- Ward Selection -->
+          <div class="form-group">
+            <label>Ward</label>
+            <input type="text" class="form-control" formControlName="currentWard" readonly/>
+          </div>
+
+          <div class="form-group">
+            <label>Room</label>
+            <input type="text" class="form-control" formControlName="currentRoom" readonly/>
+          </div>
+
+          <div class="form-group">
+            <label>Bed No:</label>
+            <input type="text" class="form-control" formControlName="currentBed" readonly/>
+          </div>
+        </div>
+
+        <!-- PRIMARY ROOM DETAILS (show only in edit mode) -->
+        <div class="w-25" *ngIf="isEditMode">
+          <h4 class="m-4">Primary Room Details</h4>
+          <hr />
+
+          <div class="form-group">
+            <label>Ward</label>
+            <input type="text" formControlName="primaryWard" readonly />
+          </div>
+
+          <div class="form-group">
+            <label>Room</label>
+            <input type="text" formControlName="primaryRoom" readonly />
+          </div>
+
+          <div class="form-group">
+            <label>Bed No:</label>
+            <input type="text" formControlName="primaryBed" readonly />
+          </div>
+        </div>
+
+        <!-- TRANSFER ROOM TO -->
+        <div class="w-50">
+          <h4 class="m-4">Transfer Patient To</h4>
+          <hr />
+
+          <!-- Ward Selection -->
+          <div class="form-group">
+            <label>Ward:</label>
+            <select
+              class="w-75"
+              formControlName="transferWard"
+              (change)="onWardSelected($event, 'transfer')"
+            >
+              <option value="">Select Ward</option>
+              <option *ngFor="let ward of wards" [value]="ward._id">
+                {{ ward.ward_name }}
+              </option>
+            </select>
+            <div
+              *ngIf="
+                roomtransfer.get('transferWard')?.invalid &&
+                roomtransfer.get('transferWard')?.touched
+              "
+              class="text-danger"
+            >
+              Ward Selection is required.
+            </div>
+          </div>
+
+          <!-- Room Selection -->
+           <div *ngIf="selectedward">
+             <div class="form-group" *ngIf="selectedRoomsTransfer.length > 0">
+               <label>Room:</label>
+               <select
+                 class="form-control w-75"
+                 formControlName="transferRoom"
+                 (change)="onRoomSelected($event, 'transfer')"
+               >
+                 <option value="">Select Room</option>
+                 <option
+                   *ngFor="let room of selectedRoomsTransfer"
+                   [value]="room._id"
+                 >
+                   {{ room.roomNumber }}
+                 </option>
+               </select>
+               <div
+                 *ngIf="
+                   roomtransfer.get('transferRoom')?.invalid &&
+                   roomtransfer.get('transferRoom')?.touched
+                 "
+                 class="text-danger"
+               >
+                 Room selection is required
+               </div>
+             </div>
+             <!-- Fallback message -->
+             <div *ngIf="!selectedRoomsTransfer || selectedRoomsTransfer.length === 0" class="col-md-6 mt-3">
+               <div class="bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-lg p-3 text-center shadow-sm">
+                 ⚠️ All beds in this ward are occupied.
+               </div>
+             </div>
+           </div>
+
+          <!-- Bed Selection -->
+          <div class="form-group" *ngIf="selectedBedsTransfer && selectedBedsTransfer.length > 0">
+            <label>Bed:</label>
+            <div class="bed-grid">
+              <div
+                class="bed-card mx-2"
+                *ngFor="let bed of selectedBedsTransfer"
+                [class.selected]="selectedBedTransfer?._id === bed._id"
+                [class.occupied]="bed.is_occupied"
+                [title]="
+                  'Bed No: ' +
+                  bed.bed_number +
+                  ' (' +
+                  (bed.is_occupied ? 'occupied' : 'available') +
+                  ')'
+                "
+                (click)="onBedSelected(bed, 'transfer')"
+              >
+                <!-- <span>{{ bed?.bed_type_id?.name }}</span> -->
+                <img
+                  [src]="
+                    bed.is_occupied ? 'double-bed.png' : 'double-bed (1).png'
+                  "
+                  alt="Bed Image"
+                />
+                <span>{{ bed.bed_number || transferbed }}</span>
+
+                <div class="tooltip" *ngIf="bed.is_occupied">
+                  Occupied: {{ getPatientNameForBed(bed._id) || "Unknown" }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview -->
+          <div *ngIf="selectedBedTransfer">
+            <p class="text-success">
+              Selected Bed: {{ transferbed }}
+            </p>
+          </div>
+
+          <div *ngIf="selectedBedTransfer">
+            <label>Active Room Charge</label>
+            <input type="checkbox" formControlName="isActiveRoomCharge">
+            <label>Active Bed Charge</label>
+            <input type="checkbox" formControlName="isActiveBedCharge">
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-3">
+        <button class="btn btn-dark mx-2" [disabled]="roomtransfer.invalid">
+          Submit
+        </button>
+        <button class="btn btn-secondary">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

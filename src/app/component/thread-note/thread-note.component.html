@@ -1,0 +1,59 @@
+<div class="hospital-box">
+  <div class="hospital-box">
+    <div class="hospital-header">
+      <h3>{{ hospital.name }}</h3>
+      <div class="summary">
+        Total Beds: {{ getHospitalTotal(hospital).beds }} |
+        Doctors: {{ getHospitalTotal(hospital).doctors }} |
+        Staff: {{ getHospitalTotal(hospital).staff }}
+      </div>
+      <div class="subscription-box">
+        <strong>Subscription:</strong>
+        <span
+          [ngClass]="{
+            'active-badge': hospital.subscriptionStatus === 'Active',
+            'inactive-badge': hospital.subscriptionStatus === 'Inactive'
+          }"
+        >
+          {{ hospital.subscriptionStatus || 'N/A' }}
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="branches">
+    <h6>Branches: </h6>
+    <div class="branch" *ngFor="let branch of hospital.children">
+      <div class="branch-header" (click)="toggleExpand(branch)">
+        {{ branch.expanded ? '▼' : '▲' }} {{ branch.name }}
+      </div>
+
+      <div class="branch-details-card" *ngIf="branch.expanded">
+        <div class="detail-row">
+          <span>🛏️</span> Beds: {{ branch.details.beds }}
+        </div>
+        <div class="detail-row">
+          <span>🩺</span> Doctors: {{ branch.details.doctors }}
+        </div>
+        <div class="detail-row">
+          <span>🧑‍⚕️</span> Nurses: {{ branch.details.nurses }}
+        </div>
+        <div class="detail-row">
+          <span>🏥</span> OPD/IPD: {{ branch.details.opd }} / {{ branch.details.ipd }}
+        </div>
+        <div class="detail-row">
+          <span>🧪</span> Pathology: <strong>{{ branch.details.pathology ? 'Yes' : 'No' }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>🔬</span> Radiology: <strong>{{ branch.details.radiology ? 'Yes' : 'No' }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>🎗️</span> Cancer Treatment:
+          <strong>{{ branch.details.cancerTreatment ? 'Yes' : 'No' }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,189 @@
+<div class="form-meta">
+  <!-- <p>pharmadashboard works!</p> -->
+<!-- <p>pathodashboard works!</p> -->
+<div class="header">
+  <h2 class="dashboard-title">WALK-IN PHARMACY DASHBOARD</h2>
+
+  <!-- <span class="icons position-relative">
+        <button class="btn"  [routerLink]="['/pharmalayout/opdpharmalayout']" routerLinkActive="router-link-active" >OPD</button>
+    <button class="toggle ipd btn active" [routerLink]="['/pharmalayout/pharmalayout']" routerLinkActive="router-link-active" >IPD</button>
+  </span> -->
+
+  <!-- <div class="toggle-buttons">
+    @if(pharmaPermissions){
+    <button
+      class="btn mx-2"
+      [routerLink]="['/pharmalayout/opdpharmalayout']"
+      routerLinkActive="router-link-active"
+    >
+      OPD
+    </button>
+    }
+    <button class="toggle ipd btn " [routerLink]="['/pharmalayout/pharmalayout']"  routerLinkActive="router-link-active" *ngIf="ipdpharmaPermissions">IPD</button> -->
+      <!-- <button class="toggle ipd btn active" [routerLink]="['/pharmalayout/walkinpharma']"  routerLinkActive="router-link-active">Walk In</button> -->
+  <!-- </div> -->
+</div>
+<!-- <div class=""> -->
+
+<!-- </div> -->
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <!-- Filter by Today or Date Range -->
+  <div class="filters d-flex align-items-center m-3">
+    <div class="form-group position-relative w-50">
+      <input
+        type="text"
+        [(ngModel)]="searchText"
+        (input)="applyFilters()"
+        placeholder="Search by patient name"
+        class="form-control"
+      />
+    </div>
+
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="today"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+        checked
+      />
+      TODAY'S
+    </label>
+
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="dateRange"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+      />
+      Date Range
+    </label>
+
+    <!-- Date Inputs Visible Only for Date Range -->
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="startDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+    />
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="endDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+    />
+  </div>
+
+  <!-- Data Table -->
+  <div class="" *ngIf="userPermissions.read">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>INWARD ID</th>
+          <th>DATE TIME</th>
+          <th>PATIENT NAME</th>
+          <th>AGE / GENDER</th>
+          <!-- <th>Doctor Name</th> -->
+          <th>Medicine Name</th>
+          <th>Total Amount</th>
+          <!-- <th>STATUS</th> -->
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of filteredCases; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ record.inwardSerialNumber }}</td>
+          <td>{{ record.createdAt | date : "shortTime" }}</td>
+          <!-- Use enriched data here -->
+          <!-- <td class="patient-name"  (click)="viewPatient(record?._id)">{{ record.patient_name || '-' }}</td> -->
+          <td>
+            {{ record?.walkInPatient?.name || "-" }}
+            <span *ngIf="!record?.walkInPatient?.name">[Missing]</span>
+          </td>
+
+          <td>
+            {{ record?.walkInPatient?.age || "-" }} /
+            {{ record?.walkInPatient?.gender || "-" }}
+          </td>
+          <!-- <td ngIf="record?.walkInPatient?.doctor_name">{{ record?.walkInPatient?.doctor_name || "-" }}</td> -->
+
+          <td>
+            <ul>
+              <li *ngFor="let med of record.packages">
+                {{ med.medicineName }} - {{ med.quantity }} × ₹{{ med.charge }}
+              </li>
+            </ul>
+          </td>
+
+          <td>{{ record.total | indianCurrency }}</td>
+          <!-- <td>{{ record.status }}</td> -->
+          <td>
+            <i
+              class="fa-solid fa-eye action-btn"
+              (click)="viewPatient(record?._id)"
+            ></i>
+          </td>
+        </tr>
+        <tr class="bg-warning text-end" *ngIf="filteredCases.length > 0">
+          <td colspan="3" class="fw-bold">Total Amount</td>
+          <td class="fw-bold">{{ totalAmount | indianCurrency }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Modal -->
+    <div class="modal-backdrop" *ngIf="selectedPatient">
+      <div class="modal-content-box">
+        <div class="modal-header">
+          <h3 style="visibility: hidden">Patient Details</h3>
+          <!-- <button class="close-btn" (click)="closeModal()">×</button> -->
+    <i class="fa-solid fa-times me-2" (click)="closeModal()"></i>
+
+        </div>
+        <hr />
+        <div class="modal-body">
+          <!-- <app-patient-opdmedicine-request [patientData]="selectedPatient"></app-patient-opdmedicine-request> -->
+          <!-- <app-patient-opdpharmabill [patientData]="selectedPatient"></app-patient-opdpharmabill> -->
+          <!-- <app-patient-opdpharmabill
+            *ngIf="selectedPatient"
+            [patientData]="[selectedPatient]"
+          >
+          </app-patient-opdpharmabill -->
+          <!-- > -->
+          <app-walkinopdpharma
+            *ngIf="selectedPatient"
+            [patientData]="[selectedPatient]"
+          >
+          </app-walkinopdpharma>
+        </div>
+      </div>
+    </div>
+    <!-- Modal -->
+  </div>
+
+  <div
+    *ngIf="filteredCases && filteredCases.length === 0"
+    class="alert alert-warning text-center mt-3"
+  >
+    No Outpatient record found today.
+  </div>
+</div>
+<!-- <div class="text-end mt-2" *ngIf="filteredCases.length > 0">
+  <strong>Total Amount: {{ totalAmount | indianCurrency }}</strong>
+</div> -->
+<!-- <tr class="table-warning text-center">
+                <td colspan="3" class="fw-bold">Total Amount</td>
+                <td class="fw-bold">{{ totalAmount | indianCurrency }}</td>
+              </tr> -->
+
+</div>

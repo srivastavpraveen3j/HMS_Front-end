@@ -1,0 +1,18 @@
+.suggestions-container {
+  position: relative;
+}
+
+.list-group-item-action:hover {
+  background-color: #f8f9fa;
+}
+
+.suggestions-container .list-group {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  margin-top: 2px;
+}
+
+.badge {
+  font-size: 0.75em;
+}

@@ -1,0 +1,23 @@
+.label-container {
+  width: 100%;
+  max-width: 350px; /* Label width */
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  line-height: 1.4;
+}
+
+.label-row {
+  display: grid;
+  grid-template-columns: 90px auto; /* First column fixed, second flexible */
+  margin-bottom: 4px;
+}
+
+.label-row strong {
+  text-align: left;
+}
+
+.barcode-container {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}

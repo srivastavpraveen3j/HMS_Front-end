@@ -1,0 +1,81 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>LOW STOCK ITEMS</h2>
+   <div>
+    <button
+      class="btn btn-primary"
+      (click)="generateMaterialRequests()"
+      [disabled]="selectedItems.length === 0">
+      Generate Material Requests ({{selectedItems.length}})
+    </button>
+    <small class="text-muted d-block" *ngIf="getSelectableCount() < lowStockItems.length">
+      {{lowStockItems.length - getSelectableCount()}} items already have pending requests
+    </small>
+  </div>
+</div>
+
+
+  <div class="table-responsive mt-5">
+    <table class="table table-striped">
+  <thead>
+    <tr>
+      <th>
+        <input
+          type="checkbox"
+          #selectAllCheckbox
+          (change)="selectAll(selectAllCheckbox.checked)"
+          [checked]="isAllSelected()"
+          [disabled]="getSelectableItems().length === 0">
+      </th>
+      <th>Medicine Name</th>
+      <th>Supplier</th>
+      <th>Current Stock</th>
+      <th>Low Stock Threshold</th>
+      <th>Suggested Order Qty</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of lowStockItems"
+        [class.table-danger]="item.stock <= 5 && item.canSelect"
+        [class.table-warning]="item.stock > 5 && item.stock <= item.lowStockThreshold && item.canSelect"
+        [class.table-secondary]="!item.canSelect">
+      <td>
+        <input
+          type="checkbox"
+          #checkbox
+          [value]="item._id"
+          [checked]="isItemSelected(item)"
+          [disabled]="!item.canSelect"
+          (change)="onItemSelect(item, checkbox.checked)">
+      </td>
+      <td>
+        {{item.medicine_name}}
+        <small class="text-muted d-block" *ngIf="item.hasExistingRequest">
+          <i class="fa fa-clock"></i> Request pending
+        </small>
+      </td>
+      <td>{{item.supplier.vendorName}}</td>
+      <td>
+        <span class="badge"
+              [class.badge-danger]="item.stock <= 5"
+              [class.badge-warning]="item.stock > 5"
+              [class.badge-secondary]="!item.canSelect">
+          {{item.stock}}
+        </span>
+      </td>
+      <td>{{item.lowStockThreshold}}</td>
+      <td>{{getSuggestedQuantity(item)}}</td>
+      <td>
+        <span class="badge badge-danger" *ngIf="item.stock <= 5 && item.canSelect">Critical</span>
+        <span class="badge badge-warning" *ngIf="item.stock > 5 && item.canSelect">Low Stock</span>
+        <span class="badge badge-secondary" *ngIf="!item.canSelect">Request Sent</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+  </div>
+  </div>
+
+

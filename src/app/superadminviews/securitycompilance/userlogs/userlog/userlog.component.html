@@ -1,0 +1,100 @@
+<!-- <p>userlog works!</p> -->
+<div class="header">
+  <h2>USER ACCESS LOGS</h2>
+</div>
+
+<div class="log-filters mt-4">
+
+
+  <form [formGroup]="logForm" (ngSubmit)="filterLogs()" class="log-form-container">
+    <div class="row g-4 align-items-end">
+
+      <!-- Hospital Dropdown -->
+      <div class="col-md-3">
+        <label for="hospital" class="form-label">Hospital</label>
+        <select class="form-select" formControlName="hospital" (change)="onHospitalChange()">
+          <option value="">All Hospitals</option>
+          <option *ngFor="let hospital of hospitalList" [value]="hospital.id">{{ hospital.name }}</option>
+        </select>
+      </div>
+
+      <!-- Branch Dropdown (dependent on hospital) -->
+      <div class="col-md-3">
+        <label for="branch" class="form-label">Branch</label>
+        <select class="form-select" formControlName="branch">
+          <option value="">All Branches</option>
+          <option *ngFor="let branch of filteredBranches" [value]="branch.id">{{ branch.name }}</option>
+        </select>
+      </div>
+
+      <!-- User Input -->
+      <div class="col-md-3">
+        <label for="user" class="form-label">User</label>
+        <input type="text" formControlName="user" class="form-control" placeholder="Enter user name">
+      </div>
+
+      <!-- Action Dropdown -->
+      <div class="col-md-3">
+        <label for="action" class="form-label">Action Type</label>
+        <select formControlName="action" class="form-select">
+          <option value="">All</option>
+          <option value="login">Login</option>
+          <option value="logout">Logout</option>
+          <option value="update">Update</option>
+          <option value="delete">Delete</option>
+        </select>
+      </div>
+
+      <!-- Date Filters -->
+      <div class="col-md-3">
+        <label class="form-label">From</label>
+        <input type="date" formControlName="fromDate" class="form-control">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">To</label>
+        <input type="date" formControlName="toDate" class="form-control">
+      </div>
+
+      <!-- Buttons -->
+      <div class="col-md-6 d-flex gap-2 mt-3">
+        <button type="submit" class="btn btn-dark w-50">Search</button>
+        <button type="button" class="btn btn-outline-secondary w-50" (click)="resetForm()">Reset</button>
+      </div>
+    </div>
+  </form>
+
+
+</div>
+
+<div class="logs-table mt-5">
+  <table class="table table-hover table-bordered">
+    <thead class="table-dark">
+      <tr>
+        <th>#</th>
+        <th>User</th>
+        <th>Role</th>
+        <th>Hospital</th>
+        <th>Branch</th>
+        <th>Action</th>
+        <th>Timestamp</th>
+        <th>IP Address</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let log of filteredLogs; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ log.user }}</td>
+        <td>{{ log.role }}</td>
+        <td>{{ log.hospitalName }}</td>
+        <td>{{ log.branchName }}</td>
+        <td>{{ log.action }}</td>
+        <td>{{ log.timestamp | date: 'medium' }}</td>
+        <td>{{ log.ip }}</td>
+      </tr>
+      <tr *ngIf="filteredLogs.length === 0">
+        <td colspan="8" class="text-center text-muted">No logs found for the selected filters.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+

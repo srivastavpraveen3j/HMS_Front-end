@@ -1,0 +1,13 @@
+.field-pane {
+  margin-bottom: 1rem;
+}
+
+.list-group-item {
+  border: 1px solid #eaeaea;
+  border-radius: 6px;
+}
+
+.btn-outline-primary,
+.btn-outline-secondary {
+  border-radius: 6px;
+}

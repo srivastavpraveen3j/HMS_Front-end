@@ -1,0 +1,190 @@
+<div class="">
+  <div>
+    <div class="">
+      <div class="rounded-4 shadow">
+        <div class="modal-header">
+          <h5 class="modal-title">Room Transfer Details</h5>
+        </div>
+
+        <div class="">
+          <!-- Room Info -->
+          <div
+            class="d-flex justify-content-between flex-wrap mb-3 p-3 border rounded bg-light"
+            *ngIf="roomLogs.dailyRoomChargeLogs?.length > 0"
+          >
+            <div>
+              <strong>Primary Room:</strong>
+              {{ roomData.primaryBed?.roomNumber || "N/A" }}
+            </div>
+            <div>
+              <strong>Primary Bed:</strong>
+              {{ roomData.primaryBed?.bedNumber || "N/A" }}
+            </div>
+            <div>
+              <strong>Admit Date:</strong>
+              {{ roomLogs.dailyRoomChargeLogs?.[0]?.date | date: 'dd MMM yyyy' }}
+            </div>
+            <!-- Add this block below the Transfer Total section -->
+            <div
+              *ngIf="roomLogs && roomLogs.dailyRoomChargeLogs.length > 0"
+              class="text-end mt-2 fw-semibold"
+            >
+              Total Days:
+              <span class="text-primary fs-5">
+                {{ getTotalDaysFromLogs(roomLogs.dailyRoomChargeLogs) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- No Data -->
+          <div *ngIf="!roomLogs" class="text-center text-muted p-4">
+            No transfer records available.
+          </div>
+
+          <!-- Table -->
+          <div class="table-responsive" *ngIf="roomLogs.dailyRoomChargeLogs">
+            <table class="table align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Date</th>
+                  <th>Room</th>
+                  <th>Bed</th>
+                  <th>Room Charge</th>
+                  <th>Bed Charge</th>
+                  <th>Half Day</th>
+                  <th>Full Relief</th>
+                  <th>Remarks</th>
+                  <th>Total</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let log of roomLogs.dailyRoomChargeLogs;
+                    let i = index
+                  "
+                >
+                  <td>{{ log.date | date : "dd MMM yyyy hh:mm a" }}</td>
+                  <td>{{ log.roomNumber }}</td>
+                  <td>{{ log.bedNumber }}</td>
+                  <td>
+                    <ng-container
+                      *ngIf="editIndex === i; else displayRoomCharge"
+                    >
+                      <input
+                        type="number"
+                        class="form-control"
+                        [(ngModel)]="log.roomCharge"
+                        min="0"
+                      />
+                    </ng-container>
+                    <ng-template #displayRoomCharge
+                      >₹{{ log.roomCharge | number : "1.2-2" }}</ng-template
+                    >
+                  </td>
+                  <td>
+                    <ng-container
+                      *ngIf="editIndex === i; else displayBedCharge"
+                    >
+                      <input
+                        type="number"
+                        class="form-control"
+                        [(ngModel)]="log.bedCharge"
+                        min="0"
+                      />
+                    </ng-container>
+                    <ng-template #displayBedCharge
+                      >₹{{ log.bedCharge | number : "1.2-2" }}</ng-template
+                    >
+                  </td>
+                  <td>
+                    <ng-container *ngIf="editIndex === i; else halfDayDisplay">
+                      <input
+                        type="checkbox"
+                        [checked]="log.isHalfDay"
+                        (change)="onHalfDayToggle(log, $event)"
+                        [disabled]="log.isFullDay"
+                      />
+                      <label>Half Day</label>
+                    </ng-container>
+                    <ng-template #halfDayDisplay>
+                      <span class="badge bg-success" *ngIf="log.isHalfDay"
+                        >Yes</span
+                      >
+                      <span class="badge bg-secondary" *ngIf="!log.isHalfDay"
+                        >No</span
+                      >
+                    </ng-template>
+                  </td>
+                  <td>
+                    <ng-container *ngIf="editIndex === i; else fullDayDisplay">
+                      <input
+                        type="checkbox"
+                        [checked]="log.isFullDay"
+                        (change)="onFullDayToggle(log, $event)"
+                        [disabled]="log.isHalfDay"
+                      />
+                      <label>Full Relief</label>
+                    </ng-container>
+                    <ng-template #fullDayDisplay>
+                      <span class="badge bg-success" *ngIf="log.isFullDay"
+                        >Yes</span
+                      >
+                      <span class="badge bg-secondary" *ngIf="!log.isFullDay"
+                        >No</span
+                      >
+                    </ng-template>
+                  </td>
+                  <td>{{ log.remarks }}</td>
+                  <td>
+                    <strong
+                      >₹{{
+                        log.roomCharge + log.bedCharge | number : "1.2-2"
+                      }}</strong
+                    >
+                  </td>
+                  <td>
+                    <ng-container *ngIf="editIndex === i; else editButton">
+                      <button
+                        class="btn btn-success btn-sm"
+                        (click)="saveEdit(i)"
+                      >
+                        Save
+                      </button>
+                      <button
+                        class="btn btn-secondary btn-sm ms-2"
+                        (click)="cancelEdit()"
+                      >
+                        Cancel
+                      </button>
+                    </ng-container>
+                    <ng-template #editButton>
+                      <button
+                        class="btn btn-outline-primary btn-sm"
+                        (click)="editBed(i)"
+                      >
+                        Edit
+                      </button>
+                    </ng-template>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Transfer Total -->
+          <div
+            *ngIf="roomLogs && roomLogs.length > 0"
+            class="text-end mt-3 fw-semibold"
+          >
+            Transfer Total:
+            <span class="text-success fs-5">
+              ₹{{ transferTotal | number : "1.2-2" }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

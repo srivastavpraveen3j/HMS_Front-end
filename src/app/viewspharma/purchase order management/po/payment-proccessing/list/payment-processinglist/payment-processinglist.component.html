@@ -1,0 +1,1511 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>Payment Management Dashboard</h2>
+    <button
+      class="list-cases-btn"
+      [routerLink]="['/inventorylayout/paymentproccessing']"
+      routerLinkActive="router-link-active"
+    >
+      ADD NEW PAYMENT
+    </button>
+  </div>
+</div>
+
+<div class="container-fluid mt-4">
+  <!-- ✅ Main Tab Navigation -->
+  <div class="card mb-4">
+    <div class="card-header bg-light p-0">
+      <ul class="nav nav-tabs card-header-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            [class.active]="mainActiveTab === 'payment-history'"
+            (click)="setMainActiveTab('payment-history')"
+            type="button"
+          >
+            <i class="fas fa-history text-info me-2"></i>
+            Payment List
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            [class.active]="mainActiveTab === 'pending-invoices'"
+            (click)="setMainActiveTab('pending-invoices')"
+            type="button"
+          >
+            <i class="fas fa-clock text-warning me-2"></i>
+            Pending Invoices ({{ filteredPendingInvoices.length }})
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ✅ TAB 1: Payment History (Existing Content) -->
+  <div *ngIf="mainActiveTab === 'payment-history'">
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+      <div class="col-xl-3 col-md-6">
+        <div class="card bg-primary text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Total Payments</h6>
+                <h4>{{ paymentStatistics.summary?.totalPayments || 0 }}</h4>
+                <small
+                  >₹{{
+                    paymentStatistics.summary?.totalAmount || 0
+                      | number : "1.2-2"
+                  }}</small
+                >
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-credit-card fa-2x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6">
+        <div
+          class="card bg-success text-white"
+          style="cursor: pointer"
+          (click)="onTabChange('completed')"
+        >
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Completed</h6>
+                <h4>{{ paymentStatistics.summary?.completedPayments || 0 }}</h4>
+                <small
+                  >₹{{
+                    paymentStatistics.summary?.completedAmount || 0
+                      | number : "1.2-2"
+                  }}</small
+                >
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-check-circle fa-2x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6">
+        <div
+          class="card bg-warning text-white"
+          style="cursor: pointer"
+          (click)="onTabChange('processing')"
+        >
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Processing</h6>
+                <h4>
+                  {{ paymentStatistics.summary?.processingPayments || 0 }}
+                </h4>
+                <small
+                  >₹{{
+                    paymentStatistics.summary?.processingAmount || 0
+                      | number : "1.2-2"
+                  }}</small
+                >
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-clock fa-2x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6">
+        <div
+          class="card bg-danger text-white"
+          style="cursor: pointer"
+          (click)="showOverduePayments()"
+        >
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Overdue</h6>
+                <h4>{{ overduePayments.length }}</h4>
+                <small>Critical attention needed</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Filters -->
+    <div class="card mb-4">
+      <div class="card-header bg-light">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <h6 class="mb-0"><i class="fas fa-filter"></i> Filters & Search</h6>
+          </div>
+          <div class="col-md-6 text-end">
+            <div class="btn-group">
+              <button class="btn btn-outline-primary" (click)="refreshData()">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+              <button
+                class="btn btn-outline-success"
+                (click)="exportPaymentData()"
+              >
+                <i class="fas fa-download"></i> Export
+              </button>
+              <button class="btn btn-outline-info" (click)="showStatistics()">
+                <i class="fas fa-chart-bar"></i> Statistics
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- Quick Date Range Buttons -->
+        <div class="row mb-3">
+          <div class="col-12">
+            <label class="form-label">Quick Date Filters:</label>
+            <div class="btn-group flex-wrap">
+              <button
+                class="btn btn-sm"
+                [ngClass]="
+                  isShowingTodayData() ? 'btn-primary' : 'btn-outline-primary'
+                "
+                (click)="setTodayFilter()"
+              >
+                <i class="fas fa-calendar-day"></i> Today
+              </button>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                (click)="setYesterdayFilter()"
+              >
+                <i class="fas fa-calendar-minus"></i> Yesterday
+              </button>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                (click)="setThisWeekFilter()"
+              >
+                <i class="fas fa-calendar-week"></i> This Week
+              </button>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                (click)="setThisMonthFilter()"
+              >
+                <i class="fas fa-calendar-alt"></i> This Month
+              </button>
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                (click)="clearAllDates()"
+              >
+                <i class="fas fa-calendar"></i> All Time
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Search -->
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Search</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="searchQuery"
+              (input)="onSearch()"
+              placeholder="Payment ID, Invoice, Transaction..."
+            />
+          </div>
+
+          <!-- Status Filter -->
+          <div class="col-md-2 mb-3">
+            <label class="form-label">Status</label>
+            <select
+              class="form-select"
+              [(ngModel)]="statusFilter"
+              (change)="onFilterChange()"
+            >
+              <option
+                *ngFor="let option of statusOptions"
+                [value]="option.value"
+              >
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Payment Mode Filter -->
+          <div class="col-md-2 mb-3">
+            <label class="form-label">Payment Mode</label>
+            <select
+              class="form-select"
+              [(ngModel)]="paymentModeFilter"
+              (change)="onFilterChange()"
+            >
+              <option
+                *ngFor="let option of paymentModeOptions"
+                [value]="option.value"
+              >
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- From Date -->
+          <div class="col-md-2 mb-3">
+            <label class="form-label">From Date</label>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="fromDate"
+              (change)="onDateChange()"
+              [max]="toDate || getTodayString()"
+              title="Select start date"
+            />
+          </div>
+
+          <!-- To Date -->
+          <div class="col-md-2 mb-3">
+            <label class="form-label">To Date</label>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="toDate"
+              (change)="onDateChange()"
+              [min]="fromDate"
+              [max]="getTodayString()"
+              title="Select end date"
+            />
+          </div>
+
+          <!-- Clear Filters -->
+          <div class="col-md-1 mb-3 d-flex align-items-end">
+            <button
+              class="btn btn-outline-secondary w-100"
+              (click)="clearFilters()"
+              title="Clear All Filters"
+            >
+              <i class="fas fa-eraser"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Date Range Display -->
+        <div class="row" *ngIf="fromDate || toDate">
+          <div class="col-12">
+            <div class="alert alert-info py-2 mb-0">
+              <small>
+                <i class="fas fa-info-circle"></i>
+                <strong>Date Range:</strong>
+                <span *ngIf="fromDate && toDate && fromDate === toDate">
+                  Today ({{ fromDate | date : "dd/MM/yyyy" }})
+                </span>
+                <span *ngIf="fromDate && toDate && fromDate !== toDate">
+                  {{ fromDate | date : "dd/MM/yyyy" }} to
+                  {{ toDate | date : "dd/MM/yyyy" }}
+                </span>
+                <span *ngIf="fromDate && !toDate">
+                  From {{ fromDate | date : "dd/MM/yyyy" }}
+                </span>
+                <span *ngIf="!fromDate && toDate">
+                  Up to {{ toDate | date : "dd/MM/yyyy" }}
+                </span>
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="card mb-4">
+      <div class="card-header p-0">
+        <ul class="nav nav-tabs card-header-tabs">
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [class.active]="activeTab === 'all'"
+              (click)="onTabChange('all')"
+              style="cursor: pointer"
+            >
+              <i class="fas fa-list"></i> All Payments ({{
+                paymentHistory.length
+              }})
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [class.active]="activeTab === 'completed'"
+              (click)="onTabChange('completed')"
+              style="cursor: pointer"
+            >
+              <i class="fas fa-check-circle text-success"></i> Completed
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [class.active]="activeTab === 'processing'"
+              (click)="onTabChange('processing')"
+              style="cursor: pointer"
+            >
+              <i class="fas fa-clock text-warning"></i> Processing
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [class.active]="activeTab === 'overdue'"
+              (click)="onTabChange('overdue')"
+              style="cursor: pointer"
+            >
+              <i class="fas fa-exclamation-triangle text-danger"></i> Overdue
+              ({{ overduePayments.length }})
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <span class="text-muted">
+          Showing {{ filteredPayments.length }} of {{ totalItems }} payments
+        </span>
+      </div>
+      <div>
+        <span class="badge bg-info me-2">{{ activeTab | titlecase }} View</span>
+        <span class="badge bg-secondary"
+          >Page {{ currentPage }} of {{ totalPages }}</span
+        >
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading payment data...</p>
+    </div>
+
+    <!-- Payment History Table -->
+    <div class="card" *ngIf="!isLoading">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>Payment ID</th>
+              <th>Invoice Details</th>
+              <th>Vendor</th>
+              <th>Amount</th>
+              <th>Payment Mode</th>
+              <th>Status</th>
+              <th>Payment Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let payment of filteredPayments">
+              <td>
+                <div>
+                  <strong class="text-primary">{{ payment.paymentId }}</strong
+                  ><br />
+                  <small class="text-muted">{{ payment.transactionId }}</small>
+                </div>
+              </td>
+
+              <td>
+                <div>
+                  <strong>{{ payment.invoiceNo }}</strong
+                  ><br />
+                  <small class="text-muted">GRN: {{ payment.grnNumber }}</small>
+                </div>
+              </td>
+
+              <td>
+                <div>
+                  <strong>{{ payment.vendor?.name || "N/A" }}</strong
+                  ><br />
+                  <small class="text-muted">{{ payment.vendor?.email }}</small>
+                </div>
+              </td>
+
+              <td>
+                <h6 class="mb-1 text-success">
+                  ₹{{ payment.amount | number : "1.2-2" }}
+                </h6>
+              </td>
+
+              <td>
+                <span class="d-flex align-items-center">
+                  <i
+                    [class]="getPaymentModeIcon(payment.paymentMode)"
+                    class="me-2"
+                  ></i>
+                  {{ payment.paymentMode.toUpperCase() }}
+                </span>
+              </td>
+
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="getStatusBadgeClass(payment.status)"
+                >
+                  {{ payment.status | titlecase }}
+                </span>
+              </td>
+
+              <td>
+                <div>
+                  {{ payment.paymentDate | date : "dd/MM/yyyy" }}<br />
+                  <small class="text-muted"
+                    >{{ getDaysSincePayment(payment.paymentDate) }} days
+                    ago</small
+                  >
+                </div>
+              </td>
+
+              <td>
+                <div class="btn-group">
+                  <button
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="viewPaymentDetails(payment)"
+                    title="View Details"
+                  >
+                    <i class="fas fa-eye"></i>
+                  </button>
+
+                  <button
+                    class="btn btn-sm btn-outline-success"
+                    (click)="showChequePreview(payment)"
+                    *ngIf="payment.paymentMode === 'cheque'"
+                    title="Cheque Preview"
+                  >
+                    <i class="fas fa-money-check"></i>
+                  </button>
+
+                  <button
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="cancelPayment(payment)"
+                    *ngIf="
+                      payment.status !== 'completed' &&
+                      payment.status !== 'cancelled'
+                    "
+                    title="Cancel Payment"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Empty State -->
+            <tr *ngIf="filteredPayments.length === 0 && !isLoading">
+              <td colspan="8" class="text-center py-5">
+                <div class="text-muted">
+                  <i class="fas fa-inbox fa-3x mb-3"></i>
+                  <h5>No Payments Found</h5>
+                  <p *ngIf="isShowingTodayData()">
+                    No payments found for today.
+                  </p>
+                  <p
+                    *ngIf="
+                      !isShowingTodayData() &&
+                      (searchQuery ||
+                        statusFilter ||
+                        paymentModeFilter ||
+                        fromDate ||
+                        toDate)
+                    "
+                  >
+                    Try adjusting your search criteria or filters.
+                  </p>
+                  <p
+                    *ngIf="
+                      !isShowingTodayData() &&
+                      !searchQuery &&
+                      !statusFilter &&
+                      !paymentModeFilter &&
+                      !fromDate &&
+                      !toDate
+                    "
+                  >
+                    No payment records available for the selected view.
+                  </p>
+                  <button
+                    class="btn btn-outline-primary"
+                    (click)="clearFilters()"
+                  >
+                    Reset to Today
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Payment pagination" *ngIf="totalPages > 1 && !isLoading">
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div class="pagination-info">
+          <span class="text-muted">
+            Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to
+            {{ Math.min(currentPage * itemsPerPage, totalItems) }} of
+            {{ totalItems }} payments
+          </span>
+        </div>
+
+        <ul class="pagination mb-0">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button class="page-link" (click)="onPageChange(currentPage - 1)">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+          </li>
+
+          <li
+            class="page-item"
+            *ngFor="let page of getPaginationArray()"
+            [class.active]="page === currentPage"
+          >
+            <button class="page-link" (click)="onPageChange(page)">
+              {{ page }}
+            </button>
+          </li>
+
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <button class="page-link" (click)="onPageChange(currentPage + 1)">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ✅ TAB 2: Pending Invoices -->
+  <div *ngIf="mainActiveTab === 'pending-invoices'">
+    <!-- Pending Invoice Statistics Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card bg-primary text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Total Pending</h6>
+                <h4>₹{{ totalPendingAmount | number : "1.2-2" }}</h4>
+                <small>{{ pendingInvoices.length }} invoices</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-clock fa-2x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card bg-success text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Selected Amount</h6>
+                <h4>₹{{ totalSelectedAmount | number : "1.2-2" }}</h4>
+                <small>{{ selectedInvoices.length }} selected</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-check-circle fa-2x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card bg-warning text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Overdue</h6>
+                <h4>{{ overdueInvoicesCount }}</h4>
+                <small>invoices > 30 days</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card bg-info text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Ready to Pay</h6>
+                <h4>{{ filteredPendingInvoices.length }}</h4>
+                <small>after filters</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-money-bill-wave fa-2x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Invoice Filters -->
+    <div class="card mb-4">
+      <div class="card-header bg-light">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <h6 class="mb-0"><i class="fas fa-filter"></i> Filters & Search</h6>
+          </div>
+          <div class="col-md-6 text-end">
+            <div class="btn-group">
+              <button class="btn btn-outline-primary" (click)="refreshData()">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+              <button
+                class="btn btn-success"
+                *ngIf="selectedInvoices.length > 0"
+                [routerLink]="['/inventorylayout/paymentproccessing']"
+                [queryParams]="bulkPaymentQueryParams"
+              >
+                <i class="fas fa-credit-card"></i> Process Selected ({{
+                  selectedInvoices.length
+                }})
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <!-- Search -->
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Search Invoices</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="pendingSearchQuery"
+              (input)="onPendingSearch()"
+              placeholder="Invoice No, GRN, Vendor..."
+            />
+          </div>
+
+          <!-- Vendor Filter -->
+          <div class="col-md-2 mb-3">
+            <label class="form-label">Vendor</label>
+            <select
+              class="form-select"
+              [(ngModel)]="pendingVendorFilter"
+              (change)="onPendingFilterChange()"
+            >
+              <option value="">All Vendors</option>
+              <option *ngFor="let vendor of vendorList" [value]="vendor.id">
+                {{ vendor.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Amount Range -->
+          <div class="col-md-2 mb-3">
+            <label class="form-label">Min Amount</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="pendingAmountRangeMin"
+              (input)="onPendingFilterChange()"
+              placeholder="0"
+            />
+          </div>
+
+          <div class="col-md-2 mb-3">
+            <label class="form-label">Max Amount</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="pendingAmountRangeMax"
+              (input)="onPendingFilterChange()"
+              placeholder="No limit"
+            />
+          </div>
+
+          <!-- Selection Actions -->
+          <div class="col-md-3 mb-3 d-flex align-items-end">
+            <div class="btn-group w-100">
+              <button
+                class="btn btn-outline-success"
+                (click)="selectAllVisibleInvoices()"
+              >
+                <i class="fas fa-check-square"></i> Select All
+              </button>
+              <button
+                class="btn btn-outline-danger"
+                (click)="clearAllInvoiceSelections()"
+              >
+                <i class="fas fa-times"></i> Clear
+              </button>
+              <button
+                class="btn btn-outline-secondary"
+                (click)="clearPendingFilters()"
+              >
+                <i class="fas fa-eraser"></i> Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State for Pending Invoices -->
+    <div *ngIf="isLoadingPending" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading pending invoices for payment processing...</p>
+    </div>
+
+    <!-- Pending Invoices Table -->
+    <div class="card" *ngIf="!isLoadingPending">
+      <div class="card-header bg-primary text-white">
+        <h6 class="mb-0">
+          <i class="fas fa-list"></i>
+          Pending Invoices for Payment ({{ filteredPendingInvoices.length }})
+        </h6>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th style="width: 50px">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [checked]="
+                    selectedInvoices.length ===
+                      filteredPendingInvoices.length &&
+                    filteredPendingInvoices.length > 0
+                  "
+                  [indeterminate]="
+                    selectedInvoices.length > 0 &&
+                    selectedInvoices.length < filteredPendingInvoices.length
+                  "
+                  (change)="
+                    selectedInvoices.length === filteredPendingInvoices.length
+                      ? clearAllInvoiceSelections()
+                      : selectAllVisibleInvoices()
+                  "
+                />
+              </th>
+              <th>Invoice Details</th>
+              <th>Vendor</th>
+              <th>Amount</th>
+              <th>Days Since Verified</th>
+              <th>Priority</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let invoice of filteredPendingInvoices; let i = index"
+              [class]="getInvoicePriorityClass(invoice.verificationDate)"
+              [class.table-active]="isInvoiceSelected(invoice)"
+            >
+              <td>
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [checked]="isInvoiceSelected(invoice)"
+                  (change)="toggleInvoiceSelection(invoice)"
+                />
+              </td>
+
+              <td>
+                <div>
+                  <strong class="text-primary">{{ invoice.invoiceNo }}</strong
+                  ><br />
+                  <small class="text-muted">GRN: {{ invoice.grnNumber }}</small
+                  ><br />
+                  <small class="text-muted">PO: {{ invoice.poNumber }}</small
+                  ><br />
+                  <small class="text-success"
+                    >{{ invoice.items?.length || 0 }} items</small
+                  >
+                </div>
+              </td>
+
+              <td>
+                <div>
+                  <strong>{{ invoice.vendor?.name || "N/A" }}</strong
+                  ><br />
+                  <small class="text-muted">{{ invoice.vendor?.email }}</small
+                  ><br />
+                  <small class="text-muted">{{
+                    invoice.vendor?.phone || "No phone"
+                  }}</small>
+                </div>
+              </td>
+
+              <td>
+                <div>
+                  <h6 class="mb-1 text-success">
+                    ₹{{ invoice.grandTotal | number : "1.2-2" }}
+                  </h6>
+                  <small class="text-muted"
+                    >Base: ₹{{ invoice.baseTotal | number : "1.2-2" }}</small
+                  ><br />
+                  <small class="text-muted"
+                    >GST: ₹{{ invoice.gstTotal | number : "1.2-2" }}</small
+                  >
+                </div>
+              </td>
+
+              <td class="text-center">
+                <span
+                  class="badge"
+                  [class.bg-success]="
+                    getDaysSinceVerification(invoice.verificationDate) <= 15
+                  "
+                  [class.bg-warning]="
+                    getDaysSinceVerification(invoice.verificationDate) > 15 &&
+                    getDaysSinceVerification(invoice.verificationDate) <= 30
+                  "
+                  [class.bg-danger]="
+                    getDaysSinceVerification(invoice.verificationDate) > 30
+                  "
+                >
+                  {{ getDaysSinceVerification(invoice.verificationDate) }} days
+                </span>
+                <br />
+                <small class="text-muted">{{
+                  invoice.verificationDate | date : "dd/MM/yyyy"
+                }}</small>
+              </td>
+
+              <td class="text-center">
+                <span
+                  *ngIf="isInvoiceOverdue(invoice.verificationDate)"
+                  class="badge bg-danger"
+                >
+                  <i class="fas fa-exclamation-triangle"></i> Overdue
+                </span>
+                <span
+                  *ngIf="
+                    getDaysSinceVerification(invoice.verificationDate) > 15 &&
+                    !isInvoiceOverdue(invoice.verificationDate)
+                  "
+                  class="badge bg-warning"
+                >
+                  <i class="fas fa-clock"></i> Due Soon
+                </span>
+                <span
+                  *ngIf="
+                    getDaysSinceVerification(invoice.verificationDate) <= 15
+                  "
+                  class="badge bg-success"
+                >
+                  <i class="fas fa-check"></i> Normal
+                </span>
+              </td>
+
+              <td>
+                <button
+                  class="btn btn-sm btn-primary"
+                  [routerLink]="['/inventorylayout/paymentproccessing']"
+                  [queryParams]="{ invoiceId: invoice._id }"
+                  title="Process Payment"
+                >
+                  <i class="fas fa-credit-card"></i> Pay Now
+                </button>
+              </td>
+            </tr>
+
+            <!-- Empty State -->
+            <tr
+              *ngIf="filteredPendingInvoices.length === 0 && !isLoadingPending"
+            >
+              <td colspan="7" class="text-center py-5">
+                <div class="text-muted">
+                  <i class="fas fa-inbox fa-3x mb-3"></i>
+                  <h5>No Pending Invoices Found</h5>
+                  <p
+                    *ngIf="
+                      pendingSearchQuery ||
+                      pendingVendorFilter ||
+                      pendingAmountRangeMin ||
+                      pendingAmountRangeMax
+                    "
+                  >
+                    Try adjusting your search criteria or filters.
+                  </p>
+                  <p
+                    *ngIf="
+                      !pendingSearchQuery &&
+                      !pendingVendorFilter &&
+                      !pendingAmountRangeMin &&
+                      !pendingAmountRangeMax
+                    "
+                  >
+                    All invoices have been processed for payment.
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- All existing modals remain the same -->
+<!-- Payment Details Modal -->
+<div
+  class="modal fade show"
+  [style.display]="showPaymentDetailsModal ? 'block' : 'none'"
+  [class.show]="showPaymentDetailsModal"
+  tabindex="-1"
+  *ngIf="showPaymentDetailsModal && selectedPayment"
+>
+  <div class="modal-dialog modal-xl" id="payment-sheet">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-credit-card"></i>
+          Payment Details - {{ selectedPayment.paymentId }}
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          (click)="closePaymentDetailsModal()"
+        ></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <!-- Payment Summary -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="card border-primary">
+              <div class="card-header bg-primary text-white">
+                <h6 class="mb-0">
+                  <i class="fas fa-credit-card"></i> Payment Information
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Payment ID:</strong></div>
+                  <div class="col-6">{{ selectedPayment.paymentId }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Transaction ID:</strong></div>
+                  <div class="col-6">{{ selectedPayment.transactionId }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Amount:</strong></div>
+                  <div class="col-6">
+                    <strong
+                      >₹{{ selectedPayment.amount | number : "1.2-2" }}</strong
+                    >
+                  </div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Payment Mode:</strong></div>
+                  <div class="col-6">
+                    <i
+                      [class]="getPaymentModeIcon(selectedPayment.paymentMode)"
+                    ></i>
+                    {{ selectedPayment.paymentMode.toUpperCase() }}
+                  </div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Status:</strong></div>
+                  <div class="col-6">
+                    <span
+                      class="badge"
+                      [ngClass]="getStatusBadgeClass(selectedPayment.status)"
+                    >
+                      {{ selectedPayment.status | titlecase }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card border-info">
+              <div class="card-header bg-info text-white">
+                <h6 class="mb-0">
+                  <i class="fas fa-file-invoice"></i> Invoice Information
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Invoice Number:</strong></div>
+                  <div class="col-6">{{ selectedPayment.invoiceNo }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>GRN Number:</strong></div>
+                  <div class="col-6">{{ selectedPayment.grnNumber }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Vendor:</strong></div>
+                  <div class="col-6">{{ selectedPayment.vendor?.name }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Vendor Email:</strong></div>
+                  <div class="col-6">{{ selectedPayment.vendor?.email }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Payment Date:</strong></div>
+                  <div class="col-6">
+                    {{
+                      selectedPayment.paymentDate | date : "dd/MM/yyyy HH:mm"
+                    }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bank Details (if available) -->
+        <div class="card mb-4" *ngIf="hasBankDetails(selectedPayment)">
+          <div class="card-header">
+            <h6 class="mb-0"><i class="fas fa-university"></i> Bank Details</h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div
+                class="col-md-6"
+                *ngIf="selectedPayment.bankDetails?.payerBank"
+              >
+                <strong>Payer Bank:</strong>
+                {{ selectedPayment.bankDetails.payerBank }}
+              </div>
+              <div
+                class="col-md-6"
+                *ngIf="selectedPayment.bankDetails?.payeeBank"
+              >
+                <strong>Payee Bank:</strong>
+                {{ selectedPayment.bankDetails.payeeBank }}
+              </div>
+              <div
+                class="col-md-6"
+                *ngIf="selectedPayment.bankDetails?.chequenNumber"
+              >
+                <strong>Cheque Number:</strong>
+                {{ selectedPayment.bankDetails.chequenNumber }}
+              </div>
+              <div
+                class="col-md-6"
+                *ngIf="selectedPayment.bankDetails?.bankCharges"
+              >
+                <strong>Bank Charges:</strong> ₹{{
+                  selectedPayment.bankDetails.bankCharges | number : "1.2-2"
+                }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remarks -->
+        <div class="card" *ngIf="selectedPayment.remarks">
+          <div class="card-header">
+            <h6 class="mb-0"><i class="fas fa-comment"></i> Remarks</h6>
+          </div>
+          <div class="card-body">
+            <p class="mb-0">{{ selectedPayment.remarks }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer no-print">
+        <button type="button" class="btn btn-sm" (click)="print()">
+          <i class="fas fa-print"></i> Print
+        </button>
+        <button type="button" class="btn btn-sm" (click)="pdfOPDSheet()">
+          <i class="fas fa-download"></i> Download Receipt
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Statistics Modal (keep existing) -->
+<div
+  class="modal fade show"
+  [style.display]="showStatisticsModal ? 'block' : 'none'"
+  [class.show]="showStatisticsModal"
+  tabindex="-1"
+  *ngIf="showStatisticsModal"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-chart-bar"></i>
+          Payment Statistics
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          (click)="closeStatisticsModal()"
+        ></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <!-- Summary Statistics -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="card border-primary">
+              <div class="card-header bg-primary text-white">
+                <h6 class="mb-0">
+                  <i class="fas fa-calculator"></i> Payment Summary
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="row mb-2">
+                  <div class="col-8"><strong>Total Payments:</strong></div>
+                  <div class="col-4 text-end">
+                    {{ paymentStatistics.summary?.totalPayments || 0 }}
+                  </div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-8"><strong>Total Amount:</strong></div>
+                  <div class="col-4 text-end">
+                    ₹{{
+                      paymentStatistics.summary?.totalAmount || 0
+                        | number : "1.2-2"
+                    }}
+                  </div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-8"><strong>Completed Payments:</strong></div>
+                  <div class="col-4 text-end">
+                    {{ paymentStatistics.summary?.completedPayments || 0 }}
+                  </div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-8"><strong>Completed Amount:</strong></div>
+                  <div class="col-4 text-end">
+                    ₹{{
+                      paymentStatistics.summary?.completedAmount || 0
+                        | number : "1.2-2"
+                    }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card border-success">
+              <div class="card-header bg-success text-white">
+                <h6 class="mb-0">
+                  <i class="fas fa-chart-pie"></i> Payment Modes
+                </h6>
+              </div>
+              <div class="card-body">
+                <div
+                  *ngFor="let mode of paymentStatistics.paymentModes"
+                  class="row mb-2"
+                >
+                  <div class="col-8">
+                    <i [class]="getPaymentModeIcon(mode._id)" class="me-2"></i>
+                    <strong>{{ mode._id.toUpperCase() }}:</strong>
+                  </div>
+                  <div class="col-4 text-end">
+                    {{ mode.count }} (₹{{ mode.amount | number : "1.2-2" }})
+                  </div>
+                </div>
+
+                <!-- Show message if no payment modes data -->
+                <div
+                  *ngIf="
+                    !paymentStatistics.paymentModes ||
+                    paymentStatistics.paymentModes.length === 0
+                  "
+                  class="text-muted text-center"
+                >
+                  <i class="fas fa-info-circle"></i> No payment mode data
+                  available
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Success Rate -->
+        <div class="row" *ngIf="paymentStatistics.summary?.totalPayments > 0">
+          <div class="col-12">
+            <div class="card border-info">
+              <div class="card-header bg-info text-white">
+                <h6 class="mb-0">
+                  <i class="fas fa-percentage"></i> Success Rate
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="progress mb-3" style="height: 25px">
+                  <div
+                    class="progress-bar bg-success"
+                    [style.width.%]="
+                      (paymentStatistics.summary.completedPayments /
+                        paymentStatistics.summary.totalPayments) *
+                      100
+                    "
+                    role="progressbar"
+                  >
+                    {{
+                      (
+                        (paymentStatistics.summary.completedPayments /
+                          paymentStatistics.summary.totalPayments) *
+                        100
+                      ).toFixed(1)
+                    }}%
+                  </div>
+                </div>
+                <div class="row text-center">
+                  <div class="col-4">
+                    <h6 class="text-success">
+                      {{ paymentStatistics.summary.completedPayments }}
+                    </h6>
+                    <small class="text-muted">Completed</small>
+                  </div>
+                  <div class="col-4">
+                    <h6 class="text-warning">
+                      {{ paymentStatistics.summary.processingPayments }}
+                    </h6>
+                    <small class="text-muted">Processing</small>
+                  </div>
+                  <div class="col-4">
+                    <h6 class="text-danger">
+                      {{ paymentStatistics.summary.failedPayments || 0 }}
+                    </h6>
+                    <small class="text-muted">Failed</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Keep all other existing modals (Overdue, Cheque Preview, etc.) -->
+<!-- ✅ NEW: Cheque Preview Modal -->
+<div
+  class="modal fade show"
+  [style.display]="showChequePreviewModal ? 'block' : 'none'"
+  [class.show]="showChequePreviewModal"
+  tabindex="-1"
+  *ngIf="showChequePreviewModal && selectedChequePayment"
+>
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-money-check"></i>
+          Cheque Preview - {{ selectedChequePayment.transactionId }}
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white no-print"
+          (click)="closeChequePreviewModal()"
+        ></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body p-4">
+        <!-- ✅ AUTHENTIC Cheque Container -->
+        <div id="cheque-preview" class="sbi-cheque-container">
+          <!-- ✅ Top Section with Bank Details -->
+          <div class="cheque-top-section">
+            <div class="row align-items-center">
+              <!-- Bank Logo -->
+              <div class="col-md-2">
+                <div class="bank-logo-section">
+                  <div class="bank-logo-circle">
+                    <i class="fas fa-university"></i>
+                  </div>
+                  <small class="logo-text" *ngIf="getBankDisplayInfo() as bankInfo">
+                    {{ bankInfo.english }}
+                  </small>
+                </div>
+              </div>
+
+              <!-- Bank Name and Address -->
+              <div class="col-md-6">
+                <div class="bank-details">
+                  <ng-container *ngIf="getBankDisplayInfo() as bankInfo">
+                    <!-- Hindi name (if available) -->
+                    <h4 class="bank-name-hindi" *ngIf="bankInfo.hindi">
+                      {{ bankInfo.hindi }}
+                    </h4>
+
+                    <!-- English name -->
+                    <h3 class="bank-name-english" [class.single-bank-name]="!bankInfo.hindi">
+                      {{ bankInfo.english }}
+                    </h3>
+                  </ng-container>
+
+                  <div class="bank-address">
+                    <small>{{ selectedChequePayment?.vendor?.accountDetails?.branchName || "MAIN BRANCH" }}</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cheque Number -->
+              <div class="col-md-4 text-end">
+                <div class="cheque-number-section">
+                  <div class="cheque-serial">
+                    {{ selectedChequePayment?.transactionId?.slice(-8) || "06032024" }}
+                  </div>
+                  <div class="date-box">
+                    <small>DATE:</small>
+                    <span class="date-value">{{ formatChequeDate(selectedChequePayment?.paymentDate) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ Pay To Section -->
+          <div class="pay-section">
+            <div class="row align-items-center">
+              <div class="col-md-2">
+                <strong class="pay-label">PAY</strong>
+              </div>
+              <div class="col-md-10">
+                <div class="payee-line">
+                  <strong>{{ selectedChequePayment?.vendor?.name || "PAYEE NAME" }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ SAFE Rupees Section with Fixed Error Handling -->
+          <div class="rupees-section">
+            <div class="row align-items-center">
+              <div class="col-md-2">
+                <strong class="rupees-label">RUPEES</strong>
+              </div>
+              <div class="col-md-7">
+                <div class="amount-words-line">
+                  <strong>{{ getAmountInWords() }}</strong>
+                </div>
+              </div>
+              <div class="col-md-3 text-end">
+                <div class="amount-box-section">
+                  <span class="rupee-symbol">₹</span>
+                  <strong class="amount-figure">
+                    {{ getAmountValue() | number : "1.2-2" }}
+                  </strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ Account Details Section -->
+          <div class="account-section">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="account-info">
+                  <div class="account-number-box">
+                    <small>A/C NO:</small>
+                    <span class="account-digits">{{ selectedChequePayment?.vendor?.accountDetails?.accountNumber || "••••••••••1234" }}</span>
+                  </div>
+                  <div class="invoice-reference">
+                    <small>{{ selectedChequePayment?.invoiceNo ? "FOR: Invoice " + selectedChequePayment.invoiceNo : "" }}</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="current-account-section">
+                  <div class="current-ac-box">
+                    <small>CURRENT A/C</small>
+                  </div>
+                  <div class="signature-area">
+                    <div class="signature-line-area"></div>
+                    <small>Please sign above</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ Bottom Section -->
+          <div class="cheque-bottom">
+            <div class="row">
+              <div class="col-md-8">
+                <div class="multi-city-info">
+                  <strong>MULTI-CITY CHEQUE</strong>
+                  <small>Payable at Par at All Branches of SBI</small>
+                </div>
+              </div>
+              <div class="col-md-4 text-end">
+                <div class="authorized-signature">
+                  <small>Authorized Signature</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ MICR Code -->
+          <div class="micr-code-section">
+            <div class="micr-line">
+              ⫸{{ selectedChequePayment?.vendor?.accountDetails?.ifscCode || "SBIN0001234" }}⫸
+              ••••••••••{{ selectedChequePayment?.vendor?.accountDetails?.accountNumber?.slice(-4) || "1234" }}⫸
+              {{ selectedChequePayment?.transactionId?.slice(-6) || "032024" }}⫸
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer no-print">
+        <button type="button" class="btn btn-secondary" (click)="closeChequePreviewModal()">
+          <i class="fas fa-times"></i> Close
+        </button>
+        <button type="button" class="btn btn-primary" (click)="printCheque()">
+          <i class="fas fa-print"></i> Print Cheque
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal Backdrop -->
+<div
+  class="modal-backdrop fade show"
+  *ngIf="
+    showPaymentDetailsModal ||
+    showStatisticsModal ||
+    showOverdueModal ||
+    showChequePreviewModal
+  "
+  (click)="closeAllModals()"
+></div>

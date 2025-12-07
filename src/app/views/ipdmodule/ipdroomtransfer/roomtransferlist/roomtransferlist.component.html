@@ -1,0 +1,113 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>ROOM TRANSFER LIST</h2>
+    <div class="">
+      <!-- <button class="list-cases-btn mx-3"><i class="fa-solid fa-user-group"></i></button> -->
+      <!-- <button
+        class="list-cases-btn"
+        [routerLink]="['/ipd/ipdroomtransfer']"
+        routerLinkActive="router-link-active"
+      >
+        ADD ROOM TRANSFER DATA
+      </button> -->
+    </div>
+  </div>
+
+  <div class="top-bar p-3">
+    <select class="mx-2" formControl="recordsPerPage">
+      <option *ngFor="let num of [25, 50, 100]" [value]="num">
+        {{ num }} RECORDS
+      </option>
+    </select>
+
+    <input type="text" placeholder="Search..." formControl="searchText" />
+  </div>
+
+  <table
+    class="table table-bordered table-hover align-middle diagnosis-table"
+    *ngIf="userPermissions.read"
+  >
+    <thead class="table-dark">
+      <tr>
+        <th>#</th>
+        <th>IPD No</th>
+        <th>Case No</th>
+        <th>Patient Name</th>
+        <th>Primary Room Details</th>
+        <th>Transfer From</th>
+        <th>Transfer To</th>
+        <th>Transfer Start Time</th>
+        <th *ngIf="showTransferEndColumn">Transfer End Time</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Outer loop for each patient/IPD -->
+      <ng-container *ngFor="let data of transferData; let outerIndex = index">
+        <!-- Inner loop for each transfer of that patient -->
+        <tr *ngFor="let transfer of data.transfers; let innerIndex = index">
+          <td *ngIf="innerIndex === 0" [attr.rowspan]="data.transfers.length">
+            {{ outerIndex + 1 }}
+          </td>
+          <!-- Show patient info only for the first transfer row -->
+          <td *ngIf="innerIndex === 0" [attr.rowspan]="data.transfers.length">
+            {{ data.inpatientCaseId?.inpatientCaseNumber }}
+          </td>
+          <td *ngIf="innerIndex === 0" [attr.rowspan]="data.transfers.length">
+            {{ data.inpatientCaseId?.uniqueHealthIdentificationId?.uhid }}
+          </td>
+          <td *ngIf="innerIndex === 0" [attr.rowspan]="data.transfers.length">
+            {{
+              data.inpatientCaseId?.uniqueHealthIdentificationId?.patient_name
+            }}
+          </td>
+          <td *ngIf="innerIndex === 0" [attr.rowspan]="data.transfers.length">
+            Room No.: {{ data.primaryBed?.roomNumber }} Bed No.:
+            {{ data.primaryBed?.bedNumber }}
+          </td>
+
+          <!-- Transfer From -->
+          <td>
+            Ward: {{ transfer.from?.wardName }}<br />
+            Room: {{ transfer.from?.roomNumber }}<br />
+            Bed: {{ transfer.from?.bedNumber }}
+          </td>
+
+          <!-- Transfer To -->
+          <td>
+            Ward: {{ transfer.to?.wardName }}<br />
+            Room: {{ transfer.to?.roomNumber }}<br />
+            Bed: {{ transfer.to?.bedNumber }}
+          </td>
+
+          <!-- Transfer Start -->
+          <td>
+            {{ transfer.transferStartTime | date : "dd-MM-yyyy hh:mm a" }}
+          </td>
+
+          <!-- Transfer End -->
+          <td *ngIf="showTransferEndColumn">
+            {{
+              transfer.transferEndTime
+                ? (transfer.transferEndTime | date : "dd-MM-yyyy hh:mm a")
+                : "Pending"
+            }}
+          </td>
+
+          <!-- Actions -->
+          <td>
+            <button
+              *ngIf="!transfer.transferEndTime"
+              class="btn btn-danger"
+              (click)="
+                endTransfer(data._id, transfer, data.inpatientCaseId._id, data.primaryBed)
+              "
+            >
+              End
+            </button>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</div>

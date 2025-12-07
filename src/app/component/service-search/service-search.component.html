@@ -1,0 +1,52 @@
+<div class="service-selector">
+
+  <!-- Left Panel: Groups -->
+  <div class="panel groups">
+    <input type="text" placeholder="🔍 Search service groups..." [(ngModel)]="search"
+      (ngModelChange)="loadServiceGroups()" />
+
+    <p *ngIf="loading">Loading...</p>
+    <p *ngIf="!loading && serviceGroups.length === 0">No service groups found.</p>
+
+    <div class="group-list">
+      <div *ngFor="let group of serviceGroups" class="group-pill" [class.selected]="selectedGroup?.id === group.id"
+        (click)="selectGroup(group)">
+        {{ group.group_name }}
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Middle Panel: Services -->
+  <div class="panel services">
+    <input type="text" placeholder="🔍 Search services..." [(ngModel)]="searchTerm" />
+
+    <div *ngIf="!selectedGroup" class="placeholder">
+      Select a service group to view services
+    </div>
+
+    <ul *ngIf="selectedGroup">
+      <li *ngFor="let service of filteredServices" (click)="addService(service)">
+        {{ service.name }} <span class="charge">₹{{ service.charge }}</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Right Panel: Selected Services -->
+  <div class="panel selected">
+    <h4>{{ selectedServices.length }} selected</h4>
+
+    <div *ngIf="selectedServices.length === 0" class="placeholder">
+      No services selected yet <br />
+      <small>Click on services from the middle panel to add them</small>
+    </div>
+
+    <ul>
+      <li *ngFor="let service of selectedServices; trackBy: trackById">
+        {{ service.name }} <span class="charge">₹{{ service.charge }}</span>
+        <button type="button" (click)="removeService(service)" [disabled]="service.isBilled">✖</button>
+      </li>
+    </ul>
+  </div>
+
+</div>

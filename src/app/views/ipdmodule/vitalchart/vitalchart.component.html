@@ -1,0 +1,56 @@
+<div class="card my-4 shadow-sm">
+  <div class="card-header bg-warning text-dark">
+    <h5 class="mb-0">Vital Temperature Chart</h5>
+  </div>
+  <div class="card-body">
+    <div class="row mb-4">
+      <div class="d-flex justify-content-between">
+        <div class="col-md-4">
+          <label for="monthSelect" class="form-label">Select Month:</label>
+          <input
+            type="month"
+            class="form-control"
+            id="monthSelect"
+            [(ngModel)]="selectedMonth"
+            (change)="filterByMonth()"
+          />
+        </div>
+
+        <div>
+          <i class="fa fa-print" (click)="print()"> </i>
+        </div>
+      </div>
+
+      <!-- Optional: Date Range Filter -->
+
+      <!-- <div class="col-md-3">
+        <label for="startDate" class="form-label">Start Date:</label>
+        <input
+          type="date"
+          class="form-control"
+          id="startDate"
+          [(ngModel)]="startDate"
+          (change)="filterByRange()"
+        />
+      </div>
+
+      <div class="col-md-3">
+        <label for="endDate" class="form-label">End Date:</label>
+        <input
+          type="date"
+          class="form-control"
+          id="endDate"
+          [(ngModel)]="endDate"
+          (change)="filterByRange()"
+        />
+      </div> -->
+    </div>
+    <div
+      *ngIf="filteredVitals?.length === 0"
+      class="alert alert-info text-center"
+    >
+      No temperature data available for the selected month.
+    </div>
+    <canvas #temperatureChart></canvas>
+  </div>
+</div>

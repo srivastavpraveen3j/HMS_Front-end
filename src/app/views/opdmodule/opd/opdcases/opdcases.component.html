@@ -1,0 +1,408 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>NEW CASES/ FOLLOW UP</h2>
+    <!-- <button class="list-cases-btn"  routerLinkActive="router-link-active" >Add New Cases</button> -->
+    <button *ngIf="hasModuleAccess('outpatientCase', 'create')" class="list-cases-btn" [routerLink]="['/opd/opd']"
+      routerLinkActive="router-link-active">
+      ADD NEW CASES
+    </button>
+  </div>
+  <!-- <div class="container"> -->
+  <!-- Filters Section -->
+  <div class="filters text-center m-3 d-flex justify-content-between align-items-center">
+    <!-- Doctor Select -->
+
+    <!-- <div class="form-group w-50 mx-3 position-relative" *ngIf="!isDoctor">
+       <label>Search Doctor</label>
+      <input type="text" class="form-control" placeholder="Search by doctor name..." [(ngModel)]="doctorSearchText"
+        (input)="onDoctorSearchChange(doctorSearchText)" autocomplete="off" />
+
+      <ul *ngIf="filteredDoctors.length > 0 && doctorSearchText.trim().length > 0"
+        class="list-group position-absolute w-100 zindex-dropdown" style="max-height: 200px; overflow-y: auto">
+        <li class="list-group-item list-group-item-action" *ngFor="let doctor of filteredDoctors"
+          (click)="onDoctorSelected(doctor.name)">
+          {{ doctor.name }}
+        </li>
+      </ul>
+    </div> -->
+
+    <!-- <div class="form-group position-relative w-50">
+      <input type="text" [(ngModel)]="searchText" (input)="applyFilters()" placeholder="Search by uhid/patient/mobile"
+        class="form-control" />
+    </div> -->
+
+    <!-- Filter by Today or Date Range -->
+
+    <app-search-filter #searchFilterRef [role]="'doctor'" (onDoctorSelected)="onDoctorSelected($event)">
+    </app-search-filter>
+
+    <!-- <app-patient-search-bar (search)="searchByUHID($event)">
+    </app-patient-search-bar> -->
+    <app-patient-search-bar [suggestions]="filteredCases" (search)="searchByUHID($event)"
+      (selectSuggestion)="onSelectPatient($event)"></app-patient-search-bar>
+
+    <!-- <app-patient-search-bar ></app-patient-search-bar> -->
+
+    <div class="filters d-flex align-items-center">
+
+      <!-- Show only when NOT using dateRange -->
+      <!-- <ng-container *ngIf="isDateDisabled"> -->
+
+      <label class="m-3">
+        <input type="radio" name="filter" value="today" [(ngModel)]="activeFilter" (change)="applyTodayFilter(true)"
+          checked />
+        TODAY'S
+      </label>
+
+      <label class="m-3">
+        <input type="radio" name="filter" value="dateRange" [(ngModel)]="activeFilter" (change)="applyFilters()" />
+        Date Range
+      </label>
+
+      <div class="d-flex align-items-center">
+        <input *ngIf="activeFilter === 'dateRange'" type="date" [(ngModel)]="startDate" (change)="applyFilters()"
+          class="form-control mx-2" />
+        <input *ngIf="activeFilter === 'dateRange'" type="date" [(ngModel)]="endDate" (change)="applyFilters()"
+          class="form-control mx-2" />
+      </div>
+
+
+      <!-- </ng-container> -->
+
+
+
+
+    </div>
+
+    <!-- <button class="btn mx-2" [class.btn-secondary]="!isDateDisabled" [class.btn-success]="isDateDisabled"
+      (click)="toggleCheck()">
+      {{ isDateDisabled ? 'Date Filter: On' : 'Date Filter: Off' }}
+    </button> -->
+
+  </div>
+
+  <div class="tabs d-flex justify-content-center my-3" *ngIf="isDoctor">
+    <button class="btn btn-outline-primary mx-2" [class.active]="statusFilter === 'waiting'"
+      (click)="setStatusFilter('waiting')">
+      Waiting
+    </button>
+    <button class="btn btn-outline-primary mx-2" [class.active]="statusFilter === 'inConsultation'"
+      (click)="setStatusFilter('inConsultation')">
+      Consultation
+    </button>
+    <button class="btn btn-outline-success mx-2" [class.active]="statusFilter === 'completed'"
+      (click)="setStatusFilter('completed')">
+      Completed
+    </button>
+  </div>
+
+  <app-loader [patientData]="filteredCases" [title]="module" [activeFilter]="activeFilter" [startDate]="startDate"
+    [endDate]="endDate"></app-loader>
+
+  <div class="" *ngIf="filteredCases.length > 0">
+    <!-- OPD Cases Table -->
+    <table class="table table-bordered table-hover align-middle diagnosis-table" *ngIf="userPermissions.read">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>UHID</th>
+          <th>Patient Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Consulting Doctor</th>
+          <!-- <th>Date of Treatment</th>
+          <th>Time of Treatment</th> -->
+          <!-- <th>Email</th> -->
+          <!-- <th>PAN Card</th> -->
+          <th>Mobile No</th>
+          <!-- <th>Area</th> -->
+          <th>Medical Legal Case</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let patient of filteredCases; let i = index">
+          <td>{{ (currentPage - 1) * recordsPerPage + i + 1 }}</td>
+          <td>
+            {{
+            patient.uniqueHealthIdentificationId?.uhid ||
+            patient.caseId?.uniqueHealthIdentificationId?.uhid
+            }}
+          </td>
+          <td (click)="viewPatientSummary(patient)" style="cursor: pointer; color: blue">
+            <!-- (click)="viewPatient(patient._id)" -->
+            {{
+            patient.uniqueHealthIdentificationId?.patient_name ||
+            patient.caseId?.uniqueHealthIdentificationId?.patient_name
+            }}
+            <span *ngIf="patient.status === 'skipped'" class="badge bg-secondary">Skipped</span>
+          </td>
+          <td>
+            {{
+            patient.uniqueHealthIdentificationId?.age ||
+            patient.caseId?.uniqueHealthIdentificationId?.age
+            }}
+          </td>
+          <td>
+            {{
+            patient.uniqueHealthIdentificationId?.gender ||
+            patient.caseId?.uniqueHealthIdentificationId?.gender
+            }}
+          </td>
+          <td>{{ patient.consulting_Doctor?.name || patient.doctorId?.name }}</td>
+          <!-- <td>{{ patient.createdAt | date : "dd-MM-yyyy" }}</td>
+          <td>{{ patient.uniqueHealthIdentificationId?.dot }}</td> -->
+          <!-- <td>{{ patient.emailAddress }}</td> -->
+          <!-- <td>{{ patient.panCardNumber }}</td> -->
+          <td>
+            {{
+            patient.uniqueHealthIdentificationId?.mobile_no ||
+            patient.caseId?.uniqueHealthIdentificationId?.mobile_no
+            }}
+          </td>
+          <!-- <td>{{ patient.uniqueHealthIdentificationId?.area }}</td> -->
+          <td>
+            <span class="badge" [ngClass]="
+                patient.isMedicoLegalCase ? 'bg-warning' : 'bg-secondary'
+              ">
+              {{ patient.isMedicoLegalCase ? "Yes" : "No" }}
+            </span>
+          </td>
+          <td>
+            <!-- <i class="fa-solid fa-eye action-btn" (click)="viewPatientSummary(patient)"></i> -->
+
+            <i class="fa-solid fa-pencil action-btn" *ngIf="userPermissions.update"
+              (click)="editOpdcase(patient._id)"></i>
+            <i *ngIf="isrole === 'doctor' && (patient.status !== 'skipped' && patient.status !== 'inConsultation' && patient.status !== 'completed')"
+              class="fa-solid fa-forward-step" (click)="skipPatient(patient)">
+            </i>
+
+            <i class="fa-solid fa-eye action-btn" (click)="openBarcodePopup(patient, i)">
+            </i>
+
+            <!-- <i
+              class="fa-solid fa-trash action-btn"
+              *ngIf="userPermissions.delete"
+              (click)="deleteOpdcase(patient._id)"
+            ></i> -->
+            <!-- <i
+              class="fa-solid fa-ellipsis-vertical"
+              role="button"
+              [attr.id]="'dropdownMenu' + i"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              aria-haspopup="true"
+              [attr.aria-controls]="'dropdownList' + i"
+            ></i> -->
+            <!-- <ul
+              class="dropdown-menu dropdown-menu-end"
+              [attr.aria-labelledby]="'dropdownMenu' + i"
+              [attr.id]="'dropdownList' + i"
+              role="menu"
+            > -->
+            <!-- <li role="menuitem" *ngIf="hasModuleAccess('outpatientCase', 'read')">
+                <button
+                  class="dropdown-item"
+                  (click)="
+                    openSummary(
+                      patient.uniqueHealthIdentificationId?._id,
+                      patient._id
+                    )
+                  "
+                >
+                  Patient Summary
+                </button>
+              </li> -->
+            <!-- <li role="menuitem" *ngIf="hasModuleAccess('outpatientCase', 'read')">
+                <button class="dropdown-item" (click)="viewPatient(patient._id)" >
+                  View Case Paper
+                </button>
+              </li> -->
+            <!-- <li role="menuitem"  *ngIf="hasModuleAccess('outpatientBill', 'create')">
+                <button class="dropdown-item" (click)="openBill(patient._id)" >
+                  Add Services Charge
+                </button>
+              </li> -->
+            <!-- <li role="menuitem"  *ngIf="hasModuleAccess('diagnosisSheet', 'create')">
+                <button class="dropdown-item" (click)="Patientdiagnosis(patient._id)">
+                 Add Diagnosis
+                </button>
+              </li> -->
+            <!-- <li role="menuitem" *ngIf="hasModuleAccess('pharmaceuticalRequestList', 'create')">
+                <button class="dropdown-item" (click)="Patientpharmacy(patient._id)">
+                 Add Pharmacy Medication
+                </button>
+              </li> -->
+            <!-- <li role="menuitem" *ngIf="hasModuleAccess('departmentRequestList', 'create')">
+                <button class="dropdown-item" (click)="Patientpathology(patient._id)">
+                 Add Pathology Test Request
+                </button>
+              </li> -->
+            <!-- <li role="menuitem" *ngIf="hasModuleAccess('departmentRequestList', 'create')">
+                <button class="dropdown-item" (click)="Patientradiology(patient._id)">
+                 Add Radiology Test Request
+                </button>
+              </li> -->
+
+
+
+            <!-- <li role="menuitem" *ngIf="hasModuleAccess('vitals', 'create')">
+                <button class="dropdown-item" (click)="addVitals(patient._id)">
+                  Add Vitals
+                </button>
+              </li> -->
+
+            <!-- <li role="menuitem"><button class="dropdown-item" (click)="openDeposit(patient._id)">Deposit</button></li> -->
+            <!-- </ul> -->
+
+            <div *ngIf="openIndex === i" class="modal-overlay">
+              <app-opdbarcode [data]="selectedBarcodePatient" (close)="closebardModal()"></app-opdbarcode>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- <div class="container-fluid" *ngIf="filteredCases.length > 0">
+    <div class="row g-3">
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let patient of filteredCases; let i = index">
+        <div class="card border border-dark rounded shadow-sm bg-light h-100 d-flex flex-column position-relative">
+
+          <div class="position-absolute top-0 end-0 mt-5 me-1 dropdown">
+            <i
+              class="fa-solid fa-ellipsis-vertical"
+              role="button"
+              [attr.id]="'dropdownMenu' + i"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              aria-haspopup="true"
+              [attr.aria-controls]="'dropdownList' + i"
+            ></i>
+            <ul
+              class="dropdown-menu dropdown-menu-end"
+              [attr.aria-labelledby]="'dropdownMenu' + i"
+              [attr.id]="'dropdownList' + i"
+              role="menu"
+            >
+            <li role="menuitem"><button class="dropdown-item" (click)="openSummary(patient._id)">Patient Summary</button></li>
+              <li role="menuitem"><button class="dropdown-item" (click)="viewPatient(patient._id)">View</button></li>
+              <li role="menuitem"><button class="dropdown-item" (click)="openBill(patient._id)">Bill</button></li>
+              <li role="menuitem"><button class="dropdown-item" (click)="openDeposit(patient._id)">Deposit</button></li>
+              <li role="menuitem"><button class="dropdown-item" (click)="openSummary(patient.uniqueHealthIdentificationId?._id)">Patient Summary</button></li>
+            </ul>
+          </div>
+
+          <div class="d-flex justify-content-between text-white fw-bold small">
+            <div class="bg-dark px-2 py-1 text-center" style="width: 25%;">
+              {{ patient.createdAt | date: 'dd-MM-yy' }}
+            </div>
+            <div class="bg-white text-dark px-2 py-1 text-center flex-grow-1 border-start border-end border-dark">
+              {{ patient.uniqueHealthIdentificationId?.uhid || 'N/A' }}
+            </div>
+            <div class="bg-dark px-2 py-1 text-center" style="width: 25%;">
+              {{ patient.uniqueHealthIdentificationId?.dot || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="card-body text-center p-2 flex-grow-1">
+            <div class="fw-bold text-uppercase">
+              {{ patient.uniqueHealthIdentificationId?.patient_name || 'N/A' }}
+            </div>
+            <div class="text-muted small">
+              {{ patient.uniqueHealthIdentificationId?.area || 'N/A' }}
+            </div>
+            <div class="text-uppercase small">
+              {{ patient.consulting_Doctor?.name || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="card-footer bg-light d-flex justify-content-between">
+            <button
+              class="btn btn-sm btn-outline-success"
+              *ngIf="userPermissions.update"
+              (click)="editOpdcase(patient._id)"
+            >
+              <i class="fa fa-pencil-alt"></i>
+            </button>
+            <button
+              class="btn btn-sm btn-outline-danger"
+              *ngIf="userPermissions.delete"
+              (click)="deleteOpdcase(patient._id)"
+            >
+              <i class="fa fa-trash"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+    <div class="sidebar-overlay" *ngIf="showSidebar" (click)="closeSidebar()"></div>
+
+    <div class="sidebar" *ngIf="showSidebar">
+      <div class="sidebar-header">
+        <button class="close-btn" (click)="closeSidebar()">×</button>
+      </div>
+      <div class="sidebar-content">
+        <p>
+          <strong>Medico Legal Case Number :</strong>
+          {{ selectedMedicoPatient.medicoLegalCaseNumber }}
+        </p>
+        <p>
+          <strong>Police Informer Person :</strong>
+          {{ selectedMedicoPatient.policeInformerFullName }}
+        </p>
+        <p>
+          <strong>Responsible Relative :</strong>
+          {{ selectedMedicoPatient.responsibleRelativeFullName }}
+        </p>
+        <p>
+          <strong>Reported Date :</strong>
+          {{
+          selectedMedicoPatient.informationReportedDate | date : "dd-MM-yyyy"
+          }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination d-flex justify-content-center align-items-center my-3">
+      <button class="pagination-btn btn btn-primary mx-2" (click)="previousPage()" [disabled]="currentPage === 1">
+        Previous
+      </button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button class="pagination-btn btn btn-primary mx-2" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" *ngIf="selectedPatient">
+    <div class="modal-content-box">
+      <div class="modal-header">
+        <h3 style="visibility: hidden">Patient Details</h3>
+        <button class="close-btn mt-5" (click)="closeModal()">×</button>
+      </div>
+      <hr />
+      <div class="modal-body">
+        <app-patientdeatails [patientData]="selectedPatient" [patientVital]="vitals"></app-patientdeatails>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="singlePatientSummary.length > 0">
+    <div class="modal-content-box">
+      <div class="modal-header">
+        <h3 style="visibility: hidden">Patient Details</h3>
+        <button class="close-btn mt-5" (click)="closeModal()">×</button>
+      </div>
+      <hr />
+      <div class="modal-body">
+        <app-patientsummary [patientData]="singlePatientSummary" [opdPatient]="opdPatient"></app-patientsummary>
+      </div>
+    </div>
+  </div>
+
+</div>

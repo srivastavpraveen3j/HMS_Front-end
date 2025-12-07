@@ -1,0 +1,36 @@
+<div class="billing-card">
+  <app-pagination-filter  [(ngModel)]="currentIndex" [maxLength]="bills.length" ></app-pagination-filter>
+
+  <!-- <h3>OPD Billing Services</h3> -->
+  <!-- Services Table -->
+<div *ngIf="bills[currentIndex]?.billnumber" class="bill-info">
+  <strong>Bill Number:</strong> {{ bills[currentIndex].billnumber }}
+</div>
+
+<!-- Services table -->
+<table class="services-table">
+  <thead>
+    <tr>
+      <th>#</th>         <!-- Serial Number -->
+      <th>Service</th>   <!-- Service Name -->
+      <th>Charge</th>    <!-- Service Charge -->
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let service of bills[currentIndex]?.services; let i = index">
+      <td>{{ i + 1 }}</td>
+      <td>{{ service.name }}</td>
+      <td>{{ service.charge }}</td>
+    </tr>
+  </tbody>
+</table>
+
+  <!-- Billing Summary -->
+  <div class="billing-summary">
+    <!-- <p><strong>Subtotal:</strong>{{services.totalamount}}</p> -->
+    <!-- <p><strong>Discount:</strong> ₹100</p> -->
+    <p class="grand-total"><strong>Total:</strong> {{bills[currentIndex].totalamount}}</p>
+  </div>
+
+
+</div>

@@ -1,0 +1,121 @@
+<div class="form-meta">
+  <!-- <p>permissionlist works!</p> -->
+
+<!-- <p>opdcases works!</p> -->
+
+<div class="header">
+  <h2>PERMISSION LIST</h2>
+  <!-- <button class="list-cases-btn"  routerLinkActive="router-link-active" >Add New Cases</button> -->
+  <button
+    class="list-cases-btn"
+    [routerLink]="['/setting/permission']"
+    routerLinkActive="router-link-active"
+  >
+    ADD PERMISSIONS
+  </button>
+</div>
+<!-- <div class="container"> -->
+
+<!-- <div class="top-bar p-3">
+    <select >
+      <option *ngFor="let num of [25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+    </select>
+
+    <input type="text" placeholder="Search..."  />
+
+  </div> -->
+
+
+<!-- <div class="loader-wrapper" *ngIf="permissions.length === 0">
+  <div class="loader">
+    <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+  </div>
+</div> -->
+
+<div class="mt-5" *ngIf="userPermissions.read && permissions.length > 0">
+  <table class="table table-bordered table-hover align-middle diagnosis-table">
+    <thead class="table-dark ">
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Permissions</th>
+        <!-- <th>Resource</th> -->
+        <th>Description</th>
+        <!-- <th>Active</th> -->
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let perm of permissions; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ perm.name }}</td>
+        <td>{{ perm.moduleName }}</td>
+        <td>
+          <ng-template #permBadge let-label let-enabled="enabled">
+            <span
+              class="badge"
+              [ngClass]="
+                enabled ? 'bg-success text-white' : 'bg-danger text-white'
+              "
+              style="margin-right: 4px"
+            >
+              {{ label }}
+            </span>
+          </ng-template>
+
+          <ng-container
+            *ngTemplateOutlet="
+              permBadge;
+              context: { $implicit: 'CREATE', enabled: perm.create }
+            "
+          ></ng-container>
+          <ng-container
+            *ngTemplateOutlet="
+              permBadge;
+              context: { $implicit: 'VIEW', enabled: perm.read }
+            "
+          ></ng-container>
+          <ng-container
+            *ngTemplateOutlet="
+              permBadge;
+              context: { $implicit: 'UPDATE', enabled: perm.update }
+            "
+          ></ng-container>
+          <ng-container
+            *ngTemplateOutlet="
+              permBadge;
+              context: { $implicit: 'DELETE', enabled: perm.delete }
+            "
+          ></ng-container>
+        </td>
+
+        <!-- <td>{{ perm.resource || '—' }}</td> -->
+
+        <!-- <td class="">
+          {{ (perm.create || perm.read || perm.update || perm.delete || perm.action) ? 'Yes' : 'No' }}
+        </td> -->
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- </div> -->
+
+  <div class="pagination d-flex justify-content-center align-items-center my-3">
+    <button
+      class="pagination-btn btn btn-primary mx-2"
+      (click)="previousPage()"
+      [disabled]="currentPage === 1"
+    >
+      Previous
+    </button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button
+      class="pagination-btn btn btn-primary mx-2"
+      (click)="nextPage()"
+      [disabled]="currentPage === totalPages"
+    >
+      Next
+    </button>
+  </div>
+</div>
+
+</div>

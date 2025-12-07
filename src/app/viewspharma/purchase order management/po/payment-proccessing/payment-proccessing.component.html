@@ -1,0 +1,729 @@
+<!-- payment-processing.component.html -->
+
+<div class="form-meta">
+  <div class="header">
+    <h2>Payment Processing</h2>
+    <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/inventorylayout/paymentproccessinglist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <!-- ✅ Move Bootstrap content OUTSIDE form-meta but inside a wrapper -->
+</div>
+
+<!-- ✅ Bootstrap content with its own container -->
+<div class="payment-content">
+  <div class="container-fluid mt-4">
+
+    <!-- ✅ Statistics Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card bg-primary text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Total Pending</h6>
+                <h4>{{ totalPendingAmount | indianCurrency }}</h4>
+                <small>{{ pendingInvoices.length }} invoices</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-clock fa-2x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card bg-success text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Selected Amount</h6>
+                <h4>{{ totalSelectedAmount | indianCurrency }}</h4>
+                <small>{{ selectedInvoices.length }} selected</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-check-circle fa-2x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card bg-warning text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Overdue</h6>
+                <h4>{{ overdueCount }}</h4>
+                <small>invoices > 30 days</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card bg-info text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="card-title">Ready to Pay</h6>
+                <h4>{{ filteredInvoices.length }}</h4>
+                <small>after filters</small>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-money-bill-wave fa-2x opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ Filters and Actions -->
+    <div class="card mb-4">
+      <div class="card-header bg-light">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <h6 class="mb-0"><i class="fas fa-filter"></i> Filters & Search</h6>
+          </div>
+          <!-- <div class="col-md-6 text-end">
+            <div class="btn-group">
+              <button
+                class="btn btn-success"
+                (click)="openBulkPaymentModal()"
+                [disabled]="selectedInvoices.length === 0"
+              >
+                <i class="fas fa-credit-card"></i> Bulk Payment ({{ selectedInvoices.length }})
+              </button>
+              <button class="btn btn-outline-primary" (click)="refreshData()">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+              <button class="btn btn-outline-secondary" (click)="exportPaymentData()">
+                <i class="fas fa-download"></i> Export
+              </button>
+            </div>
+          </div> -->
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <!-- Search -->
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Search Invoices</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="searchQuery"
+              (input)="onSearch()"
+              placeholder="Invoice No, GRN, Vendor..."
+            />
+          </div>
+
+          <!-- Vendor Filter -->
+          <div class="col-md-2 mb-3">
+            <label class="form-label">Vendor</label>
+            <select class="form-select" [(ngModel)]="vendorFilter" (change)="onFilterChange()">
+              <option value="">All Vendors</option>
+              <option *ngFor="let vendor of vendorList" [value]="vendor.id">
+                {{ vendor.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Amount Range -->
+          <div class="col-md-2 mb-3">
+            <label class="form-label">Min Amount</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="amountRangeMin"
+              (input)="onFilterChange()"
+              placeholder="0"
+            />
+          </div>
+
+          <div class="col-md-2 mb-3">
+            <label class="form-label">Max Amount</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="amountRangeMax"
+              (input)="onFilterChange()"
+              placeholder="No limit"
+            />
+          </div>
+
+          <!-- Selection Actions -->
+          <div class="col-md-3 mb-3 d-flex align-items-end">
+            <div class="btn-group w-100">
+              <button class="btn btn-outline-success" (click)="selectAllVisible()">
+                <i class="fas fa-check-square"></i> Select All
+              </button>
+              <button class="btn btn-outline-danger" (click)="clearAllSelections()">
+                <i class="fas fa-times"></i> Clear
+              </button>
+              <button class="btn btn-outline-secondary" (click)="clearFilters()">
+                <i class="fas fa-eraser"></i> Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ Loading State -->
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading pending invoices for payment processing...</p>
+    </div>
+
+    <!-- ✅ Pending Invoices Table -->
+    <div class="card" *ngIf="!isLoading">
+      <div class="card-header bg-primary text-white">
+        <h6 class="mb-0">
+          <!-- <i class="fas fa-list"></i> -->
+          Pending Invoices for Payment ({{ filteredInvoices.length }})
+        </h6>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th style="width: 50px">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [checked]="selectedInvoices.length === filteredInvoices.length && filteredInvoices.length > 0"
+                  [indeterminate]="selectedInvoices.length > 0 && selectedInvoices.length < filteredInvoices.length"
+                  (change)="selectedInvoices.length === filteredInvoices.length ? clearAllSelections() : selectAllVisible()"
+                />
+              </th>
+              <th>Invoice Details</th>
+              <th>Vendor</th>
+              <th>Amount</th>
+              <th>Days Since Verified</th>
+              <th>Priority</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let invoice of filteredInvoices; let i = index"
+              [class]="getPriorityClass(invoice.verificationDate)"
+              [class.table-active]="isInvoiceSelected(invoice)"
+            >
+              <td>
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [checked]="isInvoiceSelected(invoice)"
+                  (change)="toggleInvoiceSelection(invoice)"
+                />
+              </td>
+
+              <td>
+                <div>
+                  <strong class="text-primary">{{ invoice.invoiceNo }}</strong><br />
+                  <small class="text-muted">GRN: {{ invoice.grnNumber }}</small><br />
+                  <small class="text-muted">PO: {{ invoice.poNumber }}</small><br />
+                  <small class="text-success">{{ invoice.items?.length || 0 }} items</small>
+                </div>
+              </td>
+
+              <td>
+                <div>
+                  <strong>{{ invoice.vendor?.name || "N/A" }}</strong><br />
+                  <small class="text-muted">{{ invoice.vendor?.email }}</small><br />
+                  <small class="text-muted">{{ invoice.vendor?.phone || "No phone" }}</small>
+                </div>
+              </td>
+
+              <td>
+                <div>
+                  <h6 class="mb-1 text-success">{{ invoice.grandTotal | indianCurrency }}</h6>
+                  <!-- <small class="text-muted">Base: {{ invoice.baseTotal | indianCurrency }}</small><br /> -->
+                  <!-- <small class="text-muted">GST: {{ invoice.gstTotal | indianCurrency }}</small> -->
+                </div>
+              </td>
+
+              <td class="text-center">
+                <span
+                  class="badge"
+                  [class.bg-success]="getDaysSinceVerification(invoice.verificationDate) <= 15"
+                  [class.bg-warning]="getDaysSinceVerification(invoice.verificationDate) > 15 && getDaysSinceVerification(invoice.verificationDate) <= 30"
+                  [class.bg-danger]="getDaysSinceVerification(invoice.verificationDate) > 30"
+                >
+                  {{ getDaysSinceVerification(invoice.verificationDate) }} days
+                </span>
+                <br />
+                <small class="text-muted">{{ invoice.verificationDate | date : "dd/MM/yyyy" }}</small>
+              </td>
+
+              <td class="text-center">
+                <span *ngIf="isOverdue(invoice.verificationDate)" class="badge bg-danger">
+                  <i class="fas fa-exclamation-triangle"></i> Overdue
+                </span>
+                <span *ngIf="getDaysSinceVerification(invoice.verificationDate) > 15 && !isOverdue(invoice.verificationDate)" class="badge bg-warning">
+                  <i class="fas fa-clock"></i> Due Soon
+                </span>
+                <span *ngIf="getDaysSinceVerification(invoice.verificationDate) <= 15" class="badge bg-success">
+                  <i class="fas fa-check"></i> Normal
+                </span>
+              </td>
+
+              <td>
+                <button
+                  class="btn btn-sm btn-primary"
+                  (click)="openPaymentModal(invoice)"
+                  title="Process Payment"
+                >
+                  <i class="fas fa-credit-card"></i> Pay Now
+                </button>
+              </td>
+            </tr>
+
+            <!-- Empty State -->
+            <tr *ngIf="filteredInvoices.length === 0 && !isLoading">
+              <td colspan="7" class="text-center py-5">
+                <div class="text-muted">
+                  <i class="fas fa-inbox fa-3x mb-3"></i>
+                  <h5>No Pending Invoices Found</h5>
+                  <p *ngIf="searchQuery || vendorFilter || amountRangeMin || amountRangeMax">
+                    Try adjusting your search criteria or filters.
+                  </p>
+                  <p *ngIf="!searchQuery && !vendorFilter && !amountRangeMin && !amountRangeMax">
+                    All invoices have been processed for payment.
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Modals OUTSIDE of any form-meta wrapper -->
+<!-- Single Payment Modal -->
+<div
+  class="modal fade show"
+  [style.display]="showPaymentModal ? 'block' : 'none'"
+  [class.show]="showPaymentModal"
+  tabindex="-1"
+  *ngIf="showPaymentModal && selectedInvoice"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-credit-card"></i>
+          Process Payment - {{ selectedInvoice.invoiceNo }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closePaymentModal()"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <!-- Invoice Summary -->
+        <div class="alert alert-info mb-4">
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Invoice:</strong> {{ selectedInvoice.invoiceNo }}<br />
+              <strong>GRN:</strong> {{ selectedInvoice.grnNumber }}<br />
+              <strong>Vendor:</strong> {{ selectedInvoice.vendor?.name }}
+            </div>
+            <div class="col-md-6">
+              <strong>Amount:</strong> {{ selectedInvoice.grandTotal | indianCurrency }}<br />
+              <strong>Items:</strong> {{ selectedInvoice.items?.length || 0 }}<br />
+              <strong>Days Pending:</strong> {{ getDaysSinceVerification(selectedInvoice.verificationDate) }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Form -->
+        <form [formGroup]="paymentForm">
+          <div class="row">
+            <!-- Payment Mode -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Payment Mode <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="paymentMode">
+                <option *ngFor="let method of paymentMethods" [value]="method.value">
+                  {{ method.label }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Payment Date -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Payment Date <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" formControlName="paymentDate" />
+            </div>
+
+            <!-- ✅ CONDITIONAL: Transaction ID - Only for RTGS, UPI, NEFT -->
+            <div class="col-md-12 mb-3" *ngIf="needsTransactionId(paymentForm.get('paymentMode')?.value)">
+              <label class="form-label">Transaction ID / Reference Number <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="transactionId"
+                placeholder="Enter bank transaction ID or reference number"
+              />
+              <div class="invalid-feedback" *ngIf="paymentForm.get('transactionId')?.invalid && paymentForm.get('transactionId')?.touched">
+                Transaction ID is required and must be at least 6 characters long.
+              </div>
+            </div>
+
+            <!-- ✅ CONDITIONAL: Info for Cash/Petty Cash -->
+            <div class="col-md-12 mb-3" *ngIf="isCashOrPettyPayment(paymentForm.get('paymentMode')?.value)">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>{{ getPaymentMethodDetails(paymentForm.get("paymentMode")?.value)?.label }}</strong>
+                <p class="mb-0 mt-2">
+                  No transaction ID required for this payment method. A reference number will be auto-generated.
+                </p>
+              </div>
+            </div>
+
+            <!-- Remarks -->
+            <div class="col-md-12 mb-3">
+              <label class="form-label">Remarks</label>
+              <textarea
+                class="form-control"
+                formControlName="remarks"
+                rows="3"
+                placeholder="Any additional notes or remarks for this payment..."
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- ✅ CONDITIONAL: Bank Details - Only for Cheque -->
+          <div formGroupName="bankDetails" class="card mt-3" *ngIf="isChequePayment(paymentForm.get('paymentMode')?.value)">
+            <div class="card-header">
+              <h6 class="mb-0">
+                <!-- <i class="fas fa-university"></i> -->
+                Bank Details
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Bank Name <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="bankName"
+                    placeholder="e.g., State Bank of India"
+                    [class.is-invalid]="paymentForm.get('bankDetails')?.get('bankName')?.invalid && paymentForm.get('bankDetails')?.get('bankName')?.touched"
+                  />
+                  <div class="invalid-feedback">
+                    Bank name is required for cheque payments
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Branch Name <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="branchName"
+                    placeholder="e.g., Main Branch"
+                    [class.is-invalid]="paymentForm.get('bankDetails')?.get('branchName')?.invalid && paymentForm.get('bankDetails')?.get('branchName')?.touched"
+                  />
+                  <div class="invalid-feedback">
+                    Branch name is required for cheque payments
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Account Number <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="accountNumber"
+                    placeholder="Bank account number"
+                    [class.is-invalid]="paymentForm.get('bankDetails')?.get('accountNumber')?.invalid && paymentForm.get('bankDetails')?.get('accountNumber')?.touched"
+                  />
+                  <div class="invalid-feedback">
+                    Account number is required for cheque payments
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">IFSC Code <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="ifscCode"
+                    placeholder="e.g., SBIN0001234"
+                    style="text-transform: uppercase"
+                    [class.is-invalid]="paymentForm.get('bankDetails')?.get('ifscCode')?.invalid && paymentForm.get('bankDetails')?.get('ifscCode')?.touched"
+                  />
+                  <div class="invalid-feedback">
+                    Please enter a valid IFSC code (e.g., SBIN0001234).
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closePaymentModal()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="processSinglePayment()"
+          [disabled]="paymentForm.invalid || isProcessingPayment"
+        >
+          <i class="fas fa-spinner fa-spin" *ngIf="isProcessingPayment"></i>
+          <i class="fas fa-credit-card" *ngIf="!isProcessingPayment"></i>
+          {{ isProcessingPayment ? "Processing..." : "Process Payment" }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Bulk Payment Modal -->
+<div
+  class="modal fade show"
+  [style.display]="showBulkPaymentModal ? 'block' : 'none'"
+  [class.show]="showBulkPaymentModal"
+  tabindex="-1"
+  *ngIf="showBulkPaymentModal"
+>
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-credit-card"></i>
+          Bulk Payment Processing ({{ selectedInvoices.length }} invoices)
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeBulkPaymentModal()"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <!-- Bulk Payment Summary -->
+        <div class="alert alert-success mb-4">
+          <div class="row">
+            <div class="col-md-4">
+              <strong>Selected Invoices:</strong> {{ selectedInvoices.length }}<br />
+              <strong>Total Amount:</strong> {{ totalSelectedAmount | indianCurrency }}
+            </div>
+            <div class="col-md-4">
+              <strong>Vendors:</strong> {{ getUniqueVendorsCount() }}<br />
+              <strong>Average Amount:</strong> {{ totalSelectedAmount / selectedInvoices.length | indianCurrency }}
+            </div>
+            <div class="col-md-4">
+              <strong>Date Range:</strong> Various<br />
+              <strong>Payment Mode:</strong> {{ paymentForm.value.paymentMode?.toUpperCase() || "Not Selected" }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected Invoices List -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h6 class="mb-0">Selected Invoices for Bulk Payment</h6>
+          </div>
+          <div class="table-responsive" style="max-height: 300px">
+            <table class="table table-sm">
+              <thead class="table-light sticky-top">
+                <tr>
+                  <th>Invoice No</th>
+                  <th>Vendor</th>
+                  <th>Amount</th>
+                  <th>Days Pending</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let invoice of selectedInvoices">
+                  <td>{{ invoice.invoiceNo }}</td>
+                  <td>{{ invoice.vendor?.name }}</td>
+                  <td class="text-end">{{ invoice.grandTotal | indianCurrency }}</td>
+                  <td>
+                    <span
+                      class="badge"
+                      [class.bg-danger]="isOverdue(invoice.verificationDate)"
+                      [class.bg-warning]="!isOverdue(invoice.verificationDate) && getDaysSinceVerification(invoice.verificationDate) > 15"
+                      [class.bg-success]="getDaysSinceVerification(invoice.verificationDate) <= 15"
+                    >
+                      {{ getDaysSinceVerification(invoice.verificationDate) }} days
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Bulk Payment Form -->
+        <form [formGroup]="paymentForm">
+          <div class="row">
+            <!-- Payment Mode -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Payment Mode <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="paymentMode">
+                <option *ngFor="let method of paymentMethods" [value]="method.value">
+                  {{ method.label }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Payment Date -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Payment Date <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" formControlName="paymentDate" />
+            </div>
+
+            <!-- ✅ CONDITIONAL: Transaction ID - Only for RTGS, UPI, NEFT -->
+            <div class="col-md-12 mb-3" *ngIf="needsTransactionId(paymentForm.get('paymentMode')?.value)">
+              <label class="form-label">Base Transaction ID <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="transactionId"
+                placeholder="Base transaction ID (individual IDs will be generated for each invoice)"
+              />
+              <small class="text-muted">
+                Individual transaction IDs will be generated as: BaseID-InvoiceNumber
+              </small>
+            </div>
+
+            <!-- ✅ CONDITIONAL: Info for Cash/Petty Cash in bulk -->
+            <div class="col-md-12 mb-3" *ngIf="isCashOrPettyPayment(paymentForm.get('paymentMode')?.value)">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>{{ getPaymentMethodDetails(paymentForm.get("paymentMode")?.value)?.label }}</strong>
+                <p class="mb-0 mt-2">
+                  No transaction ID required. Reference numbers will be auto-generated for each invoice.
+                </p>
+              </div>
+            </div>
+
+            <!-- Bulk Remarks -->
+            <div class="col-md-12 mb-3">
+              <label class="form-label">Bulk Payment Remarks</label>
+              <textarea
+                class="form-control"
+                formControlName="remarks"
+                rows="3"
+                placeholder="Remarks for this bulk payment transaction..."
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- ✅ CONDITIONAL: Bank Details - Only for Cheque -->
+          <div formGroupName="bankDetails" class="card mt-3" *ngIf="isChequePayment(paymentForm.get('paymentMode')?.value)">
+            <div class="card-header">
+              <h6 class="mb-0">
+                <i class="fas fa-university"></i>
+                Bank Details (Required for Cheque Payment)
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Note:</strong> These bank details will be applied to all {{ selectedInvoices.length }} invoices in this bulk payment.
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Bank Name <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="bankName"
+                    placeholder="e.g., State Bank of India"
+                    [class.is-invalid]="paymentForm.get('bankDetails')?.get('bankName')?.invalid && paymentForm.get('bankDetails')?.get('bankName')?.touched"
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Branch Name <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="branchName"
+                    placeholder="e.g., Main Branch"
+                    [class.is-invalid]="paymentForm.get('bankDetails')?.get('branchName')?.invalid && paymentForm.get('bankDetails')?.get('branchName')?.touched"
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Account Number <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="accountNumber"
+                    placeholder="Bank account number"
+                    [class.is-invalid]="paymentForm.get('bankDetails')?.get('accountNumber')?.invalid && paymentForm.get('bankDetails')?.get('accountNumber')?.touched"
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">IFSC Code <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="ifscCode"
+                    placeholder="e.g., SBIN0001234"
+                    style="text-transform: uppercase"
+                    [class.is-invalid]="paymentForm.get('bankDetails')?.get('ifscCode')?.invalid && paymentForm.get('bankDetails')?.get('ifscCode')?.touched"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeBulkPaymentModal()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="processBulkPayment()"
+          [disabled]="paymentForm.invalid || isProcessingPayment || selectedInvoices.length === 0"
+        >
+          <i class="fas fa-spinner fa-spin" *ngIf="isProcessingPayment"></i>
+          <i class="fas fa-credit-card" *ngIf="!isProcessingPayment"></i>
+          {{ isProcessingPayment ? "Processing Bulk Payment..." : "Process Bulk Payment" }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div
+  class="modal-backdrop fade show"
+  *ngIf="showPaymentModal || showBulkPaymentModal"
+  (click)="showPaymentModal ? closePaymentModal() : closeBulkPaymentModal()"
+></div>
+
+
+<!-- Modal Backdrop -->
+<div
+  class="modal-backdrop fade show"
+  *ngIf="showPaymentModal || showBulkPaymentModal"
+  (click)="showPaymentModal ? closePaymentModal() : closeBulkPaymentModal()"
+></div>

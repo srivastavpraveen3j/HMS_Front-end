@@ -1,0 +1,76 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>BED TYPE LIST</h2>
+    <button class="list-cases-btn" routerLink="/master/bedtypemaster">
+      ADD NEW BED TYPE
+    </button>
+  </div>
+  <!-- <div class="container"> -->
+
+  <form [formGroup]="filterForm" class="top-bar p-3">
+    <input type="text" placeholder="Search..." formControlName="searchText" />
+  </form>
+
+  <!-- <div class="loader-wrapper" *ngIf="bedtypes.length === 0">
+    <div class="loader">
+      <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+    </div>
+  </div> -->
+
+  <div class="" *ngIf="bedtypes.length > 0">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+      *ngIf="userPermissions.read"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Bed Type</th>
+          <th>Description</th>
+          <th>Price/Day</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ward of bedtypes; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ ward.name }}</td>
+          <td>{{ ward.description }}</td>
+          <td>{{ ward.price_per_day }}</td>
+          <td>
+            <i
+              class="fa-solid fa-pencil action-btn"
+              (click)="editWard(ward._id)"
+              *ngIf="userPermissions.update"
+            ></i>
+            <i
+              class="fa-solid fa-trash action-btn"
+              (click)="deleteWard(ward._id)"
+              *ngIf="userPermissions.delete"
+            ></i>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination">
+      <button
+        class="pagination-btn"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      Page {{ currentPage }} of {{ totalPages }}
+      <button
+        class="pagination-btn"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+
+  <!-- </div> -->
+</div>

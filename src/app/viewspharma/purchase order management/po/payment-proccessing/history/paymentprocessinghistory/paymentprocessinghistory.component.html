@@ -1,0 +1,546 @@
+<!-- paymentprocessinghistory.component.html -->
+<div class="form-meta">
+ <div class="header">
+  <h2> Payment Processing History</h2>
+   <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/inventorylayout/paymentproccessinglist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+</div>
+</div>
+
+
+<div class="container-fluid mt-4">
+
+  <!-- ✅ Statistics Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card bg-primary text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Total Payments</h6>
+              <h4>{{ paymentHistory.length }}</h4>
+              <small>₹{{ totalPaymentAmount | number:'1.2-2' }}</small>
+            </div>
+            <div class="align-self-center">
+              <i class="fas fa-credit-card fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card bg-success text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Completed</h6>
+              <h4>{{ completedPayments }}</h4>
+              <small>Successfully processed</small>
+            </div>
+            <div class="align-self-center">
+              <i class="fas fa-check-circle fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card bg-warning text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Processing</h6>
+              <h4>{{ processingPayments }}</h4>
+              <small>In progress</small>
+            </div>
+            <div class="align-self-center">
+              <i class="fas fa-clock fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card bg-info text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Unique Vendors</h6>
+              <h4>{{ vendorCards.length }}</h4>
+              <small>Different vendors</small>
+            </div>
+            <div class="align-self-center">
+              <i class="fas fa-building fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Vendor Cards Section -->
+  <div class="card mb-4" *ngIf="vendorCards.length > 0">
+    <div class="card-header bg-light">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h6 class="mb-0"> Vendor Payment Summary</h6>
+        </div>
+        <div class="col-md-6 text-end">
+          <button class="btn btn-outline-secondary btn-sm" (click)="clearVendorSelection()" *ngIf="selectedVendor">
+            <i class="fas fa-times"></i> Clear Selection
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-3" *ngFor="let vendor of vendorCards.slice(0, 8)">
+          <div class="card vendor-card h-100"
+               [class.border-primary]="selectedVendor?.id === vendor.id"
+               [class.bg-light]="selectedVendor?.id === vendor.id"
+               style="cursor: pointer;"
+               (click)="selectVendor(vendor)">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="flex-grow-1">
+                  <h6 class="card-title mb-1 text-truncate" title="{{ vendor.name }}">
+                    {{ vendor.name }}
+                  </h6>
+                  <small class="text-muted">{{ vendor.email }}</small>
+                </div>
+
+              </div>
+
+              <div class="vendor-stats">
+                <div class="row text-center">
+                  <div class="col-6">
+                    <div class="stat-item">
+                      <h6 class="mb-0 text-primary">₹{{ vendor.totalAmount | number:'1.0-0' }}</h6>
+                      <small class="text-muted">Total Paid</small>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="stat-item">
+                      <h6 class="mb-0 text-success">{{ vendor.totalPayments }}</h6>
+                      <small class="text-muted">Payments</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row mt-2">
+                  <div class="col-12">
+                    <div class="progress" style="height: 4px;">
+                      <div class="progress-bar bg-success"
+                           [style.width.%]="(vendor.completedCount / vendor.totalPayments) * 100"
+                           title="Completed: {{ vendor.completedCount }}"></div>
+                      <div class="progress-bar bg-warning"
+                           [style.width.%]="(vendor.processingCount / vendor.totalPayments) * 100"
+                           title="Processing: {{ vendor.processingCount }}"></div>
+                    </div>
+                    <small class="text-muted">Last payment: {{ vendor.lastPaymentDate | date:'dd/MM/yyyy' }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Show more vendors link -->
+        <div class="col-12 text-center" *ngIf="vendorCards.length > 8">
+          <button class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-plus"></i> View All {{ vendorCards.length }} Vendors
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Selected Vendor Alert -->
+  <div class="alert alert-primary alert-dismissible" *ngIf="selectedVendor">
+    <div class="d-flex align-items-center">
+      <i class="fas fa-building me-3 fa-2x"></i>
+      <div class="flex-grow-1">
+        <h6 class="alert-heading mb-1">Viewing payments for: {{ selectedVendor.name }}</h6>
+        <p class="mb-0">
+          <strong>{{ selectedVendor.totalPayments }}</strong> payments totaling
+          <strong>₹{{ selectedVendor.totalAmount | number:'1.2-2' }}</strong>
+        </p>
+      </div>
+      <button type="button" class="btn-close" (click)="clearVendorSelection()"></button>
+    </div>
+  </div>
+
+  <!-- ✅ Filters Section -->
+  <div class="card mb-4">
+    <div class="card-header bg-light">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h6 class="mb-0"><i class="fas fa-filter"></i> Filters & Search</h6>
+        </div>
+        <div class="col-md-6 text-end">
+          <div class="btn-group">
+            <button class="btn btn-outline-primary btn-sm" (click)="refreshData()">
+              <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <!-- <button class="btn btn-outline-success btn-sm" (click)="exportPaymentData()">
+              <i class="fas fa-download"></i> Export
+            </button> -->
+            <button class="btn btn-outline-secondary btn-sm" (click)="clearAllFilters()">
+              <i class="fas fa-eraser"></i> Clear All
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <!-- Date Range Presets -->
+      <div class="row mb-3">
+        <div class="col-12">
+          <label class="form-label">Quick Date Ranges:</label>
+          <div class="btn-group flex-wrap">
+            <button
+              *ngFor="let preset of dateRangePresets"
+              class="btn btn-outline-primary btn-sm"
+              (click)="applyDateRangePreset(preset)"
+            >
+              {{ preset.label }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Search -->
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Search</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="searchQuery"
+            (input)="onSearch()"
+            placeholder="Payment ID, Invoice, Transaction..."
+          />
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-md-2 mb-3">
+          <label class="form-label">Status</label>
+          <select class="form-select" [(ngModel)]="statusFilter" (change)="onFilterChange()">
+            <option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Payment Mode Filter -->
+        <div class="col-md-2 mb-3">
+          <label class="form-label">Payment Mode</label>
+          <select class="form-select" [(ngModel)]="paymentModeFilter" (change)="onFilterChange()">
+            <option *ngFor="let option of paymentModeOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- From Date -->
+        <div class="col-md-2 mb-3">
+          <label class="form-label">From Date</label>
+          <input
+            type="date"
+            class="form-control"
+            [(ngModel)]="fromDate"
+            (change)="onFilterChange()"
+          />
+        </div>
+
+        <!-- To Date -->
+        <div class="col-md-2 mb-3">
+          <label class="form-label">To Date</label>
+          <input
+            type="date"
+            class="form-control"
+            [(ngModel)]="toDate"
+            (change)="onFilterChange()"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Results Summary -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <span class="text-muted">
+        Showing {{ filteredPayments.length }} of {{ totalItems }} payments
+        {{ selectedVendor ? 'for ' + selectedVendor.name : '' }}
+      </span>
+    </div>
+    <div>
+      <span class="badge bg-info me-2">Page {{ currentPage }} of {{ totalPages }}</span>
+    </div>
+  </div>
+
+  <!-- ✅ Loading State -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading payment history...</p>
+  </div>
+
+  <!-- ✅ Payment History Table -->
+  <div class="card" *ngIf="!isLoading">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-dark">
+          <tr>
+            <th>Payment ID</th>
+            <th>Invoice Details</th>
+            <th>Vendor</th>
+            <th>Amount</th>
+            <th>Payment Mode</th>
+            <th>Status</th>
+            <th>Payment Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let payment of filteredPayments">
+            <td>
+              <div>
+                <strong class="text-primary">{{ payment.paymentId }}</strong><br>
+                <small class="text-muted">{{ payment.transactionId }}</small>
+              </div>
+            </td>
+
+            <td>
+              <div>
+                <strong>{{ payment.invoiceNo }}</strong><br>
+                <small class="text-muted">GRN: {{ payment.grnNumber }}</small>
+              </div>
+            </td>
+
+            <td>
+              <div class="d-flex align-items-center">
+                <div>
+                  <strong>{{ payment.vendor?.name || 'N/A' }}</strong><br>
+                  <small class="text-muted">{{ payment.vendor?.email }}</small>
+                </div>
+              </div>
+            </td>
+
+            <td>
+              <h6 class="mb-1 text-success">₹{{ payment.amount | number:'1.2-2' }}</h6>
+            </td>
+
+            <td>
+              <span class="d-flex align-items-center">
+                <i [class]="getPaymentModeIcon(payment.paymentMode)" class="me-2"></i>
+                {{ payment.paymentMode.toUpperCase() }}
+              </span>
+            </td>
+
+            <td>
+              <span class="badge" [class]="getStatusBadgeClass(payment.status)">
+                {{ payment.status | titlecase }}
+              </span>
+            </td>
+
+            <td>
+              <div>
+                {{ payment.paymentDate | date:'dd/MM/yyyy' }}<br>
+                <small class="text-muted">{{ getDaysSincePayment(payment.paymentDate) }} days ago</small>
+              </div>
+            </td>
+
+            <td>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                (click)="viewPaymentDetails(payment)"
+                title="View Details"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Empty State -->
+          <tr *ngIf="filteredPayments.length === 0 && !isLoading">
+            <td colspan="8" class="text-center py-5">
+              <div class="text-muted">
+                <i class="fas fa-inbox fa-3x mb-3"></i>
+                <h5>No Payment Records Found</h5>
+                <p *ngIf="selectedVendor">
+                  No payments found for {{ selectedVendor.name }} in the selected date range.
+                </p>
+                <p *ngIf="!selectedVendor && (searchQuery || statusFilter || paymentModeFilter || fromDate || toDate)">
+                  Try adjusting your search criteria or filters.
+                </p>
+                <p *ngIf="!selectedVendor && !searchQuery && !statusFilter && !paymentModeFilter && !fromDate && !toDate">
+                  No payment records available.
+                </p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ✅ Pagination -->
+  <nav aria-label="Payment history pagination" *ngIf="totalPages > 1 && !isLoading">
+    <ul class="pagination justify-content-center mt-4">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link" (click)="onPageChange(currentPage - 1)">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+      </li>
+
+      <li class="page-item" *ngFor="let page of getPaginationArray()" [class.active]="page === currentPage">
+        <button class="page-link" (click)="onPageChange(page)">{{ page }}</button>
+      </li>
+
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link" (click)="onPageChange(currentPage + 1)">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </li>
+    </ul>
+  </nav>
+
+</div>
+
+<!-- ✅ Payment Details Modal -->
+<div class="modal fade show"
+     [style.display]="showPaymentDetailsModal ? 'block' : 'none'"
+     [class.show]="showPaymentDetailsModal"
+     tabindex="-1"
+     *ngIf="showPaymentDetailsModal && selectedPayment"
+     id="po-sheet">
+
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <!-- <i class="fas fa-credit-card"></i> -->
+          Payment Details - {{ selectedPayment.paymentId }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closePaymentDetailsModal()"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+
+        <!-- Payment Summary -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="card border-primary">
+              <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"> Payment Information</h6>
+              </div>
+              <div class="card-body">
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Payment ID:</strong></div>
+                  <div class="col-6">{{ selectedPayment.paymentId }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Transaction ID:</strong></div>
+                  <div class="col-6">{{ selectedPayment.transactionId }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Amount:</strong></div>
+                  <div class="col-6"><strong>₹{{ selectedPayment.amount | number:'1.2-2' }}</strong></div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Payment Mode:</strong></div>
+                  <div class="col-6">
+                    <!-- <i [class]="getPaymentModeIcon(selectedPayment.paymentMode)"></i> -->
+                    {{ selectedPayment.paymentMode.toUpperCase() }}
+                  </div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Status:</strong></div>
+                  <div class="col-6">
+                    <span class="badge" [class]="getStatusBadgeClass(selectedPayment.status)">
+                      {{ selectedPayment.status | titlecase }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card border-info">
+              <div class="card-header bg-info text-white">
+                <h6 class="mb-0">Invoice Information</h6>
+              </div>
+              <div class="card-body">
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Invoice Number:</strong></div>
+                  <div class="col-6">{{ selectedPayment.invoiceNo }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>GRN Number:</strong></div>
+                  <div class="col-6">{{ selectedPayment.grnNumber }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Vendor:</strong></div>
+                  <div class="col-6">{{ selectedPayment.vendor?.name }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Vendor Email:</strong></div>
+                  <div class="col-6">{{ selectedPayment.vendor?.email }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6"><strong>Payment Date:</strong></div>
+                  <div class="col-6">{{ selectedPayment.paymentDate | date:'dd/MM/yyyy HH:mm' }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remarks -->
+        <div class="card" *ngIf="selectedPayment.remarks">
+          <div class="card-header">
+            <h6 class="mb-0"> Remarks</h6>
+          </div>
+          <div class="card-body">
+            <p class="mb-0">{{ selectedPayment.remarks }}</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer no-print">
+        <!-- <button type="button" class="btn btn-secondary" (click)="closePaymentDetailsModal()">
+          <i class="fas fa-times"></i> Close
+        </button> -->
+        <button type="button" class="btn btn-sm" (click)="print()">
+          <i class="fas fa-print"></i> Print Receipt
+        </button>
+        <button type="button" class="btn btn-sm" (click)="printpaymenthistory()">
+          <i class="fas fa-download"></i> Download PDF
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop fade show" *ngIf="showPaymentDetailsModal"
+     (click)="closePaymentDetailsModal()"></div>

@@ -1,0 +1,1517 @@
+<div class="patient-summary-container">
+  <!-- Header Section -->
+  <div class="patient-header">
+    <div class="patient-info">
+      <!-- <div class="patient-avatar">{{patientopdcase?.uniqueHealthIdentificationId.avatar}}</div> -->
+      <div class="patient-details">
+        <div class="patient-name">
+          {{ opdcase?.uniqueHealthIdentificationId?.patient_name }}
+          <span class="gender-badge">
+            {{
+            opdcase?.uniqueHealthIdentificationId?.gender === "female"
+            ? "♀"
+            : "♂"
+            }}
+            {{ opdcase?.uniqueHealthIdentificationId?.gender }}
+          </span>
+
+          <!-- <span class="status-badge">{{patientopdcase?.uniqueHealthIdentificationId.visitStatus}}</span> -->
+        </div>
+        <div class="patient-meta">
+          {{ opdcase?.createdAt | date }} •
+          <strong>UHID: {{ opdcase?.uniqueHealthIdentificationId?.uhid }}</strong>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="barcode-container" *ngIf="opdcase?.uniqueHealthIdentificationId?.uhid">
+  <svg #headerBarcode></svg>
+</div> -->
+    <div class="d-flex justify-content-end">
+      <!-- <button type="button" [ngClass]="{
+          'btn btn-danger': opdcase?.consulted === 'inConsultation',
+          'btn btn-info': opdcase?.consulted === 'onHold'
+        }" (click)="holdUnholdConsultation(opdcase)">
+        {{
+        opdcase?.consulted === 'onHold'
+        ? 'RESUME'
+        : opdcase?.consulted === 'inConsultation'
+        ? 'HOLD'
+        : ''
+        }}
+      </button> -->
+      <button *ngIf="doctorId" type="button" class="record-btn" (click)="endConsultation(opdcase)">
+        COMPLETE
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content-wrapper">
+    <!-- Left Sidebar Navigation -->
+    <div class="left-nav">
+      <ul class="nav-list">
+        <li *ngFor="let item of visibleNavigationItems" [class]="getNavItemClass(item)"
+          (click)="onNavigationClick(item)">
+          <i class="icon">{{ item.icon }}</i>
+          <span>{{ item.label }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="content-area">
+      <!-- Patient Summary Content -->
+      <div *ngIf="shouldShowContent('summary')" class="content-section">
+        <div class="section-header">
+          <h3>Vital parameters and Demographics</h3>
+          <span class="no-opdcase?.uniqueHealthIdentificationId-text" *ngIf="!vitals">No vitals has been recorded for
+            this patient</span>
+          <button *ngIf="hasModuleAccess('vitals', 'create')" class="record-btn"
+            (click)="onRecordVitalsClick(opdcase._id)">
+            Record vitals →
+          </button>
+        </div>
+
+        <!-- Vitals and Biometrics Tabs -->
+        <div class="tabs-container">
+          <div class="tab-header">
+            <div *ngIf="hasModuleAccess('vitals', 'create')" [class]="getTabClass('vitals')"
+              (click)="onTabClick('vitals')">
+              Vital parameters
+            </div>
+            <div [class]="getTabClass('biometrics')" (click)="onTabClick('biometrics')">
+              Demographics
+            </div>
+          </div>
+
+          <!-- Vitals Tab Content -->
+          <div *ngIf="
+              activeTab === 'vitals' && hasModuleAccess('vitals', 'create')
+            " class="tab-content">
+            <div class="vitals-container" *ngIf="vitals; else noVitals">
+              <div class="vitals-header">
+                <!-- <h3>Patient Vital Signs</h3> -->
+                <span class="recorded-date">Recorded On: {{ vitals.createdAt | date : "medium" }}</span>
+                <span class="recorded-date"><i class="fa-solid fa-pencil" (click)="editVitals(vitals._id)"></i></span>
+              </div>
+
+              <div class="vitals-grid">
+                <div class="vital-card">
+                  <div class="vital-icon">🩺</div>
+                  <div class="vital-info">
+                    <label>Blood Pressure</label>
+                    <span class="vital-value">{{ vitals.systolicBloodPressure }} mmHg</span>
+                  </div>
+                  <!-- /{{
+                        vitals.diastolicBloodPressure
+                      }} -->
+                </div>
+
+                <div class="vital-card">
+                  <div class="vital-icon">💓</div>
+                  <div class="vital-info">
+                    <label>Pulse Rate</label>
+                    <span class="vital-value">{{ vitals.pulseRate }} bpm</span>
+                  </div>
+                </div>
+
+                <div class="vital-card">
+                  <div class="vital-icon">🌡️</div>
+                  <div class="vital-info">
+                    <label>Temperature</label>
+                    <span class="vital-value">{{ vitals.temperature }}°F</span>
+                  </div>
+                </div>
+
+                <div class="vital-card">
+                  <div class="vital-icon">🫁</div>
+                  <div class="vital-info">
+                    <label>Respiratory Rate</label>
+                    <span class="vital-value">{{ vitals.respiratoryRate }} /min</span>
+                  </div>
+                </div>
+
+                <div class="vital-card">
+                  <div class="vital-icon">⚕️</div>
+                  <div class="vital-info">
+                    <label>SpO2</label>
+                    <span class="vital-value">{{ vitals.spo2 }}%</span>
+                  </div>
+                </div>
+
+                <div class="vital-card">
+                  <div class="vital-icon">🩸</div>
+                  <div class="vital-info">
+                    <label>Blood Sugar</label>
+                    <span class="vital-value">{{ vitals.bloodSugar }} mg/dL</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- <div class="vitals-notes" *ngIf="vitals.input || vitals.output || vitals.remarks">
+      <div class="note-section" *ngIf="vitals.input">
+        <strong>Input:</strong> {{ vitals.input }}
+      </div>
+      <div class="note-section" *ngIf="vitals.output">
+        <strong>Output:</strong> {{ vitals.output }}
+      </div>
+      <div class="note-section" *ngIf="vitals.remarks">
+        <strong>Remarks:</strong> {{ vitals.remarks }}
+      </div>
+    </div> -->
+            </div>
+
+            <ng-template #noVitals>
+              <div class="empty-state">
+                <div class="empty-icon">📊</div>
+                <p>There are no vital signs to display for this patient</p>
+                <button *ngIf="hasModuleAccess('vitals', 'create')" class="record-link"
+                  (click)="onRecordVitalSignsClick(opdcase._id)">
+                  Record vital signs
+                </button>
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Biometrics Tab Content -->
+          <div *ngIf="activeTab === 'biometrics'" class="tab-content">
+            <div class="demographics-container" *ngIf="opdcase; else noDemographics">
+              <!-- <div class="demographics-header">
+      <h3>Patient Demographics</h3>
+      <span class="patient-id" *ngIf="opdcase.uniqueHealthIdentificationId">
+        ID: {{ opdcase.uniqueHealthIdentificationId._id | slice:0:8 }}...
+      </span>
+    </div> -->
+
+              <div class="demographics-grid">
+                <!-- Personal Information Section -->
+                <div class="info-section">
+                  <h4 class="section-title">
+                    <span class="section-icon">👤</span>
+                    Personal Information
+                  </h4>
+                  <div class="info-cards">
+                    <div class="info-card" *ngIf="opdcase?.uniqueHealthIdentificationId?.age">
+                      <div class="info-label">Age</div>
+                      <div class="info-value">
+                        {{ opdcase.uniqueHealthIdentificationId.age }}
+                      </div>
+                    </div>
+
+                    <div class="info-card" *ngIf="opdcase?.uniqueHealthIdentificationId?.mobile_no">
+                      <div class="info-label">Mobile Number</div>
+                      <div class="info-value">
+                        {{ opdcase.uniqueHealthIdentificationId.mobile_no }}
+                      </div>
+                    </div>
+
+                    <div class="info-card" *ngIf="opdcase?.emailAddress">
+                      <div class="info-label">Email Address</div>
+                      <div class="info-value">{{ opdcase.emailAddress }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Address Information Section -->
+                <div class="info-section" *ngIf="
+                    opdcase?.uniqueHealthIdentificationId?.area ||
+                    opdcase?.uniqueHealthIdentificationId?.pincode
+                  ">
+                  <h4 class="section-title">
+                    <span class="section-icon">📍</span>
+                    Address Information
+                  </h4>
+                  <div class="info-cards">
+                    <div class="info-card full-width">
+                      <div class="info-label">Address</div>
+                      <div class="info-value">
+                        {{ opdcase?.uniqueHealthIdentificationId?.area }}
+                        <span *ngIf="
+                            opdcase?.uniqueHealthIdentificationId?.area &&
+                            opdcase?.uniqueHealthIdentificationId?.pincode
+                          ">,
+                        </span>
+                        {{ opdcase?.uniqueHealthIdentificationId?.pincode }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Identity Documents Section -->
+                <div class="info-section" *ngIf="opdcase?.aadharNumber || opdcase?.panCardNumber">
+                  <h4 class="section-title">
+                    <span class="section-icon">🆔</span>
+                    Identity Documents
+                  </h4>
+                  <div class="info-cards">
+                    <div class="info-card" *ngIf="opdcase?.aadharNumber">
+                      <div class="info-label">Aadhaar Number</div>
+                      <div class="info-value">{{ opdcase.aadharNumber }}</div>
+                    </div>
+
+                    <div class="info-card" *ngIf="opdcase?.panCardNumber">
+                      <div class="info-label">PAN Card Number</div>
+                      <div class="info-value">{{ opdcase.panCardNumber }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Medical Team Section -->
+                <div class="info-section">
+                  <h4 class="section-title">
+                    <span class="section-icon">👨‍⚕️</span>
+                    Medical Team
+                  </h4>
+                  <div class="info-cards">
+                    <div class="info-card" *ngIf="opdcase?.consulting_Doctor?.name">
+                      <div class="info-label">Consultant Doctor</div>
+                      <div class="info-value doctor-name">
+                        {{ opdcase.consulting_Doctor.name }}
+                      </div>
+                    </div>
+
+                    <div class="info-card" *ngIf="opdcase?.referringDoctorId?.name">
+                      <div class="info-label">Referring Doctor</div>
+                      <div class="info-value doctor-name">
+                        {{ opdcase.referringDoctorId.name }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ng-template #noDemographics>
+              <div class="empty-state">
+                <div class="empty-icon">📏</div>
+                <p>There are no demographics to display for this patient</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vitals & Biometrics Content -->
+      <div *ngIf="
+          shouldShowContent('vitals') && hasModuleAccess('vitals', 'create')
+        " class="content-section">
+        <div class="section-header">
+          <h3>Vitals Parameters</h3>
+          <button *ngIf="hasModuleAccess('vitals', 'create')" class="record-btn"
+            (click)="onRecordVitalsClick(opdcase._id)">
+            Record vitals →
+          </button>
+        </div>
+        <!-- <div class="empty-state">
+          <div class="empty-icon">📊</div>
+          <p>Vitals section content will be displayed here</p>
+        </div> -->
+        <!-- <div *ngIf="activeTab === 'vitals'" class="tab-content"> -->
+        <div class="vitals-container" *ngIf="vitals; else noVitals">
+          <div class="vitals-header">
+            <!-- <h3>Patient Vital Signs</h3> -->
+            <span class="recorded-date">Recorded On: {{ vitals.createdAt | date : "medium" }}</span>
+          </div>
+
+          <div class="vitals-grid">
+            <div class="vital-card">
+              <div class="vital-icon">🩺</div>
+              <div class="vital-info">
+                <label>Blood Pressure</label>
+                <span class="vital-value">{{ vitals.systolicBloodPressure }} mmHg</span>
+
+                <!-- /{{
+                    vitals.diastolicBloodPressure
+                  }} -->
+              </div>
+            </div>
+
+            <div class="vital-card">
+              <div class="vital-icon">💓</div>
+              <div class="vital-info">
+                <label>Pulse Rate</label>
+                <span class="vital-value">{{ vitals.pulseRate }} bpm</span>
+              </div>
+            </div>
+
+            <div class="vital-card">
+              <div class="vital-icon">🌡️</div>
+              <div class="vital-info">
+                <label>Temperature</label>
+                <span class="vital-value">{{ vitals.temperature }}°F</span>
+              </div>
+            </div>
+
+            <div class="vital-card">
+              <div class="vital-icon">🫁</div>
+              <div class="vital-info">
+                <label>Respiratory Rate</label>
+                <span class="vital-value">{{ vitals.respiratoryRate }} /min</span>
+              </div>
+            </div>
+
+            <div class="vital-card">
+              <div class="vital-icon">⚕️</div>
+              <div class="vital-info">
+                <label>SpO2</label>
+                <span class="vital-value">{{ vitals.spo2 }}%</span>
+              </div>
+            </div>
+
+            <div class="vital-card">
+              <div class="vital-icon">🩸</div>
+              <div class="vital-info">
+                <label>Blood Sugar</label>
+                <span class="vital-value">{{ vitals.bloodSugar }} mg/dL</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- <div class="vitals-notes" *ngIf="vitals.input || vitals.output || vitals.remarks">
+      <div class="note-section" *ngIf="vitals.input">
+        <strong>Input:</strong> {{ vitals.input }}
+      </div>
+      <div class="note-section" *ngIf="vitals.output">
+        <strong>Output:</strong> {{ vitals.output }}
+      </div>
+      <div class="note-section" *ngIf="vitals.remarks">
+        <strong>Remarks:</strong> {{ vitals.remarks }}
+      </div>
+    </div> -->
+        </div>
+
+        <ng-template #noVitals>
+          <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <p>There are no vital signs to display for this patient</p>
+            <button *ngIf="hasModuleAccess('vitals', 'create')" class="record-link"
+              (click)="onRecordVitalSignsClick(opdcase._id)">
+              Record vital signs
+            </button>
+          </div>
+        </ng-template>
+        <!-- </div> -->
+      </div>
+
+      <!-- Medications Content -->
+      <div *ngIf="shouldShowContent('medications')" class="content-section">
+        <div class="section-header">
+          <h3>Medications</h3>
+          <button class="record-btn" (click)="onAddMedicationClick()">
+            Add Medication →
+          </button>
+        </div>
+        <div class="empty-state">
+          <div class="empty-icon">💊</div>
+          <p>Medications section content will be displayed here</p>
+        </div>
+      </div>
+
+      <!-- Orders Content -->
+      <div *ngIf="
+          shouldShowContent('orders') && hasModuleAccess('procedure', 'create')
+        " class="content-section">
+        <div class="section-header">
+          <h3>Procedure</h3>
+          <button class="record-btn" (click)="startNewProcedure()">
+            + Add Procedure
+          </button>
+        </div>
+
+        <!-- List existing procedures -->
+        <div *ngIf="procedures.length > 0; else noProcedure">
+          <div class="diagnosis-container">
+            <div class="sticker-container" *ngFor="let proc of procedures; let i = index">
+              <div class="vitals-header">
+                <!-- <h3>Patient Vital Signs</h3> -->
+                <span class="recorded-date">Recorded On: {{ proc.createdAt | date : "medium" }}</span>
+                <span class="recorded-date"><i class="fa-solid fa-pencil" (click)="editProcedure(i)"></i></span>
+              </div>
+              <div class="info-card">
+                <div class="card-content">
+                  <!-- View Mode -->
+                  <ng-container *ngIf="!proc.editing">
+                    <div class="">
+                      <h4>Procedure Name</h4>
+                      <p>{{ proc.procedure_name }}</p>
+                    </div>
+
+                    <div class="">
+                      <h4>Remark</h4>
+                      <p>{{ proc.remarks }}</p>
+                    </div>
+                  </ng-container>
+
+                  <!-- Edit Mode -->
+                  <ng-container *ngIf="proc.editing">
+                    <h4>Procedure Name</h4>
+                    <input type="text" class="form-control" [(ngModel)]="proc.procedure_name"
+                      placeholder="Enter procedure name" />
+                    <h4>Remark</h4>
+                    <input type="text" class="form-control" [(ngModel)]="proc.remarks" placeholder="Enter remarks" />
+                    <button class="btn btn-dark m-2" (click)="saveProcedure(i)">
+                      Save
+                    </button>
+                    <button class="btn btn-dark" (click)="cancelEdit(i)">
+                      Cancel
+                    </button>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <ng-template #noProcedure>
+          <div class="empty-state">
+            <div class="empty-icon">🗂️</div>
+            <p>Procedure section content will be displayed here</p>
+            <button class="record-link" (click)="startNewProcedure()">
+              Record Procedure
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- prescription Content -->
+      <!-- && hasModuleAccess('diagnosisSheet') -->
+      <div *ngIf="shouldShowContent('prescription')" class="content-section">
+        <div class="section-header">
+          <h3>Prescription</h3>
+          <i class="fa-solid fa-print" (click)="printPrescription()"></i>
+        </div>
+
+        <!-- Display Prescription -->
+        <div *ngIf="diagnosis?.packages?.length > 0; else noProcedure">
+          <div class="diagnosis-container">
+            <div class="prescriptions-list">
+              <div class="prescription-card my-3" *ngFor="let medicine of diagnosis.packages; let i = index">
+                <div class="medicine-info">
+                  <h4>{{ medicine.medicineName }}</h4>
+                  <span>Quantity: {{ medicine.quantity }}</span>
+                </div>
+                <div *ngIf="medicine.checkbox">
+                  <strong>Medication Time: </strong>
+                  <span *ngIf="medicine.checkbox.morning">🌅 Morning </span>
+                  <span *ngIf="medicine.checkbox.noon">☀️ Noon </span>
+                  <span *ngIf="medicine.checkbox.evening">🌆 Evening </span>
+                  <span *ngIf="medicine.checkbox.night">🌙 Night </span>
+                </div>
+                <div *ngIf="medicine.dosageInstruction">
+                  <strong>Instructions:</strong>
+                  {{ medicine.dosageInstruction }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noProcedure>
+          <div class="empty-state">
+            <div class="empty-icon">📈</div>
+            <p>Prescription section content will be displayed here</p>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- HIDDEN PRINT TEMPLATE -->
+      <div id="printSection" style="display: none">
+        <!-- Hospital Header -->
+        <div style="
+            border: 2px solid black;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+          ">
+          <h2 style="margin: 0; font-size: 18px; font-weight: bold">
+            P.P. Maniya Children's Speciality Hospital And Maternity Home
+          </h2>
+          <p style="margin: 5px 0; font-size: 12px">
+            C-1, Ganesh Colony, Near Baroda Pristage, Varachha Main Road, Surat
+            | eCourtPhone = PH : 9099979976,<br />
+            9978799426 | email: maniyahospitalgmail.com
+          </p>
+        </div>
+
+        <!-- Prescription Header -->
+        <h3 style="
+            text-align: center;
+            margin: 20px 0;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: underline;
+          ">
+          MEDICINE PRESCRIPTION
+        </h3>
+
+        <!-- Patient Information Table - WITH BORDERS like in your reference -->
+        <table style="
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid black;
+            margin-bottom: 10px;
+          ">
+          <tr>
+            <td style="
+                border: 1px solid black;
+                padding: 5px;
+                font-weight: bold;
+                width: 15%;
+              ">
+              PT NAME
+            </td>
+            <td style="border: 1px solid black; padding: 5px; width: 35%">
+              {{
+              diagnosis?.uniqueHealthIdentificationId?.patient_name?.toUpperCase()
+              }}
+            </td>
+            <td style="
+                border: 1px solid black;
+                padding: 5px;
+                font-weight: bold;
+                width: 15%;
+              ">
+              CODE
+            </td>
+            <td style="border: 1px solid black; padding: 5px; width: 35%">
+              {{ diagnosis?.uniqueHealthIdentificationId?.uhid }}
+            </td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid black; padding: 5px; font-weight: bold">
+              DR. NAME
+            </td>
+            <td style="border: 1px solid black; padding: 5px">
+              {{
+              diagnosis?.outpatientCaseId?.consulting_Doctor?.name?.toUpperCase()
+              }}
+            </td>
+            <td style="border: 1px solid black; padding: 5px; font-weight: bold">
+              ID
+            </td>
+            <td style="border: 1px solid black; padding: 5px">
+              {{ diagnosis?.outpatientCaseId?._id?.slice(-6) }}
+            </td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid black; padding: 5px; font-weight: bold">
+              LOGIN NAME
+            </td>
+            <td style="border: 1px solid black; padding: 5px">
+              {{
+              diagnosis?.outpatientCaseId?.consulting_Doctor?.name?.toUpperCase()
+              }}
+            </td>
+            <td style="border: 1px solid black; padding: 5px; font-weight: bold">
+              DATE
+            </td>
+            <td style="border: 1px solid black; padding: 5px">
+              {{ diagnosis?.createdAt | date : "d-MMM-yy" }}
+            </td>
+          </tr>
+        </table>
+
+        <!-- Cashless and Prepare By Section -->
+        <div style="margin-bottom: 20px">
+          <!-- <strong>Cashless</strong><br> -->
+          <table style="
+              width: 100%;
+              border-collapse: collapse;
+              border: 1px solid black;
+            ">
+            <tr>
+              <td style="
+                  border: 1px solid black;
+                  padding: 5px;
+                  font-weight: bold;
+                  width: 15%;
+                ">
+                PREPARE BY
+              </td>
+              <td style="border: 1px solid black; padding: 5px; width: 50%">
+                {{
+                diagnosis?.outpatientCaseId?.consulting_Doctor?.name?.toUpperCase()
+                }}
+              </td>
+              <td style="
+                  border: 1px solid black;
+                  padding: 5px;
+                  font-weight: bold;
+                  width: 15%;
+                ">
+                TIME
+              </td>
+              <td style="border: 1px solid black; padding: 5px; width: 20%">
+                {{ diagnosis?.createdAt | date : "HH:mm:ss" }}
+                {{ diagnosis?.createdAt | date : "a" }}
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Medicine Table -->
+        <table style="
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid black;
+          ">
+          <thead>
+            <tr style="background-color: #f0f0f0">
+              <th style="
+                  border: 1px solid black;
+                  padding: 8px;
+                  text-align: left;
+                  width: 10%;
+                ">
+                SR.NO.
+              </th>
+              <th style="
+                  border: 1px solid black;
+                  padding: 8px;
+                  text-align: left;
+                  width: 70%;
+                ">
+                MEDICINE NAME
+              </th>
+              <th style="
+                  border: 1px solid black;
+                  padding: 8px;
+                  text-align: center;
+                  width: 20%;
+                ">
+                QTY
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let med of diagnosis?.packages; let i = index"
+              [style.background-color]="i % 2 === 0 ? '#ffffff' : '#f8f8f8'">
+              <td style="
+                  border: 1px solid black;
+                  padding: 8px;
+                  text-align: center;
+                ">
+                {{ i + 1 }}
+              </td>
+              <td style="border: 1px solid black; padding: 8px">
+                {{ med.medicineName?.toUpperCase() }}
+              </td>
+              <td style="
+                  border: 1px solid black;
+                  padding: 8px;
+                  text-align: center;
+                ">
+                {{ med.quantity }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Additional Information (if needed) -->
+        <div style="margin-top: 20px" *ngIf="diagnosis?.generalAdvice || diagnosis?.testprescription">
+          <div *ngIf="diagnosis?.generalAdvice">
+            <strong>General Advice:</strong> {{ diagnosis.generalAdvice }}
+          </div>
+          <div *ngIf="diagnosis?.testprescription" style="margin-top: 5px">
+            <strong>Test Prescription:</strong> {{ diagnosis.testprescription }}
+          </div>
+          <div *ngIf="diagnosis?.nextFollowUpDate" style="margin-top: 5px">
+            <strong>Next Follow-up:</strong>
+            {{ diagnosis.nextFollowUpDate | date : "dd-MMM-yyyy" }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional sections for other navigation items -->
+      <div *ngIf="
+          shouldShowContent('visits') &&
+          hasModuleAccess('outpatientVisitingHistory')
+        " class="content-section">
+        <div class="section-header">
+          <h3>Visits History</h3>
+        </div>
+        <div *ngIf="vistingdate && vistingdate.length > 0; else noVisits" class="visits-container">
+          <div *ngFor="let visit of vistingdate; trackBy: trackByVisitId" class="visit-card">
+            <div class="visit-header">
+              <div class="visit-date-time">
+                <span class="visit-date">{{
+                  formatDate(visit?.visitDate)
+                  }}</span>
+                <span class="visit-time">{{
+                  formatTime(visit?.visitDate)
+                  }}</span>
+              </div>
+              <span class="visit-status" [ngClass]="'status-' + (visit?.status || 'unknown')">
+                {{ (visit?.status | titlecase) || "Unknown" }}
+              </span>
+            </div>
+            <div class="visit-details">
+              <div class="case-info">
+                <p><strong>Case ID:</strong> {{ visit?.caseId || "N/A" }}</p>
+                <p>
+                  <strong>Doctor:</strong>
+                  {{ visit?.consultingDoctor || "Not assigned" }}
+                </p>
+                <!-- <p><strong>Case Type:</strong> {{ (visit?.caseType | titlecase) || 'General' }}</p> -->
+              </div>
+              <!-- <div class="patient-vitals">
+          <span class="vital">Height: {{ visit?.height ?? 0 }}cm</span>
+          <span class="vital">Weight: {{ visit?.weight ?? 0 }}kg</span>
+        </div> -->
+            </div>
+            <!-- Bills for this visit -->
+            <div *ngIf="visit?.caseId && getBillsForCase(visit?.caseId).length > 0" class="billing-section">
+              <h5>Billing Details</h5>
+              <div *ngFor="
+                  let bill of getBillsForCase(visit?.caseId);
+                  trackBy: trackByBillId
+                " class="bill-card">
+                <div class="bill-header">
+                  <span class="bill-number">Bill #{{ bill?.billNumber || "N/A" }}</span>
+                  <span class="bill-date">{{
+                    formatDate(bill?.createdAt)
+                    }}</span>
+                </div>
+                <div class="bill-amounts">
+                  <div class="amount-row">
+                    <span class="label">Total Amount:</span>
+                    <span class="amount total">₹{{ bill?.totalAmount ?? 0 | number : "1.2-2" }}</span>
+                  </div>
+                  <div class="amount-row">
+                    <span class="label">Amount Received:</span>
+                    <span class="amount received">₹{{ bill?.amountReceived ?? 0 | number : "1.2-2" }}</span>
+                  </div>
+                  <div *ngIf="(bill?.remainder ?? 0) > 0" class="amount-row">
+                    <span class="label">Remaining:</span>
+                    <span class="amount pending">₹{{ bill?.remainder ?? 0 | number : "1.2-2" }}</span>
+                  </div>
+                  <div class="amount-row">
+                    <span class="label">Payment Method:</span>
+                    <span class="payment-method">{{
+                      (bill?.paymentMethod | titlecase) || "Unknown"
+                      }}</span>
+                  </div>
+                </div>
+                <div *ngIf="bill?.discountInfo" class="discount-section">
+                  <div class="discount-header">
+                    <span class="discount-label">Discount Request</span>
+                    <span class="discount-status" [ngClass]="
+                        'discount-' +
+                        (bill.discountInfo?.discountStatus || 'unknown')
+                      ">
+                      {{
+                      (bill.discountInfo?.discountStatus | titlecase) ||
+                      "Unknown"
+                      }}
+                    </span>
+                  </div>
+                  <div class="discount-details">
+                    <span>Requested: ₹{{
+                      bill.discountInfo?.discount ?? 0 | number : "1.2-2"
+                      }}</span>
+                    <!-- <span *ngIf="bill.discountInfo?.reason">Reason: {{ bill.discountInfo.reason  || '' }}</span> -->
+                  </div>
+                </div>
+              </div>
+              <div class="visit-summary">
+                <div class="summary-row">
+                  <span>Total Billed for this visit:</span>
+                  <span class="amount">₹{{
+                    getTotalAmountForCase(visit?.caseId) | number : "1.2-2"
+                    }}</span>
+                </div>
+                <div class="summary-row">
+                  <span>Total Received for this visit:</span>
+                  <span class="amount received">₹{{
+                    getTotalReceivedForCase(visit?.caseId) | number : "1.2-2"
+                    }}</span>
+                </div>
+              </div>
+            </div>
+            <!-- <div
+              *ngIf="
+                !visit?.caseId || getBillsForCase(visit?.caseId)?.length === 0
+              "
+              class="no-bills"
+            >
+              <p>No billing information available for this visit</p>
+            </div> -->
+          </div>
+        </div>
+        <ng-template #noVisits>
+          <div class="empty-state">
+            <div class="empty-icon">🏥</div>
+            <p>No visits recorded yet</p>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Diagnosis sections for other navigation items -->
+      <div *ngIf="
+          shouldShowContent('allergies') &&
+          hasModuleAccess('diagnosisSheet', 'create')
+        " class="content-section">
+        <div class="section-header">
+          <h3>Diagnosis</h3>
+          <button class="record-btn" (click)="Patientdiagnosis(opdcase._id)">
+            Record Diagnosis →
+          </button>
+        </div>
+
+        <!-- Only show sections if diagnosis opdcase?.uniqueHealthIdentificationId exists -->
+        <div *ngIf="diagnosis; else noDiagnosis">
+          <!-- Investigation/Clinical Examination Section -->
+          <div *ngIf="diagnosis?.clinicalExamination || diagnosis?.diagnosis">
+            <div class="section-header">
+              <h3>Investigation/Clinical Examination</h3>
+
+              <span *ngIf="diagnosis && hasModuleAccess('diagnosisSheet', 'update')"><i class="fa-solid fa-pencil"
+                  (click)="editDiagnosis(diagnosis?._id)"></i></span>
+            </div>
+
+            <div class="diagnosis-container">
+              <div class="investigation-grid">
+                <div class="info-card examination-card" *ngIf="diagnosis?.clinicalExamination">
+                  <div class="card-icon">🔬</div>
+                  <div class="card-content">
+                    <h4>Clinical Examination</h4>
+                    <p class="examination-text">
+                      {{ diagnosis.clinicalExamination }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="info-card diagnosis-card" *ngIf="diagnosis?.diagnosis">
+                  <div class="card-icon">🩺</div>
+                  <div class="card-content">
+                    <h4>Diagnosis</h4>
+                    <p class="diagnosis-text">{{ diagnosis.diagnosis }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Presenting Complaint Section -->
+          <div *ngIf="diagnosis?.symptoms && diagnosis.symptoms.length > 0">
+            <div class="section-header">
+              <h3>Presenting Complaints</h3>
+            </div>
+
+            <div class="diagnosis-container">
+              <div class="symptoms-grid">
+                <div class="symptom-card" *ngFor="let symptom of diagnosis.symptoms; let i = index">
+                  <div class="symptom-header">
+                    <span class="symptom-number">{{ i + 1 }}</span>
+                    <h4 class="symptom-name">{{ symptom.name }}</h4>
+                  </div>
+                  <div class="symptom-details">
+                    <div class="symptom-property" *ngIf="symptom.properties">
+                      <strong>Type:</strong> {{ symptom.properties }}
+                    </div>
+                    <div class="symptom-duration" *ngIf="symptom.since">
+                      <strong>Duration:</strong> {{ symptom.since }}
+                    </div>
+                    <div class="symptom-remarks" *ngIf="symptom.remarks">
+                      <strong>Remarks:</strong> {{ symptom.remarks }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Known Allergies & Medical History Section -->
+          <div *ngIf="diagnosis?.allergy || diagnosis?.medicalHistory">
+            <div class="section-header">
+              <h3>Known Allergies & Medical History</h3>
+            </div>
+
+            <div class="diagnosis-container">
+              <div class="allergies-medical-grid">
+                <div class="info-card allergy-card" *ngIf="diagnosis?.allergy">
+                  <div class="card-icon">🤧</div>
+                  <div class="card-content">
+                    <h4>Known Allergies</h4>
+                    <p class="allergy-text">{{ diagnosis.allergy }}</p>
+                  </div>
+                </div>
+
+                <div class="info-card medication-card" *ngIf="diagnosis?.medicalHistory">
+                  <div class="card-icon">💊</div>
+                  <div class="card-content">
+                    <h4>Medical History</h4>
+                    <p class="medication-text">
+                      {{ diagnosis.medicalHistory }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Prescription Medications Section -->
+          <div *ngIf="diagnosis?.packages && diagnosis.packages.length > 0">
+            <div class="section-header">
+              <h3>Prescription Medications & Tests</h3>
+            </div>
+
+            <div class="diagnosis-container">
+              <div class="prescriptions-list">
+                <div class="prescription-card my-3" *ngFor="let medicine of diagnosis.packages; let i = index">
+                  <span class="d-flex">
+                    <h4 class="medicine-name">Medicines</h4>
+                    <div class="medicine-icon">💊</div>
+                  </span>
+
+                  <hr />
+                  <div class="prescription-header">
+                    <div class="medicine-info">
+                      <h4 class="medicine-name">{{ medicine.medicineName }}</h4>
+                      <span class="medicine-quantity">Quantity: {{ medicine.quantity }}</span>
+                    </div>
+                  </div>
+
+                  <div class="prescription-details" *ngIf="medicine.checkbox">
+                    <div class="d-flex">
+                      <div class="dosage-info">
+                        <strong>Medication Time :</strong>
+
+                        <span class="dosage-item" *ngIf="medicine.checkbox.morning">
+                          🌅 Morning
+                        </span>
+                        <span class="dosage-item" *ngIf="medicine.checkbox.noon">
+                          ☀️ Noon
+                        </span>
+                        <span class="dosage-item" *ngIf="medicine.checkbox.evening">
+                          🌆 Evening
+                        </span>
+                        <span class="dosage-item" *ngIf="medicine.checkbox.night">
+                          🌙 Night
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- ✅ Add dosage instructions -->
+                    <div class="dosage-instructions" *ngIf="medicine.dosageInstruction">
+                      <strong>Instructions:</strong>
+                      {{ medicine.dosageInstruction }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="prescriptions-list">
+                <div class="prescription-card" *ngIf="diagnosis.testprescription">
+                  <span class="d-flex">
+                    <h4 class="medicine-name">Tests</h4>
+                    <div class="medicine-icon">🔬</div>
+                  </span>
+                  <hr />
+                  <div class="prescription-header">
+                    <div class="medicine-info">
+                      <h4 class="medicine-name">
+                        {{ diagnosis.testprescription }}
+                      </h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- General Advice & Next Follow Up Date Section -->
+          <div *ngIf="diagnosis?.generalAdvice || diagnosis?.nextFollowUpDate">
+            <div class="section-header">
+              <h3>General Advice & Next Follow Up Date</h3>
+            </div>
+
+            <div class="diagnosis-container">
+              <div class="advice-followup-grid">
+                <div class="info-card advice-card" *ngIf="diagnosis?.generalAdvice">
+                  <div class="card-icon">📋</div>
+                  <div class="card-content">
+                    <h4>General Advice</h4>
+                    <p class="advice-text">{{ diagnosis.generalAdvice }}</p>
+                  </div>
+                </div>
+
+                <div class="info-card followup-card" *ngIf="diagnosis?.nextFollowUpDate">
+                  <div class="card-icon">📅</div>
+                  <div class="card-content">
+                    <h4>Next Follow-up</h4>
+                    <p class="followup-date">
+                      {{ diagnosis.nextFollowUpDate | date : "fullDate" }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Diagnosis Template -->
+        <ng-template #noDiagnosis>
+          <div class="empty-state">
+            <div class="empty-icon">🧑‍⚕️</div>
+            <p>There are no diagnosis records to display for this patient</p>
+            <button *ngIf="hasModuleAccess('diagnosisSheet', 'create')" class="record-link"
+              (click)="Patientdiagnosis(opdcase._id)">
+              Record Diagnosis
+            </button>
+          </div>
+        </ng-template>
+      </div>
+      <!-- Diagnosis sections for other navigation items -->
+
+      <!-- Barcode sections for other navigation items -->
+
+      <!-- Barcode sections for other navigation items -->
+      <div *ngIf="shouldShowContent('conditions')" class="content-section"> 
+        <div class="section-header d-flex justify-content-between">
+          <h3>OPD Barcode Sticker</h3>
+          <i class="fa-solid fa-print" (click)="printSticker()"></i>
+        </div>
+
+        <!-- Only show sticker if opdcase opdcase?.uniqueHealthIdentificationId exists -->
+        <div *ngIf="opdcase; else noSticker">
+          <div class="diagnosis-container">
+            <div class="sticker-container d-flex justify-content-center">
+              <div id="print-label" class="label-container">
+                <div>
+                  <strong>Name</strong> :
+                  {{
+                  opdcase?.uniqueHealthIdentificationId?.patient_name?.toUpperCase()
+                  }}
+                </div>
+                <div>
+                  <strong>Age</strong> :{{
+                  opdcase?.uniqueHealthIdentificationId?.age
+                  }}
+                  Sex: {{ opdcase?.uniqueHealthIdentificationId?.gender }}
+                </div>
+                <div>
+                  <strong>Address</strong> :
+                  {{ opdcase?.uniqueHealthIdentificationId?.address }}
+                  {{ opdcase?.uniqueHealthIdentificationId?.area }}
+                </div>
+                <div>
+                  <strong>Consulting Dr. Name</strong> :
+                  <strong>{{
+                    opdcase?.consulting_Doctor?.name || "Not Assigned"
+                    }}</strong>
+                </div>
+                <div>
+                  <strong>Refer Dr. Name</strong> :
+                  <strong>{{
+                    opdcase?.referringDoctorId?.name || "Self"
+                    }}</strong>
+                </div>
+                <div>
+                  <strong>MOB</strong> :
+                  {{ opdcase?.uniqueHealthIdentificationId?.mobile_no }}
+                </div>
+                <div>
+                  <strong>UHID</strong> :
+                  <strong>{{
+                    opdcase?.uniqueHealthIdentificationId?.uhid
+                    }}</strong>
+                </div>
+
+                <div class="barcode-container" *ngIf="opdcase?.uniqueHealthIdentificationId?.uhid">
+                  <svg #barcode></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Sticker Template -->
+        <ng-template #noSticker>
+          <div class="empty-state">
+            <div class="empty-icon">🏷️</div>
+            <p>No patient data available to generate barcode sticker</p>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- OPD Bill sections for other navigation items -->
+      <div *ngIf="
+          shouldShowContent('immunizations') &&
+          (hasModuleAccess('outpatientBill', 'create') ||
+            hasModuleAccess('outpatientBill', 'read'))
+        " class="content-section">
+        <div class="section-header">
+          <h3>Services & Charges</h3>
+          <button *ngIf="hasModuleAccess('outpatientBill', 'create')" class="record-btn"
+            (click)="openBill(opdcase._id)">
+            Add Services Charge →
+          </button>
+        </div>
+
+        <!-- Only show services if services data exists -->
+        <div *ngIf="
+            bills &&
+              bills.length > 0 &&
+              hasModuleAccess('outpatientBill', 'read');
+            else nobills
+          ">
+          <!-- Bill Information -->
+          <app-opdbillingservicesdetailes [bills]="bills"></app-opdbillingservicesdetailes>
+        </div>
+
+        <!-- No Services Template -->
+        <ng-template #nobills>
+          <div class="empty-state">
+            <div class="empty-icon">💉</div>
+            <p>There are no services or charges to display for this patient</p>
+            <button *ngIf="hasModuleAccess('outpatientBill', 'create')" class="record-link"
+              (click)="openBill(opdcase._id)">
+              Add Services Charge
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- OPD Bill sections for other navigation items -->
+
+      <!-- OPD Case Paper sections for other navigation items -->
+      <div *ngIf="shouldShowContent('attachments')" class="content-section">
+        <div class="section-header d-flex justify-content-between">
+          <h3>OPD Case Paper</h3>
+          <i class="fa-solid fa-print" (click)="printOPDSheet()"></i>
+        </div>
+
+        <!-- Only show case paper if all required data exists -->
+        <div *ngIf="opdcase && vitals && diagnosis; else noOPDCasePaper">
+          <div class="diagnosis-container">
+            <div class="case-paper-container">
+              <div id="opd-sheet" class="opd-sheet">
+                <!-- Header -->
+                <div class="header">
+                  <app-letterheader class="header"></app-letterheader>
+                  <!-- <img
+                    src="P P Maniya_page-0001.jpg"
+                    alt="Hospital Logo"
+                    class="logo"
+                  /> -->
+                </div>
+
+                <!-- Title -->
+                <h3 class="center-title">OPD NEW CASE</h3>
+
+                <!-- Patient Information Grid -->
+                <div class="info-grid">
+                  <div class="left-info">
+                    <div class="info-row" *ngIf="opdcase?.uniqueHealthIdentificationId?.uhid">
+                      <strong>UHID NO:</strong>
+                      <span>{{
+                        opdcase.uniqueHealthIdentificationId.uhid
+                        }}</span>
+                    </div>
+
+                    <div class="info-row uhid-name" *ngIf="
+                        opdcase?.uniqueHealthIdentificationId?.patient_name
+                      ">
+                      <strong>NAME:</strong>
+                      <span>{{
+                        opdcase.uniqueHealthIdentificationId.patient_name
+                        }}</span>
+                    </div>
+
+                    <div class="info-row" *ngIf="opdcase?.uniqueHealthIdentificationId?.area">
+                      <strong>ADDRESS:</strong>
+                      <span>{{
+                        opdcase.uniqueHealthIdentificationId.area
+                        }}</span>
+                    </div>
+
+                    <div class="info-row" *ngIf="opdcase?.consulting_Doctor?.name">
+                      <strong>CONS. DR.:</strong>
+                      <span>{{ opdcase.consulting_Doctor.name }}</span>
+                    </div>
+                  </div>
+
+                  <div class="right-info">
+                    <div class="info-row" *ngIf="opdcase?.createdAt">
+                      <strong>DATE TIME:</strong>
+                      <span>{{ opdcase.createdAt | date : "medium" }}</span>
+                    </div>
+
+                    <div class="info-row" *ngIf="
+                        opdcase?.uniqueHealthIdentificationId?.age ||
+                        opdcase?.uniqueHealthIdentificationId?.gender
+                      ">
+                      <strong>AGE / SEX:</strong>
+                      <span>
+                        {{ opdcase.uniqueHealthIdentificationId.age }} /
+                        {{ opdcase.uniqueHealthIdentificationId.gender }}
+                      </span>
+                    </div>
+
+                    <div class="info-row" *ngIf="opdcase?.uniqueHealthIdentificationId?.mobile_no">
+                      <strong>MOBILE NO.:</strong>
+                      <span>{{
+                        opdcase.uniqueHealthIdentificationId.mobile_no
+                        }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <hr class="divider" />
+
+                <!-- Main Content: Vitals + Complaints -->
+                <div class="vitals-complaints">
+                  <!-- Vitals Section -->
+                  <div class="vitals-box mt-1">
+                    <h4>VITALS</h4>
+                    <hr />
+
+                    <div class="vitals-list">
+                      <div class="vital-item" *ngIf="opdcase?.height">
+                        <span class="vital-label">HEIGHT:</span>
+                        <span class="vital-value">{{ opdcase.height }} cm</span>
+                      </div>
+
+                      <div class="vital-item" *ngIf="opdcase?.weight">
+                        <span class="vital-label">WEIGHT:</span>
+                        <span class="vital-value">{{ opdcase.weight }} kg</span>
+                      </div>
+
+                      <div class="vital-item" *ngIf="vitals?.temperature">
+                        <span class="vital-label">TEMP:</span>
+                        <span class="vital-value">{{ vitals.temperature }}°F</span>
+                      </div>
+
+                      <div class="vital-item" *ngIf="vitals?.pulseRate">
+                        <span class="vital-label">PULSE:</span>
+                        <span class="vital-value">{{ vitals.pulseRate }} /min</span>
+                      </div>
+
+                      <div class="vital-item" *ngIf="vitals?.diastolicBloodPressure">
+                        <span class="vital-label">DIASTOLIC BP:</span>
+                        <span class="vital-value">{{ vitals.diastolicBloodPressure }} mmHg</span>
+                      </div>
+
+                      <div class="vital-item" *ngIf="vitals?.systolicBloodPressure">
+                        <span class="vital-label">SYSTOLIC BP:</span>
+                        <span class="vital-value">{{ vitals.systolicBloodPressure }} mmHg</span>
+                      </div>
+
+                      <div class="vital-item" *ngIf="vitals?.spo2">
+                        <span class="vital-label">SPO2:</span>
+                        <span class="vital-value">{{ vitals.spo2 }}%</span>
+                      </div>
+
+                      <div class="vital-item" *ngIf="vitals?.respiratoryRate">
+                        <span class="vital-label">RESPIRATORY RATE:</span>
+                        <span class="vital-value">{{ vitals.respiratoryRate }} /min</span>
+                      </div>
+
+                      <div class="vital-item" *ngIf="vitals?.bloodSugar">
+                        <span class="vital-label">BLOOD SUGAR:</span>
+                        <span class="vital-value">{{ vitals.bloodSugar }} mg/dL</span>
+                      </div>
+                    </div>
+
+                    <!-- Investigation Section -->
+                    <div class="investigation-section" *ngIf="diagnosis?.clinicalExamination">
+                      <h4>Investigation</h4>
+                      <hr />
+                      <p class="examination-text">
+                        {{ diagnosis.clinicalExamination }}
+                      </p>
+                    </div>
+
+                    <!-- Follow-up Date -->
+                    <div class="followup-section" *ngIf="diagnosis?.nextFollowUpDate">
+                      <h4>Follow-up Date</h4>
+                      <hr />
+                      <p class="">
+                        {{ diagnosis.nextFollowUpDate | date : "fullDate" }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Vertical Divider -->
+                  <div class="vertical-dashed-line"></div>
+
+                  <!-- Complaints Section -->
+                  <div class="complaint-box">
+                    <h4>PRESENTING COMPLAINTS:</h4>
+                    <hr />
+
+                    <!-- Symptoms List -->
+                    <div class="symptoms-section" *ngIf="
+                        diagnosis?.symptoms && diagnosis.symptoms.length > 0
+                      ">
+                      <div class="symptom-item" *ngFor="
+                          let symptom of diagnosis.symptoms;
+                          let i = index
+                        ">
+                        <div class="d-flex">
+                          <span class="symptom-number">{{ i + 1 }}.</span>
+                          <span class="symptom-name">{{ symptom.name }}</span>
+                        </div>
+
+                        <div class="symptom-details">
+                          <div class="symptom-detail" *ngIf="symptom.properties">
+                            <strong>Type:</strong> {{ symptom.properties }}
+                          </div>
+                          <div class="symptom-detail" *ngIf="symptom.since">
+                            <strong>Duration:</strong> {{ symptom.since }}
+                          </div>
+                          <div class="symptom-detail" *ngIf="symptom.remarks">
+                            <strong>Remarks:</strong> {{ symptom.remarks }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Doctor Signature -->
+                    <div class="doctor-signature mb-0">
+                      <div class="signature-line">
+                        <strong>
+                          DR. {{ opdcase?.consulting_Doctor?.name }}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Print Actions -->
+              <!-- <div class="print-actions"> -->
+              <!-- <button class="print-btn" (click)="printOPDSheet()">
+            🖨️ Print Case Paper
+          </button> -->
+              <!-- </div> -->
+            </div>
+          </div>
+        </div>
+
+        <!-- No Case Paper Template -->
+        <ng-template #noOPDCasePaper>
+          <div class="empty-state">
+            <div class="empty-icon">📎</div>
+            <p>
+              OPD Case Paper cannot be displayed. Missing patient data, vitals,
+              or diagnosis information.
+            </p>
+            <div class="missing-data-info">
+              <p class="missing-item" *ngIf="!opdcase">
+                • Patient information missing
+              </p>
+              <p class="missing-item" *ngIf="!vitals">• Vital signs missing</p>
+              <p class="missing-item" *ngIf="!diagnosis">
+                • Diagnosis information missing
+              </p>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+      <!-- OPD Case Paper sections for other navigation items -->
+
+      <div *ngIf="shouldShowContent('programs')" class="content-section">
+        <div class="section-header">
+          <h3>Programs</h3>
+          <button class="record-btn">Enroll in Program →</button>
+        </div>
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <p>Programs section content will be displayed here</p>
+        </div>
+      </div>
+      <!--
+      <div *ngIf="shouldShowContent('appointments')" class="content-section">
+        <div class="section-header">
+          <h3>Appointments</h3>
+          <button class="record-btn">Schedule Appointment →</button>
+        </div>
+        <div class="empty-state">
+          <div class="empty-icon">📅</div>
+          <p>Appointments section content will be displayed here</p>
+        </div>
+      </div> -->
+    </div>
+
+    <!-- Right Sidebar - Active Medications -->
+    <!-- <div class="right-sidebar"> -->
+    <!-- <div class="medications-section"> -->
+    <!-- <div class="section-header"> -->
+    <!-- <h4>Prescription Medications</h4> -->
+    <!-- <button class="add-btn" (click)="onAddMedicationClick()">
+            Add +
+          </button> -->
+    <!-- </div> -->
+
+    <!-- <table class="medications-table">
+          <thead>
+            <tr>
+              <th>Start date</th>
+              <th>Details</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let medicine of diagnosis?.packages; let i = index">
+              <td>{{ diagnosis?.createdAt | date }}</td>
+              <td>
+                <div class="medication-details">
+                  <strong>{{ medicine.medicineName }}</strong> <br />
+                  <small>
+                    <span *ngIf="medicine.checkbox">Medication Time :</span>
+                    <div class="dosage-info">
+                      <span
+                        class="dosage-item"
+                        *ngIf="medicine.checkbox?.morning"
+                      >
+                        🌅 Morning
+                      </span>
+                      <span class="dosage-item" *ngIf="medicine.checkbox?.noon">
+                        ☀️ Noon
+                      </span>
+                      <span
+                        class="dosage-item"
+                        *ngIf="medicine.checkbox?.evening"
+                      >
+                        🌆 Evening
+                      </span>
+                      <span
+                        class="dosage-item"
+                        *ngIf="medicine.checkbox?.night"
+                      >
+                        🌙 Night
+                      </span>
+                    </div>
+                  </small>
+                  <br />
+                  <small class="indication">
+                    {{ medicine.dosageInstruction }} Total Quantity :
+                    {{ medicine.quantity }}
+                  </small>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table> -->
+
+    <!-- <div class="pagination">
+          <span
+            >{{ currentPage }} / {{ medications.length }} item{{
+              medications.length !== 1 ? "s" : ""
+            }}</span
+          >
+          <select class="page-size" (change)="onPageSizeChange($event)">
+            <option [value]="1" [selected]="itemsPerPage === 1">1</option>
+            <option [value]="5" [selected]="itemsPerPage === 5">5</option>
+            <option [value]="10" [selected]="itemsPerPage === 10">10</option>
+          </select>
+          <span>of {{ totalPages }} page{{ totalPages !== 1 ? "s" : "" }}</span>
+        </div> -->
+
+
+    <!-- </div> -->
+    <!-- </div> -->
+    <!-- </div> -->
+  </div>

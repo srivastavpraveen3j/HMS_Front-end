@@ -1,0 +1,47 @@
+<!-- <p>backupmanagement works!</p> -->
+<div class="header">
+  <h2>BACKUP MANAGEMENT</h2>
+  <button class="btn-primary" (click)="initiateGlobalBackup()">Initiate Global Backup</button>
+</div>
+ <!-- Super Admin Info -->
+ <section class="system-summary mt-3">
+  <div class="summary-card">
+    <h3>Total Hospitals</h3>
+    <p>{{ hospitals.length }}</p>
+  </div>
+  <div class="summary-card">
+    <h3>Total Backups</h3>
+    <p>{{ getTotalBackups() }}</p>
+  </div>
+  <div class="summary-card">
+    <h3>Auto Backup</h3>
+    <p class="badge success">Enabled</p>
+  </div>
+</section>
+
+<!-- Hospitals and Branches -->
+<div *ngFor="let hospital of hospitals" class="hospital-block">
+  <div class="hospital-header">
+    <h3>{{ hospital.name }}</h3>
+    <button class="btn-secondary" (click)="backupHospital(hospital)">Backup Hospital</button>
+  </div>
+
+  <div class="branches-container">
+    <div *ngFor="let branch of hospital.branches" class="branch-card">
+      <h4>{{ branch.name }}</h4>
+      <p>Last Backup: <strong>{{ branch.lastBackup | date:'short' }}</strong></p>
+      <div class="branch-actions">
+        <button (click)="restoreBranch(branch)">Restore</button>
+
+        <a [href]="branch.downloadLink" download>Download</a>
+      </div>
+      <p>Status:
+        <span [ngClass]="{
+          'badge success': branch.status === 'Success',
+          'badge failed': branch.status === 'Failed',
+          'badge pending': branch.status === 'Pending'
+        }">{{ branch.status }}</span>
+      </p>
+    </div>
+  </div>
+</div>

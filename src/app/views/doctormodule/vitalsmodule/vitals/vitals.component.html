@@ -1,0 +1,326 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>MANAGE VITALS</h2>
+    <div class="">
+      <!-- <button class="list-cases-btn mx-3"   ><i class="fa-solid fa-user-group"></i></button> -->
+      <!-- <button class="list-cases-btn" [routerLink]="['/ipd/ipdadmission']" routerLinkActive="router-link-active">ADMITED PATIENT LIST </button> -->
+      <span class="icons position-relative">
+        <!-- <i class="fa-solid fa-user-tie mx-2" (click)="showUHIDDropdown = !showUHIDDropdown"></i> -->
+        <!-- <i class="fa-solid fa-signal" [routerLink]="['/doctor/vitallist']" routerLinkActive="router-link-active"></i> -->
+
+        <!-- Dropdown -->
+        <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+          <div
+            *ngIf="uhidTodayRecords?.length === 0"
+            class="text-center text-muted py-2"
+          >
+            No InPatient Case Created today.
+          </div>
+
+          <ul class="uhid-list">
+            <li
+              *ngFor="let record of uhidTodayRecords"
+              (click)="selectPatientFromUHID(record)"
+              style="cursor: pointer"
+            >
+              <div class="uhid-name">
+                {{ record.uniqueHealthIdentificationId?.patient_name }}
+              </div>
+              <div class="uhid-meta">
+                UHID: {{ record.uniqueHealthIdentificationId?.uhid }} | Age:
+                {{ record.uniqueHealthIdentificationId?.age }}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </span>
+    </div>
+  </div>
+  <div class="m-5" *ngIf="userPermissions.update || userPermissions.create">
+    <form action="" [formGroup]="vitals" (ngSubmit)="OnSubmit()">
+      <!-- <div class="w-50"> -->
+        <div class="row g-6">
+          <div class="col-md-2">
+            <label class="form-label"
+              >UHID NO.:
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Uhid No."
+                required
+                formControlName="uhid"
+                (input)="onUHIDInput()"
+                readonly
+              />
+              <div
+                *ngIf="
+                  vitals.get('ipdno')?.invalid && vitals.get('ipdno')?.touched
+                "
+                class="error-message"
+              >
+                UHID Number is required.
+              </div>
+            </label>
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label">Patient Name:</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Enter patient name"
+              formControlName="patient_name"
+              (input)="onPatientInput()"
+              (focus)="showSuggestions = true"
+              (blur)="hideSuggestionsWithDelay()"
+              readonly
+            />
+            <!-- </div> -->
+            <!-- Patient Suggestions Dropdown - MOVED OUTSIDE BUT STILL IN THE FORM-GROUP -->
+            <div
+              *ngIf="
+                showSuggestions && filteredPatients.length > 0 && !editmode
+              "
+              class="suggestions-container"
+            >
+              <ul class="suggestions">
+                <li
+                  *ngFor="let patient of filteredPatients"
+                  (mousedown)="selectPatient(patient)"
+                >
+                  {{ patient?.uniqueHealthIdentificationId?.patient_name }}
+                  {{
+                    patient?.uniqueHealthIdentificationId?.mobile_no
+                      ? "| " + patient?.uniqueHealthIdentificationId?.mobile_no
+                      : ""
+                  }}
+                  {{
+                    patient?.uniqueHealthIdentificationId?.uhid
+                      ? "| " + patient?.uniqueHealthIdentificationId?.uhid
+                      : ""
+                  }}
+                </li>
+              </ul>
+            </div>
+
+            <!-- Debug info - MODIFIED to check for manuallySelected flag -->
+            <div
+              *ngIf="
+                vitals.get('patient_name')?.value &&
+                vitals.get('patient_name')?.value.length > 2 &&
+                !filteredPatients.length &&
+                !manuallySelected
+              "
+              class="text-danger"
+            >
+              No matching patients found
+            </div>
+            <div
+              *ngIf="
+                vitals.get('patient_name')?.touched &&
+                vitals.get('patient_name')?.invalid
+              "
+              class="text-danger"
+            >
+              Patient name is required
+            </div>
+          </div>
+
+           <div class="col-md-2">
+            <label class="form-label"
+              >AGE:
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Age / Gender"
+                formControlName="age"
+                readonly
+              />
+              <div
+                *ngIf="vitals.get('age')?.invalid && vitals.get('age')?.touched"
+                class="error-message"
+              >
+                Age is required.
+              </div>
+            </label>
+          </div>
+
+          <div class="col-md-2">
+            <label *ngIf="!isopdcase" class="form-label"
+              >Bed No:
+              <input
+                type="text"
+                class="form-control"
+                formControlName="bed_id"
+                class="form-control"
+                readonly
+              />
+            </label>
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label"
+            *ngIf="!isopdcase">Weight:
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Weight"
+                formControlName="weight"
+                readonly
+              />
+            </label>
+          </div>
+        </div>
+      <!-- </div> -->
+
+      <div class="data-table">
+        <table
+          class="table table-bordered table-hover align-middle diagnosis-table"
+        >
+          <thead class="table-dark align-middle">
+            <tr>
+              <th rowspan="2">Temperature</th>
+              <th rowspan="2">Pulse Rate</th>
+              <th rowspan="2">Blood Pressure</th>
+              <th rowspan="2">Respiratory Rate</th>
+              <th rowspan="2">Blood Sugar</th>
+              <th rowspan="2">SPO2</th>
+              <th colspan="3" *ngIf="!isopdcase">INTAKE</th>
+              <th colspan="4" *ngIf="!isopdcase">OUTPUT</th>
+              <th rowspan="2">Remarks</th>
+            </tr>
+            <tr *ngIf="!isopdcase">
+              <!-- Intake subheaders -->
+              <th >Oral / RTF</th>
+              <th>I.V. Fluids Started</th>
+              <th>I.V. Fluids Infused</th>
+              <!-- Output subheaders -->
+              <th>Urine</th>
+              <th>Emesis / RTA</th>
+              <th>Drain</th>
+              <th>Stool</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>
+                <input
+                  type="text"
+                  formControlName="temperature"
+                  class="form-control"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  formControlName="pulseRate"
+                  class="form-control"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  formControlName="systolicBloodPressure"
+                  class="form-control"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  formControlName="respiratoryRate"
+                  class="form-control"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  formControlName="bloodSugar"
+                  class="form-control"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  formControlName="spo2"
+                  class="form-control"
+                />
+              </td>
+
+              <!-- Intake fields -->
+              <td *ngIf="!isopdcase">
+                <input
+                  type="text"
+                  formControlName="oralRtf"
+                  class="form-control"
+                />
+              </td>
+              <td *ngIf="!isopdcase">
+                <input
+                  type="text"
+                  formControlName="ivStarted"
+                  class="form-control"
+                />
+              </td>
+              <td *ngIf="!isopdcase">
+                <input
+                  type="text"
+                  formControlName="ivInfused"
+                  class="form-control"
+                />
+              </td>
+
+              <!-- Output fields -->
+              <td *ngIf="!isopdcase">
+                <input
+                  type="text"
+                  formControlName="urine"
+                  class="form-control"
+                />
+              </td>
+              <td *ngIf="!isopdcase">
+                <input
+                  type="text"
+                  formControlName="emesisRta"
+                  class="form-control"
+                />
+              </td>
+              <td *ngIf="!isopdcase">
+                <input
+                  type="text"
+                  formControlName="drain"
+                  class="form-control"
+                />
+              </td>
+              <td *ngIf="!isopdcase">
+                <input
+                  type="text"
+                  formControlName="stool"
+                  class="form-control"
+                />
+              </td>
+
+              <td>
+                <input
+                  type="text"
+                  formControlName="remarks"
+                  class="form-control"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="text-center m-4">
+          <button
+            class="btn btn-dark"
+            type="submit"
+            [disabled]="vitals.invalid"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

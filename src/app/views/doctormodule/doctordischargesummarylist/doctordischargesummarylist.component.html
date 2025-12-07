@@ -1,0 +1,107 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>DISCHARGE SUMMARY LIST</h2>
+    <!-- <span class="icons"><i class="fa-solid fa-back" routerLink="/doctor/diagnosissheetlist"></i> <i class="fa-solid fa-user-tie mx-2"></i> <i class="fa-solid fa-gear"></i></span> -->
+    <!-- <button class="list-cases-btn" [routerLink]="['/doctor/doctordischarge']" routerLinkActive="router-link-active">
+      ADD NEW DISCHARGE
+    </button> -->
+  </div>
+
+  <!-- <div class="top-bar p-3">
+      <form [formGroup]="filterForm" class="top-bar p-3">
+        <input type="text" placeholder="Search..." formControlName="searchText" />
+      </form>
+
+
+    </div> -->
+
+  <!-- Filter by Today or Date Range -->
+  <div class="filters d-flex align-items-center m-3">
+    <label class="m-3">
+      <input type="radio" name="filter" value="today" [(ngModel)]="activeFilter" (change)="applyFilters()" checked />
+      TODAY'S
+    </label>
+
+    <label class="m-3">
+      <input type="radio" name="filter" value="dateRange" [(ngModel)]="activeFilter" (change)="applyFilters()" />
+      Date Range
+    </label>
+
+    <!-- Date Inputs Visible Only for Date Range -->
+    <input *ngIf="activeFilter === 'dateRange'" type="date" [(ngModel)]="startDate" (change)="applyFilters()"
+      class="form-control mx-2" />
+    <input *ngIf="activeFilter === 'dateRange'" type="date" [(ngModel)]="endDate" (change)="applyFilters()"
+      class="form-control mx-2" />
+  </div>
+
+  <div *ngIf="filteredCases && filteredCases.length === 0" class="alert alert-warning text-center">
+    No {{module}} created today.
+  </div>
+  <div class="loader-wrapper" *ngIf="filteredCases.length === 0 && !filteredCases">
+    <div class="loader">
+      <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+    </div>
+  </div>
+
+  <div class="diagnosis-container" *ngIf="userPermissions.read && filteredCases.length > 0">
+    <table class="table table-bordered table-hover align-middle diagnosis-table diagnosis-table">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>UHID Number</th>
+          <th>Patient Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Summary</th>
+          <!-- <th>Actions</th> -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of filteredCases; let i = index">
+          <td class="text-center">{{ i + 1 }}</td>
+          <td>{{ item.uhid }}</td>
+          <td>{{ item.patientName }}</td>
+          <td>{{ item.age }}</td>
+          <td>{{ item.gender }}</td>
+          <td>{{ item.summary }}</td>
+          <!-- <td>
+         <i class="fa-solid fa-eye action-btn"  (click)="viewPatient(item._id)"></i>
+        </td> -->
+        </tr>
+        <tr *ngIf="filteredCases.length === 0">
+          <td colspan="7" class="text-center">No records found.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination">
+      <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+        Previous
+      </button>
+      Page {{ currentPage }} of {{ totalPages }}
+      <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-backdrop" *ngIf="selectedPatient">
+      <div class="modal-content-box">
+        <div class="modal-header">
+          <h3 style="visibility: hidden">Patient Details</h3>
+          <button class="close-btn" (click)="closeModal()">×</button>
+        </div>
+        <hr />
+        <div class="modal-body">
+          <!-- <app-patientdeatails [patientData]="selectedPatient"></app-patientdeatails> -->
+
+          <app-patient-ipdcase [patientData]="selectedPatient"></app-patient-ipdcase>
+        </div>
+      </div>
+    </div>
+
+    <!-- <app-patientdeatails *ngIf="selectedPatient" [patientData]="selectedPatient"></app-patientdeatails> -->
+    <!-- </div> -->
+  </div>
+
+</div>

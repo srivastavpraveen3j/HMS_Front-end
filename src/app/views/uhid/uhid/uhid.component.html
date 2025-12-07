@@ -1,0 +1,187 @@
+<div class="form-meta">
+  <div class="header">
+  <h2>LIST OF UHID</h2>
+  <button
+    class="list-cases-btn"
+    routerLinkActive="router-link-active"
+    [routerLink]="['/adduhid']"
+  >
+    ADD NEW UHID
+  </button>
+</div>
+
+<div class="form-group position-relative w-25">
+  <form [formGroup]="filterForm" class=" p-3">
+    <input type="text" placeholder="Search by uhid/patient/mobile" formControlName="searchText" class="form-control" />
+  </form>
+</div>
+
+<!-- Filter by Today or Date Range -->
+<div class="filters  d-flex align-items-center">
+  <!-- <label class="mx-3">
+    <input type="radio" name="filter" value="today" [(ngModel)]="activeFilter" (change)="applyFilters()" checked>
+    TODAY'S
+  </label>
+
+  <label class="mx-3">
+    <input type="radio" name="filter" value="dateRange" [(ngModel)]="activeFilter" (change)="applyFilters()">
+    Date Range
+  </label> -->
+
+  <!-- Date Range Inputs (visible only for dateRange) -->
+  <!-- <input
+    *ngIf="activeFilter === 'dateRange'"
+    type="date"
+    [(ngModel)]="startDate"
+    (change)="applyFilters()"
+    class="form-control mx-2"
+  />
+  <input
+    *ngIf="activeFilter === 'dateRange'"
+    type="date"
+    [(ngModel)]="endDate"
+    (change)="applyFilters()"
+    class="form-control mx-2"
+  /> -->
+
+  <label class="m-3">
+    <input
+      type="radio"
+      name="filter"
+      value="all"
+      [(ngModel)]="activeFilter"
+      (change)="onFilterChange()"
+    />
+    All
+  </label>
+
+
+  <label class="m-3">
+    <input
+      type="radio"
+      name="filter"
+      value="today"
+      [(ngModel)]="activeFilter"
+      (change)="onFilterChange()"
+      checked
+    />
+    Today's
+  </label>
+
+  <label for="" class="m-3">
+    <input
+      type="radio"
+      name="filter"
+      value="dateRange"
+      [(ngModel)]="activeFilter"
+      (change)="onFilterChange()"
+    />
+    Date Range
+  </label>
+
+  <input
+    *ngIf="activeFilter === 'dateRange'"
+    type="date"
+    [(ngModel)]="startDate"
+    (change)="onDateRangeChange()"
+    class="form-control mx-2 w-50"
+  />
+
+  <input
+    *ngIf="activeFilter === 'dateRange'"
+    type="date"
+    [(ngModel)]="endDate"
+    (change)="onDateRangeChange()"
+    class="form-control mx-2 w-50"
+  />
+</div>
+
+<!-- ==> Loader  -->
+<app-loader [patientData]="paginatedUhidRecords" [title]="module" [activeFilter]="activeFilter" [startDate]="startDate"
+  [endDate]="endDate"></app-loader>
+
+
+<div class="" *ngIf="paginatedUhidRecords.length > 0">
+  <div class="table-responsive" *ngIf="userPermissions.read">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>UHID</th>
+          <th>PATIENT NAME</th>
+          <th>GENDER</th>
+          <th>Age</th>
+          <th>DOB</th>
+          <th>DOR</th>
+          <th>TOR</th>
+          <th>MOBILE</th>
+          <th>AREA</th>
+          <!-- <th>PINCODE</th> -->
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of paginatedUhidRecords; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ record.uhid }}</td>
+          <td (click)="goToOpdCase(record)"
+          style="cursor: pointer; color: blue">{{ record.patient_name }}</td>
+          <td>{{ record.gender }}</td>
+          <td>{{ record.age }}</td>
+          <td>{{ record.dob | date : "yyyy-MM-dd" }}</td>
+          <td>{{ record.dor | date : "yyyy-MM-dd" }}</td>
+          <td>{{ record.dot }}</td>
+          <td>{{ record.mobile_no }}</td>
+          <td>{{ record.area }}</td>
+          <!-- <td>{{ record.pincode }}</td> -->
+          <td>
+            <i
+              class="fa-solid fa-eye action-btn"
+              (click)="openBarcodePopup(i)"
+            ></i>
+            <i
+              class="fa-solid fa-pencil action-btn"
+              *ngIf="userPermissions.update"
+              (click)="edituhid(record._id)"
+            ></i>
+            <!-- <i
+              class="fa-solid fa-trash action-btn"
+              *ngIf="userPermissions.delete"
+              (click)="deleteduhid(record._id)"
+            ></i> -->
+
+            <!-- Modal Trigger specific to each row -->
+            <div *ngIf="openIndex === i" class="modal-overlay">
+              <app-barcode-dialog
+                [data]="record"
+                (close)="closeModal()"
+              ></app-barcode-dialog>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button
+      class="pagination-btn"
+      (click)="previousPage()"
+      [disabled]="currentPage === 1"
+    >
+      Previous
+    </button>
+    Page {{ currentPage }} of {{ totalPages }}
+    <button
+      class="pagination-btn"
+      (click)="nextPage()"
+      [disabled]="currentPage === totalPages"
+    >
+      Next
+    </button>
+  </div>
+</div>
+
+</div>

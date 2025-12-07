@@ -1,0 +1,219 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>SERVICES GROUP</h2>
+    <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/master/masteropdchargelist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div *ngIf="userPermissions.create">
+    <!-- Prevent form submission on Enter key -->
+    <form
+      [formGroup]="servicegroup"
+      (ngSubmit)="onSubmit()"
+      (keydown.enter)="$event.preventDefault()"
+    >
+      <div class="form-container">
+        <div class="form-half">
+          <div class="form-group">
+            <label>Service Group <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Service Group Name"
+              formControlName="group_name"
+            />
+            <div *ngIf="servicegroup.get('group_name')?.invalid && servicegroup.get('group_name')?.touched" class="text-danger small">
+              Service Group is required.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Type <span class="required">*</span></label>
+            <select formControlName="type" class="form-control">
+              <option value="" disabled>Select Type</option>
+              <option value="ipd">IPD</option>
+              <option value="opd">OPD</option>
+            </select>
+            <div *ngIf="servicegroup.get('type')?.invalid && servicegroup.get('type')?.touched" class="text-danger small">
+              Type is required.
+            </div>
+          </div>
+        </div>
+
+        <div class="form-half">
+          <div class="form-group">
+            <label>Services <span class="required">*</span></label>
+            <div class="selected-services-display">
+              <div class="selected-tags" *ngIf="selectedServices.length > 0">
+                <span *ngFor="let s of selectedServices" class="tag">
+                  {{ s.name }}
+                  <small class="service-type">({{ s.type?.toUpperCase() || 'N/A' }})</small>
+                  <span class="remove" (click)="removeService(s)">×</span>
+                </span>
+              </div>
+              <div *ngIf="selectedServices.length === 0" class="no-selection">
+                No services selected
+              </div>
+            </div>
+            <div *ngIf="servicegroup.get('services')?.invalid && servicegroup.get('services')?.touched" class="text-danger small">
+              Services is required.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services Table Section -->
+      <div class="services-section">
+        <div class="services-header">
+          <h4>Available Services</h4>
+          <div class="controls-container">
+            <!-- Service Type Filter -->
+            <div class="type-filter-container">
+              <label class="filter-label">Filter by Type:</label>
+              <div class="type-filter-buttons">
+                <label class="radio-option" *ngFor="let type of serviceTypes">
+                  <input
+                    type="radio"
+                    name="serviceTypeFilter"
+                    [value]="type.value"
+                    [formControl]="serviceTypeFilter"
+                    (keydown.enter)="$event.preventDefault()"
+                  />
+                  <span>{{ type.label }}</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Search Container -->
+            <div class="search-container">
+              <input
+                type="text"
+                class="form-control search-input"
+                [formControl]="ServiceSearchControl"
+                placeholder="Search services..."
+                (keydown.enter)="$event.preventDefault()"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="services-table-container">
+          <table class="table table-striped services-table" *ngIf="filteredservcies.length > 0">
+            <thead>
+              <tr>
+                <th style="width: 40px;">
+                  <input
+                    type="checkbox"
+                    [checked]="areAllServicesSelected()"
+                    [indeterminate]="areSomeServicesSelected()"
+                    (change)="toggleAllServices($event)"
+                    (keydown.enter)="$event.preventDefault()"
+                  />
+                </th>
+                <th>Service Name</th>
+                <th>Type</th>
+                <th>Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let service of filteredservcies; let i = index"
+                [class.selected]="isServiceSelected(service)"
+                [class.focused]="focusedRowIndex === i"
+                (click)="onRowClick(service, i, $event)"
+                (keydown)="onTableKeyDown($event, service, i)"
+                tabindex="0"
+                class="service-row"
+              >
+                <td>
+                  <input
+                    type="checkbox"
+                    [checked]="isServiceSelected(service)"
+                    (change)="toggleServiceSelection(service, $event)"
+                    (click)="$event.stopPropagation()"
+                    (keydown.enter)="$event.preventDefault()"
+                  />
+                </td>
+                <td>{{ service.name }}</td>
+                <td>
+                  <span class="service-type-badge" [ngClass]="'type-' + (service.type || 'unknown')">
+                    {{ service.type?.toUpperCase() || 'N/A' }}
+                  </span>
+                </td>
+                <td>
+                  <span *ngIf="service.charge">{{ service.charge | indianCurrency }}</span>
+                  <span *ngIf="!service.charge">N/A</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div *ngIf="isLoading" class="loading-message">
+            Loading services...
+          </div>
+
+          <div *ngIf="filteredservcies.length === 0 && !isLoading" class="no-data-message">
+            <div class="no-data-content">
+              <i class="fa-solid fa-search"></i>
+              <p>No services found</p>
+              <small *ngIf="serviceTypeFilter.value !== 'all'">
+                Try changing the type filter or search term
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-info-bar">
+          <div class="results-info">
+            <span class="results-count">
+              Showing {{ filteredservcies.length }} of {{ totalServices }} services
+              <span *ngIf="serviceTypeFilter.value !== 'all'">
+                (filtered by {{ serviceTypeFilter.value?.toUpperCase() }})
+              </span>
+            </span>
+            <span class="selection-count">
+              {{ selectedServices.length }} selected
+            </span>
+          </div>
+        </div>
+
+        <div class="table-pagination" *ngIf="totalServices > Servcielimit">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-primary"
+            [disabled]="ServicePage === 1"
+            (click)="changePage(ServicePage - 1)"
+          >
+            <i class="fa-solid fa-chevron-left"></i> Previous
+          </button>
+          <span class="page-info">
+            Page {{ ServicePage }} of {{ getTotalPages() }}
+          </span>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-primary"
+            [disabled]="ServicePage >= getTotalPages()"
+            (click)="changePage(ServicePage + 1)"
+          >
+            Next <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-actions text-center mt-3">
+        <button
+          class="btn btn-dark mx-2"
+          type="submit"
+          [disabled]="servicegroup.invalid"
+        >
+          SAVE
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

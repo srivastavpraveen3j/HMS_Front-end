@@ -1,0 +1,350 @@
+/* .container {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+  flex-wrap: wrap;
+} */
+
+/* .calendar-pane,
+.time-picker-pane {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+} */
+
+.calendar-container,
+.time-picker-container {
+  width: 100%;
+  /* Full width within the parent */
+}
+
+/* .calendar-container {
+  position: relative;
+  width: 80%;
+} */
+
+.calendar-input {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.calendar-picker {
+  position: relative;
+  top: 10px;
+  left: 0;
+  width: 100%;
+  background: #fdfcfc;
+  padding: 10px;
+  text-align: center;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  background: darkred;
+  color: white;
+  padding: 10px;
+  border-radius: 10px 10px 0 0;
+}
+
+.calendar-header button {
+  background: transparent;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  padding: 10px;
+}
+
+.day-label {
+  font-weight: bold;
+}
+
+.calendar-grid div {
+  width: 45px;
+  height: 45px;
+  line-height: 30px;
+  margin: 1px;
+  border: 1px solid darkred;
+  border-radius: 50%;
+  text-align: center;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.calendar-grid div.selected {
+  background: darkred;
+  color: white;
+}
+
+.calendar-footer {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+
+.calendar-footer select {
+  padding: 5px;
+  border-radius: 5px;
+}
+
+/* Custom time  */
+.time-picker-container {
+  position: relative;
+  top: -550px;
+  left: 400px;
+  width: 100%;
+  /* background-color: #ff5252; */
+}
+
+.time-input {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.time-picker {
+  position: relative;
+  top: 10px;
+  left: 0;
+  width: 100%;
+  background: #f8f8f8;
+  padding: 10px;
+  text-align: center;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.time-header {
+  background: darkred;
+  color: white;
+  padding: 10px;
+  border-radius: 10px 10px 0 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* .time-grid {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+} */
+
+.time-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+  justify-content: center;
+}
+
+/* .hour-section,
+.minute-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+} */
+
+.hour-section,
+.minute-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 5px;
+  justify-items: center;
+}
+
+.hour-section div,
+.minute-section div,
+.minute-circle {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 12px;
+  text-align: center;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: bold;
+  border: 1px solid darkred;
+  position: relative;
+}
+
+.selected {
+  background: darkred;
+  color: white;
+}
+
+.period-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 10px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.period-toggle span {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid darkred;
+}
+
+.period-toggle .selected {
+  background: darkred;
+  color: white;
+}
+
+.time-slot {
+  position: relative;
+  padding-right: 10px;
+}
+
+.minute-box {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin: 4px;
+  border: 1px solid #ccc;
+  text-align: center;
+  line-height: 40px;
+  border-radius: 6px;
+  position: relative;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Small dot inside the minute box */
+.dot-marker {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background-color: red;
+  border-radius: 50%;
+  bottom: 4px;
+  right: 6px;
+}
+
+.calendar-day {
+  text-align: center;
+  padding: 4px;
+  font-size: 14px;
+}
+
+.calendar-day small {
+  display: block;
+  font-size: 11px;
+  color: red;
+  margin-top: -15px;
+}
+
+.dot-marker-inside {
+  position: absolute;
+  bottom: 12px;
+  right: 30px;
+  width: 6px;
+  height: 6px;
+  background-color: red;
+  border-radius: 50%;
+}
+
+.count-badge {
+  position: absolute;
+  bottom: -20px;
+  right: 30px;
+  color: #ff5252;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.list-group-item:hover {
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.left-panel,
+.right-panel {
+  flex: 1 1 45%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 300px;
+}
+
+/* Ensure table responsiveness */
+table.diagnosis-table {
+  width: 100%;
+  table-layout: fixed;
+  word-wrap: break-word;
+}
+
+/* Pagination alignment */
+.pagination {
+  margin-top: 15px;
+}
+
+
+.calendar-pane,
+.time-picker-pane {
+  flex: 1 1 360px;
+  /* Ensure equal base width */
+  max-width: 400px;
+  /* Avoid too wide on larger screens */
+  min-width: 320px;
+  /* Prevent too small */
+  box-sizing: border-box;
+}
+
+.calendar-picker,
+.time-picker {
+  max-width: 100%;
+  overflow-x: hidden;
+  /* Prevents unnecessary scrollbars */
+  overflow-y: auto;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+}
+
+.main-layout {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 10px;
+}
+
+.left-panel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  gap: 10px;
+}
+
+.calendar-pane,
+.time-picker-pane {
+  flex: 1 1 350px;
+  max-width: 400px;
+  box-sizing: border-box;
+}

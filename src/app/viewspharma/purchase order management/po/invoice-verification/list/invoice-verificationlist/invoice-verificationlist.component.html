@@ -1,0 +1,523 @@
+
+
+
+  <div class="form-meta" id="opd-sheet">
+    <!-- invoice-verificationlist.component.html -->
+
+    <div class="header">
+      <h2>Invoice Verification List</h2>
+      <button
+        class="list-cases-btn"
+        [routerLink]="['/inventorylayout/invoiceverification']"
+        routerLinkActive="router-link-active"
+      >
+        Add New Invoice Verification
+      </button>
+    </div>
+
+    <div class="container mt-4">
+      <!-- ✅ Filters Section -->
+      <div class="card mb-4">
+      <div class="card-header bg-light">
+        <h6 class="mb-0"><i class="fas fa-filter"></i> Filters & Search</h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+      <!-- Search -->
+      <div class="col-md-3 mb-3">
+            <label class="form-label">Search</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="searchQuery"
+              (input)="onSearch()"
+              placeholder="Invoice No, GRN, Vendor..."
+            />
+          </div>
+
+      <!-- Status Filter -->
+      <!-- <div class="col-md-2 mb-3">
+            <label class="form-label">Status</label>
+            <select class="form-select" [(ngModel)]="statusFilter" (change)="onFilterChange()">
+              <option *ngFor="let option of statusOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div> -->
+
+      <!-- Payment Status Filter -->
+      <div class="col-md-2 mb-3">
+            <label class="form-label">Payment Status</label>
+            <select class="form-select" [(ngModel)]="paymentStatusFilter" (change)="onFilterChange()">
+              <option *ngFor="let option of paymentStatusOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+
+      <!-- From Date -->
+     <!-- Enhanced Date Filters with Presets -->
+<div class="col-md-6 mb-3">
+  <label class="form-label">Date Range</label>
+  <div class="row">
+    <div class="col-5">
+      <input
+        type="date"
+        class="form-control"
+        [(ngModel)]="fromDate"
+        (change)="onDateChange()"
+        placeholder="From Date"
+      />
+    </div>
+    <div class="col-2 text-center">to</div>
+    <div class="col-5">
+      <input
+        type="date"
+        class="form-control"
+        [(ngModel)]="toDate"
+        (change)="onDateChange()"
+        placeholder="To Date"
+      />
+    </div>
+  </div>
+
+
+</div>
+
+  <!-- <div class="btn-group btn-group-sm mt-2" role="group">
+    <button type="button" class="btn btn-outline-secondary" (click)="setDatePreset('today')">Today</button>
+    <button type="button" class="btn btn-outline-secondary" (click)="setDatePreset('yesterday')">Yesterday</button>
+    <button type="button" class="btn btn-outline-secondary" (click)="setDatePreset('last7days')">7 Days</button>
+    <button type="button" class="btn btn-outline-secondary" (click)="setDatePreset('thisMonth')">This Month</button>
+  </div> -->
+
+
+  <!-- Enhanced Date Presets with All Time option -->
+<div class="btn-group btn-group-sm mt-2" role="group">
+  <button
+    type="button"
+    class="btn"
+    [ngClass]="isShowingTodayData() ? 'btn-primary' : 'btn-outline-secondary'"
+    (click)="setDatePreset('today')">
+    Today
+  </button>
+  <button type="button" class="btn btn-outline-secondary" (click)="setDatePreset('yesterday')">Yesterday</button>
+  <button type="button" class="btn btn-outline-secondary" (click)="setDatePreset('last7days')">7 Days</button>
+  <button type="button" class="btn btn-outline-secondary" (click)="setDatePreset('thisMonth')">This Month</button>
+  <button type="button" class="btn btn-outline-info" (click)="setDatePreset('allTime')">All Time</button>
+</div>
+
+<!-- Enhanced Results Summary with filter info -->
+<!-- <div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <span class="text-muted">
+      {{ getFilterSummary() }} - Showing {{ filteredInvoices.length }} of {{ totalItems }} invoices
+    </span>
+    <span class="badge bg-primary ms-2" *ngIf="isShowingTodayData()">Today's Data</span>
+  </div>
+  <div>
+    <span class="badge bg-info me-2">Page {{ currentPage }} of {{ totalPages }}</span>
+    <button class="btn btn-sm btn-outline-primary" (click)="refreshData()" title="Refresh">
+      <i class="fas fa-sync-alt"></i>
+    </button>
+  </div>
+</div> -->
+
+
+      <!-- To Date -->
+      <!-- <div class="col-md-2 mb-3">
+            <label class="form-label">To Date</label>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="toDate"
+              (change)="onFilterChange()"
+            />
+          </div> -->
+
+      <!-- Action Buttons -->
+      <!-- <div class="col-md-1 mb-3 d-flex align-items-end">
+            <div class="btn-group">
+              <button class="btn btn-outline-secondary" (click)="clearFilters()" title="Clear Filters">
+                <i class="fas fa-times"></i>
+              </button>
+              <button class="btn btn-outline-primary" (click)="refreshData()" title="Refresh">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+              <button class="btn btn-outline-success" (click)="exportData()" title="Export">
+                <i class="fas fa-download"></i>
+              </button>
+            </div>
+          </div> -->
+        </div>
+      </div>
+    </div>
+
+      <!-- ✅ Results Summary -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <span class="text-muted">
+          Showing {{ filteredInvoices.length }} of {{ totalItems }} invoices
+        </span>
+      </div>
+      <div>
+        <span class="badge bg-info me-2">Page {{ currentPage }} of {{ totalPages }}</span>
+      </div>
+    </div>
+
+      <!-- ✅ Loading State -->
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading invoice verifications...</p>
+      </div>
+
+
+      <!-- <div class="alert alert-danger text-center mt-3" *ngIf="filteredInvoices.length === 0">
+      🚫 There are no data as of now for Invoice Verification.
+    </div> -->
+      <!-- ✅ Invoice List Table -->
+      <div class="card" *ngIf="!isLoading && filteredInvoices.length > 0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Invoice No</th>
+                <th>GRN Number</th>
+                <th>Vendor</th>
+                <th>Amount</th>
+                <!-- <th>Status</th> -->
+                <th>Payment Status</th>
+                <th>Verification Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let invoice of filteredInvoices; let i = index">
+                <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+
+                <td>
+                  <strong class="text-primary">{{ invoice.invoiceNo }}</strong
+                  ><br />
+                  <small class="text-muted">PO: {{ invoice.poNumber }}</small>
+                </td>
+
+                <td>
+                  <span class="badge bg-secondary">{{ invoice.grnNumber }}</span>
+                </td>
+
+                <td>
+                  <div>
+                    <strong>{{ invoice.vendor?.name || "N/A" }}</strong
+                    ><br />
+                    <small class="text-muted">{{ invoice.vendor?.email }}</small>
+                  </div>
+                </td>
+
+                <td>
+                  <div>
+                    <strong>₹{{ invoice.grandTotal | number : "1.2-2" }}</strong
+                    ><br />
+                    <small class="text-muted"
+                      >{{ invoice.items?.length || 0 }} items</small
+                    >
+                  </div>
+                </td>
+  <!--
+                <td>
+                  <span
+                    class="badge"
+                    [class]="getStatusBadgeClass(invoice.status)"
+                  >
+                    {{ invoice.status | titlecase }}
+                  </span>
+                </td> -->
+
+                <td>
+                  <span
+                    class="badge"
+                    [class]="getPaymentStatusBadgeClass(invoice.paymentStatus)"
+                  >
+                    {{ invoice.paymentStatus | titlecase }}
+                  </span>
+                </td>
+
+                <td>
+                  <div>
+                    {{ invoice.verificationDate | date : "dd/MM/yyyy" }}<br />
+                    <small class="text-muted">{{
+                      invoice.verificationDate | date : "HH:mm"
+                    }}</small>
+                  </div>
+                </td>
+
+                <td>
+                  <i
+                    class="fas fa-eye"
+                    (click)="viewInvoiceDetails(invoice)"
+                    title="View Details"
+                  ></i>
+                </td>
+              </tr>
+
+              <!-- Empty State -->
+              <tr *ngIf="filteredInvoices.length === 0 && !isLoading">
+                <td colspan="9" class="text-center py-5">
+                  <div class="text-muted">
+                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                    <h5>No Invoice Verifications Found</h5>
+                    <p>Try adjusting your search criteria or filters.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ✅ Pagination -->
+      <nav aria-label="Invoice pagination" *ngIf="totalPages > 1 && !isLoading">
+        <ul class="pagination justify-content-center mt-4">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button class="page-link" (click)="onPageChange(currentPage - 1)">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+          </li>
+
+          <li
+            class="page-item"
+            *ngFor="let page of getPaginationArray()"
+            [class.active]="page === currentPage"
+          >
+            <button class="page-link" (click)="onPageChange(page)">
+              {{ page }}
+            </button>
+          </li>
+
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <button class="page-link" (click)="onPageChange(currentPage + 1)">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- ✅ Invoice Details Modal -->
+    <div
+      class="modal fade show"
+      [style.display]="isModalOpen ? 'block' : 'none'"
+      [class.show]="isModalOpen"
+      tabindex="-1"
+      *ngIf="isModalOpen && selectedInvoice"
+      id="invoicemodal"
+    >
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <!-- Modal Header -->
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">
+              Invoice Verification Details - {{ selectedInvoice.invoiceNo }}
+            </h5>
+            <button type="button" class="no-print" (click)="closeModal()">
+              <i class="fas fa-times"></i> Close
+            </button>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="modal-body">
+            <!-- Invoice Summary -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <div class="card border-primary">
+                  <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">Invoice Information</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-6"><strong>Invoice No:</strong></div>
+                      <div class="col-6">{{ selectedInvoice.invoiceNo }}</div>
+                    </div>
+                    <div class="row">
+                      <div class="col-6"><strong>Invoice Date:</strong></div>
+                      <div class="col-6">
+                        {{ selectedInvoice.invoiceDate | date : "dd/MM/yyyy" }}
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-6"><strong>GRN Number:</strong></div>
+                      <div class="col-6">{{ selectedInvoice.grnNumber }}</div>
+                    </div>
+                    <div class="row">
+                      <div class="col-6"><strong>PO Number:</strong></div>
+                      <div class="col-6">{{ selectedInvoice.poNumber }}</div>
+                    </div>
+                    <!-- <div class="row">
+                      <div class="col-6"><strong>Status:</strong></div>
+                      <div class="col-6">
+                        <span
+                          class="badge"
+                          [class]="getStatusBadgeClass(selectedInvoice.status)"
+                        >
+                          {{ selectedInvoice.status | titlecase }}
+                        </span>
+                      </div>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="card border-info">
+                  <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">Vendor Information</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-6"><strong>Vendor Name:</strong></div>
+                      <div class="col-6">{{ selectedInvoice.vendor?.name }}</div>
+                    </div>
+                    <div class="row">
+                      <div class="col-6"><strong>Email:</strong></div>
+                      <div class="col-6">{{ selectedInvoice.vendor?.email }}</div>
+                    </div>
+                    <div class="row">
+                      <div class="col-6"><strong>Phone:</strong></div>
+                      <div class="col-6">
+                        {{ selectedInvoice.vendor?.phone || "N/A" }}
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-6"><strong>Payment Status:</strong></div>
+                      <div class="col-6">
+                        <span
+                          class="badge"
+                          [class]="
+                            getPaymentStatusBadgeClass(
+                              selectedInvoice.paymentStatus
+                            )
+                          "
+                        >
+                          {{ selectedInvoice.paymentStatus | titlecase }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Invoice Items -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <h6 class="mb-0">Invoice Items</h6>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>#</th>
+                      <th>Item Name</th>
+                      <th>Category</th>
+                      <th>Qty</th>
+                      <th>Unit Price</th>
+                      <th>Base Amount</th>
+                      <th>GST %</th>
+                      <th>GST Amount</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of selectedInvoice.items; let i = index">
+                      <td>{{ i + 1 }}</td>
+                      <td>
+                        <strong>{{ item.name }}</strong>
+                      </td>
+                      <td>
+                        <span class="badge bg-secondary">{{
+                          item.category
+                        }}</span>
+                      </td>
+                      <td class="text-center">{{ item.quantityPassed }}</td>
+                      <td class="text-end">
+                        ₹{{ item.unitPrice | number : "1.2-2" }}
+                      </td>
+                      <td class="text-end">
+                        ₹{{ item.baseAmount | number : "1.2-2" }}
+                      </td>
+                      <td class="text-center">{{ item.gstPercent }}%</td>
+                      <td class="text-end">
+                        ₹{{ item.gstAmount | number : "1.2-2" }}
+                      </td>
+                      <td class="text-end">
+                        <strong
+                          >₹{{ item.totalAmount | number : "1.2-2" }}</strong
+                        >
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Financial Summary -->
+            <div class="row">
+              <div class="col-md-8"></div>
+              <div class="col-md-4">
+                <div class="card border-success">
+                  <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">Financial Summary</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                      <strong>Base Total:</strong>
+                      <span
+                        >₹{{ selectedInvoice.baseTotal | number : "1.2-2" }}</span
+                      >
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <strong>GST Total:</strong>
+                      <span
+                        >₹{{ selectedInvoice.gstTotal | number : "1.2-2" }}</span
+                      >
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between">
+                      <strong class="text-success">Grand Total:</strong>
+                      <strong class="text-success"
+                        >₹{{
+                          selectedInvoice.grandTotal | number : "1.2-2"
+                        }}</strong
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="modal-footer no-print">
+            <!-- <button type="button" class="btn btn-secondary" (click)="closeModal()">
+            <i class="fas fa-times"></i> Close
+          </button> -->
+            <button type="button" class="btn btn-primary">
+              <i class="fas fa-print" (click)="printOPDSheet()"></i> Print
+            </button>
+            <button type="button" class="btn btn-success"(click)="pdfOPDSheet()">
+              <i class="fas fa-download" ></i> Download PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <div
+      class="modal-backdrop fade show"
+      *ngIf="isModalOpen"
+      (click)="closeModal()"
+    ></div>
+  </div>

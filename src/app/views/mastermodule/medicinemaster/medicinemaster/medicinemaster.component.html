@@ -1,0 +1,163 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>MEDICINE</h2>
+    <span class="icons position-relative">
+      <div class="btn-group">
+        <button
+          class="btn btn-outline-primary"
+          [class.active]="uploadMode === 'single'"
+          (click)="uploadMode = 'single'"
+        >
+          Single Entry
+        </button>
+        <button
+          class="btn btn-outline-success"
+          [class.active]="uploadMode === 'bulk'"
+          (click)="uploadMode = 'bulk'"
+        >
+          Bulk Upload
+        </button>
+      </div>
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/master/medicinemasterlist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div *ngIf="userPermissions.create">
+    <!-- Bulk Upload Section -->
+    <div *ngIf="uploadMode === 'bulk'">
+      <label>Import Medicine in Bulk (CSV):</label>
+      <div class="d-flex align-items-center mt-3">
+        <h5 class="mx-3">Sample Medicine Csv File</h5>
+        <a href="https://digitalks-crm-bucket.s3.ap-south-1.amazonaws.com/HIMS/medicine_bulk_upload.csv" download>
+          <i class="fa-solid fa-file-csv"></i>
+        </a>
+      </div>
+      <input
+        type="file"
+        (change)="onFileSelected($event)"
+        accept=".csv"
+        class="form-control mt-3"
+      />
+      <div class="text-center mt-3">
+        <button class="btn btn-dark mx-2" type="submit" (click)="uploadCSV()" [disabled]="!selectedFile">
+          Submit
+        </button>
+      </div>
+    </div>
+
+    <!-- Single Entry Form -->
+    <div *ngIf="uploadMode === 'single'">
+      <form [formGroup]="medicineform" (ngSubmit)="onSubmit()">
+        <div class="form-container">
+          <div class="form-half">
+            <div class="form-group">
+              <label>Medicine Name <span class="required">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Medicine Name"
+                formControlName="medicine_name"
+                required
+              />
+              <div *ngIf="medicineform.get('medicine_name')?.touched && medicineform.get('medicine_name')?.invalid" class="text-danger">
+                Medicine Name is Required
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Supplier <span class="required">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="supplier"
+                placeholder="Supplier"
+              />
+              <div class="text-danger small" *ngIf="medicineform.get('supplier')?.invalid && medicineform.get('supplier')?.touched">
+                Supplier Name is Required
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Dose <span class="required">*</span></label>
+              <input
+                type="text"
+                formControlName="dose"
+                class="form-control"
+              />
+              <div *ngIf="medicineform.get('dose')?.touched && medicineform.get('dose')?.invalid" class="text-danger">
+                Dose Quantity is Required
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Batch Number</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="batch_no"
+              />
+              <div *ngIf="medicineform.get('batch_no')?.touched && medicineform.get('batch_no')?.invalid" class="text-danger">
+                Batch Number is Required
+              </div>
+            </div>
+          </div>
+          <div class="form-half">
+            <div class="form-group">
+              <label>Manufacturing Date</label>
+              <input
+                type="date"
+                class="form-control"
+                formControlName="mfg_date"
+              />
+              <div *ngIf="medicineform.get('mfg_date')?.touched && medicineform.get('mfg_date')?.invalid" class="text-danger">
+                Manufacturing Date is Required
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Expiry Date</label>
+              <input
+                type="date"
+                class="form-control"
+                formControlName="expiry_date"
+              />
+              <div *ngIf="medicineform.get('expiry_date')?.touched && medicineform.get('expiry_date')?.invalid" class="text-danger">
+                Expiry Date is Required
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Price</label>
+              <input
+                type="number"
+                class="form-control"
+                formControlName="price"
+              />
+              <div *ngIf="medicineform.get('price')?.touched && medicineform.get('price')?.invalid" class="text-danger">
+                Price is Required
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Stock</label>
+              <input
+                type="number"
+                class="form-control"
+                formControlName="stock"
+              />
+              <div *ngIf="medicineform.get('stock')?.touched && medicineform.get('stock')?.invalid" class="text-danger">
+                Stock is Required
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions text-center mt-3">
+          <button class="btn btn-dark mx-2" type="submit" [disabled]="medicineform.invalid">
+            Submit
+          </button>
+          <!-- <button class="btn btn-secondary" type="button" (click)="medicineform.reset()">
+            Cancel
+          </button> -->
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

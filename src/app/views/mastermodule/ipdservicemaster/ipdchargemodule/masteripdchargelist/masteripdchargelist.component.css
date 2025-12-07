@@ -1,0 +1,97 @@
+
+.list-cases-btn {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  cursor: pointer;
+}
+.opd-service-master {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+select, input {
+  padding: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.records-dropdown {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.search-box {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 200px;
+}
+
+.opd-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white !important;
+}
+
+.opd-table th, .opd-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.opd-table th {
+  background-color: #343a40;
+  color: white;
+  font-weight: bold;
+}
+
+.opd-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.opd-table tr:hover {
+  background-color: #ddd;
+}
+
+.edit-btn {
+  background: #ffc107;
+  border: none;
+  padding: 5px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.edit-btn:hover {
+  background: #e0a800;
+}
+
+input[type="checkbox"] {
+  transform: scale(1.2);
+}

@@ -1,0 +1,35 @@
+<span class="icons position-relative">
+  <!-- Toggle Icon -->
+  <i class="fa-solid fa-user-tie mx-2" (click)="toggleDropdown()"></i>
+  <!-- Link Icon -->
+  <i class="fa-solid fa-signal" [routerLink]="['/opd/listopbills']" routerLinkActive="router-link-active"></i>
+
+  <!-- Dropdown -->
+  <div *ngIf="showDropdown" class="dropdown-uhid-custom">
+    <!-- Filter Input -->
+    <input type="text" [(ngModel)]="filterText" (ngModelChange)="onFilterChange()" placeholder="Search patient..."
+      class="form-control mb-2" />
+
+    <!-- No Records -->
+    <div *ngIf="filteredRecords().length === 0" class="text-center text-muted py-2">
+      {{ emptyText }}
+    </div>
+
+    <!-- List Records -->
+    <ul class="uhid-list">
+      <li *ngFor="let record of paginatedRecords()" (click)="selectRecord(record)" style="cursor: pointer">
+        <div class="uhid-name">
+          {{ record.uniqueHealthIdentificationId?.patient_name }}
+        </div>
+        <div class="uhid-meta">
+          UHID: {{ record.uniqueHealthIdentificationId?.uhid }} | Age:
+          {{ record.uniqueHealthIdentificationId?.age }}
+        </div>
+      </li>
+    </ul>
+
+    <!-- Pagination -->
+    <app-pagination-filter [(ngModel)]="currentPage" [maxLength]="totalPages()"
+      (ngModelChange)="onPageChange($event)"></app-pagination-filter>
+  </div>
+</span>

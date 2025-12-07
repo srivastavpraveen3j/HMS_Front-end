@@ -1,0 +1,40 @@
+.rfq-details-card {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.rfq-details-card h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #343a40;
+}
+
+.rfq-info p {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.badge {
+  padding: 5px 12px;
+  font-size: 0.85rem;
+  border-radius: 12px;
+}
+
+.bg-warning {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.bg-success {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.bg-danger {
+  background-color: #dc3545;
+  color: #fff;
+}

@@ -1,0 +1,334 @@
+<div class="form-meta">
+  <div class="diet-chart-container">
+    <!-- Header -->
+    <div class="header">
+      <h2>{{ existingDietChart ? 'UPDATE' : 'CREATE' }} DIET CHART</h2>
+      <button class="btn btn-secondary" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i> BACK TO BED WISE CHART
+      </button>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="text-center p-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading patient information...</p>
+    </div>
+
+    <!-- Existing Diet Chart Warning -->
+    <div *ngIf="showExistingChartWarning" class="alert alert-warning alert-dismissible fade show" role="alert">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <div class="flex-grow-1">
+          <strong>Diet Chart Already Exists!</strong>
+          A diet chart for {{ patientData?.uniqueHealthIdentificationId?.patient_name }}
+          already exists for the selected date ({{ existingDietChart?.dietDate | date:'mediumDate' }}).
+        </div>
+        <div class="ms-3">
+          <button type="button" class="btn btn-sm btn-primary me-2" (click)="loadExistingDietChart()">
+            <i class="fas fa-edit"></i> Edit Existing
+          </button>
+          <button type="button" class="btn-close" (click)="showExistingChartWarning = false"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Patient Information Card -->
+    <div class="patient-info-section mb-4" *ngIf="patientData && !isLoading">
+      <div class="form-group">
+        <!-- <h5 class="section-title">
+          <i class="fas fa-user-injured me-2"></i>
+          Patient Information
+        </h5> -->
+
+        <div class="row">
+          <!-- <div class="form-half"> -->
+            <div class="col-md-2">
+              <label class="form-label"><strong>Name:</strong> {{ patientData.uniqueHealthIdentificationId?.patient_name }}</label>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label"><strong>UHID:</strong> {{ patientData.uniqueHealthIdentificationId?.uhid }}</label>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label"><strong>Age:</strong> {{ patientData.uniqueHealthIdentificationId?.age }} years</label>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label"><strong>Room:</strong> {{ bedData?.roomNumber }}</label>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label"><strong>Bed:</strong> {{ bedData?.bedNumber }}</label>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label"><strong>Doctor:</strong> {{ patientData.admittingDoctorId?.name }}</label>
+            </div>
+
+        </div>
+
+        <!-- Existing Chart Info -->
+        <div *ngIf="existingDietChart" class="form-group" style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 15px;">
+          <label class="text-success">
+            <i class="fas fa-check-circle me-1"></i>
+            Current Diet Chart ({{ existingDietChart.dietType | titlecase }} Diet)
+          </label>
+          <small class="text-muted" style="display: block; margin-top: 5px;">
+            Created on {{ existingDietChart.createdAt | date:'medium' }}
+            by {{ existingDietChart.createdBy?.name }}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diet Chart Form -->
+    <div class="diet-form-container" *ngIf="patientData && !isLoading">
+      <form [formGroup]="dietForm" (ngSubmit)="saveDietChart()">
+
+        <!-- Diet Chart Details Header -->
+        <div class="form-group">
+          <h5 class="section-title">
+            <i class="fas fa-utensils me-2"></i>
+            Diet Chart Details
+          </h5>
+        </div>
+
+        <!-- Basic Diet Information -->
+        <div class="form-container">
+          <div class="form-group" style="width: 32%; min-width: 200px;">
+            <label class="form-label">Diet Date</label>
+            <input
+              type="date"
+              class="form-control"
+              formControlName="dietDate"
+              [min]="minDate"
+            >
+            <div *ngIf="existingDietChart" class="text-danger">
+              <i class="fas fa-info-circle me-1"></i>
+              Editing existing chart for this date
+            </div>
+          </div>
+
+          <div class="form-group" style="width: 32%; min-width: 200px;">
+            <label class="form-label">Diet Type</label>
+            <select class="form-select" formControlName="dietType">
+              <option *ngFor="let type of dietTypes" [value]="type.value">
+                {{ type.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group" style="width: 32%; min-width: 200px;">
+            <label class="form-label">Total Calories (optional)</label>
+            <input
+              type="number"
+              class="form-control"
+              formControlName="totalCalories"
+              placeholder="e.g., 2000"
+            >
+          </div>
+        </div>
+
+        <!-- Meals Planning Section -->
+        <div class="meals-planning-section" formArrayName="meals">
+          <div class="form-group">
+            <h5 class="section-title">
+              <i class="fas fa-clock me-2"></i>
+              Meal Planning
+            </h5>
+          </div>
+
+          <div class="form-container" style="flex-wrap: wrap;">
+            <div
+              class="meal-section form-half"
+              *ngFor="let meal of mealsArray.controls; let mealIndex = index"
+              [formGroupName]="mealIndex"
+              style="margin-bottom: 25px;"
+            >
+              <!-- Meal Header -->
+              <div class="form-group">
+                <label class="meal-title" style="font-size: 18px; color: var(--sidebar-color); display: flex; align-items: center;">
+                  <i [class]="getMealTimeData(mealIndex)?.icon" style="margin-right: 8px;"></i>
+                  {{ getMealTimeData(mealIndex)?.label }}
+                </label>
+              </div>
+
+              <!-- Common Food Items Quick Add -->
+              <div class="form-group">
+                <label style="font-size: 13px;">Quick Add:</label>
+                <div class="common-food-tags" style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px;">
+                  <span
+                    class="badge bg-light text-dark"
+                    *ngFor="let item of getCommonFoodItems(mealIndex)"
+                    (click)="addCommonFoodItem(mealIndex, item)"
+                    style="cursor: pointer; padding: 4px 8px; font-size: 12px; border: 1px solid #dee2e6;"
+                  >
+                    + {{ item }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Food Items Table Structure -->
+              <div formArrayName="items">
+                <table class="food-items-table" style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                  <thead>
+                    <tr style="background-color: #f8f9fa;">
+                      <th style="padding: 8px; border: 1px solid #dee2e6; font-size: 14px; text-align: left;">Food Item</th>
+                      <th style="padding: 8px; border: 1px solid #dee2e6; font-size: 14px; text-align: left;">Quantity</th>
+                      <th style="padding: 8px; border: 1px solid #dee2e6; font-size: 14px; text-align: left;">Special Notes</th>
+                      <th style="padding: 8px; border: 1px solid #dee2e6; font-size: 14px; text-align: center; width: 60px;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      *ngFor="let item of getMealItemsArray(mealIndex).controls; let itemIndex = index"
+                      [formGroupName]="itemIndex"
+                    >
+                      <td style="padding: 6px; border: 1px solid #dee2e6;">
+                        <input
+                          type="text"
+                          class="form-control"
+                          placeholder="Food item"
+                          formControlName="name"
+                          style="border: none; padding: 4px; font-size: 14px; width: 100%;"
+                        >
+                      </td>
+                      <td style="padding: 6px; border: 1px solid #dee2e6;">
+                        <input
+                          type="text"
+                          class="form-control"
+                          placeholder="Quantity"
+                          formControlName="quantity"
+                          style="border: none; padding: 4px; font-size: 14px; width: 100%;"
+                        >
+                      </td>
+                      <td style="padding: 6px; border: 1px solid #dee2e6;">
+                        <input
+                          type="text"
+                          class="form-control"
+                          placeholder="Special notes"
+                          formControlName="instructions"
+                          style="border: none; padding: 4px; font-size: 14px; width: 100%;"
+                        >
+                      </td>
+                      <td style="padding: 6px; border: 1px solid #dee2e6; text-align: center;">
+                        <button
+                          type="button"
+                          class="btn btn-sm"
+                          (click)="removeMealItem(mealIndex, itemIndex)"
+                          *ngIf="getMealItemsArray(mealIndex).length > 1"
+                          style="background: #dc3545; color: white; padding: 4px 8px; font-size: 12px; border: none; border-radius: 3px;"
+                        >
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Add Food Item Button -->
+              <div class="form-group">
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  (click)="addMealItem(mealIndex)"
+                  style="font-size: 14px; padding: 6px 12px;"
+                >
+                  <i class="fas fa-plus"></i> Add Food Item
+                </button>
+              </div>
+
+              <!-- Special Instructions -->
+              <div class="form-group">
+                <label class="form-label">Special Instructions</label>
+                <textarea
+                  class="form-control"
+                  rows="3"
+                  placeholder="Any special preparation or serving instructions"
+                  formControlName="specialInstructions"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="additional-info-section">
+          <div class="form-group">
+            <h5 class="section-title">
+              <i class="fas fa-info-circle me-2"></i>
+              Additional Information
+            </h5>
+          </div>
+
+          <div class="form-container">
+            <div class="form-half">
+              <div class="form-group">
+                <label class="form-label">Water Intake</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="waterIntake"
+                  placeholder="e.g., 2-3 liters/day"
+                >
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Known Allergies</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="allergies"
+                  placeholder="e.g., Nuts, Dairy"
+                >
+              </div>
+            </div>
+
+            <div class="form-half">
+              <div class="form-group">
+                <label class="form-label">Dietary Restrictions</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="restrictions"
+                  placeholder="e.g., No salt, Low sugar"
+                >
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Additional Remarks</label>
+                <textarea
+                  class="form-control"
+                  rows="3"
+                  formControlName="remarks"
+                  placeholder="Any additional notes or instructions"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="!dietForm.valid || isSubmitting"
+          >
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+            {{ isSubmitting ? (existingDietChart ? 'Updating...' : 'Creating...') : (existingDietChart ? 'Update Diet Chart' : 'Create Diet Chart') }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- No Patient Data -->
+    <div *ngIf="!patientData && !isLoading" class="text-center">
+      <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
+      <h5 class="text-muted">No Patient Data Found</h5>
+      <p class="text-muted">Please select a patient from the bed-wise chart to create a diet plan.</p>
+      <button class="btn btn-primary" (click)="goBack()">
+        Go to Bed Wise Chart
+      </button>
+    </div>
+  </div>
+</div>

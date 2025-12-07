@@ -1,0 +1,167 @@
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { MasterService } from '../../../masterservice/master.service';
+// import Swal from 'sweetalert2';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
+
+@Component({
+  selector: 'app-wardmasterlist',
+  imports: [RouterModule, CommonModule, ReactiveFormsModule],
+  templateUrl: './wardmasterlist.component.html',
+  styleUrl: './wardmasterlist.component.css'
+})
+export class WardmasterlistComponent {
+
+
+
+  wards: any[] = [];
+
+  recordsPerPage: number = 25;
+  searchText: string = '';
+
+  filterForm!: FormGroup;
+
+  currentPage = 1;
+  totalPages = 1;
+
+
+
+  constructor(private masterService: MasterService , private router: Router, private fb : FormBuilder) {}
+
+userPermissions: any = {};
+  ngOnInit(): void {
+// load permissions
+
+         const allPermissions = JSON.parse(localStorage.getItem('permissions') || '[]');
+  const uhidModule = allPermissions.find((perm: any) => perm.moduleName === 'wardMaster');
+  this.userPermissions = uhidModule?.permissions || {};
+
+// load permissions
+    this.filterForm = this.fb.group({
+      recordsPerPage: [10],
+      searchText: ['']
+    });
+
+    this.loadMedicaltest();
+
+    // Watch for changes in dropdown
+    this.filterForm.get('recordsPerPage')?.valueChanges.subscribe(() => {
+      this.currentPage = 1;
+      this.loadMedicaltest();
+    });
+
+     // Optionally watch for searchText
+this.filterForm.get('searchText')?.valueChanges
+  .pipe(
+    debounceTime(300), // Wait 300ms after typing
+    distinctUntilChanged()
+  )
+  .subscribe((searchText: string) => {
+    this.currentPage = 1;
+    this.loadMedicaltest();
+  });
+  }
+
+  loadMedicaltest(): void {
+    const limit = this.filterForm.get('recordsPerPage')?.value || 10;
+    const search = this.filterForm.get('searchText')?.value || '';
+
+    this.masterService.getwardmasterUrl(this.currentPage, limit, search).subscribe(res => {
+      this.wards = res.wardMasters ? res.wardMasters : res.data ;
+      this.totalPages = res.totalPages;
+    });
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.loadMedicaltest();
+    }
+  }
+
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadMedicaltest();
+    }
+  }
+  editWard(wardId: string) {
+
+    // console.log(medicalId, "medicalId");
+    // alert(wardId)
+
+    this.router.navigate(['/master/wardmaster'], { queryParams: { _id: wardId } });
+  }
+
+
+
+async deleteWard(wardId: string){
+    const Swal = (await import('sweetalert2')).default;
+
+  if (!wardId) {
+    console.error("Ward ID is required for deletion");
+    return;
+  }
+
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'This Ward will be permanently deleted.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel',
+    customClass: {
+      popup: 'hospital-swal-popup',
+      title: 'hospital-swal-title',
+      htmlContainer: 'hospital-swal-text',
+      confirmButton: 'hospital-swal-button',
+      cancelButton: 'hospital-swal-button'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.masterService.deleteWardmasterUrl(wardId).subscribe({
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted!',
+            text: 'Ward has been deleted successfully.',
+            position: 'top-end',
+            toast: true,
+            timer: 3000,
+            showConfirmButton: false,
+            customClass: {
+              popup: 'hospital-toast-popup',
+              title: 'hospital-toast-title',
+              htmlContainer: 'hospital-toast-text',
+            }
+          });
+
+          // Refresh the list after deletion
+          this.wards = this.wards.filter(item => item._id !== wardId);
+        },
+        error: (err) => {
+          console.error("Error deleting Ward:", err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Deletion Failed',
+            text:err.error.message || 'There was an error deleting the Ward.',
+            customClass: {
+              popup: 'hospital-swal-popup',
+              title: 'hospital-swal-title',
+              htmlContainer: 'hospital-swal-text',
+              confirmButton: 'hospital-swal-button'
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
+
+
+
+
+}

@@ -1,0 +1,588 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>Goods Receipt Note (GRN)</h2>
+    <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/inventorylayout/goodreceivenotelist']"
+      ></i>
+    </span>
+  </div>
+
+  @if(userPermissions.create) {
+  <div class="container p-5">
+    <form [formGroup]="grnform">
+      <!-- Basic Information Row -->
+      <div class="row">
+        <!-- PO Number Field -->
+        <div class="col-md-6 form-group">
+          <label>PO Number <span class="text-danger">*</span></label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search by PO number..."
+            formControlName="poNumber"
+            (input)="onPONumberInput()"
+            (focus)="onPOFocus()"
+            (blur)="hidePOSuggestionsWithDelay()"
+            [readonly]="hasSelectedPO"
+          />
+
+          <!-- Reset button when PO is selected -->
+          <button
+            *ngIf="hasSelectedPO"
+            type="button"
+            class="btn btn-sm btn-outline-secondary mt-1"
+            (click)="resetSelection()"
+          >
+            <i class="fa-solid fa-refresh me-1"></i>
+            Change Selection
+          </button>
+
+          <!-- PO Number Suggestions Dropdown -->
+          <div
+            *ngIf="showPOSuggestions && filteredPONumbers.length > 0 && !hasSelectedPO"
+            class="suggestion-container"
+          >
+            <ul class="suggestions">
+              <li
+                *ngFor="let po of filteredPONumbers"
+                (mousedown)="selectPatient(po)"
+              >
+                <div class="suggestion-item">
+                  <strong>{{ po.poNumber }}</strong>
+                  <small class="text-muted d-block">{{ po.vendor?.name }}</small>
+                  <small class="text-info">Total: ₹{{ po.total | number:'1.2-2' }}</small>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div
+            *ngIf="
+              grnform.get('poNumber')?.touched &&
+              grnform.get('poNumber')?.invalid
+            "
+            class="text-danger"
+          >
+            PO Number is required
+          </div>
+        </div>
+
+        <!-- Vendor Name Field -->
+        <div class="col-md-6 form-group">
+          <label>Vendor Name</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search by vendor name..."
+            formControlName="vendorName"
+            (input)="onVendorNameInput()"
+            (focus)="onVendorFocus()"
+            (blur)="hideVendorSuggestionsWithDelay()"
+            [readonly]="hasSelectedPO"
+          />
+
+          <!-- Vendor Name Suggestions Dropdown -->
+          <div
+            *ngIf="showVendorSuggestions && filteredVendorNames.length > 0 && !hasSelectedPO"
+            class="suggestion-container"
+          >
+            <ul class="suggestions">
+              <li
+                *ngFor="let po of filteredVendorNames"
+                (mousedown)="selectPatient(po)"
+              >
+                <div class="suggestion-item">
+                  <strong>{{ po.vendor?.name }}</strong>
+                  <small class="text-muted d-block">PO: {{ po.poNumber }}</small>
+                  <small class="text-info">Total: ₹{{ po.total | number:'1.2-2' }}</small>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div
+            *ngIf="
+              grnform.get('vendorName')?.touched &&
+              grnform.get('vendorName')?.invalid
+            "
+            class="text-danger"
+          >
+            Vendor Name is required
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Information Row -->
+      <div class="row mt-3">
+        <div class="col-md-4 form-group">
+          <label>RFQ Number</label>
+          <input class="form-control" formControlName="rfqNumber" readonly />
+        </div>
+
+        <div class="col-md-4 form-group">
+          <label>Total Amount</label>
+          <input class="form-control" formControlName="totalAmount" readonly />
+        </div>
+
+        <div class="col-md-4 form-group">
+          <label>QC Mode</label>
+          <div class="form-check form-switch mt-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="qcModeToggle"
+              [(ngModel)]="qcMode"
+              [ngModelOptions]="{ standalone: true }"
+              (change)="toggleQCMode()"
+            />
+            <label class="form-check-label" for="qcModeToggle">
+              {{ qcMode ? "QC Mode Active" : "Receipt Mode" }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- QC Notes (only show in QC mode) -->
+      <div *ngIf="qcMode" class="row mt-3">
+        <div class="col-md-12 form-group">
+          <label>Quality Control Notes</label>
+          <textarea
+            class="form-control"
+            rows="3"
+            formControlName="qcNotes"
+            placeholder="Enter quality control observations, overall assessment, etc."
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Return Management Section (only in QC mode for existing GRN) -->
+      <div *ngIf="qcMode && grnId && selectedPOData" class="row mt-3">
+        <div class="col-md-12">
+          <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+              <h6 class="mb-0">
+                <i class="fa-solid fa-undo"></i>
+                Return Management
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div
+                    *ngIf="returnPOData && returnPOData.length > 0"
+                    class="alert alert-info"
+                  >
+                    <strong>Existing Return POs:</strong>
+                    <ul class="mb-0">
+                      <li *ngFor="let rpo of returnPOData">
+                        {{ rpo.poNumber }} - Status: {{ rpo.status }}
+                      </li>
+                    </ul>
+                  </div>
+                  <div
+                    *ngIf="!returnPOData || returnPOData.length === 0"
+                    class="text-muted"
+                  >
+                    No return POs generated yet.
+                  </div>
+                </div>
+                <div class="col-md-6 text-end">
+                  <button
+                    *ngIf="
+                      hasReturnEligibleItems &&
+                      selectedPOData?.grnStatus === 'approved'
+                    "
+                    type="button"
+                    class="btn btn-outline-warning"
+                    (click)="generateReturnPOManually()"
+                  >
+                    <i class="fa-solid fa-plus"></i>
+                    Generate Return PO
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Items Table -->
+      <h5 class="mt-4">
+        {{ qcMode ? "Quality Control Inspection" : "Received Items" }}
+        <span *ngIf="qcMode" class="badge bg-info ms-2">
+          <i class="fa-solid fa-microscope"></i> QC Mode
+        </span>
+      </h5>
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Item Name</th>
+              <th>Qty Ordered</th>
+              <th *ngIf="qcMode">Qty Passed</th>
+              <th *ngIf="qcMode">Qty Rejected</th>
+              <th *ngIf="qcMode">QC Status</th>
+              <th *ngIf="qcMode">Batch No</th>
+              <th *ngIf="qcMode">Expiry Date</th>
+              <th *ngIf="qcMode">Defects</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody formArrayName="items">
+            <tr
+              *ngFor="let item of itemsControls; let i = index"
+              [formGroupName]="i"
+            >
+              <td>{{ i + 1 }}</td>
+
+              <!-- Item Name -->
+              <td>
+                <input class="form-control" formControlName="item" readonly />
+              </td>
+
+              <!-- Ordered Quantity -->
+              <td>
+                <input
+                  class="form-control"
+                  formControlName="orderedQty"
+                  readonly
+                />
+              </td>
+
+              <!-- QC Mode Fields -->
+              <ng-container *ngIf="qcMode">
+                <!-- Passed Quantity -->
+                <td>
+                  <input
+                    class="form-control"
+                    formControlName="passQty"
+                    (input)="updateRejectedQty(i)"
+                    type="number"
+                    min="0"
+                    [attr.max]="itemsControls[i].get('orderedQty')?.value"
+                    placeholder="0"
+                  />
+                </td>
+
+                <!-- Rejected Quantity -->
+                <td>
+                  <input
+                    class="form-control"
+                    formControlName="rejectedQty"
+                    type="number"
+                    min="0"
+                    readonly
+                  />
+                  <small *ngIf="isRejectedIncomplete(i)" class="text-danger">
+                    <i class="fa-solid fa-exclamation-triangle"></i> Needs
+                    defect details
+                  </small>
+                </td>
+
+                <!-- QC Status Badge -->
+                <td>
+                  <span
+                    [class]="getQCStatusBadgeClass(item.get('qcStatus')?.value)"
+                  >
+                    {{ item.get("qcStatus")?.value | titlecase }}
+                  </span>
+                </td>
+
+                <!-- Batch Number -->
+                <td>
+                  <input
+                    class="form-control"
+                    formControlName="batchNo"
+                    placeholder="Enter batch"
+                    required
+                  />
+                  <span
+                    *ngIf="
+                      item.get('batchNo')?.touched &&
+                      item.get('batchNo')?.invalid
+                    "
+                    class="text-danger"
+                  >
+                    Batch Number is Required
+                  </span>
+                </td>
+
+                <!-- Expiry Date -->
+                <td>
+                  <input
+                    class="form-control"
+                    formControlName="expiryDate"
+                    type="date"
+                    [min]="today"
+                    required
+                  />
+                  <span
+                    *ngIf="
+                      item.get('expiryDate')?.touched &&
+                      item.get('expiryDate')?.hasError('required')
+                    "
+                    class="text-danger"
+                  >
+                    Expiry Date is Required
+                  </span>
+                  <span
+                    *ngIf="
+                      item.get('expiryDate')?.touched &&
+                      item.get('expiryDate')?.hasError('minDate')
+                    "
+                    class="text-danger"
+                  >
+                    Expiry date cannot be in the past.
+                  </span>
+                </td>
+
+                <!-- Defects Column -->
+                <td>
+                  <div *ngIf="item.get('rejectedQty')?.value > 0">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger mb-1"
+                      (click)="openDefectModal(i)"
+                    >
+                      <i class="fa-solid fa-bug"></i>
+                      Defects ({{ getDefectCount(i) }})
+                    </button>
+
+                    <!-- Return status indicator -->
+                    <div
+                      *ngIf="selectedPOData?.items?.[i]?.returnPOGenerated"
+                      class="mt-1"
+                    >
+                      <span class="badge bg-warning text-dark">
+                        <i class="fa-solid fa-undo"></i>
+                        Return PO: {{ selectedPOData.items[i].returnPONumber }}
+                      </span>
+                    </div>
+
+                    <!-- Return eligible but not generated yet -->
+                    <div
+                      *ngIf="!selectedPOData?.items?.[i]?.returnPOGenerated && selectedPOData?.grnStatus === 'approved'"
+                      class="mt-1"
+                    >
+                      <span class="badge bg-secondary">
+                        <i class="fa-solid fa-clock"></i>
+                        Return Eligible
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    *ngIf="item.get('rejectedQty')?.value === 0"
+                    class="text-muted"
+                  >
+                    <i class="fa-solid fa-check-circle text-success"></i>
+                    No defects
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Remarks -->
+              <td>
+                <input
+                  class="form-control"
+                  formControlName="remarks"
+                  placeholder="Enter remarks"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="text-center mt-4">
+        <button
+          class="btn btn-primary btn-lg"
+          type="button"
+          (click)="submitGRN()"
+          [disabled]="!grnform.valid || !hasSelectedPO"
+        >
+          <i
+            class="fa-solid"
+            [class.fa-check]="qcMode"
+            [class.fa-plus]="!qcMode"
+          ></i>
+          {{ qcMode ? "Complete Quality Control" : "Create GRN" }}
+        </button>
+
+        <button
+          *ngIf="qcMode"
+          type="button"
+          class="btn btn-secondary btn-lg ms-3"
+          (click)="toggleQCMode()"
+        >
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to Receipt Mode
+        </button>
+
+        <!-- Manual Return PO Generation Button -->
+        <button
+          *ngIf="
+            qcMode &&
+            selectedPOData?.grnStatus === 'approved' &&
+            hasReturnEligibleItems
+          "
+          type="button"
+          class="btn btn-warning btn-lg ms-3"
+          (click)="generateReturnPOManually()"
+        >
+          <i class="fa-solid fa-undo"></i>
+          Generate Return PO
+        </button>
+      </div>
+    </form>
+  </div>
+  }@else {
+  <div class="container mt-4">
+    <div class="alert alert-warning" role="alert">
+      <i class="fa-solid fa-exclamation-triangle me-2"></i>
+      You do not have permission to create {{ module }}.
+    </div>
+  </div>
+  }
+</div>
+
+<!-- Defect Details Modal -->
+<div
+  class="modal fade"
+  [class.show]="showDefectModal"
+  [style.display]="showDefectModal ? 'block' : 'none'"
+  *ngIf="showDefectModal"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fa-solid fa-bug text-danger"></i>
+          Defect Details - Item {{ currentItemIndex + 1 }}
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="showDefectModal = false"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <div
+          *ngIf="rejectedDetailsMap[currentItemIndex]?.length === 0"
+          class="text-center text-muted py-4"
+        >
+          <i class="fa-solid fa-plus-circle fa-3x mb-3"></i>
+          <p>
+            No defects recorded. Click "Add Defect" to document quality issues.
+          </p>
+        </div>
+
+        <div
+          *ngFor="
+            let defect of rejectedDetailsMap[currentItemIndex];
+            let idx = index
+          "
+          class="card mb-3"
+        >
+          <div class="card-header">
+            <div class="row align-items-center">
+              <div class="col">
+                <strong>Defect {{ idx + 1 }}</strong>
+                <span
+                  class="ms-2"
+                  [ngClass]="getSeverityClass(defect.defectSeverity)"
+                >
+                  {{ defect.defectSeverity | titlecase }}
+                </span>
+              </div>
+              <div class="col-auto">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="removeDefectDetail(idx)"
+                >
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Defect Type</label>
+                <select
+                  class="form-select"
+                  [(ngModel)]="defect.defectType"
+                  [ngModelOptions]="{ standalone: true }"
+                >
+                  <option *ngFor="let type of defectTypes" [value]="type.value">
+                    {{ type.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Severity</label>
+                <select
+                  class="form-select"
+                  [(ngModel)]="defect.defectSeverity"
+                  [ngModelOptions]="{ standalone: true }"
+                >
+                  <option
+                    *ngFor="let severity of severityLevels"
+                    [value]="severity.value"
+                  >
+                    {{ severity.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Defect Reason</label>
+              <textarea
+                class="form-control"
+                rows="3"
+                [(ngModel)]="defect.defectReason"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Describe the specific defect or quality issue..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          (click)="addDefectDetail()"
+        >
+          <i class="fa-solid fa-plus"></i> Add Defect
+        </button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="showDefectModal = false"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop for Defect Modal -->
+<div
+  class="modal-backdrop fade"
+  [class.show]="showDefectModal"
+  *ngIf="showDefectModal"
+  (click)="showDefectModal = false"
+></div>

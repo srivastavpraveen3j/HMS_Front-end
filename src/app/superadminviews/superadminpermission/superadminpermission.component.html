@@ -1,0 +1,67 @@
+<!-- <p>superadminpermission works!</p> -->
+
+<div class="header">
+  <h3>Permission Management</h3>
+  <i
+    class="fa-solid fa-signal"
+    [routerLink]="['/superadmin/superadminpermissionlist']"
+    routerLinkActive="router-link-active"
+  ></i>
+</div>
+
+<div class="card p-4 mt-2">
+  <!-- Permission Form -->
+  <form [formGroup]="permissionForm" (ngSubmit)="savePermission()">
+    <div class="form-row">
+      <!-- <div class="form-group col-md-6">
+                <label class="form-label"><strong>Module Name:</strong></label>
+                <input type="text" class="form-control" formControlName="moduleName" required />
+            </div> -->
+
+      <div class="form-group col-md-6">
+        <label class="form-label"><strong>Permission Name:</strong></label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="name"
+          required
+        />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <div class="form-group col-md-6">
+            <label class="form-label"><strong>Description:</strong></label>
+            <input type="text" class="form-control" formControlName="description" />
+        </div>
+        
+        <label class="form-label"><strong>Actions:</strong></label>
+        <div class="form-check" *ngFor="let action of actions">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            [value]="action"
+            (change)="onActionChange($event)"
+            [checked]="selectedActions.includes(action)"
+          />
+          <label class="form-check-label">{{ action | titlecase }}</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-3">
+      <button class="btn btn-dark mx-2" type="submit">
+        {{ isEditing ? "Update Permission" : "Create Permission" }}
+      </button>
+      <button
+        class="btn btn-secondary"
+        type="button"
+        (click)="resetForm()"
+        *ngIf="isEditing"
+      >
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>

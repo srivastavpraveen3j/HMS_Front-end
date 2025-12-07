@@ -1,0 +1,112 @@
+<!-- <p>radiationdashboard works!</p> -->
+
+<div class="header">
+  <h2 class="dashboard-title">RADIATION DASHBOARD</h2>
+</div>
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <!-- Filter by Today or Date Range -->
+    <div class="filters d-flex align-items-center m-3">
+      <label class="m-3">
+        <input type="radio" name="filter" value="today" [(ngModel)]="activeFilter" (change)="applyFilters()" checked>
+        TODAY'S
+      </label>
+
+      <label class="m-3">
+        <input type="radio" name="filter" value="dateRange" [(ngModel)]="activeFilter" (change)="applyFilters()">
+        Date Range
+      </label>
+
+      <!-- Date Inputs Visible Only for Date Range -->
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="startDate"
+        (change)="applyFilters()"
+        class="form-control mx-2"
+      />
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="endDate"
+        (change)="applyFilters()"
+        class="form-control mx-2"
+      />
+    </div>
+
+
+  <div class="loader-wrapper" *ngIf="filteredCases.length === 0">
+  <div class="loader">
+    <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+  </div>
+</div>
+
+  <!-- Data Table -->
+   <div class="" *ngIf="userPermissions.read && filteredCases.length > 0">
+     <table class="data-table">
+      <thead class="table-dark text-center">
+        <tr>
+          <th>INWARD ID</th>
+          <th>DATE TIME</th>
+          <th>PATIENT DETAILS</th>
+          <th>AGE / GENDER</th>
+          <th>UHID NO</th>
+          <th>TEST NAME</th>
+          <th>STATUS</th>
+          <th>ACTION</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of filteredCases; let i = index ">
+          <!-- <td>{{ record.inpatientDepartmentId || 'N/A' }}</td> -->
+
+          <td>{{i + 1}}</td>
+          <td>{{ record.createdAt | date: 'short' }}</td>
+          <td>{{ record.patient_name || 'N/A' }}</td>
+          <td>{{ record.age || 'N/A' }}/{{ record.gender || 'N/A' }}</td>
+          <td>{{ record.uhid || 'N/A' }}</td>
+          <td>
+            <div *ngFor="let test of record.testMaster">
+              {{ test.testGroup }}
+            </div>
+          </td>
+          <td>
+            <div *ngFor="let test of record.testMaster">
+              {{ test.status }}
+            </div>
+          </td>
+           <td><i class="fa-solid fa-eye action-btn"  (click)="viewPatient(record?._id)"></i></td>
+        </tr>
+      </tbody>
+    </table>
+   </div>
+
+
+
+
+
+
+<!-- Modal -->
+<div class="modal-backdrop" *ngIf="selectedPatient">
+  <div class="modal-content-box">
+    <div class="modal-header">
+      <h3 style="visibility: hidden;">Patient Details</h3>
+      <button class="close-btn" (click)="closeModal()">×</button>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <!-- <app-patient-opdmedicine-request [patientData]="selectedPatient"></app-patient-opdmedicine-request> -->
+      <!-- <app-patient-opdpharmabill [patientData]="selectedPatient"></app-patient-opdpharmabill> -->
+
+
+<app-test *ngIf="selectedPatient" [patientData]="[selectedPatient]" ></app-test>
+    </div>
+  </div>
+</div>
+<!-- Modal -->
+
+
+
+</div>
+
+

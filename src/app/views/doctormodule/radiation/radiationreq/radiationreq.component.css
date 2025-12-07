@@ -1,0 +1,176 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 10px 20px;
+  border-bottom: 2px solid #ccc;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.list-cases-btn {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  cursor: pointer;
+}
+
+.opd-container {
+  display: flex;
+  padding: 20px;
+}
+
+form {
+  flex: 3;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.right-section {
+  flex: 1;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.w-50 {
+  width: 48%;
+}
+
+input[readonly] {
+  border: none;
+  outline: none;
+  flex-grow: 1;
+  background-color: transparent;
+  cursor: pointer;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+
+.form-group label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input, select, button {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+input[type="radio"] {
+  margin-right: 5px;
+}
+
+
+.calendar-btn, .clock-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.info-box {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: darkred;
+  border-bottom: 2px solid darkred;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.multi-select-container {
+  position: relative;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 5px;
+  min-height: 50px;
+  cursor: pointer;
+  background: #fff;
+  width: 100%;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+
+.tag {
+  background-color: #000;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.tag .remove {
+  margin-left: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+input[readonly] {
+  border: none;
+  outline: none;
+  flex-grow: 1;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ccc;
+  z-index: 1000;
+  border-top: none;
+}
+
+.dropdown-option {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.dropdown-option:hover,
+.dropdown-option.selected {
+  background-color: #eee;
+}
+
+

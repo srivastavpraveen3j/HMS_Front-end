@@ -1,0 +1,56 @@
+<div class="form-meta">
+  <span class="d-flex justify-content-end">
+    <i class="fa-solid fa-close close-btn" (click)="closeModal()"></i>
+    <i class="fa-solid fa-print" (click)="printLabel()"></i>
+  </span>
+
+  <div id="print-label" class="label-container">
+    <div class="label-row">
+      <strong>Name</strong>
+      <span>{{
+        data?.uniqueHealthIdentificationId?.patient_name?.toUpperCase()
+        }}</span>
+    </div>
+
+    <div class="label-row">
+      <strong>Age / Sex</strong>
+      <span>
+        {{ data?.uniqueHealthIdentificationId?.age }} /
+        {{ data?.uniqueHealthIdentificationId?.gender }}
+      </span>
+    </div>
+
+    <div class="label-row">
+      <strong>Address</strong>
+      <span>{{ data?.uniqueHealthIdentificationId?.area }}</span>
+    </div>
+
+    <div class="label-row">
+      <strong>Dr. Name</strong>
+      <span>{{
+        data?.consulting_Doctor?.name || data?.admittingDoctorId?.name
+        }}</span>
+    </div>
+
+    <div class="label-row">
+      <strong>MOB</strong>
+      <span>{{ data?.uniqueHealthIdentificationId?.mobile_no }}</span>
+    </div>
+
+    <div class="label-row">
+      <strong>Ref. Dr.</strong>
+      <span>{{ data?.referringDoctorId?.name || "SELF" }}</span>
+    </div>
+
+    <div class="label-row">
+      <strong>UHID</strong>
+      <span>{{ data?.uniqueHealthIdentificationId?.uhid }}</span>
+    </div>
+
+    <div class="barcode-container">
+      <svg #barcode></svg>
+    </div>
+  </div>
+
+  <!-- <button (click)="printLabel()">🖨️ Print Label</button> -->
+</div>

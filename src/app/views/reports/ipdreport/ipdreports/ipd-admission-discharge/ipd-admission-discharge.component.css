@@ -1,0 +1,22 @@
+.nav-tabs .nav-link {
+    /* color: #000 !important; */
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: rgb(102, 30, 3);;
+    color: white !important;
+    cursor: pointer;
+}
+
+.btn:hover{
+    background-color: rgb(102, 30, 3);;
+}
+
+:host {
+    display: block;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f3f6f9;
+    padding: 1rem;
+    color: #333;
+}

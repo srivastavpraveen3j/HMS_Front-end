@@ -1,0 +1,30 @@
+
+<div class="medical-header" [ngStyle]="headerStyles">
+  <!-- Existing layout: logo, hospital name, subtitle, tagline, contact -->
+  <ng-container *ngIf="hasContent(); else forceDefaultBlock">
+     <div class="header-content-row" [ngStyle]="contentRowStyle">
+    <div class="logo-section" [ngStyle]="logoSectionStyle" *ngIf="config.logoUrl">
+      <img class="hospital-logo" [ngStyle]="logoStyles"
+           [src]="config.logoUrl" alt="Logo"
+           onerror="this.style.display='none'">
+    </div>
+    <div class="hospital-info">
+      <h1 class="hospital-name" *ngIf="config.hospitalName">{{ config.hospitalName }}</h1>
+      <div class="hospital-subtitle"
+           [innerHTML]="formatSubtitle(config.hospitalSubtitle)"
+           *ngIf="config.hospitalSubtitle"></div>
+      <p class="tagline" *ngIf="config.tagline">{{ config.tagline }}</p>
+    </div>
+  </div>
+  <div class="contact-row" *ngIf="hasContactInfo()">
+    <span *ngIf="config.address">{{ config.address }}</span>
+    <span *ngIf="config.phone">{{ config.phone }}</span>
+    <span *ngIf="config.email">{{ config.email }}</span>
+    <span *ngIf="config.website">{{ config.website }}</span>
+  </div>
+  </ng-container>
+  <ng-template #forceDefaultBlock>
+    <!-- fallback block, always renders a blank area when no content -->
+    <div class="blank-letterheader"></div>
+  </ng-template>
+</div>

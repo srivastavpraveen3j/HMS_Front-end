@@ -1,0 +1,19 @@
+.field-pane {
+  position: relative;
+  z-index: 10; /* keeps input above table */
+}
+
+.suggestion-container {
+  position: absolute;
+  top: 100%;               /* directly below input */
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 250px;
+  overflow-y: auto;
+
+  z-index: 9999;           /* FLOAT ABOVE TABLE */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}

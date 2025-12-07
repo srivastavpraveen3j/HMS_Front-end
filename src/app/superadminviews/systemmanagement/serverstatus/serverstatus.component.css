@@ -1,0 +1,246 @@
+.status-overview {
+  padding: 1.5rem 2rem;
+  background-color: #f9f9f9;
+}
+
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+}
+
+.status-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.refresh-select {
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.btn-refresh,
+.btn-calendar {
+  padding: 6px 12px;
+  background-color: #007acc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.status-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.status-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  display: flex;
+  gap: 1rem;
+}
+
+.card-icon {
+  font-size: 2rem;
+  color: #007acc;
+}
+
+.card-title {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.card-value {
+  color: #28a745;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.status-card.warning .card-value {
+  color: #f0ad4e;
+}
+
+.uptime-bar {
+  margin: 0.5rem 0;
+}
+
+.progress-bar {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 8px;
+  background: #28a745;
+  border-radius: 4px;
+}
+
+.progress.warning {
+  background: #f0ad4e;
+}
+
+.uptime-value {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.last-incident {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.server-details {
+  padding: 2rem;
+  background: #fff;
+}
+
+.detail-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  border-bottom: 2px solid #ddd;
+}
+
+.tab {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  background: #eee;
+  border-radius: 4px 4px 0 0;
+}
+
+.tab.active {
+  background: #007acc;
+  color: white;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-group,
+.search-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.search-input {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.search-btn {
+  padding: 6px 10px;
+  background: #007acc;
+  border: none;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.filter-select {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.server-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.server-table th,
+.server-table td {
+  padding: 0.75rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  color: white;
+  font-size: 0.8rem;
+}
+
+.status-badge.operational {
+  background: #28a745;
+}
+
+.status-badge.warning {
+  background: #f0ad4e;
+}
+
+.status-badge.critical {
+  background: #dc3545;
+}
+
+.region {
+  font-weight: 500;
+}
+
+.region.na {
+  color: #007acc;
+}
+
+.region.eu {
+  color: #17a2b8;
+}
+
+.meter-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.meter {
+  width: 60px;
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  background: #007acc;
+}
+
+.meter-fill.warning {
+  background: #f0ad4e;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  cursor: pointer;
+  color: #333;
+  transition: color 0.2s;
+}
+
+.action-btn:hover {
+  color: #007acc;
+}

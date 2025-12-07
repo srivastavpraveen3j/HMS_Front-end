@@ -1,0 +1,151 @@
+<!-- <p>medicinemaster works!</p> -->
+<!-- <button class="list-cases-btn" routerLink="/master/medicinemasterlist" >MEDICINE LIST</button> -->
+<div class="form-meta">
+  <div class="header">
+    <h2>MEDICINE ORDER REQUEST</h2>
+    <div>
+      <!-- <button class="list-cases-btn" routerLink="/pharmalayout/pharmamanagementlist">MEDICINE LIST</button> -->
+
+      <span class="icons position-relative">
+        <div class="btn-group">
+          <!-- <button class="btn btn-outline-primary" [class.active]="uploadMode === 'single'" (click)="uploadMode = 'single'">Single Entry</button>
+  <button class="btn btn-outline-success" [class.active]="uploadMode === 'bulk'" (click)="uploadMode = 'bulk'">Bulk Upload</button> -->
+        </div>
+        <i
+          class="fa-solid fa-signal"
+          [routerLink]="['/inventorylayout/purchaserequestlist']"
+          routerLinkActive="router-link-active"
+        ></i>
+      </span>
+    </div>
+  </div>
+
+  <!-- Tab Toggle -->
+
+  <div class="" *ngIf="userPermissions.create">
+    <!-- Bulk Upload Form -->
+    <div class="container">
+      <div class="mt-3" *ngIf="uploadMode === 'bulk'">
+        <label>Import Medicine in Bulk (CSV):</label>
+        <div class="container mt-3 d-flex">
+          <h5 class="mx-3">Sample Medicine Csv File</h5>
+
+          <!-- <button class="btn btn-outline-info btn-sm" (click)="downloadExternalFile()">
+    Download Sample File
+  </button> -->
+
+          <a
+            href="https://drive.google.com/file/d/1jHfx0mUfMHHmNOg6Be_wugHQB6p_UlZe/view?usp=sharing"
+            download
+          >
+            <i class="fa-solid fa-file-csv"></i>
+          </a>
+        </div>
+
+        <input
+          type="file"
+          (change)="onFileSelected($event)"
+          accept=".csv"
+          class="form-control m-3"
+        />
+        <!-- <button type="button" class="btn btn-primary mt-2" (click)="uploadCSV()" [disabled]="!selectedFile">
+    Upload CSV
+  </button> -->
+        <!-- <div class="text-center mt-3">
+      <button class="btn btn-dark mx-2" type="submit"  (click)="uploadCSV()" [disabled]="!selectedFile">Submit</button>
+    </div> -->
+      </div>
+    </div>
+
+    <!-- Single Entry Form -->
+    <div class="opd-container" *ngIf="uploadMode === 'single'">
+      <form class="m-3" [formGroup]="prForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <div class="col-md-6">
+            <!-- <div class="form-group">
+              <label>Department*</label>
+              <select class="form-control" formControlName="departmentName">
+                <option value="Pharmacy">Pharmacy</option>
+                <option value="Lab">Lab</option>
+                <option value="Housekeeping">Housekeeping</option>
+              </select>
+            </div> -->
+
+            <div class="form-group">
+              <label>Item Name*</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="itemName"
+              />
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Quantity Required*</label>
+              <input
+                type="number"
+                class="form-control"
+                formControlName="quantityRequired"
+              />
+            </div>
+
+            <!-- <div class="form-group" hidden>
+          <label>Status</label>
+          <select class="form-control" formControlName="status">
+            <option value="Draft">Draft</option>
+            <option value="Submitted">Submitted</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div> -->
+            <!-- <div class="form-group">
+              <label>Category*</label>
+              <select class="form-control" formControlName="category">
+                <option value="drug">Drug</option>
+                <option value="surgical">Surgical</option>
+                <option value="general">General</option>
+              </select>
+            </div> -->
+          </div>
+          <div class="form-group">
+            <label>Remarks / Justification</label>
+            <textarea class="form-control" formControlName="remarks"></textarea>
+          </div>
+        </div>
+
+        <div class="text-center mt-3">
+          <button
+            class="btn btn-dark mx-2"
+            type="submit"
+            [disabled]="prForm.invalid || isSubmitting"
+            [class.submitting]="isSubmitting"
+          >
+            <span
+              *ngIf="isSubmitting"
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+            ></span>
+            {{ isSubmitting ? "Submitting..." : "Submit" }}
+          </button>
+          <button
+            class="btn btn-secondary"
+            type="button"
+            (click)="prForm.reset()"
+            [disabled]="isSubmitting"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div
+    class="alert alert-danger text-center mt-3"
+    *ngIf="!userPermissions.create"
+  >
+    🚫 You do not have access to create {{ module }} .
+  </div>
+</div>

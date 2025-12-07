@@ -1,0 +1,582 @@
+<div class="form-meta">
+  <!-- Compact Header -->
+  <div class="dashboard-header">
+    <div class="header-left">
+      <div class="pharmacy-info">
+        <h1 class="pharmacy-name">{{ pharmacyDetails?.name || "MEDICINE" }}</h1>
+        <span class="inventory-label">Inventory Management</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button
+        class="alert-button"
+        (click)="toggleLowStockView()"
+        [class.active]="showingLowStock"
+      >
+        <i class="fas fa-exclamation-circle"></i>
+        <span>{{ showingLowStock ? "All Items" : "Low Stock" }}</span>
+        <div
+          class="alert-count"
+          *ngIf="!showingLowStock && lowStockMedicinesFullList.length > 0"
+        >
+          {{ lowStockMedicinesFullList.length }}
+        </div>
+      </button>
+
+      <button class="view-switch" (click)="toggleView()">
+        <i class="fas" [ngClass]="showTableView ? 'fa-th' : 'fa-list'"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Enhanced Inline Controls -->
+  <div class="controls-bar">
+    <div class="search-section">
+      <div class="search-wrapper">
+        <input
+          type="text"
+          placeholder="Search medicines..."
+          [formControl]="searchControl"
+          class="search-field"
+        />
+      </div>
+
+      <!-- *** Location Search Input *** -->
+      <div class="location-search-wrapper">
+        <!-- <i class="fas fa-map-marker-alt location-icon"></i> -->
+        <input
+          type="text"
+          placeholder="Enter location (e.g., Shelf A-1)"
+          [formControl]="locationControl"
+          class="location-field"
+        />
+        <button
+          class="clear-location-btn"
+          *ngIf="locationControl.value"
+          (click)="clearLocationSearch()"
+          type="button"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="filters-section">
+      <select
+        class="pharmacy-dropdown"
+        [(ngModel)]="selectedPharmacyId"
+        (change)="onPharmacyChange()"
+      >
+        <option *ngFor="let p of pharmacies" [value]="p._id">
+          {{ p.name }}
+        </option>
+      </select>
+
+      <div class="records-per-page-wrapper">
+        <label class="records-label">Per page:</label>
+        <select
+          class="records-select"
+          [formControl]="recordsPerPageControl"
+          (change)="onRecordsPerPageChange()"
+        >
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Location Filter Info -->
+  <div class="filter-info-bar" *ngIf="locationControl.value">
+    <div class="filter-info">
+      <i class="fas fa-map-marker-alt text-primary"></i>
+      <span class="filter-text">
+        Showing medicines at location: <strong>{{ locationControl.value }}</strong>
+      </span>
+      <span class="filter-count">({{ filteredMedicinesCount }} found)</span>
+      <button class="clear-filter-btn" (click)="clearLocationSearch()">
+        <i class="fas fa-times"></i> Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary Info -->
+  <div class="summary-bar" *ngIf="!showingLowStock">
+    <div class="summary-item">
+      <span class="summary-label">Total Items:</span>
+      <span class="summary-value">{{ totalRecords }}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Showing:</span>
+      <span class="summary-value">
+        {{ getCurrentPageStartRecord() }}-{{ getCurrentPageEndRecord() }} of
+        {{ totalRecords }}
+      </span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Page:</span>
+      <span class="summary-value">{{ currentPage }} of {{ totalPages }}</span>
+    </div>
+  </div>
+
+  <!-- Table View (Default) -->
+  <div class="data-table-container" *ngIf="showTableView">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th class="col-index">#</th>
+          <th class="col-medicine">Medicine</th>
+          <th class="col-stock">Stock</th>
+          <th class="col-price">Price</th>
+          <th class="col-expiry">Expiry</th>
+          <th class="col-status">Status</th>
+          <th class="col-location">Location</th>
+          <!-- <th class="col-actions">Actions</th> -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="
+            let medicine of showingLowStock ? lowStockMedicines : medicines;
+            let i = index
+          "
+          class="table-row"
+          [class.expired-row]="isExpired(medicine)"
+          [class.warning-row]="
+            !isExpired(medicine) &&
+            (isNearExpiry(medicine, 30) || medicine.current_stock <= 10)
+          "
+          [class.location-highlight]="isLocationMatched(medicine)"
+        >
+          <td class="index-cell">
+            {{
+              showingLowStock
+                ? (lowStockCurrentPage - 1) * lowStockRecordsPerPage + i + 1
+                : (currentPage - 1) * perPage + i + 1
+            }}
+          </td>
+
+          <td class="medicine-info">
+            <div class="medicine-name">{{ medicine.medicine_name }}</div>
+            <div class="medicine-meta">
+              Batch: {{ medicine?.batch_details?.[0]?.batch_no || 'N/A' }}
+            </div>
+          </td>
+
+
+
+          <td class="stock-cell">
+            <div class="stock-display">
+              <span
+                class="stock-number"
+                [class.stock-critical]="medicine.current_stock <= 5"
+                [class.stock-low]="
+                  medicine.current_stock > 5 && medicine.current_stock <= 10
+                "
+                [class.stock-good]="medicine.current_stock > 10"
+              >
+                {{ medicine.current_stock }}
+              </span>
+              <span class="stock-unit">units</span>
+            </div>
+          </td>
+
+          <td class="price-cell">
+            <span class="price-amount">
+              ₹{{ medicine?.medicine?.price || medicine?.price || medicine?.batch_details?.[0]?.unit_price }}
+            </span>
+          </td>
+
+          <td class="expiry-cell">
+            <div class="expiry-date">
+              {{ medicine?.batch_details[0]?.expiry_date | date : "dd/MM/yy" }}
+            </div>
+          </td>
+
+          <td class="status-cell">
+            <div class="status-indicators">
+              <span *ngIf="isExpired(medicine)" class="status-tag expired"
+                >EXPIRED</span
+              >
+              <span
+                *ngIf="!isExpired(medicine) && isNearExpiry(medicine, 30)"
+                class="status-tag warning"
+                >EXPIRING</span
+              >
+              <span
+                *ngIf="medicine.current_stock <= 10 && !isExpired(medicine)"
+                class="status-tag alert"
+                >LOW STOCK</span
+              >
+              <span
+                *ngIf="
+                  medicine.current_stock > 10 &&
+                  !isExpired(medicine) &&
+                  !isNearExpiry(medicine, 30)
+                "
+                class="status-tag ok"
+                >AVAILABLE</span
+              >
+            </div>
+          </td>
+
+            <!-- *** EDITABLE LOCATION COLUMN *** -->
+          <td class="location-cell"  (click)="startLocationEdit(medicine, i)">
+            <div class="location-display" [class.location-matched]="isLocationMatched(medicine)">
+                 {{ medicine.location_in_pharmacy || 'Add location...' }}
+
+              <i class="fas fa-map-marker-alt location-icon-small  location-text editable"   *ngIf="!medicine.isEditingLocation"
+                (click)="startLocationEdit(medicine, i)"
+                [class.no-location]="!medicine.location_in_pharmacy"
+                title="Click to edit location">
+
+              </i>
+              <!-- Display Mode -->
+              <!-- <span
+                class="location-text editable"
+                *ngIf="!medicine.isEditingLocation"
+                (click)="startLocationEdit(medicine, i)"
+                [class.no-location]="!medicine.location_in_pharmacy"
+                title="Click to edit location"
+              >
+                {{ medicine.location_in_pharmacy || 'Add location...' }}
+              <i class="fas fa-map-marker-alt location-icon-small"></i>
+              </span> -->
+
+              <!-- Edit Mode -->
+              <div class="location-edit-container" *ngIf="medicine.isEditingLocation">
+                <input
+                  type="text"
+                  class="location-edit-input"
+                  [(ngModel)]="medicine.tempLocation"
+                  (keydown.enter)="saveLocation(medicine)"
+                  (keydown.escape)="cancelLocationEdit(medicine)"
+                  (blur)="saveLocationOnBlur(medicine)"
+                  #locationInput
+                  placeholder="e.g., Shelf A-1, Room 201"
+                  maxlength="100"
+                />
+                <div class="edit-buttons">
+                  <!-- <button
+                    class="save-btn"
+                    [disabled]="isSavingLocation"
+                    title="Save location"
+                  > -->
+                    <i class="fas fa-check" *ngIf="!isSavingLocation"
+                    ></i>
+                    <i class="fas fa-spinner fa-spin" *ngIf="isSavingLocation"></i>
+                  <!-- </button> -->
+                  <!-- <button
+                    class="cancel-btn"
+                    title="Cancel"
+                  > -->
+
+                    <i class="fas fa-times"   (click)="cancelLocationEdit(medicine)"
+                     ></i>
+                  <!-- </button> -->
+                </div>
+              </div>
+            </div>
+          </td>
+          <!-- *** ACTIONS COLUMN *** -->
+          <!-- <td class="actions-cell">
+            <div class="action-buttons">
+              <button
+                class="action-btn edit-location-btn"
+                (click)="startLocationEdit(medicine, i)"
+                [disabled]="medicine.isEditingLocation"
+                title="Edit location"
+              >
+                <i class="fas fa-map-marker-alt"></i>
+              </button>
+              <button
+                class="action-btn edit-btn"
+                (click)="editmedicine(medicine._id)"
+                title="Edit medicine"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+              <button
+                class="action-btn delete-btn"
+                (click)="deletemedicine(medicine._id)"
+                title="Delete medicine"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td> -->
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Card View -->
+<!-- Card View with Proper Structure -->
+<div class="cards-container" *ngIf="!showTableView">
+  <div
+    *ngFor="let medicine of showingLowStock ? lowStockMedicines : medicines; let i = index"
+    class="medicine-card-compact"
+    [class.expired-card]="isExpired(medicine)"
+    [class.warning-card]="
+      !isExpired(medicine) &&
+      (isNearExpiry(medicine, 30) || medicine.current_stock <= 10)
+    "
+    [class.location-highlight-card]="isLocationMatched(medicine)"
+  >
+    <!-- 🏥 CARD HEADER -->
+    <div class="card-main">
+      <div class="medicine-title">{{ medicine.medicine_name }}</div>
+      <div class="medicine-details">
+        <span class="detail-item">
+          <!-- <i class="fas fa-vial detail-icon"></i> -->
+          Batch: {{ medicine?.batch_details?.[0]?.batch_no || 'N/A' }}
+        </span>
+        <span class="detail-item">
+          <!-- <i class="fas fa-calendar-alt detail-icon"></i> -->
+        Manufacturing Date:  {{ medicine?.batch_details[0]?.mfg_date | date : "MMM dd, yyyy" }}
+        </span>
+        <span class="detail-item">
+          <!-- <i class="fas fa-calendar-alt detail-icon"></i> -->
+        Expiry Date:  {{ medicine?.batch_details[0]?.expiry_date | date : "MMM dd, yyyy" }}
+        </span>
+      </div>
+    </div>
+
+    <!-- 📊 CARD METRICS -->
+    <div class="card-metrics">
+      <div class="metric">
+        <div
+          class="metric-value"
+          [class.metric-critical]="medicine.current_stock <= 5"
+          [class.metric-warning]="
+            medicine.current_stock > 5 && medicine.current_stock <= 10
+          "
+          [class.metric-good]="medicine.current_stock > 10"
+        >
+          {{ medicine.current_stock }}
+        </div>
+        <div class="metric-label">Stock</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-value price">
+          ₹{{ medicine?.medicine?.price || medicine?.price || medicine?.batch_details?.[0]?.unit_price }}
+        </div>
+        <div class="metric-label">Price</div>
+      </div>
+    </div>
+
+    <!-- 🏷️ CARD STATUS -->
+
+
+    <!-- 📍 LOCATION FOOTER SECTION -->
+    <div class="card-location-footer" [class.location-matched]="isLocationMatched(medicine)">
+
+      <!-- 👁️ LOCATION DISPLAY MODE -->
+      <div class="location-footer-display" *ngIf="!medicine.isEditingLocation"
+           (click)="startLocationEdit(medicine, i)">
+        <div class="location-footer-content">
+          <div class="location-footer-icon">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <div class="location-footer-info">
+            <span class="location-footer-label">Location</span>
+            <span class="location-footer-value" [class.no-location]="!medicine.location_in_pharmacy">
+              {{ medicine.location_in_pharmacy || 'Click to add location' }}
+            </span>
+          </div>
+        </div>
+        <!-- <div class="location-footer-edit">
+          <i class="fas fa-edit"></i>
+        </div> -->
+          <div class="card-status">
+      <span *ngIf="isExpired(medicine)" class="mini-status expired">
+        <i class="fas fa-times-circle"></i>
+        EXPIRED
+      </span>
+      <span
+        *ngIf="!isExpired(medicine) && isNearExpiry(medicine, 30)"
+        class="mini-status warning"
+      >
+        <i class="fas fa-exclamation-triangle"></i>
+        EXPIRING
+      </span>
+      <span
+        *ngIf="medicine.current_stock <= 10 && !isExpired(medicine)"
+        class="mini-status alert"
+      >
+        <i class="fas fa-arrow-down"></i>
+        LOW STOCK
+      </span>
+      <span
+        *ngIf="
+          medicine.current_stock > 10 &&
+          !isExpired(medicine) &&
+          !isNearExpiry(medicine, 30)
+        "
+        class="mini-status available"
+      >
+        <i class="fas fa-check-circle"></i>
+        AVAILABLE
+      </span>
+    </div>
+      </div>
+
+      <!-- ✏️ LOCATION EDIT MODE -->
+      <div class="location-footer-edit-form" *ngIf="medicine.isEditingLocation">
+        <div class="location-footer-edit-header">
+          <i class="fas fa-map-marker-alt"></i>
+          <span class="edit-header-label">Update Location</span>
+        </div>
+
+        <div class="location-footer-input-group">
+          <div class="location-footer-input-wrapper">
+            <input
+              type="text"
+              class="location-footer-input"
+              [(ngModel)]="medicine.tempLocation"
+              (keydown.enter)="saveLocation(medicine)"
+              (keydown.escape)="cancelLocationEdit(medicine)"
+              (blur)="saveLocationOnBlur(medicine)"
+              placeholder="Enter location (e.g., Shelf A-1, Room 201)"
+              maxlength="100"
+              #locationFooterInput
+            />
+            <div class="location-footer-clear" *ngIf="medicine.tempLocation" (click)="medicine.tempLocation = ''">
+              <i class="fas fa-times"></i>
+            </div>
+          </div>
+
+          <div class="location-footer-actions">
+            <!-- <button
+              class="location-footer-save"
+
+              title="Save location"
+            > -->
+              <i class="fas fa-check" *ngIf="!isSavingLocation" (click)="saveLocation(medicine)"
+              [class.saving]="isSavingLocation"></i>
+              <i class="fas fa-spinner fa-spin" *ngIf="isSavingLocation"></i>
+            <!-- </button> -->
+            <!-- <button
+              class="location-footer-cancel"
+              title="Cancel"
+            >
+            -->
+
+              <i class="fas fa-times"  (click)="cancelLocationEdit(medicine)"
+               ></i>
+            <!-- </button> -->
+          </div>
+        </div>
+
+        <!-- 🚀 QUICK SUGGESTIONS -->
+        <div class="location-footer-suggestions" *ngIf="!medicine.tempLocation">
+          <div class="suggestions-footer-label">Quick locations:</div>
+          <div class="suggestions-footer-buttons">
+            <button class="suggestion-footer-btn" (click)="setQuickLocation(medicine, 'Shelf A-1')">
+              <i class="fas fa-layer-group"></i>
+              Shelf A-1
+            </button>
+            <button class="suggestion-footer-btn" (click)="setQuickLocation(medicine, 'Shelf B-2')">
+              <i class="fas fa-layer-group"></i>
+              Shelf B-2
+            </button>
+            <button class="suggestion-footer-btn" (click)="setQuickLocation(medicine, 'Room 201')">
+              <i class="fas fa-door-open"></i>
+              Room 201
+            </button>
+            <button class="suggestion-footer-btn" (click)="setQuickLocation(medicine, 'Storage')">
+              <i class="fas fa-warehouse"></i>
+              Storage
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+  <!-- Enhanced Pagination -->
+  <div
+    class="pagination-container"
+    *ngIf="(showingLowStock ? lowStockTotalPages : totalPages) > 1"
+  >
+    <div class="pagination-info">
+      <span class="pagination-text">
+        Showing
+        {{
+          showingLowStock
+            ? (lowStockCurrentPage - 1) * lowStockRecordsPerPage + 1
+            : getCurrentPageStartRecord()
+        }}-{{
+          showingLowStock
+            ? Math.min(
+                lowStockCurrentPage * lowStockRecordsPerPage,
+                lowStockMedicinesFullList.length
+              )
+            : getCurrentPageEndRecord()
+        }}
+        of
+        {{
+          showingLowStock ? lowStockMedicinesFullList.length : totalRecords
+        }}
+        items
+      </span>
+    </div>
+
+    <div class="pagination-controls">
+      <button
+        class="page-btn"
+        [disabled]="(showingLowStock ? lowStockCurrentPage : currentPage) === 1"
+        (click)="showingLowStock ? lowStockPreviousPage() : previousPage()"
+      >
+        <i class="fas fa-chevron-left"></i>
+        Previous
+      </button>
+
+      <div class="page-numbers">
+        <span class="page-info">
+          {{ showingLowStock ? lowStockCurrentPage : currentPage }} /
+          {{ showingLowStock ? lowStockTotalPages : totalPages }}
+        </span>
+      </div>
+
+      <button
+        class="page-btn"
+        [disabled]="
+          (showingLowStock ? lowStockCurrentPage : currentPage) ===
+          (showingLowStock ? lowStockTotalPages : totalPages)
+        "
+        (click)="showingLowStock ? lowStockNextPage() : nextPage()"
+      >
+        Next
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty States -->
+  <div class="empty-state" *ngIf="medicines.length === 0 && !showingLowStock">
+    <div class="empty-icon">
+      <i class="fas fa-pills"></i>
+    </div>
+    <h3>No medicines found</h3>
+    <p>Try adjusting your search or filter criteria</p>
+  </div>
+
+  <div
+    class="empty-state good-news"
+    *ngIf="showingLowStock && lowStockMedicines.length === 0"
+  >
+    <div class="empty-icon success">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <h3 class="success-title">Great Stock Management!</h3>
+    <p class="success-message">All medicines have adequate stock levels</p>
+  </div>
+</div>

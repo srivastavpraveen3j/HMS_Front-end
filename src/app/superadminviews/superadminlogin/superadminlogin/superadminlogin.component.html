@@ -1,0 +1,32 @@
+<!-- <p>superadminlogin works!</p> -->
+<div class="login-container">
+  <div class="login-box">
+    <img src="DigiLogocropped-removebg-preview 1.png" alt="Catalyst Logo" class="logo" />
+    <p class="subtitle">Health Care Software Solution</p>
+
+    <form [formGroup]="onLogin" (ngSubmit)="Login()" >
+      <input
+        type="text"
+        placeholder="Username"
+        formControlName="username"
+        class="input-field"
+        autocomplete="username"
+      />
+
+      <input
+        type="password"
+        placeholder="Password"
+        formControlName="password"
+        class="input-field"
+        autocomplete="current-password"
+      />
+
+      <button
+        type="submit"
+        class="login-btn"
+      >Login</button>
+    </form>
+
+    <p class="support-text">2025 © Digitalks</p>
+  </div>
+</div>

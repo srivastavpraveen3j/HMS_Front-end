@@ -1,0 +1,174 @@
+<div class="form-meta">
+  <!-- Header Section -->
+  <div class="header">
+    <h2>ADD OUTPATIENT PATHOLOGY REQUSITION REQUEST</h2>
+    <div>
+      <span class="icons position-relative">
+        <button class="toggle opd btn active" [routerLink]="['/doctor/opdpathologyreq']" routerLinkActive="router-link-active">
+          OPD
+        </button>
+        <button class="btn" [routerLink]="['/doctor/pathologyreq']" routerLinkActive="router-link-active">
+          IPD
+        </button>
+        <i class="fa-solid fa-signal" [routerLink]="['/doctor/opdpathologyreqlist']" routerLinkActive="router-link-active"></i>
+        <!-- Dropdown (optional, if you want to use) -->
+        <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+          <div *ngIf="uhidTodayRecords.length === 0" class="text-center text-muted py-2">
+            No OPD Case created today.
+          </div>
+          <ul class="uhid-list">
+            <li *ngFor="let record of uhidTodayRecords" (click)="selectPatientFromUHID(record)">
+              <div class="uhid-name">
+                {{ record?.uniqueHealthIdentificationId?.patient_name }}
+              </div>
+              <div class="uhid-meta">
+                UHID: {{ record?.uniqueHealthIdentificationId?.uhid }} | Age: {{ record?.uniqueHealthIdentificationId?.age }}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </span>
+    </div>
+  </div>
+
+  <!-- Main Content, Two Halves -->
+  <div class="form-container">
+    <!-- Left Column: Complete Form -->
+    <div class="form-half">
+      <form [formGroup]="pathoreq" (ngSubmit)="OnSubmit()">
+        <h4 class="m-4">Patient Details</h4>
+        <hr />
+        <div class="form-row">
+          <div class="form-group">
+            <label>UHID No:</label>
+            <input type="text" placeholder="UHID No" class="required" formControlName="uhid" />
+            <div class="text-danger small"
+              *ngIf="pathoreq.get('uhid')?.invalid && pathoreq.get('uhid')?.touched">
+              UHID No is required.
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Patient*:</label>
+            <input type="text" class="input-text" placeholder="Enter patient name" formControlName="patient_name"
+              (input)="onPatientInput()" (focus)="showSuggestions = true" (blur)="hideSuggestionsWithDelay()" />
+            <!-- Suggestions Dropdown -->
+            <div *ngIf="showSuggestions && filteredPatients.length > 0 && !editMode"
+              class="suggestions-container">
+              <ul class="suggestions">
+                <li *ngFor="let patient of filteredPatients" (mousedown)="selectPatient(patient)">
+                  {{ patient.patient_name }}
+                  {{ patient.mobile_no ? "| " + patient.mobile_no : "" }}
+                  {{ patient.uhid ? "| " + patient.uhid : "" }}
+                </li>
+              </ul>
+            </div>
+            <!-- No match found -->
+            <div *ngIf="pathoreq.get('patient_name')?.value?.length > 2 && !filteredPatients.length && !manuallySelected"
+              class="text-danger">
+              No matching patients found
+            </div>
+            <!-- Validation -->
+            <div *ngIf="pathoreq.get('patient_name')?.touched && pathoreq.get('patient_name')?.invalid"
+              class="text-danger">
+              Patient name is required
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Age*:</label>
+            <input type="text" placeholder="Age" formControlName="age" />
+            <div class="text-danger small"
+              *ngIf="pathoreq.get('age')?.invalid && pathoreq.get('age')?.touched">
+              Age is required.
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Gender*:</label>
+            <input type="text" placeholder="Gender" formControlName="gender" />
+            <div class="text-danger small"
+              *ngIf="pathoreq.get('gender')?.invalid && pathoreq.get('gender')?.touched">
+              Gender is required.
+            </div>
+          </div>
+        </div>
+        <h4 class="m-4">Diagnosis Details</h4>
+        <hr />
+        <div class="form-row">
+          <div class="form-group">
+            <textarea class="form-control" placeholder="Enter diagnosis here" formControlName="diagnosisdetails"></textarea>
+            <div class="text-danger small"
+              *ngIf="pathoreq.get('diagnosisdetails')?.invalid && pathoreq.get('diagnosisdetails')?.touched">
+              Diagnosis details is required.
+            </div>
+          </div>
+        </div>
+        <h4 class="m-4">Test Details</h4>
+        <hr />
+        <div class="d-flex w-100">
+          <!-- Assign Lab Test (your dynamic select/suggestions table) -->
+          <div class="w-100 position-relative">
+            <h4 class="m-4">Assign Lab Test</h4>
+            <hr />
+            <!-- Search Input -->
+            <div class="form-group mb-2">
+              <input type="text" class="form-control m-2" [formControl]="searchTextControl"
+                placeholder="Search lab test group..." (focus)="dropdownOpenAssign = true"
+                (blur)="hideDropdownWithDelay()" />
+            </div>
+            <!-- Dropdown -->
+            <div class="dropdown-menu show custom-dropdown p-2"
+              *ngIf="dropdownOpenAssign && filteredTests.length > 0">
+              <div *ngFor="let test of filteredTests" class="dropdown-item" (click)="selectAssignTest(test)">
+                {{ test.testGroup }}
+              </div>
+            </div>
+            <!-- Selected Test Group Table -->
+            <div *ngFor="let test of selectedAssignTests" class="mb-4">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5>{{ test.testGroup }}</h5>
+                <button class="btn btn-sm btn-danger" (click)="removeAssignTest(test)">Remove</button>
+              </div>
+              <table class="table table-bordered table-hover align-middle diagnosis-table">
+                <thead>
+                  <tr>
+                    <th>Test Name</th>
+                    <th>Units</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let param of test.testParameters">
+                    <td>{{ param.test_name }}</td>
+                    <td>{{ param.units }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="text-center mt-3">
+          <button class="btn btn-dark mx-2" [disabled]="pathoreq.invalid">Submit</button>
+          <button class="btn btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Right Column: for Patient Info, Order Summary, Extra Panels, etc. -->
+    <div class="form-half">
+      <!--
+        Add your info box, instructions, recent history, or patient summary here,
+        Example placeholder below:
+      -->
+      <!-- Example: Patient Info -->
+      <div class="right-section info-box" *ngIf="selectedPatient">
+        <h5 style="color: darkred">Patient Details</h5>
+        <hr />
+        <p>UHID: {{ selectedPatient.uhid }}</p>
+        <p>Name: {{ selectedPatient.patient_name }}</p>
+        <p>Age: {{ selectedPatient.age }}</p>
+        <p>Gender: {{ selectedPatient.gender }}</p>
+      </div>
+      <!-- You can add more panels here as needed! -->
+    </div>
+  </div>
+</div>

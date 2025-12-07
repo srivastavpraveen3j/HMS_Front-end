@@ -1,0 +1,40 @@
+<div id="opd-sheet">
+    <div class="gate-pass">
+        <h3 style="text-align:center;">PP MANIYA HOSPITAL PVT. LTD.</h3>
+        <div class="title">Patient Discharge Gate Pass (For Floor)</div>
+        <div class="info">
+            <p><strong>Patient Name: </strong> {{ dischargeData.patientName }} </p>
+            <p><strong>IPD No: </strong> {{ dischargeData.ipdNumber }} </p>
+            <p><strong>DOA & Time: </strong> {{ dischargeData.admissionDate | date: "dd-MM-yyyy hh:mm a"}} </p>
+            <p><strong>Under Care Dr.: </strong> {{ dischargeData.doctorConsulted }} </p>
+            <p><strong>DOD & Time: </strong> {{ dischargeData.dateOfDischarge | date: "dd-MM-yyyy hh:mm a"}} </p>
+        </div>
+        <div class="signatures">
+            <div>(Authorized Signatory)<br>(Nursing Dept.)</div>
+            <div>(Authorized Signatory)<br>(Billing Dept.)</div>
+        </div>
+    </div>
+    
+    <!-- Gate Pass (For Security) -->
+    <div class="gate-pass">
+        <h3 style="text-align:center;">PP MANIYA HOSPITAL PVT. LTD.</h3>
+        <div class="title text-center">Patient Discharge Gate Pass (For Security)</div>
+        <div class="info">
+            <p><strong>Patient Name: </strong> {{ dischargeData.patientName }}</p>
+            <p><strong>IPD No: </strong> {{ dischargeData.ipdNumber }}</p>
+            <p><strong>DOA & Time: </strong> {{ dischargeData.admissionDate | date: "dd-MM-yyyy hh:mm a"}}</p>
+            <p><strong>Under Care Dr.: </strong> {{ dischargeData.doctorConsulted }}</p>
+            <p><strong>DOD & Time: </strong> {{ dischargeData.dateOfDischarge | date: "dd-MM-yyyy hh:mm a" }}</p>
+        </div>
+        <div class="signatures">
+            <div>(Authorized Signatory)<br>(Nursing Dept.)</div>
+            <div>(Authorized Signatory)<br>(Billing Dept.)</div>
+        </div>
+    </div>
+
+</div>
+<div>
+    <button class="btn" *ngIf="dischargeData" (click)="print()">
+        <i class="fa-solid fa-print action-btn"></i>
+    </button>
+</div>

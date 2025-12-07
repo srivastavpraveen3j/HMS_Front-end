@@ -1,0 +1,32 @@
+.billing-config {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 400px;
+  background-color: #f9f9f9;
+}
+
+.billing-config h5 {
+  margin-bottom: 16px;
+  color: #333;
+  font-weight: 600;
+}
+
+.billing-config label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #444;
+}
+
+.billing-config input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.billing-config .form-control {
+  margin-top: 4px;
+}
+
+.billing-config .btn {
+  width: 100%;
+}

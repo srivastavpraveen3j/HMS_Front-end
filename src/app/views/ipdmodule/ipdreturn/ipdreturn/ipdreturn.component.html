@@ -1,0 +1,63 @@
+<!-- <p>ipdreturn works!</p> -->
+<!-- <p>makereturn works!</p> -->
+<!-- <p>mrd works!</p> -->
+<div class="header">
+  <h2>ADD NEW IPD RETURN DATA</h2>
+  <button class="list-cases-btn" [routerLink]="['/ipd/ipdreturnlist']" routerLinkActive="router-link-active">RETURN LIST</button>
+</div>
+
+<div class="opd-container">
+  <form [formGroup]="returnForm" (ngSubmit)="onSubmit()">
+    <div class="form-half">
+
+      <label>Bill No</label>
+      <input type="text" class="form-control" formControlName="billNo" placeholder="Caseno" />
+      <div *ngIf="returnForm.get('billNo')?.invalid && returnForm.get('billNo')?.touched" class="error-message">
+        Bill No is required.
+      </div>
+
+      <label>Bill Amount</label>
+      <input type="number" class="form-control" formControlName="billAmount" placeholder="Bill Amount" />
+      <div *ngIf="returnForm.get('billAmount')?.invalid && returnForm.get('billAmount')?.touched" class="error-message">
+        Bill Amount is required and must be positive.
+      </div>
+
+      <label>Amount Return</label>
+      <input type="number" class="form-control" formControlName="amountReturn" placeholder="Amount Return" />
+      <div *ngIf="returnForm.get('amountReturn')?.invalid && returnForm.get('amountReturn')?.touched" class="error-message">
+        Amount Return is required and must be positive.
+      </div>
+
+      <label>Receiver Name</label>
+      <input type="text" class="form-control" formControlName="receiverName" placeholder="Receiver Name" />
+      <div *ngIf="returnForm.get('receiverName')?.invalid && returnForm.get('receiverName')?.touched" class="error-message">
+        Receiver Name is required.
+      </div>
+
+      <label>Payment Mode</label>
+      <div class="radio-group mx-3">
+        <input type="radio" formControlName="drType" value="cash" /> Cash
+        <input type="radio" formControlName="drType" value="upi" /> UPI
+        <input type="radio" formControlName="drType" value="card" /> Card
+      </div>
+      <div *ngIf="returnForm.get('drType')?.invalid && returnForm.get('drType')?.touched" class="error-message">
+        Payment Mode is required.
+      </div>
+
+    </div>
+
+    <div class="text-center mt-3">
+      <button type="submit" class="btn btn-dark mx-2" [disabled]="returnForm.invalid">Submit</button>
+      <button type="button" class="btn btn-secondary" >Cancel</button>
+    </div>
+  </form>
+
+  <div class="right-section">
+    <div class="info-box">
+      <h5 style="color: darkred;">Patient  List</h5>
+
+    </div>
+
+
+  </div>
+</div>

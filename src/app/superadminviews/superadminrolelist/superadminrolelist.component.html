@@ -1,0 +1,31 @@
+<!-- Role List -->
+<div class="header">
+    <h3>Existing Roles</h3>
+    <i class="fa-solid fa-add" [routerLink]="['/superadmin/superadminrolemanagement']"
+        routerLinkActive="router-link-active"></i>
+</div>
+<table class="table table-bordered table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>permissions</th>
+            <!-- <th width="150">Actions</th> -->
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let role of roles">
+            <td>{{ role.name }}</td>
+            <td>{{ role.description }}</td>
+            <td>
+                <span *ngFor="let p of role.PlatformPermission" class="badge bg-primary mx-1">
+                    {{ p.name }}
+                </span>
+            </td>
+            <!-- <td>
+                    <button class="btn btn-sm btn-primary mx-1" (click)="editRole()">Edit</button>
+                    <button class="btn btn-sm btn-danger mx-1" (click)="deleteRole()">Delete</button>
+                </td> -->
+        </tr>
+    </tbody>
+</table>

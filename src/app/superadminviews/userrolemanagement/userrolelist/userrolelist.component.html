@@ -1,0 +1,65 @@
+<!-- <p>userrolelist works!</p> -->
+<!-- <p>uhid works!</p> -->
+<div class="header">
+  <h2>USERS LISTS</h2>
+  <button
+    class="list-cases-btn"
+    routerLinkActive="router-link-active"
+    [routerLink]="['/superadmin/userrolemanagement']"
+    routerLinkActive="router-link-active"
+  >
+    ADD NEW USERS
+  </button>
+</div>
+<!-- <div class="container"> -->
+
+<div class="top-bar p-3">
+  <select formControl="recordsPerPage">
+    <option *ngFor="let num of [25, 50, 100]" [value]="num">
+      {{ num }} RECORDS
+    </option>
+  </select>
+
+  <input type="text" placeholder="Search..." formControl="searchText" />
+</div>
+
+<table class="table table-bordered table-hover align-middle diagnosis-table">
+  <thead class="table-dark text-center">
+    <tr>
+      <th>#</th>
+      <th>Admin Id</th>
+      <th>Role</th>
+      <th>Hims Api Key</th>
+      <th>Admin Group</th>
+      <th>Hospital Name</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let patient of filteredPatients(); let i = index">
+      <td>{{ i + 1 }}</td>
+      <td>{{ patient.adminid }}</td>
+      <td>{{ patient.role }}</td>
+      <td>{{ patient.himsapikey }}</td>
+      <td>
+        <img src="user1.png" alt="" style="max-width: 40px !important" /><img
+          src="user1.png"
+          alt=""
+          style="max-width: 40px !important"
+        />
+      </td>
+      <td>{{ patient.hospitalbranch }}</td>
+      <td>
+        <i
+          class="fa-solid fa-eye action-btn"
+          (click)="viewPatient(patient)"
+        ></i>
+        <i
+          class="fa-solid fa-pencil action-btn"
+          [routerLink]="['/superadmin/adduserroles']"
+        ></i>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<!-- </div> -->

@@ -1,0 +1,68 @@
+<!-- <p>certificates works!</p> -->
+<div class="header">
+  <h2 class="fw-bold text-uppercase">Compliance Certificates</h2>
+  <button class="list-cases-btn" [routerLink]="['/superadmin/compilancescertificateslist']" routerLinkActive="router-link-active" >CERTIFICATE LIST </button>
+</div>
+
+<div class="opd-container">
+  <form [formGroup]="certificateForm" (ngSubmit)="OnSubmit()" class="card p-4 mb-4 shadow-sm">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Certificate Title</label>
+        <input type="text" formControlName="title" class="form-control" placeholder="e.g., NABH Accreditation">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" formControlName="type">
+          <option value="NABH">NABH</option>
+          <option value="ISO">ISO</option>
+          <option value="FireSafety">Fire Safety</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Valid From</label>
+        <input type="date" class="form-control" formControlName="fromDate">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Valid To</label>
+        <input type="date" class="form-control" formControlName="toDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assign To</label>
+        <select formControlName="assignedTo" class="form-select">
+          <option value="all">All Hospitals</option>
+          <option *ngFor="let hospital of hospitals" [value]="hospital.id">
+            {{ hospital.name }}
+          </option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mandatory?</label>
+        <input type="checkbox" formControlName="mandatory" class="form-check-input ms-2">
+      </div>
+    </div>
+
+
+    <label>Upload File</label>
+      <div class="file-upload" (click)="triggerFileInput()" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+        <input type="file" #fileInput (change)="onFileSelected($event)" hidden />
+        <p *ngIf="!selectedFile">DROP / CLICK HERE TO UPLOAD FILES</p>
+        <p *ngIf="selectedFile">{{ selectedFile.name }}</p>
+      </div>
+      <!-- <div *ngIf="mrdForm.get('file')?.invalid && mrdForm.get('file')?.touched" class="error-message">
+        File upload is required.
+      </div> -->
+
+    <div class="text-center mt-2">
+      <button type="submit" class="btn btn-dark w-100">Upload</button>
+    </div>
+  </form>
+</div>
+
+
+
+

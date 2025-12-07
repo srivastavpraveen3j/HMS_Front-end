@@ -1,0 +1,25 @@
+<!-- <header>
+  <app-doctorsharingheader></app-doctorsharingheader>
+</header>
+<main>
+  <router-outlet></router-outlet>
+</main> -->
+
+<div
+  class="admin-layout-container"
+  [class.sidebar-collapsed]="sidebarCollapsed"
+>
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+    <button class="sidebar-toggle-btn" (click)="toggleSidebar()">
+      <span *ngIf="!sidebarCollapsed">&#9776;</span>
+      <!-- hamburger icon -->
+      <span *ngIf="sidebarCollapsed">&times;</span>
+      <!-- close icon -->
+    </button>
+    <app-doctorreferralheader></app-doctorreferralheader>
+  </aside>
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+<app-adminfooter></app-adminfooter>

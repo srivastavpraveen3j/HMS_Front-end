@@ -1,0 +1,512 @@
+<!-- <p>manageinward works!</p> -->
+<div class="header">
+  <h2 class="dashboard-title">MANAGE OUTPATIENT PATHOLOGY INVESTIGATION</h2>
+
+  <div class="">
+    <button
+      class="toggle ipd btn"
+      [routerLink]="['/pathologylayout/pathointermbill']"
+      routerLinkActive="router-link-active"
+    >
+      OPD
+    </button>
+    <button
+      class="toggle ipd btn"
+      [routerLink]="['/pathologylayout/manageinward']"
+      routerLinkActive="router-link-active"
+    >
+      IPD
+    </button>
+    <button
+      class="toggle ipd btn active"
+      [routerLink]="['/pathologylayout/walkinpathoinwardtest']"
+      routerLinkActive="router-link-active"
+    >
+      Walkin
+    </button>
+  </div>
+</div>
+
+<div class="" *ngIf="userPermissions.create">
+  <form action="" [formGroup]="pathoinward" (ngSubmit)="onSubmit()">
+    <div class="diagnosis-container">
+      <div class="section patient-details mt-3">
+        <h4>PATIENT DETAILS</h4>
+        <!-- <div class="d-flex"> -->
+        <!-- <div class="w-50">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="" class="form-label"> UHID No </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Uhid No"
+                  formControlName="uhid"
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Patient*:</label>
+
+                <input
+                  type="text"
+                  class="input-text"
+                  placeholder="Enter patient name"
+                  formControlName="patient_name"
+                  (focus)="showSuggestions = true"
+                  (blur)="hideSuggestionsWithDelay()"
+                />
+
+                <div
+                  *ngIf="showSuggestions && pathoareq.length > 0"
+                  class="suggestions-container"
+                >
+                  <ul class="suggestions">
+                    <li
+                      *ngFor="let patient of pathoareq"
+                      (mousedown)="selectPatient(patient)"
+                    >
+                      {{ patient.patient_name }} | {{ patient.mobile_no }} |
+                      {{ patient.uhid }}
+                    </li>
+                  </ul>
+                </div>
+
+
+                <div
+                  *ngIf="
+                    pathoinward.get('patient_name')?.value &&
+                    pathoinward.get('patient_name')?.value.length > 2 &&
+                    !pathoareq.length &&
+                    !manuallySelected
+                  "
+                  class="text-danger"
+                >
+                  No matching patients found
+                </div>
+                <div
+                  *ngIf="
+                    pathoinward.get('patient_name')?.touched &&
+                    pathoinward.get('patient_name')?.invalid
+                  "
+                  class="text-danger"
+                >
+                  Patient name is required
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="" class="form-label"> Age </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Age"
+                  formControlName="age"
+                />
+              </div>
+            </div>
+
+
+
+          </div> -->
+
+        <!-- <div class="right-section w-50">
+            <div class="info-box">
+              <table
+                class="table table-bordered table-hover align-middle diagnosis-table"
+              >
+                <thead class="table-dark text-center">
+                  <tr>
+                    <th>#</th>
+                    <th>Patient Name</th>
+                    <th>UHID Number</th>
+                    <th>Date Of Request</th>
+                    <th>Requested Test</th>
+
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="let item of paginatedPharmareq; let i = index"
+                    (click)="onRowSelect(item)"
+                  >
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ item.patientName }}</td>
+                    <td>{{ item.uhid }}</td>
+                    <td>{{ item.requestDetails.createdAt | date }}</td>
+                    <td>
+                      <ng-container
+                        *ngFor="let medical of item.requestDetails.testGroup"
+                      >
+                        <strong>{{ medical.testGroup }}</strong
+                        >:
+                        <ng-container
+                          *ngFor="
+                            let param of medical.testParameters;
+                            let k = index
+                          "
+                        >
+                          {{ param.test_name
+                          }}<span *ngIf="k < medical.testParameters.length - 1"
+                            >,
+                          </span>
+                        </ng-container>
+                        <br />
+                      </ng-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div
+                class="pagination d-flex justify-content-center align-items-center gap-2 mt-3"
+              >
+                <button
+                  class="btn btn-sm btn-primary"
+                  (click)="previousPage()"
+                  [disabled]="currentPage === 1"
+                >
+                  Previous
+                </button>
+                <span>Page {{ currentPage }} of {{ totalPages }}</span>
+                <button
+                  class="btn btn-sm btn-primary"
+                  (click)="nextPage()"
+                  [disabled]="currentPage === totalPages"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </div> -->
+
+        <div class="" formGroupName="walkInPatient">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Name:</label>
+              <input formControlName="name" placeholder="Patient Name" />
+            </div>
+            <div class="form-group">
+              <label>Age:</label>
+              <input type="number" formControlName="age" placeholder="Age" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Gender:</label>
+              <select formControlName="gender">
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div
+              class="form-group"
+              [ngClass]="{
+                'is-invalid':
+                  pathoinward.get('mobile_no')?.invalid &&
+                  pathoinward.get('mobile_no')?.touched
+              }"
+            >
+              <label>Mobile*:</label>
+              <input
+                type="text"
+                formControlName="mobile_no"
+                placeholder="Mobile No"
+                maxlength="10"
+                pattern="[6-9][0-9]{9}"
+                title="Enter 10-digit mobile number starting with 6-9"
+                (keypress)="allowOnlyNumbers($event)"
+              />
+              <div
+                class="text-danger small"
+                *ngIf="
+                  pathoinward.get('mobile_no')?.invalid &&
+                  pathoinward.get('mobile_no')?.touched
+                "
+              >
+                Enter a valid 10-digit mobile number starting with 6-9
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Refer Doctor*:</label>
+              <input
+                type="text"
+                formControlName="referenceDoctor"
+                placeholder="Refer Doctor name"
+              />
+              <div
+                class="text-danger small"
+                *ngIf="
+                  pathoinward.get('referenceDoctor')?.invalid &&
+                  pathoinward.get('referenceDoctor')?.touched
+                "
+              >
+                Enter a refer Doctor Name
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+                 <div class="form-group">
+              <label>Address:</label>
+              <textarea type="text" cols="3" rows="3" formControlName="address" class="form-control" placeholder="address" ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- </div> -->
+
+      <h4 class="m-4">Test Details</h4>
+      <hr />
+      <div class="d-flex w-100">
+        <div class="w-50 position-relative">
+
+
+          <!-- 🔍 Search Input -->
+          <div class="form-group mb-2">
+            <input
+              type="text"
+              class="form-control m-2"
+              [formControl]="searchTextControl"
+              placeholder="Search lab test group..."
+              (focus)="dropdownOpenAssign = true"
+              (blur)="hideDropdownWithDelay()"
+            />
+          </div>
+
+          <!-- ⬇️ Filtered Dropdown -->
+          <div
+            class="dropdown-menu show custom-dropdown p-2"
+            *ngIf="dropdownOpenAssign && filteredTests.length > 0"
+          >
+            <div
+              *ngFor="let test of filteredTests"
+              class="dropdown-item"
+              (click)="selectAssignTest(test)"
+            >
+              {{ test.testGroup }}
+            </div>
+          </div>
+
+          <!-- ✅ Selected Test Group Table -->
+          <div *ngFor="let test of selectedAssignTests" class="mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5>{{ test.testGroup }}</h5>
+              <button
+                class="btn btn-sm btn-danger"
+                (click)="removeAssignTest(test)"
+              >
+                Remove
+              </button>
+            </div>
+
+            <table
+              class="table table-bordered table-hover align-middle diagnosis-table"
+            >
+              <thead>
+                <tr>
+                  <th>Test Name</th>
+                  <th>Units</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let param of test.testParameters">
+                  <td>{{ param.test_name }}</td>
+                  <td>{{ param.units }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="section patient-details mt-3">
+        <!-- Filters Section -->
+        <div class="filters text-center d-flex justify-content-between">
+          <div class="">
+            <h6>{{ selectedTestGroupName || "TEST GROUP NAME" }}</h6>
+          </div>
+          <div>
+            <span
+              *ngIf="selectedTestGroupStatus === 'pending'"
+              class="text-danger ms-4 mt-2"
+            >
+              ⚠️ Please mark the status as <strong>Completed</strong> after
+              entering test values.
+            </span>
+            <div class="">
+              <label class="m-3">Test Status:</label>
+
+              <label
+                class="m-3"
+                [title]="
+                  selectedTestGroupStatus === 'pending'
+                    ? 'Mark status as Completed after entering test values'
+                    : ''
+                "
+              >
+                <input
+                  type="radio"
+                  name="filter"
+                  value="completed"
+                  [checked]="selectedTestGroupStatus === 'completed'"
+                  (change)="selectedTestGroupStatus = 'completed'"
+                />
+                Completed
+              </label>
+
+              <label class="m-3">
+                <input
+                  type="radio"
+                  name="filter"
+                  value="pending"
+                  [checked]="selectedTestGroupStatus === 'pending'"
+                  (change)="selectedTestGroupStatus = 'pending'"
+                />
+                Pending
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="table-container">
+          <!-- Pathology Test Table (CBC Example) -->
+          <table>
+            <thead class="table-dark text-center">
+              <tr>
+                <th>Name</th>
+                <!-- <th>Result</th> -->
+                <th>Unit</th>
+                <th>Input</th>
+                <th>New Range</th>
+                <th>Default</th>
+                <th>Min</th>
+                <th>Max</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let param of selectedTestParameters">
+                <td>{{ param.test_name }}</td>
+                <!-- <td>{{ param.default }}</td> -->
+                <td>{{ param.units }}</td>
+                <input
+                  type="number"
+                  [value]="param.input"
+                  (input)="param.input = $any($event.target).value"
+                  class="form-control"
+                />
+
+                <td>{{ param.min }} - {{ param.max }}</td>
+                <td>{{ param.default }}</td>
+                <td>{{ param.min }}</td>
+                <td>{{ param.max }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <hr />
+      <div class="form-row">
+        <div class="form-group">
+          <label for="" class="form-label"> Total Amount </label>
+          <input type="number" class="form-control" formControlName="total" />
+        </div>
+        <!-- <div class="form-group">
+          <label for="" class="form-label"> Amount Received </label>
+          <input
+            type="number"
+            class="form-control"
+            formControlName="amountReceived"
+          />
+        </div>
+        <div class="form-group">
+          <label for="" class="form-label"> Due Amount </label>
+          <input
+            type="number"
+            class="form-control"
+            formControlName="dueAmount"
+          />
+        </div> -->
+        <div class="form-group">
+          <label for="" class="form-label">Payment Mode</label>
+          <select
+            name=""
+            id=""
+            class="form-control"
+            formControlName="PaymentMode"
+          >
+            <option value="cash">Cash</option>
+            <option value="card">Card</option>
+            <option value="upi">UPI</option>
+            <option value="insurance">Mediclaim</option>
+            <!-- "cash", "card", "upi", "insurance", "other" -->
+          </select>
+          <div
+            *ngIf="
+              pathoinward.get('PaymentMode')?.touched &&
+              pathoinward.get('PaymentMode')?.invalid
+            "
+            class="text-danger"
+          >
+            Payment Mode is required
+          </div>
+        </div>
+        <!-- Show UPI Transaction ID input only if UPI is selected -->
+        <div
+          class="form-group"
+          *ngIf="pathoinward.get('PaymentMode')?.value === 'upi'"
+        >
+          <label>Transaction ID</label>
+          <input
+            type="text"
+            formControlName="transactionId"
+            class="form-control"
+            placeholder="Enter UPI Transaction ID"
+          />
+          <div
+            *ngIf="
+              pathoinward.get('transactionId')?.invalid &&
+              pathoinward.get('transactionId')?.touched
+            "
+            class="text-danger"
+          >
+            Transaction ID is required
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="" class="form-label">Findings</label>
+          <textarea
+            name=""
+            id=""
+            rows="3"
+            cols="8"
+            formControlName="remarks"
+          ></textarea>
+        </div>
+      </div>
+      <!-- <div class="form-row">
+      <div class="form-group ">
+        <label for="" class="form-label">Pathologist</label>
+        <select name="" id="" class="form-control w-50">
+          <option value="">Dr. Jay Vanani</option>
+          <option value="">Dr. Nirav Choudhari</option>
+          <option value="">Dr Parth Gothadiya</option>
+        </select>
+      </div>
+    </div> -->
+    </div>
+
+    <div class="text-center mt-3">
+      <button class="btn btn-dark mx-2" [disabled]="pathoinward.invalid">
+        Submit
+      </button>
+      <!-- <button class="btn btn-secondary">Cancel</button> -->
+    </div>
+  </form>
+</div>

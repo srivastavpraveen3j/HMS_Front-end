@@ -1,0 +1,144 @@
+<div class="form-meta">
+  <!-- <p>rolelist works!</p> -->
+<!-- <p>permissionlist works!</p> -->
+
+<!-- <p>opdcases works!</p> -->
+
+<div class="header">
+  <h2>ROLE LIST</h2>
+  <!-- <button class="list-cases-btn"  routerLinkActive="router-link-active" >Add New Cases</button> -->
+  <button
+    class="list-cases-btn"
+    [routerLink]="['/setting/roles']"
+    routerLinkActive="router-link-active"
+  >
+    ADD ROLES
+  </button>
+</div>
+<!-- <div class="container"> -->
+
+<!-- <div class="top-bar p-3">
+    <select >
+      <option *ngFor="let num of [25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+    </select>
+
+    <input type="text" placeholder="Search..."  />
+
+  </div> -->
+
+
+<!-- <div class="loader-wrapper" *ngIf="roles.length === 0">
+  <div class="loader">
+    <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+  </div>
+</div> -->
+
+
+<div class="mt-5" *ngIf="userPermissions.read && roles.length > 0">
+  <table class="table table-bordered table-hover align-middle diagnosis-table">
+    <thead class="table-dark">
+      <tr>
+        <th>Role Name</th>
+        <th>Permissions of Modules</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let role of roles">
+        <tr>
+          <td class="">{{ role.name }}</td>
+
+          <!-- Permission table in its own column -->
+          <td>
+            <table class="table table-borderless m-0">
+              <tbody>
+                <tr *ngFor="let perm of role.permission">
+                  <td>{{ perm.name }}</td>
+                  <td>
+                    <ng-template #permBadge let-label let-enabled="enabled">
+                      <span
+                        class="badge"
+                        [ngClass]="
+                          enabled
+                            ? 'bg-success text-white'
+                            : 'bg-danger text-white'
+                        "
+                        style="margin-left: 0.5rem; font-size: 0.9rem"
+                      >
+                        {{ label }}
+                      </span>
+                    </ng-template>
+
+                    <ng-container
+                      *ngTemplateOutlet="
+                        permBadge;
+                        context: { $implicit: 'CREATE', enabled: perm.create }
+                      "
+                    ></ng-container>
+                    <ng-container
+                      *ngTemplateOutlet="
+                        permBadge;
+                        context: { $implicit: 'VIEW', enabled: perm.read }
+                      "
+                    ></ng-container>
+                    <ng-container
+                      *ngTemplateOutlet="
+                        permBadge;
+                        context: { $implicit: 'UPDATE', enabled: perm.update }
+                      "
+                    ></ng-container>
+                    <ng-container
+                      *ngTemplateOutlet="
+                        permBadge;
+                        context: { $implicit: 'DELETE', enabled: perm.delete }
+                      "
+                    ></ng-container>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+
+          <!-- Now action icons align properly -->
+          <td class="">
+            <i
+              class="fa-solid fa-pencil action-btn mx-1"
+              *ngIf="userPermissions.update"
+              (click)="editRole(role._id)"
+            ></i>
+            <!-- <i class="fa-solid fa-trash action-btn mx-1" *ngIf="userPermissions.delete" (click)="deleteRole(role._id)"></i> -->
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</div>
+
+<!-- <td>{{ perm.resource || '—' }}</td> -->
+
+<!-- <td class="text-center">
+        {{ (perm.create || perm.read || perm.update || perm.delete || perm.action) ? 'Yes' : 'No' }}
+
+</table>
+
+< </div> -->
+
+<div class="pagination d-flex justify-content-center align-items-center my-3">
+  <button
+    class="pagination-btn btn btn-primary mx-2"
+    (click)="previousPage()"
+    [disabled]="currentPage === 1"
+  >
+    Previous
+  </button>
+  <span>Page {{ currentPage }} of {{ totalPages }}</span>
+  <button
+    class="pagination-btn btn btn-primary mx-2"
+    (click)="nextPage()"
+    [disabled]="currentPage === totalPages"
+  >
+    Next
+  </button>
+</div>
+
+</div>

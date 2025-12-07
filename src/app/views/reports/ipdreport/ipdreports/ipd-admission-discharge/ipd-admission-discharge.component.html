@@ -1,0 +1,78 @@
+<div #pdfContent>
+  <div class="header d-flex justify-content-between align-items-center mb-3 filter-tabs">
+    <h2 class="mb-0">
+      {{
+        activeTab === "admission" ? "ADMITTED PATIENTS" : "DISCHARGED PATIENTS"
+      }}
+    </h2>
+
+    <ul class="nav nav-tabs mb-0">
+      <li class="nav-item">
+        <a
+          class="nav-link no-print"
+          [ngClass]="{ active: activeTab === 'admission' }"
+          (click)="setActiveTab('admission')"
+        >
+          ADMISSION
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link no-print"
+          [ngClass]="{ active: activeTab === 'discharge' }"
+          (click)="setActiveTab('discharge')"
+        >
+          DISCHARGE
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="alert alert-secondary my-2 text-end">
+    {{
+    activeTab === "admission" ? "Total admitted patients" : "Total discharged patients"
+    }} : {{ filteredPatients.length }}
+  </div>
+
+  <div *ngIf="filteredPatients.length > 0">
+    <table class="table table-bordered table-hover align-middle diagnosis-table">
+      <thead class="table-dark text-center">
+        <tr>
+          <th>#</th>
+          <th>UHID</th>
+          <th>Patient Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Consulting Doctor</th>
+          <th>Created At</th>
+          <th>Admission Date</th>
+          <th>Mobile No</th>
+          <th>Area</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let patient of filteredPatients; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ patient.uniqueHealthIdentificationId?.uhid }}</td>
+          <td style="cursor: pointer; color: blue">
+            {{ patient.uniqueHealthIdentificationId?.patient_name }}
+          </td>
+          <td>{{ patient.uniqueHealthIdentificationId?.age }}</td>
+          <td>{{ patient.uniqueHealthIdentificationId?.gender }}</td>
+          <td>{{ patient.admittingDoctorId?.name }}</td>
+          <td>{{ patient.createdAt | date : "yyyy-MM-dd" }}</td>
+          <td>{{ patient.admissionDate | date : "yyyy-MM-dd" }}</td>
+          <td>{{ patient.uniqueHealthIdentificationId?.mobile_no }}</td>
+          <td>{{ patient.uniqueHealthIdentificationId?.area }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="d-flex justify-content-end">
+      <button (click)="downloadPDF()" class="btn btn-dark mb-3 no-print">Download</button>
+    </div>
+  </div>
+</div>
+
+<app-loader [patientData]="filteredPatients" [title]="activeTab === 'admission' ? 'Admitted patients' : 'Discharged patients'"></app-loader>
+

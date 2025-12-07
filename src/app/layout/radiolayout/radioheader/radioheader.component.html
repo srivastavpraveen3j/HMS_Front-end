@@ -1,0 +1,447 @@
+<aside class="sidebar" [ngClass]="{ collapsed: isCollapsed }">
+  <div class="logo-container" routerLink="/radiologylayout/radiologydashboard">
+    <div class="logo">
+      <img
+        [src]="logoUrl"
+        alt="Hospital Logo"
+        class="logo-image"
+        [ngStyle]="getLogoStyleForSidebar()"
+        (error)="onLogoError($event)"
+      />
+
+      <!-- <i
+        *ngIf="isCollapsed"
+        class="fa-solid fa-hospital logo-icon"
+        [ngStyle]="getIconStyle()"
+      >
+      </i> -->
+    </div>
+  </div>
+  <nav>
+    <ul class="sidebar-nav">
+      <li *ngIf="hasModuleAccess('inward')" class="nav-item">
+        <a class="nav-link" href="/radiologylayout/manageradioinward">
+          <i class="fa-solid fa-file-prescription" *ngIf="isCollapsed"></i>
+          <span class="nav-text">MANAGE INWARD</span>
+        </a>
+      </li>
+      <!-- Master -->
+      <!-- <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" (click)="toggleDropdown('master')">
+          <i class="fa-solid fa-file-contract nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Master</span>
+        </a>
+        <ul class="dropdown-menu" [class.open]="dropdowns.master">
+          <div class="dropdown-grid">
+            <li *ngIf="hasModuleAccess('testGroup')">
+              <a
+                class="dropdown-item"
+                href="/radiologylayout/radiotestgroupmasterlist"
+              >
+                <i
+                  class="fa-solid fa-flask-vial nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="dropdown-item" *ngIf="!isCollapsed">
+                  Test Group
+                </span>
+              </a>
+            </li>
+
+            <li *ngIf="hasModuleAccess('testParameter')">
+              <a
+                class="dropdown-item"
+                href="/radiologylayout/radiotestparametermasterlist"
+              >
+                <i
+                  class="fa-solid fa-microscope nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="dropdown-item" *ngIf="!isCollapsed">
+                  Parameters
+                </span>
+              </a>
+            </li>
+          </div>
+        </ul>
+      </li> -->
+
+      <!-- <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" (click)="toggleDropdown('report')">
+          <i class="fa-solid fa-file-contract nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Reports</span>
+        </a>
+        <ul class="dropdown-menu" [class.open]="dropdowns.report">
+          <div class="dropdown-grid">
+            <li *ngIf="hasModuleAccess('inward')">
+              <a class="dropdown-item" href="/radiologylayout/radioreport">
+                <i class="fa-solid fa-vials nav-icon" *ngIf="isCollapsed"></i>
+                <span class="dropdown-item" *ngIf="!isCollapsed">
+                  Test Group Wise
+                </span>
+              </a>
+            </li>
+
+            <li *ngIf="hasModuleAccess('inward')">
+              <a class="dropdown-item" href="/radiologylayout/radiodeptreport">
+                <i
+                  class="fa-solid fa-building-user nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="dropdown-item" *ngIf="!isCollapsed">
+                  Department Wise
+                </span>
+              </a>
+            </li>
+          </div>
+        </ul>
+      </li> -->
+
+      <li class="nav-item" *ngIf="radiologypermission">
+        <a
+          class="nav-link"
+          style="
+            color: var(--sidebar-color) !important;
+            background-color: var(--sidebar-color);
+          "
+        >
+          <app-notification></app-notification>
+        </a>
+      </li>
+    </ul>
+
+    <div class="user-menu">
+      <!-- <div class="nav-item dropdown">
+        <a
+          class="nav-link dropdown-toggle"
+          (click)="toggleDropdown('settings')"
+        >
+          <i
+            class="fa-solid fa-gear nav-icon"
+            *ngIf="isCollapsed"
+            routerLink="/profilesetting"
+          ></i>
+          <span class="nav-text">Settings</span>
+        </a>
+        <ul class="dropdown-menu" [class.open]="dropdowns.settings">
+          <div class="dropdown-grid">
+            <li>
+              <a class="dropdown-item" href="/profilesetting"> Profile </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="setting/logo"> Logo </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="setting/theme"> Theme </a>
+            </li>
+          </div>
+        </ul>
+      </div> -->
+
+      <div class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" (click)="toggleDropdown('layout')">
+          <i class="fa-solid fa-x-ray nav-icon" *ngIf="isCollapsed"></i>
+
+          <span class="nav-text">Radiology</span>
+        </a>
+        <ul
+          class="dropdown-menu masters-menu"
+          *ngIf="hasAnyDropdownAccess()"
+          [class.open]="dropdowns.layout"
+        >
+          <div class="dropdown-grid">
+            <!-- <li *ngIf="hasModuleAccess('inward')">
+              <a
+                class="dropdown-item"
+                href="/pathologylayout/pathologydashboard"
+              >
+                  <i class="fa-solid fa-vials nav-icon" *ngIf="isCollapsed" ></i>
+                <span class="nav-text">Pathology</span>
+              </a>
+            </li> -->
+
+            <li *ngIf="hasModuleAccess('pharmaceuticalInward')">
+              <a class="dropdown-item" href="/pharmalayout/pharmacydashboard">
+                <i
+                  class="fa-solid fa-house-medical-flag nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="nav-text">Pharmacy</span>
+              </a>
+            </li>
+            <li *ngIf="hasModuleAccess('inventoryItem')">
+              <a class="dropdown-item" href="/inventorylayout">
+                <i
+                  class="fa-solid fa-building-columns nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="nav-text" *ngIf="!isCollapsed">Central Store</span>
+              </a>
+            </li>
+            <li *ngIf="hasModuleAccess('hims')">
+              <a class="dropdown-item" href="/dashboard">
+                <i
+                  class="fa-solid fa-hospital nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="nav-text" *ngIf="!isCollapsed">HIMS</span>
+              </a>
+            </li>
+            <!-- <li *ngIf="hasModuleAccess('sharedPatientCases')">
+              <a class="dropdown-item" href="/doctorreferrallayout">
+                <i class="fa-solid fa-user-doctor nav-icon" *ngIf="isCollapsed" ></i>
+                <span class="nav-text">Doctor Sharing</span>
+              </a>
+            </li> -->
+          </div>
+        </ul>
+      </div>
+
+      <div>
+        <a class="nav-link" (click)="logout()">
+          <i class="fa-solid fa-sign-out-alt nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Logout</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-toggle" (click)="toggleCollapse()">
+    <i
+      class="fa-solid"
+      [ngClass]="isCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"
+    ></i>
+  </div>
+</aside>
+
+<!-- <div class="d-flex">
+  <div
+    *ngIf="hasModuleAccess('inward')"
+    class="logo-container w-25"
+    routerLink="/radiologylayout/radiologydashboard"
+  >
+    <div class="logo">
+      <img src="Untitled design (6).jpg" alt="logo" />
+    </div>
+  </div>
+  <div class="w-75">
+    <nav class="header navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="nav-links navbar-nav me-auto">
+            <li *ngIf="hasModuleAccess('inward')" class="nav-item">
+              <a class="nav-link" href="/radiologylayout/manageradioinward"
+                >MANAGE INWARD</a
+              >
+            </li>
+            <li class="nav-item"><a class="nav-link" href="/radiologylayout/radiointermbill">INTERM BILL</a></li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle"
+                >REPORTS</a
+              >
+                <ul class="dropdown-menu">
+                <div class="dropdown-grid">
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i>Test Master</a></li>
+                  <li *ngIf="hasModuleAccess('inward')">
+                    <a
+                      class="dropdown-item"
+                      href="/radiologylayout/radioreport"
+                      ><i class="fa-regular fa-hand-point-right"></i> Test
+                      Group wise Report</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('inward')">
+                    <a
+                      class="dropdown-item"
+                      href="/radiologylayout/radiodeptreport"
+                      ><i class="fa-regular fa-hand-point-right"></i
+                      >Department wise Report</a
+                    >
+                  </li>
+                </div>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="doctorDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                Master
+              </a>
+              <ul class="dropdown-menu">
+                <div class="dropdown-grid">
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i>Test Master</a></li>
+                  <li *ngIf="hasModuleAccess('testGroup')">
+                    <a
+                      class="dropdown-item"
+                      href="/radiologylayout/radiotestgroupmasterlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Test
+                      Group</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('testParameter')">
+                    <a
+                      class="dropdown-item"
+                      href="/radiologylayout/radiotestparametermasterlist"
+                      ><i class="fa-regular fa-hand-point-right"></i
+                      >Parameters</a
+                    >
+                  </li>
+                </div>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="doctorDropdown" role="button" data-bs-toggle="dropdown">
+             SHARING
+              </a>
+              <ul class="dropdown-menu doctor-menu">
+                <div class="dropdown-grid">
+                  <li><a class="dropdown-item" href="/doctor/daignosissheet"><i class="fa-regular fa-hand-point-right"></i>Diagnosis Sheet</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Discharge Summary</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Vital Chart</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Surgery Note</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i>Issue Certificates</a></li>
+                </div>
+                <div class="dropdown-grid">
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i>Pharmacy Requisition</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i>  Pathology Result</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i>Radiology Requisition</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Central Store Requisition</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Treatment Order Sheet</a></li>
+                </div>
+              </ul>
+
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="mastersDropdown" role="button" data-bs-toggle="dropdown">
+                MASTERS
+              </a>
+              <ul class="dropdown-menu masters-menu">
+                <div class="dropdown-grid">
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> User</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Doctor</a></li>
+                  <li><a class="dropdown-item" href="/master/opdservice"><i class="fa-regular fa-hand-point-right"></i> OPD Services</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> OPD Charge List</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> OPD Series</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Service Group</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> IPD Service</a></li>
+                </div>
+                <div class="dropdown-grid">
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> IPD Charge List</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Wards</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Room & Bed</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> TPA & Company</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Symptoms</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Symptom Group</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Medical Test</a></li>
+                </div>
+                <div class="dropdown-grid">
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Medicines</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Diagnosis (ICD Codes)</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Certificates</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Options</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Health Checkup Plan</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Department</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Expense Group</a></li>
+                </div>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="settings" role="button" data-bs-toggle="dropdown">
+              SETTINGS
+              </a>
+              <ul class="dropdown-menu settingmenu">
+                <div class="dropdown-grid">
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> General Setting</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Authorities Management</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Role Management</a></li>
+                </div>
+              </ul>
+            </li>
+          </ul>
+          <div class="user-menu">
+            <a class="nav-item" href="#"> HMS</a>
+            <div class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="hmsDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                Radiology
+              </a>
+              <ul class="dropdown-menu">
+                <div class="dropdown-grid">
+                  <li>
+                    <a class="dropdown-item" href="/dashboard"
+                      ><i class="fa-solid fa-gear"></i>HMS</a
+                    >
+                  </li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-gear"></i>Centeral Store</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-gear"></i> DR Sharing</a></li>
+                  <li *ngIf="hasModuleAccess('pharmaceuticalInward')" ><a class="dropdown-item" href="/pharmalayout/pharmacydashboard"><i class="fa-solid fa-gear"></i> Pharmacy</a></li>
+                  <li *ngIf="hasModuleAccess('inward')"><a class="dropdown-item" href="/pathologylayout/pathologydashboard"><i class="fa-solid fa-gear"></i>Pathology</a></li>
+                  <li *ngIf="hasModuleAccess('sharedPatientCases')"><a class="dropdown-item" href="/doctorsharinglayout"><i class="fa-solid fa-gear"></i>Doctor
+                      Sharing</a></li>
+                  <li *ngIf="hasModuleAccess('inward')"><a class="dropdown-item" href="/radiationlayout"><i class="fa-solid fa-gear"></i>Radiation</a></li>
+                   <li *ngIf="hasModuleAccess('inventoryItem')">
+                    <a class="dropdown-item" href="/inventorylayout"
+                      ><i class="fa-solid fa-gear"></i>Central Store</a
+                    >
+                  </li>
+                </div>
+              </ul>
+            </div>
+
+             <div class="nav-item">
+
+             <app-notification></app-notification>
+            </div>
+            <div class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="hmsDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fa-solid fa-user-tie"></i>
+              </a>
+              <ul class="dropdown-menu">
+                <div class="dropdown-grid">
+                  <li>
+                    <a class="dropdown-item" href="/profilesetting"
+                      ><i class="fa-solid fa-gear"></i>Profile</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="nav-link"
+                      [routerLink]="['/login']"
+                      routerLinkActive="router-link-active"
+                      ><i class="fa-solid fa-gear"></i>Logout</a
+                    >
+                  </li>
+                </div>
+              </ul>
+            </div>
+            <a class="nav-link" [routerLink]="['/login']" routerLinkActive="router-link-active"><i class="fa-solid fa-user-tie"></i></a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div> -->

@@ -1,0 +1,111 @@
+<!-- <p>opdpharmareqlist works!</p> -->
+<div class="header">
+  <h2>OUTPATIENT PHARMACY REQUSITION LIST</h2>
+  <div class="">
+    <button class="list-cases-btn" [routerLink]="['/doctor/opdpharmareq']" routerLinkActive="router-link-active">ADD PHARMACY REQUSITION REQUEST</button>
+  </div>
+</div>
+`
+<!-- <form [formGroup]="filterForm" class="top-bar p-3">
+  <select formControlName="recordsPerPage">
+    <option *ngFor="let num of [10, 25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+  </select>
+
+  <input type="text" placeholder="Search..." formControlName="searchText" />
+</form> -->
+
+
+  <!-- Filter by Today or Date Range -->
+    <div class="filters d-flex align-items-center m-3">
+      <label class="m-3">
+        <input type="radio" name="filter" value="today" [(ngModel)]="activeFilter" (change)="applyFilters()" checked>
+        TODAY'S
+      </label>
+
+      <label class="m-3">
+        <input type="radio" name="filter" value="dateRange" [(ngModel)]="activeFilter" (change)="applyFilters()">
+        Date Range
+      </label>
+
+      <!-- Date Inputs Visible Only for Date Range -->
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="startDate"
+        (change)="applyFilters()"
+        class="form-control mx-2"
+      />
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="endDate"
+        (change)="applyFilters()"
+        class="form-control mx-2"
+      />
+    </div>
+
+    <div class="" *ngIf="userPermissions.read">
+<table class="table table-bordered table-hover align-middle diagnosis-table">
+  <thead class="table-dark text-center">
+    <tr>
+      <th>#</th>
+      <th>Patient Name</th>
+      <th>UHID</th>
+      <th>Patient Type</th>
+      <th>Requested Medicine</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+<tbody *ngIf="(filteredCases?.length || 0) > 0; else noData">
+  <ng-container *ngFor="let pkg of filteredCases; let i = index">
+    <ng-container *ngFor="let request of pkg.pharmaceuticalrequestlists; let k = index">
+      <tr>
+        <td>{{i + 1}}.{{k + 1}}</td>
+        <td>{{pkg.patient_name}}</td>
+        <td>{{pkg.uhid}}</td>
+        <td>{{request.patientType}}</td>
+        <td>
+          <ng-container *ngFor="let item of request.packages; let j = index">
+            {{item.medicineName}} - {{item.quantity}}{{j < request.packages.length - 1 ? ', ' : ''}}
+          </ng-container>
+        </td>
+        <td>{{request.status}}</td>
+        <td>
+          <ng-container *ngIf="request.status !== 'completed'">
+            <i class="fa-solid fa-eye action-btn"  (click)="viewPatient(request?._id)"></i>
+            <i class="fa-solid fa-pencil action-btn" *ngIf="userPermissions.update" (click)="editPharmaReq(request?._id)"></i>
+            <!-- <i class="fa-solid fa-trash action-btn" *ngIf="userPermissions.delete" (click)="deletePharmaReq(request?._id)"></i> -->
+          </ng-container>
+        </td>
+      </tr>
+    </ng-container>
+  </ng-container>
+</tbody>
+
+<ng-template #noData>
+  <tr>
+    <td colspan="7" class="text-center">No records found.</td>
+  </tr>
+</ng-template>
+
+
+</table>
+
+
+<!-- Modal -->
+<div class="modal-backdrop" *ngIf="selectedPatient">
+  <div class="modal-content-box">
+    <div class="modal-header">
+      <h3 style="visibility: hidden;">Patient Details</h3>
+      <button class="close-btn" (click)="closeModal()">×</button>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <app-patient-opdmedicine-request [patientData]="selectedPatient"></app-patient-opdmedicine-request>
+    </div>
+  </div>
+</div>
+    </div>
+
+<!-- Modal -->

@@ -1,0 +1,41 @@
+<div id="opd-sheet" class="opd-sheet" *ngIf="patientData">
+  <!-- Header -->
+  <div class="header">
+    <img src="P P Maniya_page-0001.jpg" alt="Logo" class="logo" />
+     <!-- <app-letterheader class="logo"></app-letterheader> -->
+  </div>
+
+  <!-- Title -->
+  <h3 class="center-title">OPD Appointment</h3>
+
+  <!-- Info Section -->
+  <div class="info-grid">
+    <div class="left-info">
+      <p><strong>CASE NO :</strong> {{ patientData.uhid?.uhid }}</p>
+      <p><strong>NAME :</strong> {{ patientData.uhid?.patient_name }}</p>
+      <p><strong>AGE / SEX :</strong> {{ patientData.uhid?.age }} /
+        {{ patientData.uhid?.gender === 'male' ? 'Male' : 'Female' }}</p>
+      <!-- <p><strong>ADDRESS :</strong> {{ patientData..area }}</p> -->
+      <p><strong>CONS. DR. :</strong> {{ patientData.Consulting_Doctor?.name }}</p>
+      <p><strong>STATUS :</strong> {{ patientData.status }}</p>
+      <p><strong>REMARKS :</strong> {{ patientData.remarks }}</p>
+    </div>
+    <div class="right-info">
+      <p><strong>TOKEN NUMBER :</strong> {{ patientData.token_number }} </p>
+      <p><strong>DATE :</strong> {{ patientData.date | date:'mediumDate' }}</p>
+      <p><strong>TIME-SLOT :</strong> {{ patientData.time_slot }}</p>
+      <p><strong>CHECK-IN TIME :</strong> {{ patientData.checkin_time | date:'hh:mm a'}}</p>
+      <p><strong>MOBILE NO. :</strong> {{ patientData.uhid?.mobile_no }}</p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Add any other sections like Vitals or Complaints here -->
+
+</div>
+
+<hr />
+<footer class="m-3 d-flex justify-content-between">
+  <button class="btn btn-dark" (click)="printOPDSheet()">Print  <i class="fa-solid fa-print action-btn"></i></button>
+</footer>

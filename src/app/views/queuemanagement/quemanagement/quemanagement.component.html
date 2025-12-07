@@ -1,0 +1,165 @@
+<div class="tv-dashboard">
+  <!-- Top Status Bar -->
+  <div class="status-bar">
+    <div class="hospital-brand">
+      <div class="logo">
+        <i class="fas fa-hospital"></i>
+      </div>
+      <div class="brand-info">
+        <h1>Patient Queue System</h1>
+        <span class="tagline">Real-time Updates</span>
+      </div>
+    </div>
+
+    <div class="live-info">
+      <div class="time-widget">
+        <div class="current-time">{{ Today }}</div>
+      </div>
+
+      <div class="doctor-badge">
+        <div class="avatar">
+          <i class="fas fa-stethoscope"></i>
+        </div>
+        <div class="doctor-info">
+          <span class="label">On Duty</span>
+          <h3>Dr. {{ docName }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="main-grid">
+    <!-- Large Current Patient Display -->
+    <div class="hero-section">
+      <div class="hero-header">
+        <div class="pulse-dot"></div>
+        <h2>Upcoming</h2>
+        <!-- <div *ngIf="upcomingPatient.status === 'waiting' || upcomingPatient.status === 'onHold'" class="live-indicator">
+          {{ upcomingPatient.status === 'waiting' ? 'LIVE' : 'HOLD' }}
+        </div> -->
+        <div [ngSwitch]="upcomingPatient.status" class="live-indicator">
+          <span *ngSwitchCase="'waiting'">LIVE</span>
+          <span *ngSwitchCase="'onHold'">HOLD</span>
+        </div>
+
+      </div>
+
+      <div class="current-display" *ngIf="upcomingPatient">
+        <div class="patient-card-large">
+          <div class="card-header">
+            <div class="token-number">
+              <span class="hash">#</span>
+              <span class="number">{{ upcomingPatient.caseId?.uniqueHealthIdentificationId?.uhid }}</span>
+            </div>
+            <!-- <div class="urgency-badge high">URGENT</div> -->
+          </div>
+
+          <div class="patient-details-large">
+            <div class="name-section">
+              <h1 class="patient-name">
+                {{ upcomingPatient.caseId?.uniqueHealthIdentificationId?.patient_name || 'Patient' }}
+              </h1>
+              <!-- <div class="department-large">
+                {{ upcomingPatient.department }}
+              </div> -->
+            </div>
+
+            <div class="status-section">
+              <div class="waiting-time">
+                <i class="fas fa-clock"></i>
+                <span>{{ upcomingPatient.status }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="!upcomingPatient">
+        <div class="empty-icon">
+          <i class="fas fa-coffee"></i>
+        </div>
+        <h2>All Clear!</h2>
+        <p>No patients currently waiting</p>
+      </div>
+    </div>
+
+    <!-- Queue List -->
+    <div class="queue-sidebar">
+      <div class="sidebar-header">
+        <h3>
+          <i class="fas fa-users"></i>
+          Waiting Queue
+        </h3>
+        <div class="queue-stats">
+          <span class="count">{{ queueStatus.length }}</span>
+          <span class="label">waiting</span>
+        </div>
+      </div>
+
+      <div class="queue-container">
+        <div class="queue-items" *ngIf="queueStatus.length > 0">
+          <div class="queue-card"
+               *ngFor="let patient of queueStatus; let i = index"
+               [class.next-up]="i === 0">
+
+            <div class="card-left">
+              <div class="position-badge">
+                {{ i + 2 }}
+              </div>
+            </div>
+
+            <div class="card-content">
+              <div class="patient-id">
+                #{{ patient.caseId?.uniqueHealthIdentificationId?.uhid }}
+              </div>
+              <div class="patient-name-small">
+                {{ patient.caseId?.uniqueHealthIdentificationId?.patient_name || 'Patient' }}
+              </div>
+              <div class="dept-tag">
+                {{ patient.department }}
+              </div>
+            </div>
+
+            <div class="card-right">
+              <div class="wait-indicator" >
+                <!-- <span class="next-label">NEXT</span> -->
+                    <span class="next-label">{{ patient.status }}</span>
+              </div>
+              <!-- <div class="wait-time" *ngIf="i !== 0">
+                <i class="fas fa-hourglass-half"></i>
+              </div> -->
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-queue" *ngIf="queueStatus.length === 0">
+          <i class="fas fa-check-circle"></i>
+          <span>Queue is empty</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Ticker/Stats -->
+  <div class="bottom-ticker">
+    <div class="ticker-content">
+      <div class="stat-item">
+        <i class="fas fa-users"></i>
+        <span>Total Today: {{ queueStatus.length + (upcomingPatient ? 1 : 0) }}</span>
+      </div>
+      <!-- <div class="stat-item">
+        <i class="fas fa-clock"></i>
+        <span>Avg Wait: 15 min</span>
+      </div> -->
+      <!-- <div class="stat-item">
+        <i class="fas fa-heartbeat"></i>
+        <span>System Status: Online</span>
+      </div> -->
+    </div>
+    <!-- <div class="auto-refresh">
+      <i class="fas fa-sync-alt spinning"></i>
+      <span>Auto-refresh: 10s</span>
+    </div> -->
+  </div>
+</div>

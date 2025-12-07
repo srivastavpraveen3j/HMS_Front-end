@@ -1,0 +1,137 @@
+<div class="form-meta">
+  <!-- <p>request-for-quotation-component works!</p> -->
+  <div class="header">
+    <h2>REQUEST FOR QUOTATION (RFQ)</h2>
+    <!-- <p>Select a vendor and send item list for quotation.</p> -->
+
+    <span class="icons position-relative">
+      <!-- <i
+      class="fa-solid fa-user-tie mx-2"
+      (click)="showUHIDDropdown = !showUHIDDropdown"
+    ></i> -->
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/inventorylayout/requestquotationlist']"
+        routerLinkActive="router-link-active"
+      ></i>
+
+      <!-- Dropdown -->
+      <!-- <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+      <div
+        *ngIf="uhidTodayRecords.length === 0"
+        class="text-center text-muted py-2"
+      >
+        No UHID created today.
+      </div>
+
+      <ul class="uhid-list">
+        <li
+          *ngFor="let record of uhidTodayRecords"
+          (click)="selectPatientFromUHID(record)"
+          style="cursor: pointer"
+        >
+          <div class="uhid-name">{{ record.patient_name }}</div>
+          <div class="uhid-meta">
+            UHID: {{ record.uhid }} | Age: {{ record.age }}
+          </div>
+        </li>
+      </ul>
+    </div> -->
+    </span>
+  </div>
+
+  <div class="opd-container">
+    <form [formGroup]="rfqForm" *ngIf="!submitted">
+      <!-- <div class="form-group">
+  <label>Select Vendors*</label>
+  <select class="form-control" formControlName="vendor" multiple required>
+    <option *ngFor="let vendor of vendors" [value]="vendor._id">{{ vendor.vendorName }}</option>
+  </select>
+</div> -->
+
+      <div class="form-group">
+        <label class="form-label">Select Vendors</label>
+        <div class="custom-multiselect" (click)="onDropdownToggle(!dropdownOpen)">
+          <div class="selected-items">
+            <span
+              *ngFor="let vendor of selectedPermissions"
+              class="selected-tag"
+            >
+              {{ vendor.vendorName }}
+              <span class="remove-tag" (click)="removePermission(vendor); $event.stopPropagation()"
+                >×</span
+              >
+            </span>
+            <input type="hidden" formControlName="vendor" />
+          </div>
+
+          <!-- Search input -->
+          <div class="search-input-container">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search vendor..."
+              [(ngModel)]="vendorSearchTerm"
+              (ngModelChange)="onSearchVendor($event)"
+              (click)="$event.stopPropagation()"
+              [ngModelOptions]="{ standalone: true }"
+            />
+            <button
+              *ngIf="vendorSearchTerm"
+              type="button"
+              class="clear-search-btn"
+              (click)="clearSearch(); $event.stopPropagation()"
+            >
+              ×
+            </button>
+          </div>
+
+          <!-- Dropdown results -->
+          <ul class="dropdown-list" *ngIf="dropdownOpen">
+            <li *ngIf="vendors.length === 0" class="no-results">No vendors found</li>
+            <li
+              *ngFor="let vendor of vendors"
+              (click)="selectPermission(vendor); $event.stopPropagation()"
+              class="dropdown-item"
+            >
+              {{ vendor.vendorName }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <h5 class="mt-4">Items to Include in RFQ:</h5>
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Item Name</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Department</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of requisitions?.sourcePurchaseRequisitions">
+            <td>{{ item.itemName }}</td>
+            <td>{{ item.category }}</td>
+            <td>{{ item.quantityRequired }}</td>
+            <td>{{ item.departmentName }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <button
+        class="btn btn-dark mt-3"
+        type="button"
+        (click)="submitRFQ()"
+        [disabled]="selectedPermissions.length === 0"
+      >
+        Send RFQ
+      </button>
+    </form>
+
+    <div *ngIf="submitted" class="alert alert-success mt-4">
+      <strong>RFQ has been sent to {{ getSelectedVendorNames() }}.</strong>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,327 @@
+<!-- <p>versioncontrol works!</p> -->
+
+<!-- <p>version-control works!</p> -->
+<div class="header">
+  <h2>Version Control & Updates</h2>
+  <!-- <div class="breadcrumb">
+    <span>System Management</span> / <span class="active">Version Control & Updates</span>
+  </div> -->
+</div>
+
+<div class="opd-container">
+  <div class="control-panel">
+    <div class="panel-header">
+      <h3>Software Version Management</h3>
+      <div class="header-actions">
+        <button class="btn-primary"><i class="icon-plus"></i> Create New Release</button>
+        <button class="btn-secondary"><i class="icon-settings"></i> Settings</button>
+      </div>
+    </div>
+
+    <div class="version-summary">
+      <div class="summary-card">
+        <div class="card-value">v4.2.7</div>
+        <div class="card-label">Current Stable</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-value">v4.3.0</div>
+        <div class="card-label">Beta Release</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-value">142</div>
+        <div class="card-label">Total Deployments</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-value">97%</div>
+        <div class="card-label">Update Success Rate</div>
+      </div>
+    </div>
+
+    <div class="version-filters">
+      <div class="filter-group">
+        <label>Filter By:</label>
+        <select class="filter-select">
+          <option>All Versions</option>
+          <option>Stable Releases</option>
+          <option>Beta Releases</option>
+          <option>Alpha Releases</option>
+          <option>Critical Updates</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Time Period:</label>
+        <select class="filter-select">
+          <option>Past 30 Days</option>
+          <option>Past 3 Months</option>
+          <option>Past 6 Months</option>
+          <option>Past Year</option>
+          <option>All Time</option>
+        </select>
+      </div>
+      <div class="search-group">
+        <input type="text" placeholder="Search versions..." class="search-input">
+        <button class="search-btn"><i class="icon-search"></i></button>
+      </div>
+    </div>
+
+    <div class="version-table">
+        <table class="table table-bordered table-hover align-middle diagnosis-table">
+       <thead class="table-dark text-center" >
+          <tr>
+            <th>Version</th>
+            <th>Release Date</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Hospitals Deployed</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>v4.2.7</td>
+            <td>15 Apr 2025</td>
+            <td><span class="badge stable">Stable</span></td>
+            <td><span class="status-indicator active"></span> Active</td>
+            <td>
+              <div class="progress-bar">
+                <div class="progress" style="width: 95%"></div>
+                <span>95% (228/240)</span>
+              </div>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <i class="fa-solid fa-print action-btn"></i>
+                <i class="fa-solid fa-eye action-btn"></i>
+                <i class="fa-solid fa-pencil action-btn" ></i>
+                <i class="fa-solid fa-trash action-btn"  ></i>
+
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>v4.3.0</td>
+            <td>10 Apr 2025</td>
+            <td><span class="badge beta">Beta</span></td>
+            <td><span class="status-indicator active"></span> Active</td>
+            <td>
+              <div class="progress-bar">
+                <div class="progress" style="width: 12%"></div>
+                <span>12% (30/240)</span>
+              </div>
+            </td>
+            <td>
+               <div class="action-buttons">
+                <i class="fa-solid fa-print action-btn"></i>
+                <i class="fa-solid fa-eye action-btn"></i>
+                <i class="fa-solid fa-pencil action-btn" ></i>
+                <i class="fa-solid fa-trash action-btn"  ></i>
+
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>v4.2.6</td>
+            <td>23 Mar 2025</td>
+            <td><span class="badge stable">Stable</span></td>
+            <td><span class="status-indicator deprecated"></span> Deprecated</td>
+            <td>
+              <div class="progress-bar">
+                <div class="progress" style="width: 5%"></div>
+                <span>5% (12/240)</span>
+              </div>
+            </td>
+            <td>
+               <div class="action-buttons">
+                <i class="fa-solid fa-print action-btn"></i>
+                <i class="fa-solid fa-eye action-btn"></i>
+                <i class="fa-solid fa-pencil action-btn" ></i>
+                <i class="fa-solid fa-trash action-btn"  ></i>
+
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>v4.2.5</td>
+            <td>15 Feb 2025</td>
+            <td><span class="badge stable">Stable</span></td>
+            <td><span class="status-indicator archived"></span> Archived</td>
+            <td>
+              <div class="progress-bar">
+                <div class="progress" style="width: 0%"></div>
+                <span>0% (0/240)</span>
+              </div>
+            </td>
+            <td>
+               <div class="action-buttons">
+                <i class="fa-solid fa-print action-btn"></i>
+                <i class="fa-solid fa-eye action-btn"></i>
+                <i class="fa-solid fa-pencil action-btn" ></i>
+                <i class="fa-solid fa-trash action-btn"  ></i>
+
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>v4.2.4-hotfix</td>
+            <td>03 Feb 2025</td>
+            <td><span class="badge hotfix">Hotfix</span></td>
+            <td><span class="status-indicator archived"></span> Archived</td>
+            <td>
+              <div class="progress-bar">
+                <div class="progress" style="width: 0%"></div>
+                <span>0% (0/240)</span>
+              </div>
+            </td>
+            <td>
+               <div class="action-buttons">
+                <i class="fa-solid fa-print action-btn"></i>
+                <i class="fa-solid fa-eye action-btn"></i>
+                <i class="fa-solid fa-pencil action-btn" ></i>
+                <i class="fa-solid fa-trash action-btn"  ></i>
+
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="update-deployment">
+      <div class="deployment-header">
+        <h3>Release Deployment Management</h3>
+        <button class="btn-secondary">Deployment History</button>
+      </div>
+
+      <div class="deployment-controls">
+        <div class="deployment-select">
+          <label>Select Version to Deploy:</label>
+          <select class="form-select">
+            <option>v4.2.7 (Stable)</option>
+            <option>v4.3.0 (Beta)</option>
+          </select>
+        </div>
+
+        <div class="deployment-target">
+          <label>Target Hospitals:</label>
+          <select class="form-select">
+            <option>All Hospitals</option>
+            <option>Selected Hospitals</option>
+            <option>Enterprise Tier</option>
+            <option>Pro Tier</option>
+            <option>Basic Tier</option>
+            <option>Trial Hospitals</option>
+          </select>
+        </div>
+
+        <div class="deployment-timing">
+          <label>Deployment Schedule:</label>
+          <select class="form-select">
+            <option>Immediate</option>
+            <option>Off-peak Hours (2 AM - 5 AM)</option>
+            <option>Weekend (Sat 2 AM)</option>
+            <option>Custom Schedule</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="deployment-actions">
+        <button class="btn-outline">Preview Deployment Plan</button>
+        <button class="btn-outline">Send Notification</button>
+        <button class="btn-primary">Deploy Update</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="side-panel">
+    <div class="info-box">
+      <h4>Quick Stats</h4>
+      <div class="stat-item">
+        <div class="stat-label">Hospitals on Latest Version</div>
+        <div class="stat-value">228</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Pending Updates</div>
+        <div class="stat-value">12</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Failed Updates</div>
+        <div class="stat-value error">3</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Average Update Time</div>
+        <div class="stat-value">8 min</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <h4>Recent Activities</h4>
+      <div class="activity-item">
+        <div class="activity-time">10:30 AM</div>
+        <div class="activity-detail">
+          <strong>MGM Hospital</strong> updated to <strong>v4.2.7</strong>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-time">9:45 AM</div>
+        <div class="activity-detail">
+          <strong>City Medical Center</strong> update failed
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-time">9:15 AM</div>
+        <div class="activity-detail">
+          <strong>v4.3.0</strong> deployed to <strong>Mayo Clinic</strong>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-time">Yesterday</div>
+        <div class="activity-detail">
+          <strong>v4.2.7</strong> marked as stable release
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-time">Yesterday</div>
+        <div class="activity-detail">
+          <strong>Johns Hopkins</strong> updated to <strong>v4.2.7</strong>
+        </div>
+      </div>
+      <div class="view-all">
+        <a href="#">View All Activities</a>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <h4>Ready For Deployment</h4>
+      <div class="ready-hospital-item">
+        <div class="hospital-name">Apollo Hospitals</div>
+        <div class="hospital-detail">
+          <span class="current-version">v4.2.6</span>
+          <span class="arrow">→</span>
+          <span class="target-version">v4.2.7</span>
+        </div>
+        <button class="btn-xs">Deploy</button>
+      </div>
+      <div class="ready-hospital-item">
+        <div class="hospital-name">Cleveland Clinic</div>
+        <div class="hospital-detail">
+          <span class="current-version">v4.2.6</span>
+          <span class="arrow">→</span>
+          <span class="target-version">v4.2.7</span>
+        </div>
+        <button class="btn-xs">Deploy</button>
+      </div>
+      <div class="ready-hospital-item">
+        <div class="hospital-name">Mount Sinai Hospital</div>
+        <div class="hospital-detail">
+          <span class="current-version">v4.2.6</span>
+          <span class="arrow">→</span>
+          <span class="target-version">v4.2.7</span>
+        </div>
+        <button class="btn-xs">Deploy</button>
+      </div>
+      <div class="view-all">
+        <a href="#">View All Ready Hospitals (9)</a>
+      </div>
+    </div>
+  </div>
+</div>

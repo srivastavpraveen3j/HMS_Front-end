@@ -1,0 +1,252 @@
+<!-- Page 1: Summary Bill -->
+<div id="ipd-sheet" *ngIf="patientData">
+  <div class="ipd-bill-page page">
+    <!-- Shared Header -->
+    <div class="header">
+      <div class="left">
+        <p><strong>Reg.No:</strong> PEC/03/EZ/70342</p>
+      </div>
+      <div class="center">
+        <img src="P P Maniya_page-0001.jpg" alt="Logo" class="logo" />
+      </div>
+      <div class="right">
+        <p><strong>ROHINI ID:</strong> 8900080402355</p>
+      </div>
+    </div>
+
+    <div class="address">
+      <p>
+        C-1, Ganesh Colony, Near Baroda Pristage, Varachha Main Road, Surat.
+      </p>
+      <p>Ph : 9099979976, 9979093936</p>
+    </div>
+
+    <h3 class="title">INPATIENT BILL CUM RECEIPT</h3>
+
+    <div class="patient-info">
+      <div>
+        <!-- <p><strong>Rec No:</strong></p> -->
+        <!-- <p>
+          <strong>Bill No:</strong> {{ patientData.inpatientBills?.billNumber }}
+        </p> -->
+        <p><strong>Patient Name:</strong> {{ patientData.patientName }}</p>
+        <p><strong>Address:</strong> {{ patientData.area }}</p>
+        <p><strong>Mobile No.:</strong> {{ patientData.mobileNo }} </p>
+      </div>
+      <div>
+        <p><strong>Date:</strong> {{ patientData.createdAt | date: 'dd-MM-yyyy' }} </p>
+        <p><strong>UHID:</strong> {{ patientData.uhid }}</p>
+        <p><strong>IPD No:</strong> {{ patientData.ipdNum }} </p>
+        <p>
+          <strong>Age / Sex:</strong> {{ patientData.age }} /
+          {{ patientData.gender }}
+        </p>
+      </div>
+    </div>
+
+    <div class="doa-info">
+      <p>
+        <strong>D.O.A. / Time:</strong>
+        <!-- {{ patientData.inpatientBills?.admissionDate }} -->
+          {{ patientData.dor | date: 'dd-MM-yyyy / hh:mm a' }}
+      </p>
+      <!-- <p><strong>D.O.D / Time:</strong> 11-Jun-2025 / 08:30 PM</p> -->
+      <p><strong>Doctor Name:</strong> {{patientData.consultingDoctor?.name}}</p>
+      <p><strong>Room Type:</strong> {{patientData.inpatientCase?.[0]?.room?.roomType?.name}}</p>
+    </div>
+
+    <table class="charges-table">
+      <thead>
+        <tr>
+          <th>PARTICULARS</th>
+          <th>AMOUNT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>totalInpatientCharges</td>
+          <td>{{patientData.totalInpatientCharges}}</td>
+        </tr>
+        <tr>
+          <td>totalMedicalCharges</td>
+          <td>{{patientData.totalMedicalCharges}}</td>
+        </tr>
+        <tr>
+          <td>totalOperationTheaterCharges</td>
+          <td>{{patientData.totalOperationTheaterCharges}}</td>
+        </tr>
+        <tr>
+          <td>totalPharmacyCharges</td>
+          <td>{{patientData.totalPharmacyCharges}}</td>
+        </tr>
+        <tr>
+          <td>Total Room Charges</td>
+          <td>{{patientData.totalRoomCharges}}</td>
+        </tr>
+
+        <tr class="final">
+          <td><strong>Final Bill Amount</strong></td>
+          <td><strong>{{patientData.grandTotalAmount}}</strong></td>
+        </tr>
+        <tr>
+          <td>Deposit</td>
+          <td>{{ patientData.grandTotalAmount - patientData.netPayableAmount }}</td>
+        </tr>
+        <tr class="final">
+          <td><strong>Payable Amount</strong></td>
+          <td><strong>{{ patientData.netPayableAmount }}</strong></td>
+        </tr>
+        
+      </tbody>
+    </table>
+
+    <div class="entry-details">
+      <p>
+        EntryBy: {{patientData.entryByUser}} At: {{patientData.createdAt | date:'dd-MMM-yyyy hh:mm a'}}.
+      </p>
+    </div>
+
+    <div class="final-amount">
+      <p><strong>The FINAL BILL AMOUNT is Rs. {{patientData.grandTotalAmount}}</strong></p>
+      <p>{{patientData.amountInWords}}</p>
+      <small>Subject to SURAT Jurisdiction</small><br />
+      <!-- <small>Payment by cheque Subject To Realization</small> -->
+    </div>
+
+    <table class="payment-table">
+      <thead>
+        <tr>
+          <th>Amount</th>
+          <th>Type</th>
+          <th>Remark</th>
+          <th>User</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ patientData.netPayableAmount }}</td>
+          <td>{{patientData.paymentMode}}</td>
+          <td>.</td>
+          <td>EntryBy: {{patientData.entryByUser}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="signatures">
+      <p><strong>Patient / Relative Sign</strong> ...................</p>
+      <p class="text-end">
+        <strong>Authorized Sign</strong> ...................
+      </p>
+    </div>
+    <div class="footer"></div>
+  </div>
+
+  <!-- Page Break -->
+  <div class="page-break"></div>
+
+  <!-- Page 2: Room and Visiting Charges -->
+  <div class="ipd-bill-page page">
+    <!-- Reuse Header -->
+    <div class="header">
+      <div class="left">
+        <p><strong>Reg.No:</strong> PEC/03/EZ/70342</p>
+      </div>
+      <div class="center">
+        <img src="P P Maniya_page-0001.jpg" alt="Logo" class="logo" />
+      </div>
+      <div class="right">
+        <p><strong>ROHINI ID:</strong> 8900080402355</p>
+      </div>
+    </div>
+
+    <div class="address">
+      <p>
+        C-1, Ganesh Colony, Near Baroda Pristage, Varachha Main Road, Surat.
+      </p>
+      <p>Ph : 9099979976, 9979093936</p>
+    </div>
+
+    <h3 class="title">INPATIENT BILL CUM RECEIPT DETAILS</h3>
+
+    <div class="patient-info">
+      <p><strong>Patient:</strong> {{ patientData.patientName }}</p>
+      <p><strong>IPD No:</strong> {{ patientData.ipdNum }} </p>
+    </div>
+
+    <!-- Room Details -->
+    <h4>Room Detail :</h4>
+    <table class="room-table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Date</th>
+          <th>Room</th>
+          <th>Room Charge / day</th>
+          <th>Bed charge / day</th>
+          <th>Days</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>{{patientData.inpatientCase?.[0]?.createdAt | date:'dd-MMM-yyyy'}}</td>
+          <td>{{patientData.inpatientCase?.[0]?.room?.roomType?.name}}</td>
+          <td>{{patientData.inpatientCase?.[0]?.room?.roomType?.pricePerDay}}</td>
+          <td>{{patientData.inpatientCase?.[0]?.bed?.bedType?.pricePerDay}}</td>
+          <td>{{patientData.totalRoomCharges /  (patientData.inpatientCase?.[0]?.room?.roomType?.pricePerDay +  patientData.inpatientCase?.[0]?.bed?.bedType?.pricePerDay)}}</td>
+          <td>{{patientData.inpatientCase?.[0]?.room?.roomType?.pricePerDay + patientData.inpatientCase?.[0]?.bed?.bedType?.pricePerDay}}</td>
+        </tr>
+        <tr>
+          <td colspan="6"><strong>Total Amount:</strong></td>
+          <td><strong>{{patientData.totalRoomCharges}}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Visiting Charges -->
+    <h4>Visiting Charge :</h4>
+    <table class="visiting-table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Date</th>
+          <th>Dr. Name</th>
+          <th>Detail</th>
+          <th>Rate</th>
+          <!-- <th>Qty</th> -->
+          <!-- <th>Remark</th> -->
+          <!-- <th>Amount</th> -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of serviceList; let i = index">
+          <td>{{i+1}}</td>
+          <td>{{patientData.createdAt | date: 'dd-MMM-yyyy'}}</td>
+          <td>
+            {{item.doctor}}
+          </td>
+          <td>{{item.service}}</td>
+          <td>{{item.charge}}</td>
+          <!-- <td>1</td> -->
+          <!-- <td>1</td> -->
+          <!-- <td>500</td> -->
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="signatures">
+      <p><strong>Patient / Relative Sign</strong> ...................</p>
+      <p class="text-end">
+        <strong>Authorized Sign</strong> ...................
+      </p>
+    </div>
+    <div class="footer"></div>
+  </div>
+</div>
+
+<footer class="m-3 d-flex justify-content-between">
+  <button class="btn btn-dark" (click)="printOPDSheet()">
+    Print <i class="fa-solid fa-print action-btn"></i>
+  </button>
+</footer>

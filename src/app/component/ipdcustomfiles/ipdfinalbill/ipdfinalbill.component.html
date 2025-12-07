@@ -1,0 +1,179 @@
+<div id="opd-sheet">
+  <div *ngFor="let page of pages; let pageIndex = index" class="page a4-bill">
+    <!-- HEADER -->
+    <div class="print-header summary">
+      <app-letterheader></app-letterheader>
+    </div>
+
+    <div class="bill-main">
+      <div class="bill-content">
+        <!-- SUMMARY PAGE (pageIndex === 0) -->
+        <ng-container *ngIf="pageIndex === 0">
+          <h3 class="title summary">Inpatient Bill</h3>
+          <div class="summary">
+            <div class="bill-patient-grid">
+              <div>
+                <strong>Bill No : </strong> {{ estimateBill.billNumber }}
+                <div>
+                  <strong
+                    >Patient Name :
+                    {{ estimateBill.patient.patient_name }}</strong
+                  >
+                </div>
+                <div>
+                  <strong>D.O.A. / Time :</strong>
+                  {{ estimateBill.patient.dor | date : "dd-MM-yyyy / hh:mm a" }}
+                </div>
+                <div>
+                  <strong
+                    >Doctor Name :
+                    {{ estimateBill.admittingDoctor?.name }}</strong
+                  >
+                </div>
+              </div>
+              <div>
+                <strong>Date</strong>
+                {{ estimateBill.createdAt | date : "medium" }}
+                <div>
+                  <strong>Address :</strong> {{ estimateBill.patient.area }}
+                </div>
+              </div>
+              <div>
+                <strong>UHID :</strong> {{ estimateBill.patient.uhid }}
+                <div>
+                  <strong
+                    >IPD No : {{ estimateBill.inpatientCaseNumber }}
+                  </strong>
+                </div>
+                <div>
+                  <strong>Age / Sex :</strong> {{ estimateBill.patient.age }} /
+                  {{ estimateBill.patient.gender }}
+                </div>
+                <div>
+                  <strong>Room Type : {{ estimateBill.roomType?.name }} </strong>
+                </div>
+              </div>
+            </div>
+            <hr class="divider" />
+
+            <table class="charges-table">
+              <thead>
+                <tr>
+                  <th>PARTICULARS</th>
+                  <th>AMOUNT</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="roomCharge">
+                  <td>Room Charges</td>
+                  <td>{{ roomCharge | indianCurrency }}</td>
+                </tr>
+                <tr *ngIf="serviceList.totalAmount">
+                  <td>Service Charges</td>
+                  <td>{{ serviceList.totalAmount | indianCurrency }}</td>
+                </tr>
+                <tr *ngIf="otcharge">
+                  <td>Operation Charges</td>
+                  <td>{{ otcharge | indianCurrency }}</td>
+                </tr>
+                <tr *ngIf="radioList.totalAmount">
+                  <td>Operation Charges</td>
+                  <td>{{ radioList.totalAmount | indianCurrency }}</td>
+                </tr>
+                <tr *ngIf="pharmaCharge">
+                  <td>Medicine Charges</td>
+                  <td>{{ pharmaCharge | indianCurrency }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Final Bill Amount</strong></td>
+                  <td>
+                    <strong>{{ total | indianCurrency }}</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Deposit</td>
+                  <td>{{ deposit | indianCurrency }}</td>
+                </tr>
+                <tr>
+                  <td><strong> {{ netAmount >= 0 ? 'Net Payable Amount' : 'Net Refundable Amount'}} </strong></td>
+                  <td>
+                    <ng-container *ngIf="netAmount >= 0; else refundable">
+                      <span class="fw-bold fs-5 text-dark">
+                        {{ netAmount | indianCurrency }}
+                      </span>
+                    </ng-container>
+                    <ng-template #refundable>
+                      <span class="fw-bold fs-5">
+                        {{ netAmount * -1 | indianCurrency }}
+                      </span>
+                    </ng-template>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="words">
+              <strong>{{ convertNumberToWords(total) }}</strong>
+            </div>
+
+            <div class="d-flex justify-content-between mx-2 mb-2 entry-details">
+              <div>
+                <span>Entry By: {{ user }}, </span> <span>At: {{ date | date: "dd-MMM-yyyy hh:mm:ss a"}} </span>
+              </div>
+              <div class="box"></div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- GENERIC DETAIL PAGES (service, room, OT, radio, pharma, etc.) -->
+        <ng-container *ngIf="pageIndex > 0 && page.data?.length">
+          <h3 class="title summary">Inpatient Bill Details</h3>
+          <h4>{{ page.title }}</h4>
+
+          <table class="charges-table">
+            <thead>
+              <tr>
+                <th *ngFor="let col of page.columns">{{ col.label }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of page.data; let i = index">
+                <td *ngFor="let col of page.columns">
+                  <ng-container *ngIf="col.isDate; else nonDateCell">
+                    {{ col.value(item, i) | date : "dd-MMM-yyyy" }}
+                  </ng-container>
+                  <ng-template #nonDateCell>
+                    <ng-container *ngIf="col.isCurrency; else plainCell">
+                      {{ col.value(item, i) | indianCurrency }}
+                    </ng-container>
+                    <ng-template #plainCell>
+                      {{ col.value(item, i) }}
+                    </ng-template>
+                  </ng-template>
+                </td>
+              </tr>
+
+              <!-- Total row: use last column for total -->
+              <tr class="final">
+                <td [attr.colspan]="page.columns.length - 1">
+                  <strong>Total Amount : </strong>
+                </td>
+                <td>
+                  <strong>{{ page.total | indianCurrency }}</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-container>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="print-footer">
+        <div class="footer-sign">
+          <p><strong>Patient / Relative Sign</strong> ..................</p>
+          <p><strong>Authorized Sign</strong> ..................</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

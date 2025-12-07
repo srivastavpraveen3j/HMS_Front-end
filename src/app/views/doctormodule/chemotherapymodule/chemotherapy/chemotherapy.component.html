@@ -1,0 +1,160 @@
+<div class="header">
+  <h2>CHEMOTHERAPY DISCHARGE CARD</h2>
+  <div>
+    <button class="list-cases-btn mx-3"><i class="fa-solid fa-user-group"></i></button>
+    <button class="list-cases-btn mx-3" routerLink="/doctor/chemotherapylist">CHEMOTHERAPY DISCHARGE CARD LIST</button>
+  </div>
+</div>
+
+<div class="opd-container">
+  <form [formGroup]="chemotherapy" (ngSubmit)="OnSubmit()">
+    <h4 class="m-4">Patient Details</h4>
+    <hr>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>UHID:</label>
+        <input type="text" placeholder="uhid code" class="required" formControlName="uhid">
+        <div class="text-danger small"
+        *ngIf="chemotherapy.get('uhid')?.invalid && chemotherapy.get('uhid')?.touched">
+       Uhid number is required.
+      </div>
+      </div>
+      <div class="form-group">
+        <label>Name:</label>
+        <input type="text" placeholder="Name" class="required" formControlName="patient_name">
+        <div class="text-danger small"
+        *ngIf="chemotherapy.get('patient_name')?.invalid && chemotherapy.get('patient_name')?.touched">
+       Patient Name is required.
+      </div>
+      </div>
+      <div class="form-group">
+        <label>Age/Gender:</label>
+        <input type="text" placeholder="Age/Gender" formControlName="age" >
+        <div class="text-danger small"
+        *ngIf="chemotherapy.get('age')?.invalid && chemotherapy.get('age')?.touched">
+       Age is required.
+      </div>
+      </div>
+      <!-- <div class="form-group">
+        <label>Sex:</label>
+        <input type="text" placeholder="Sex">
+      </div> -->
+      <div class="form-group">
+        <label>Ward:</label>
+        <input type="text" placeholder="Ward" formControlName="ward">
+        <div *ngIf="chemotherapy.get('ward')?.invalid && chemotherapy.get('ward')?.touched" class="error-message">
+          Ward is required.
+      </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Dr.:</label>
+        <input type="text" placeholder="Doctor" formControlName="doctor">
+        <div *ngIf="chemotherapy.get('doctor')?.invalid && chemotherapy.get('doctor')?.touched" class="error-message">
+          Doctor is required.
+      </div>
+      </div>
+      <div class="form-group">
+        <label>Ref Dr.:</label>
+        <input type="text" placeholder="Ref Dr." formControlName="refdoc">
+      </div>
+      <div class="form-group" [ngClass]="{'is-invalid': chemotherapy.get('mobile')?.invalid && chemotherapy.get('mobile')?.touched}">
+        <label>Mobile*:</label>
+        <input type="text"
+        formControlName="mobile"
+        placeholder="Mobile No"
+        maxlength="10"
+        pattern="[6-9][0-9]{9}"
+        title="Enter 10-digit mobile number starting with 6-9"
+        (keypress)="allowOnlyNumbers($event)">
+        <div class="text-danger small" *ngIf="chemotherapy.get('mobile')?.invalid && chemotherapy.get('mobile')?.touched">
+          Enter a valid 10-digit mobile number starting with 6-9
+        </div>
+      </div>
+      <div class="form-group" style="flex: 1">
+        <label>Address:</label>
+        <input type="text" placeholder="Address" formControlName="address">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>DOA:</label>
+        <app-customcalendar formControlName="doa"></app-customcalendar>
+      </div>
+      <div class="form-group">
+        <label>Admission Time:</label>
+        <!-- <input type="time"> -->
+         <app-customtimepicker formControlName="toa"></app-customtimepicker>
+      </div>
+      <div class="form-group">
+        <label>DOD:</label>
+        <app-customcalendar formControlName="dod"></app-customcalendar>
+      </div>
+      <div class="form-group">
+        <label>Discharge Time:</label>
+        <app-customtimepicker formControlName="tod"></app-customtimepicker>
+      </div>
+    </div>
+
+    <h4 class="m-4">Medical Details</h4>
+    <hr>
+
+    <!-- <div class="form-group">
+      <label>Diagnosis:</label>
+      <input type="text" placeholder="Diagnosis" class="form-control">
+    </div> -->
+
+    <div class="form-group">
+      <label>Clinical Summary:</label>
+      <textarea rows="2" placeholder="Clinical Summary" class="form-control" formControlName="clinicalsummary"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Clinical Notes:</label>
+      <textarea rows="2" placeholder="Clinical Notes" class="form-control"  formControlName="clinicalnotes"  ></textarea>
+    </div>
+
+    <!-- <div class="form-group">
+      <label>Treatment Given:</label>
+      <textarea rows="3" placeholder="Treatment Given" class="form-control"></textarea>
+    </div> -->
+
+    <div class="form-group">
+      <label>Condition On Discharge:</label>
+      <textarea rows="2"type="text" placeholder="Condition on Discharge" class="form-control" formControlName="conditiondischarge"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Rx (Treatment):</label>
+      <textarea rows="2" placeholder="Treatment Rx" class="form-control" formControlName="rxtreatment"></textarea>
+    </div>
+
+    <!-- <div class="form-row ">
+      <div class="form-group" style="flex: 1">
+        <label>Laboratory Investigations:</label>
+        <input type="text" placeholder="Investigations" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>Follow up:</label>
+        <input type="text" placeholder="Follow up" class="form-control">
+      </div>
+    </div> -->
+
+    <div class="text-center mt-4">
+
+      <button class="btn  btn-dark mx-2" [disabled]="chemotherapy.invalid">Save</button>
+      <button class="btn  btn-secondary mx-2">Delete</button>
+    </div>
+
+
+  </form>
+  <div class="right-section">
+    <div class="info-box">Previous Treatment Details</div>
+    <div class="info-box">Laboratory History</div>
+    <div class="info-box">Diagnosis Summary</div>
+</div>
+</div>

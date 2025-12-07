@@ -1,0 +1,319 @@
+<div class="form-meta">
+  <!-- invoice-verification.component.html -->
+
+  <div class="header">
+    <h2>Invoice Verification</h2>
+    <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/inventorylayout/invoiceverificationlist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div class="container mt-4">
+    <form #invoiceForm="ngForm">
+      <div class="row mb-3">
+        <!-- ✅ GRN Search Input with better UX -->
+        <div class="col-md-6 form-group">
+          <label>Search GRN for Invoice Verification <span class="text-danger">*</span></label>
+          <div class="input-group position-relative">
+            <span class="input-group-text">
+              <i class="fas fa-search text-primary"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="grnSearchQuery"
+              name="grnSearch"
+              placeholder="Type GRN Number (e.g., GRN/0925/0038)"
+              (input)="onSearchInput()"
+              (focus)="grnSearchQuery ? searchGRN() : null"
+              autocomplete="off"
+            />
+            <button
+              class="btn btn-outline-primary"
+              type="button"
+              (click)="searchGRN()"
+              [disabled]="isSearching || !grnSearchQuery.trim()"
+            >
+              <i class="fas fa-search" *ngIf="!isSearching"></i>
+              <i class="fas fa-spinner fa-spin" *ngIf="isSearching"></i>
+            </button>
+            <button
+              class="btn btn-outline-danger"
+              type="button"
+              (click)="clearSearch()"
+              *ngIf="grnSearchQuery || selectedGRN"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+
+            <!-- ✅ Search Results Dropdown -->
+            <div class="position-absolute w-100 mt-1" style="top: 100%; z-index: 1000;" *ngIf="showSearchResults && searchResults.length > 0">
+              <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white py-2">
+                  <small><strong>{{ searchResults.length }} GRN(s) found</strong></small>
+                </div>
+                <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    *ngFor="let grn of searchResults"
+                    (click)="selectGRNFromSearch(grn)"
+                  >
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong class="text-primary">{{ grn.grnNumber }}</strong><br>
+                        <small class="text-muted">{{ grn.vendor.name }}</small><br>
+                        <small class="text-success">PO: {{ grn.poNumber }}</small>
+                      </div>
+                      <div class="text-end">
+                        <span class="badge bg-success">{{ grn.approvedTotal | indianCurrency }}</span><br>
+                        <small class="text-muted">{{ grn.items.length }} item(s)</small>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <small class="text-muted">
+            <i class="fas fa-info-circle text-info"></i>
+            Search for approved GRNs with items that passed quality control
+          </small>
+        </div>
+
+        <div class="col-md-6 form-group">
+          <label>Invoice Number <span class="text-danger">*</span></label>
+          <input
+            class="form-control"
+            [(ngModel)]="invoiceNo"
+            name="invoiceNo"
+            #invoiceNoRef="ngModel"
+            required
+            placeholder="Enter vendor invoice number"
+          />
+          <!-- ✅ Validation message -->
+          <div class="text-danger mt-1" *ngIf="invoiceNoRef.invalid && (invoiceNoRef.touched)">
+            Invoice Number is required.
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6 form-group">
+          <label>Invoice Date <span class="text-danger">*</span></label>
+          <input
+            type="date"
+            class="form-control"
+            [(ngModel)]="invoiceDate"
+            name="invoiceDate"
+            #invoiceDateRef="ngModel"
+            required
+          />
+          <!-- ✅ Validation message -->
+          <div class="text-danger mt-1" *ngIf="invoiceDateRef.invalid && (invoiceDateRef.touched)">
+            Invoice Date is required.
+          </div>
+        </div>
+
+        <div class="col-md-6 form-group">
+          <label>Vendor</label>
+          <input class="form-control" [value]="selectedGRN?.vendor?.name || 'Search and select GRN first'" readonly />
+        </div>
+      </div>
+
+      <!-- ✅ GRN SUMMARY using selectedGRN data -->
+      <div *ngIf="selectedGRN" class="alert alert-info mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="mb-0"><strong>📋 GRN Summary</strong></h6>
+          <span class="badge bg-success">{{ selectedGRN.grnStatus | titlecase }}</span>
+        </div>
+        <div class="row">
+          <div class="col-md-3"><strong>GRN Number:</strong> {{ selectedGRN.grnNumber }}</div>
+          <div class="col-md-3"><strong>Original PO:</strong> {{ selectedGRN.poNumber }}</div>
+          <div class="col-md-3"><strong>Approved Value:</strong> {{ selectedGRN.approvedTotal | indianCurrency }}</div>
+          <div class="col-md-3"><strong>Rejected Value:</strong> {{ selectedGRN.rejectedTotal | indianCurrency }}</div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-md-4"><strong>Vendor:</strong> {{ selectedGRN.vendor.name }}</div>
+          <div class="col-md-4"><strong>Email:</strong> {{ selectedGRN.vendor.email }}</div>
+          <div class="col-md-4"><strong>Phone:</strong> {{ selectedGRN.vendor.phone }}</div>
+        </div>
+
+        <!-- *** SHOW GST INFO FROM GRN *** -->
+        <div class="row mt-2" *ngIf="hasGSTInfo()">
+          <div class="col-12">
+            <div class="alert alert-light mb-0 py-2">
+              <small class="text-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>GST Information:</strong>
+                This quotation {{ selectedGRN.gstIncluded ? 'includes' : 'excludes' }} GST
+                <span *ngIf="selectedGRN.gstIncluded && selectedGRN.gstPercentage">
+                  ({{ selectedGRN.gstPercentage }}% = {{ selectedGRN.gstAmount | indianCurrency }})
+                </span>
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ Quick GRN Selection from Recent Approved -->
+      <div *ngIf="!selectedGRN && approvedGRNs.length > 0" class="alert alert-light mb-4">
+        <h6><strong>Recent Approved GRNs (Quick Select):</strong></h6>
+        <div class="row">
+          <div class="col-md-4 mb-2" *ngFor="let grn of approvedGRNs.slice(0, 6)">
+            <div class="card h-100" style="cursor: pointer;" (click)="selectGRNFromSearch(grn)">
+              <div class="card-body p-3">
+                <h6 class="card-title text-primary">{{ grn.grnNumber }}</h6>
+                <p class="card-text mb-1">
+                  <small><strong>{{ grn.vendor.name }}</strong></small><br>
+                  <small class="text-muted">PO: {{ grn.poNumber }}</small><br>
+                  <span class="badge bg-success">{{ grn.approvedTotal | indianCurrency }}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rest of the template remains the same... -->
+      <h5 class="mt-4">Invoice Items (Based on Approved GRN Items):</h5>
+
+      <div *ngIf="!selectedGRN" class="alert alert-warning">
+        <i class="fas fa-search text-warning"></i>
+        <strong> Search and select a GRN first</strong>
+        <p class="mb-0">Please search for and select an approved GRN to see invoiceable items.</p>
+      </div>
+
+      <div *ngIf="selectedGRN && invoiceItems.length === 0" class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle text-danger"></i>
+        <strong> No items available for invoicing</strong>
+        <p class="mb-0">This GRN has no items that passed quality control. Only approved items can be invoiced.</p>
+      </div>
+
+      <!-- *** UPDATED TABLE WITH GST BREAKDOWN *** -->
+      <table class="table table-bordered" *ngIf="invoiceItems.length > 0">
+        <thead class="table-secondary">
+          <tr>
+            <th>#</th>
+            <th>Item Name</th>
+            <th>Category</th>
+            <th>Qty Passed</th>
+            <!-- <th>Base Amount ()</th> -->
+            <!-- <th>GST %</th> -->
+            <!-- <th>GST Amount ()</th> -->
+            <th>Total Amount</th>
+            <!-- <th>GST Status</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of invoiceItems; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ item.name }}</td>
+            <td>
+              <span class="badge bg-primary">{{ item.category }}</span>
+            </td>
+            <td class="text-center">{{ item.quantityPassed }}</td>
+
+            <!-- Base Amount (readonly if GST included) -->
+            <!-- <td>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="item.baseAmount"
+                name="baseAmount{{i}}"
+                [readonly]="item.gstIncluded"
+                [class.bg-light]="item.gstIncluded"
+                [title]="item.gstIncluded ? 'Amount breakdown from GRN approved total' : 'Editable base amount'"
+              />
+            </td> -->
+
+            <!-- GST Percentage (readonly if GST included) -->
+            <!-- <td>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="item.gstPercent"
+                name="gstPercent{{i}}"
+                min="0"
+                max="28"
+                [readonly]="item.gstIncluded"
+                [class.bg-light]="item.gstIncluded"
+                [title]="item.gstIncluded ? 'GST percentage from original quotation' : 'Editable GST percentage'"
+              />
+            </td> -->
+
+            <!-- GST Amount (calculated) -->
+            <!-- <td class="text-end">
+              {{ item.gstIncluded ? item.gstAmount : getGstAmount(item) | indianCurrency }}
+            </td> -->
+
+            <!-- Total Amount -->
+            <td class="text-end">
+              <strong>{{ item.gstIncluded ? item.totalAmount : getTotalAmount(item) | indianCurrency }}</strong>
+            </td>
+
+            <!-- GST Status -->
+            <!-- <td class="text-center">
+              <span
+                class="badge"
+                [class.bg-info]="item.gstIncluded"
+                [class.bg-secondary]="!item.gstIncluded"
+                [title]="item.gstIncluded ? 'GST already included in vendor pricing' : 'GST can be added if needed'"
+              >
+                {{ item.gstIncluded ? 'Included' : 'Add Extra' }}
+              </span>
+            </td> -->
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- *** UPDATED TOTALS SECTION *** -->
+      <div class="row" *ngIf="invoiceItems.length > 0">
+        <div class="col-md-8"></div>
+        <div class="col-md-4">
+          <table class="table table-borderless">
+            <!-- <tr>
+              <td><strong>Subtotal:</strong></td>
+              <td class="text-end">{{ getSubtotal() | indianCurrency }}</td>
+            </tr>
+            <tr>
+              <td><strong>GST Amount:</strong></td>
+              <td class="text-end">{{ getTotalGST() | indianCurrency }}</td>
+            </tr> -->
+            <tr class="table-dark">
+              <td><strong>Final Total:</strong></td>
+              <td class="text-end"><strong>{{ getFinalTotal() | indianCurrency }}</strong></td>
+            </tr>
+
+            <!-- Show GST Status -->
+            <tr *ngIf="hasIncludedGST()">
+              <td colspan="2" class="text-center">
+                <small class="text-info">
+                  <i class="fas fa-info-circle"></i>
+                  GST breakdown from approved GRN amount
+                </small>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <button
+          class="btn btn-success btn-lg"
+          type="button"
+          (click)="verifyInvoice()"
+          [disabled]="!selectedGRN || !invoiceNo || !invoiceDate || invoiceItems.length === 0 || isSubmitting"
+        >
+          <i class="fas fa-check-circle" *ngIf="!isSubmitting"></i>
+          <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+          {{ isSubmitting ? 'Processing...' : 'Verify Invoice & Send to Accounts' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

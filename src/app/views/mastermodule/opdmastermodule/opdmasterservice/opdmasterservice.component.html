@@ -1,0 +1,75 @@
+<div class="form-meta">
+  <div class="header">
+    <!-- <h2>OPD SERVCIES MASTER</h2> -->
+    <h2>SERVICES LIST</h2>
+    <button class="list-cases-btn" routerLink="/master/opdservice">
+      ADD NEW SERVICES
+    </button>
+  </div>
+
+  <div class="top-bar p-3">
+    <form [formGroup]="filterForm">
+      <input type="text" placeholder="Search..." formControlName="searchText" />
+    </form>
+  </div>
+
+  <div class="table-responsive" *ngIf="userPermissions.read">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+      *ngIf="userPermissions.read"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Type</th>
+          <th>Service Name</th>
+          <th>Rate</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let service of service; let i = index">
+          <td>
+            {{
+              (currentPage - 1) * filterForm.get("recordsPerPage")?.value +
+                i +
+                1
+            }}
+          </td>
+          <td>{{ service.type }}</td>
+          <td>{{ service.name }}</td>
+          <td>{{ service.charge }}</td>
+          <td>
+            <i
+              class="fa-solid fa-pencil action-btn mx-3"
+              *ngIf="userPermissions.update"
+              (click)="editservice(service._id)"
+            ></i>
+            <!-- <i class="fa-solid fa-trash action-btn" *ngIf="userPermissions.delete" (click)="deleteservice(service._id)"></i> -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div
+      class="pagination d-flex justify-content-center align-items-center my-3"
+    >
+      <button
+        class="pagination-btn btn btn-primary mx-2"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button
+        class="pagination-btn btn btn-primary mx-2"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>

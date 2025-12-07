@@ -1,0 +1,44 @@
+<!-- <p>suepradmindashboard works!</p> -->
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="header">
+    <h2>HOSPITALS OVERVIEW</h2>
+
+  </div>
+
+  <!-- Filters Section -->
+  <!-- <div class="filters text-center d-flex ">
+    <label class="m-3"><input type="radio" name="filter" checked> TODAY'S</label>
+    <label class="m-3"><input type="radio" name="filter"> OCCUPANCY</label>
+    <label class="m-3"><input type="radio" name="filter"> ADMISSION</label>
+    <label class="m-3"><input type="radio" name="filter"> DISCHARGED</label>
+    <label class="m-3"><input type="radio" name="filter"> PATIENT</label>
+    <label class="m-3"><input type="radio" name="filter"> DATE</label>
+    <button class="mx-5 btn"><i class="fas fa-print"></i> PRINT</button>
+  </div> -->
+
+<!-- parent.component.html -->
+<!-- <app-thread-note [hospitalData]="hospitalDataArray"></app-thread-note> -->
+<!-- <div class="d-flex"> -->
+  <div class="dashboard-wrapper mt-5">
+    <!-- <h2 class="title">Super Admin Hospital Overview</h2> -->
+    <div class="hospital-container ">
+      <app-thread-note
+        *ngFor="let hospital of hospitalDataArray"
+        [hospital]="hospital" >
+      </app-thread-note>
+    </div>
+  </div>
+<!-- </div> -->
+
+
+
+
+
+
+
+
+
+
+
+</div>

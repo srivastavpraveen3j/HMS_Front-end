@@ -1,0 +1,303 @@
+<!-- <p>manageradiationinward works!</p> -->
+<!-- <p>manageinward works!</p> -->
+<div class="header">
+  <h2 class="dashboard-title">MANAGE RADAIATION INVESTIGATION</h2>
+</div>
+
+<div class=""  *ngIf="userPermissions.create">
+
+  <form action="" [formGroup]="radiationinward" (ngSubmit)="onSubmit()">
+
+    <div class="diagnosis-container">
+      <div class="section patient-details mt-3">
+        <h4>PATIENT DETAILS</h4>
+        <div class="d-flex">
+          <div class="w-50">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="" class="form-label">
+                  UHID No
+                </label>
+                <input type="text" class="form-control" placeholder="Uhid No" formControlName="uhid">
+              </div>
+              <!-- <div class="form-group">
+                <label for="" class="form-label">
+                  Consulted Doctor
+                </label>
+                <input type="text" class="form-control" placeholder="Consulted Doctor"
+                  formControlName="admittingDoctorId">
+              </div> -->
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Patient*:</label>
+                <input type="text" class="input-text" placeholder="Enter patient name" formControlName="patient_name"
+                  (focus)="showSuggestions = true" (blur)="hideSuggestionsWithDelay()">
+                <!-- </div> -->
+                <!-- Patient Suggestions Dropdown - MOVED OUTSIDE BUT STILL IN THE FORM-GROUP -->
+                <div *ngIf="showSuggestions && radiationareq.length > 0" class="suggestions-container">
+                  <ul class="suggestions">
+                    <li *ngFor="let patient of radiationareq" (mousedown)="selectPatient(patient)">
+                      {{ patient?.patient_name }} {{ patient?.mobile_no ? '| ' + patient?.mobile_no : '' }} {{
+                      patient?.uhid ? '| ' + patient?.uhid : '' }}
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Debug info - MODIFIED to check for manuallySelected flag -->
+                <div *ngIf="radiationinward.get('patient_name')?.value &&
+                     radiationinward.get('patient_name')?.value.length > 2 &&
+                     !radiationareq.length &&
+                     !manuallySelected" class="text-danger">
+                  No matching patients found
+                </div>
+                <div *ngIf="radiationinward.get('patient_name')?.touched && radiationinward.get('patient_name')?.invalid"
+                  class="text-danger">
+                  Patient name is required
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="" class="form-label">
+                  Age
+                </label>
+                <input type="text" class="form-control" placeholder="Age" formControlName="age">
+              </div>
+            </div>
+
+            <!-- <div class="form-row"> -->
+
+            <!-- <div class="form-row">
+          <div class="form-group">
+            <label for="" class="form-label">
+              Medicine Given Date Time
+            </label>
+            <input type="date" formControlName="givenDate" class="form-control">
+
+          </div>
+          <div class="form-group">
+            <label for="" class="form-label" style="visibility: hidden;">
+              Report Date Time
+             </label>
+            <input type="time" formControlName="givenTime" class="form-control">
+
+          </div>
+        </div> -->
+
+            <!-- </div> -->
+          </div>
+
+          <div class="right-section w-50">
+            <div class="info-box">Radiation Test Request
+              <div class="d-flex justify-content-end">
+                <!-- <button class="btn btn-secondary m-2">Edit</button>
+                <button class="btn btn-secondary m-2">Print Preview</button> -->
+              </div>
+
+
+
+
+              <table class="table table-bordered table-hover align-middle diagnosis-table">
+                <thead class="table-dark text-center">
+                  <tr>
+                    <th>#</th>
+                    <th>Patient Name</th>
+                    <th>UHID Number</th>
+                    <th>Date Of Request</th>
+                    <!-- <th>Patient Type</th> -->
+                    <th>Requested Test</th>
+                    <!-- <th>Status</th> -->
+                  </tr>
+                </thead>
+               <tbody>
+    <!-- <tr *ngFor="let item of filteredRadiationreq; let i = index" (click)="onRowSelect(item)"> -->
+    <tr *ngFor="let item of paginatedPharmareq; let i = index" (click)="onRowSelect(item)">
+
+    <td>{{ i + 1 }}</td>
+    <td>{{ item.patientName }}</td>
+    <td>{{ item.uhid }}</td>
+    <td>{{ item.requestDetails.createdAt | date }}</td>
+    <td>
+      <ng-container *ngFor="let medical of item.requestDetails.testGroup">
+        <strong>{{ medical.testGroup }}</strong>:
+        <ng-container *ngFor="let param of medical.testParameters; let k = index">
+          {{ param.test_name }}<span *ngIf="k < medical.testParameters.length - 1">, </span>
+        </ng-container>
+        <br />
+      </ng-container>
+    </td>
+  </tr>
+
+  </tbody>
+
+              </table>
+    <div class="pagination d-flex justify-content-center align-items-center gap-2 mt-3">
+    <button class="btn btn-sm btn-primary" (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button class="btn btn-sm btn-primary" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+  </div>
+            </div>
+
+
+          </div>
+        </div>
+
+      </div>
+
+
+
+
+      <div class="section patient-details mt-3">
+        <!-- Filters Section -->
+        <div class="filters text-center d-flex justify-content-between ">
+          <div class="">
+            <h6>{{ selectedTestGroupName || 'TEST GROUP NAME' }}</h6>
+
+          </div>
+   <div>
+
+
+    <span *ngIf="selectedTestGroupStatus === 'pending'" class="text-danger ms-4 mt-2">
+      ⚠️ Please mark the status as <strong>Completed</strong> after entering test values.
+    </span>
+    <div class="">
+    <label class="m-3">Test Status:</label>
+
+    <label class="m-3" [title]="selectedTestGroupStatus === 'pending' ? 'Mark status as Completed after entering test values' : ''">
+      <input type="radio" name="filter" value="completed"
+             [checked]="selectedTestGroupStatus === 'completed'"
+             (change)="selectedTestGroupStatus = 'completed'"> Completed
+    </label>
+
+    <label class="m-3">
+      <input type="radio" name="filter" value="pending"
+             [checked]="selectedTestGroupStatus === 'pending'"
+             (change)="selectedTestGroupStatus = 'pending'"> Pending
+    </label>
+
+    </div>
+
+  </div>
+
+
+
+        </div>
+
+        <!-- Table Section -->
+        <div class="table-container">
+          <!-- Pathology Test Table (CBC Example) -->
+          <table>
+            <thead class="table-dark text-center">
+              <tr>
+                <th>Name</th>
+                <!-- <th>Result</th> -->
+                <th>Unit</th>
+                <th>Input</th>
+                <th>New Range</th>
+                <th>Default</th>
+                <th>Min</th>
+                <th>Max</th>
+              </tr>
+            </thead>
+            <tbody>
+             <tr *ngFor="let param of selectedTestParameters">
+    <td>{{ param.test_name }}</td>
+    <!-- <td>{{ param.default }}</td> -->
+    <td>{{ param.units }}</td>
+    <input
+    type="number"
+    [value]="param.input"
+    (input)="param.input = $any($event.target).value"
+    class="form-control"
+  />
+
+    <td>{{ param.min }} - {{ param.max }}</td>
+    <td>{{ param.default }}</td>
+    <td>{{ param.min }}</td>
+    <td>{{ param.max }}</td>
+  </tr>
+
+            </tbody>
+          </table>
+
+
+
+        </div>
+
+
+      </div>
+
+      <hr>
+       <div class="form-row">
+        <div class="form-group">
+          <label for="" class="form-label">
+            Total Amount
+          </label>
+          <input type="number" class="form-control" formControlName="total">
+        </div>
+        <div class="form-group">
+          <label for="" class="form-label">
+            Amount Received
+          </label>
+          <input type="number" class="form-control" formControlName="amountReceived">
+        </div>
+        <div class="form-group">
+          <label for="" class="form-label">
+            Due Amount
+          </label>
+          <input type="number" class="form-control" formControlName="dueAmount">
+        </div>
+  <div class="form-group">
+          <label for="" class="form-label">Payment Mode</label>
+          <select name="" id="" class="form-control" formControlName="PaymentMode">
+            <option value="cash">Cash</option>
+            <option value="upi">UPI</option>
+            <option value="card">Card</option>
+            <option value="insurance">Mediclaim</option>
+          </select>
+
+              <div *ngIf="radiationinward.get('PaymentMode')?.touched && radiationinward.get('PaymentMode')?.invalid"
+                  class="text-danger">
+                  Payment Mode is required
+                </div>
+        </div>
+
+
+      <div class="form-group" *ngIf="radiationinward.get('PaymentMode')?.value === 'upi'">
+    <label>Transaction ID</label>
+    <input type="text" formControlName="transactionId" class="form-control" placeholder="Enter UPI Transaction ID" />
+    <div *ngIf="radiationinward.get('transactionId')?.invalid && radiationinward.get('transactionId')?.touched" class="text-danger">
+      Transaction ID is required
+    </div>
+  </div>
+
+
+      </div>
+
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="" class="form-label">Findings</label>
+          <textarea name="" id="" rows="3" cols="8" formControlName="remarks"></textarea>
+        </div>
+      </div>
+      <!-- <div class="form-row">
+        <div class="form-group ">
+          <label for="" class="form-label">Pathologist</label>
+          <select name="" id="" class="form-control w-50">
+            <option value="">Dr. Jay Vanani</option>
+            <option value="">Dr. Nirav Choudhari</option>
+            <option value="">Dr Parth Gothadiya</option>
+          </select>
+        </div>
+      </div> -->
+    </div>
+
+
+    <div class="text-center mt-3">
+        <button class="btn btn-dark mx-2" [disabled]="radiationinward.invalid">Submit</button>
+          <!-- <button class="btn btn-secondary">Cancel</button> -->
+      </div>
+  </form>
+</div>
+
+

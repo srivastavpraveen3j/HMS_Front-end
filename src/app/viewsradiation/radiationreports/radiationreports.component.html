@@ -1,0 +1,79 @@
+<!-- pathoreports.component.html -->
+<div id="patho-report">
+  <!-- Report Header -->
+  <div class="header mb-3 text-center">
+    <h2>{{ getReportTitle() }} - {{ title }}</h2>
+  </div>
+
+  <!-- Filter Buttons -->
+  <div class="mb-4 text-center" *ngIf="!isPrinting">
+    <button class="btn btn-outline-info mx-1" [class.active]="activeFilter === 'today'" (click)="changeFilter('today')">Today</button>
+    <button class="btn btn-outline-info mx-1" [class.active]="activeFilter === 'week'" (click)="changeFilter('week')">This Week</button>
+    <button class="btn btn-outline-info mx-1" [class.active]="activeFilter === 'month'" (click)="changeFilter('month')">This Month</button>
+    <button class="btn btn-outline-info mx-1" [class.active]="activeFilter === 'year'" (click)="changeFilter('year')">This Year</button>
+  </div>
+
+  <!-- Chart -->
+  <div class="mb-4" style="height: 400px;" >
+    <canvas id="pathoChart"></canvas>
+  </div>
+
+
+
+  <div class="loader-wrapper" *ngIf="filteredPatients.length === 0">
+  <div class="loader">
+    <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+  </div>
+</div>
+  <!-- Patient Table -->
+  <div class="table-responsive" *ngIf="filteredPatients.length > 0" >
+    <table class="table table-bordered table-hover text-center">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>UHID NO</th>
+          <th>Patient Name</th>
+          <th>Age / Gender</th>
+          <th>Test Parameter(s)</th>
+          <th *ngIf="!isPrinting">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of filteredPatients; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ record.uhid || 'N/A' }}</td>
+          <td>{{ record.patient_name || 'N/A' }}</td>
+          <td>{{ record.age || 'N/A' }}/{{ record.gender || 'N/A' }}</td>
+          <td>
+            {{ getTestNames(record) }}<br>
+          </td>
+          <td *ngIf="!isPrinting">
+            <i class="fa-solid fa-eye action-btn text-primary" (click)="viewPatient(record._id)"></i>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+</div>
+
+<!-- Export Buttons -->
+<div class="text-end mt-3" *ngIf="!isPrinting">
+  <button class="btn btn-secondary me-2" (click)="printPathologyReport()">Download Report</button>
+  <button class="btn btn-outline-dark" (click)="exportToExcel()">Export Excel</button>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" *ngIf="selectedPatient">
+  <div class="modal-content-box">
+    <div class="modal-header">
+      <h3 style="visibility: hidden;">Patient Details</h3>
+      <button class="close-btn" (click)="closeModal()">×</button>
+    </div>
+    <hr />
+    <div class="modal-body">
+      <app-test *ngIf="selectedPatient" [patientData]="[selectedPatient]"></app-test>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,133 @@
+<div class="header">
+  <h2>DOCTOR LIST</h2>
+  <button class="list-cases-btn" [routerLink]="['/master/doctormaster']" routerLinkActive="router-link-active">
+    ADD DOCTOR
+  </button>
+</div>
+
+<form [formGroup]="filterForm" class="top-bar p-3">
+  <input type="text" placeholder="Search..." formControlName="searchText" />
+</form>
+
+<!-- <div class="loader-wrapper" *ngIf="doctors.length === 0">
+  <div class="loader">
+    <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+  </div>
+</div> -->
+
+<div class="table-responsive" *ngIf="userPermissions.read && doctors.length > 0">
+  <table class="table table-bordered table-hover align-middle diagnosis-table">
+    <thead class="table-dark text-center">
+      <tr>
+        <th>#</th>
+        <!-- <th>Photo</th> -->
+        <th>Name</th>
+        <th>Mobile</th>
+        <!-- <th>Email</th>
+        <th>Specialization</th>
+        <th>Speciality</th>
+        <th>Degree</th>
+        <th>Experience</th> -->
+        <!-- <th>Reg. No</th>
+        <th>PAN No</th> -->
+        <!-- <th>Type</th> -->
+        <!-- <th>Actions</th> -->
+      </tr>
+    </thead>
+    <tbody>
+      <!-- ✅ Only render if doctors is an array -->
+      <ng-container *ngIf="isArray.isArray(doctors) && doctors.length > 0; else noDoctors">
+        <ng-container *ngFor="let doctor of doctors; let i = index">
+          <tr (click)="toggleExpand(doctor._id)" style="cursor: pointer">
+            <td>{{ i + 1 }}</td>
+            <td>{{ doctor.name }}</td>
+            <td>{{ doctor.mobile_no }}</td>
+            <!-- <td>{{ doctor.email }}</td>
+            <td>
+              <span class="badge bg-info text-dark">{{
+                doctor.specialization
+              }}</span>
+            </td>
+            <td>
+              <span class="badge bg-primary">{{ doctor.speciality }}</span>
+            </td>
+            <td>
+              <span class="badge bg-secondary">{{ doctor.degree }}</span>
+            </td>
+            <td>
+              <span class="badge bg-success">{{ doctor.experience }}</span>
+            </td>
+            <td>
+              <span
+                class="badge"
+                [ngClass]="{
+                  'bg-warning text-dark': doctor.dr_type,
+                  'bg-light text-muted': !doctor.dr_type
+                }"
+              >
+                {{ doctor.dr_type ? "Doctor" : "Not Doctor" }} </span
+              ><br />
+              <span
+                class="badge"
+                [ngClass]="{
+                  'bg-success': doctor.type,
+                  'bg-danger': !doctor.type
+                }"
+              >
+                {{ doctor.type }}
+              </span>
+            </td>
+         <td>
+              <i class="fa-solid fa-pencil me-2" (click)="editdoctor(doctor._id);   *ngIf="userPermissions.update" $event.stopPropagation()"></i>
+              <i class="fa-solid fa-trash" (click)="deletedoctor(doctor._id);   *ngIf="userPermissions.delete" $event.stopPropagation()"></i>
+            </td> -->
+          </tr>
+
+          <!-- Expanded Row -->
+
+          <tr *ngIf="expandedDoctorId === doctor._id" class="bg-light">
+            <td colspan="13">
+              <!--
+              <div class="row g-3 p-2">
+                <div class="col-md-4">
+                  <strong>Address:</strong> {{ doctor.address }}
+                </div>
+                <div class="col-md-4">
+                  <strong>Date of Birth:</strong> {{ doctor.dob | date }}
+                </div>
+                <div class="col-md-4">
+                  <strong>Digital Sign:</strong><br />
+                  <img
+                    [src]="doctor.sign"
+                    alt="Signature"
+                    style="max-height: 60px; border: 1px solid #ccc"
+                  />
+                </div>
+              </div>
+            -->
+            </td>
+          </tr>
+        </ng-container>
+      </ng-container>
+
+      <!-- Fallback template when no doctors -->
+      <ng-template #noDoctors>
+        <tr>
+          <td colspan="13" class="text-center">
+            No doctors found or unable to load data.
+          </td>
+        </tr>
+      </ng-template>
+    </tbody>
+  </table>
+</div>
+
+<div class="pagination">
+  <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+    Previous
+  </button>
+  Page {{ currentPage }} of {{ totalPages }}
+  <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+    Next
+  </button>
+</div>

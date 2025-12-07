@@ -1,0 +1,143 @@
+.opd-sheet {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  padding: 10px;
+}
+
+.bill-container {
+  border: 1px solid #000;
+  padding: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  line-height: 1.1;
+  color: #000;
+}
+
+.header-section {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.hospital-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.address-line {
+  font-size: 10px;
+  margin-bottom: 1px;
+}
+
+.gst-invoice {
+  font-size: 10px;
+  margin: 4px 0;
+  font-weight: bold;
+}
+
+.customer-info {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  padding: 4px 0;
+  border-bottom: 1px solid #000;
+  font-size: 10px;
+}
+
+.description-section {
+  margin: 8px 0;
+  font-size: 10px;
+}
+
+.desc-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 2px 0;
+}
+
+.medicine-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8px;
+  margin: 4px 0;
+}
+
+.medicine-table th,
+.medicine-table td {
+  border: 1px solid #000;
+  padding: 2px 3px;
+  text-align: center;
+}
+
+.medicine-table th {
+  background-color: #f8f8f8;
+  font-weight: bold;
+  font-size: 8px;
+}
+
+.left {
+  text-align: left !important;
+}
+
+.right {
+  text-align: right !important;
+}
+
+.totals-section {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+}
+
+.left-info {
+  width: 45%;
+  font-size: 8px;
+}
+
+.right-totals {
+  width: 50%;
+}
+
+.totals-table {
+  width: 100%;
+  border: 1px solid #000;
+  font-size: 9px;
+  border-collapse: collapse;
+}
+
+.totals-table td {
+  padding: 3px 6px;
+  border: 1px solid #000;
+}
+
+.payment-mode {
+  text-align: right;
+  font-size: 9px;
+  margin-top: 6px;
+}
+
+.footer {
+  text-align: center;
+  font-size: 7px;
+  margin-top: 10px;
+  border-top: 1px solid #000;
+  padding-top: 4px;
+}
+
+/* Print specific styles */
+@media print {
+  .opd-sheet {
+    margin: 0;
+    padding: 0;
+  }
+
+  footer {
+    display: none !important;
+  }
+
+  body {
+    print-color-adjust: exact;
+  }
+}

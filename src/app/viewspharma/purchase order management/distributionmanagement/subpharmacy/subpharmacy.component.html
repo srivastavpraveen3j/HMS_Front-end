@@ -1,0 +1,422 @@
+  <!-- subpharmacy.component.html -->
+  <div class="form-meta">
+    <!-- Header -->
+    <div class="header">
+      <h2>SUB-PHARMACIES MANAGEMENT</h2>
+      <div class="header-actions">
+        <!-- <button class="btn btn-secondary" (click)="bulkTransfer()">Bulk Transfer</button> -->
+        <button class="btn btn-primary" (click)="addPharmacy()">Add Pharmacy</button>
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards mt-5">
+      <div class="summary-card total">
+        <div class="summary-icon">🏥</div>
+        <div class="summary-info">
+          <div class="summary-number">{{ totalPharmacies }}</div>
+          <div class="summary-label">Total Pharmacies</div>
+        </div>
+      </div>
+
+      <div class="summary-card emergency">
+        <div class="summary-icon">🚨</div>
+        <div class="summary-info">
+          <div class="summary-number">{{ emergencyUnits }}</div>
+          <div class="summary-label">Emergency Units</div>
+        </div>
+      </div>
+
+      <div class="summary-card specialty">
+        <div class="summary-icon">💊</div>
+        <div class="summary-info">
+          <div class="summary-number">{{ specialtyUnits }}</div>
+          <div class="summary-label">Specialty Units</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pharmacy Cards Grid -->
+    <div class="pharmacy-grid">
+      <div class="pharmacy-card" *ngFor="let pharmacy of pharmacies">
+        <!-- Card Header -->
+        <div class="card-header">
+          <div class="pharmacy-title">
+            <h3>{{ pharmacy.name }}</h3>
+            <div class="pharmacy-type">{{ pharmacy.type }}</div>
+          </div>
+          <span class="status-badge" [ngClass]="getStatusClass(pharmacy.status)">
+            {{ pharmacy.status }}
+          </span>
+        </div>
+
+        <!-- Card Content -->
+        <div class="card-content">
+          <div class="detail-item">
+            <span class="detail-icon">📍</span>
+            <span class="detail-text">{{ pharmacy.location }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-icon">👨‍⚕️</span>
+            <span class="detail-text">{{ pharmacy.pharmacist }}</span>
+          </div>
+
+          <div class="pharmacy-metrics">
+            <div class="metric-row">
+              <span class="metric-label">Patient Volume:</span>
+              <span class="metric-value" [ngClass]="getVolumeClass(pharmacy.patient_volume)">
+                {{ pharmacy.patient_volume }}
+              </span>
+            </div>
+
+            <div class="metric-row">
+              <span class="metric-label">Operating Hours:</span>
+              <span class="metric-value">{{ pharmacy.operating_hours }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Actions -->
+        <div class="card-actions">
+          <button class="btn btn-outline btn-sm" (click)="viewStock(pharmacy._id)">
+            View Stock
+          </button>
+          <!-- <button class="btn btn-primary btn-sm" (click)="createRequest(pharmacy._id)">
+            Create Request
+          </button> -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Pharmacy Modal -->
+  <div class="modal-overlay" *ngIf="showAddPharmacyModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h2>Add New Pharmacy</h2>
+        <button class="close-btn" (click)="closeModal()">×</button>
+      </div>
+
+      <!-- Progress Steps -->
+      <div class="step-progress">
+        <div
+          class="step"
+          *ngFor="let step of [1, 2, 3, 4]; let i = index"
+          [class.active]="currentStep === step"
+          [class.completed]="currentStep > step"
+        >
+          {{ step }}
+        </div>
+      </div>
+
+      <!-- Step 1: Basic Information -->
+      <div class="step-content" *ngIf="currentStep === 1">
+        <h3>Basic Information</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Pharmacy Name *</label>
+            <input
+              type="text"
+              [(ngModel)]="newPharmacyForm.name"
+              placeholder="Enter pharmacy name"
+              class="form-control"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Location *</label>
+            <input
+              type="text"
+              [(ngModel)]="newPharmacyForm.location"
+              placeholder="Enter location"
+              class="form-control"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Pharmacy Type *</label>
+            <select [(ngModel)]="newPharmacyForm.type" class="form-control">
+              <option value="">Select Type</option>
+              <option *ngFor="let type of pharmacyTypes" [value]="type">
+                {{ type }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Manager Name *</label>
+            <input
+              type="text"
+              [(ngModel)]="newPharmacyForm.managerName"
+              placeholder="Enter manager name"
+              class="form-control"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone</label>
+            <input
+              type="tel"
+              [(ngModel)]="newPharmacyForm.phone"
+              placeholder="Enter phone number"
+              class="form-control"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              [(ngModel)]="newPharmacyForm.email"
+              placeholder="Enter email address"
+              class="form-control"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Expected Patient Volume</label>
+            <select
+              [(ngModel)]="newPharmacyForm.expectedPatientVolume"
+              class="form-control"
+            >
+              <option *ngFor="let volume of volumeOptions" [value]="volume">
+                {{ volume }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Operating Hours</label>
+            <select
+              [(ngModel)]="newPharmacyForm.operatingHours"
+              class="form-control"
+            >
+              <option *ngFor="let hours of operatingHoursOptions" [value]="hours">
+                {{ hours }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Special Requirements -->
+      <div class="step-content" *ngIf="currentStep === 2">
+        <h3>Special Requirements</h3>
+
+        <div class="form-group">
+          <label>Special Medication Categories</label>
+          <div class="checkbox-group">
+            <div
+              class="checkbox-item"
+              *ngFor="let category of specialCategoryOptions"
+            >
+              <input
+                type="checkbox"
+                [id]="category"
+                [checked]="isSpecialCategorySelected(category)"
+                (change)="
+                  onSpecialCategoryChange(category, $any($event.target).checked)
+                "
+              />
+              <label [for]="category">{{ category }}</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Storage Capacity (sq ft)</label>
+          <input
+            type="number"
+            [(ngModel)]="newPharmacyForm.storageCapacity"
+            placeholder="Enter storage capacity"
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Additional Notes</label>
+          <textarea
+            [(ngModel)]="newPharmacyForm.additionalNotes"
+            placeholder="Enter any additional notes"
+            rows="4"
+            class="form-control"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Step 3: Predicted Stock Allocation -->
+    <!-- Update Step 3 to show medicine availability -->
+  <!-- Update Step 3 template to use safe navigation -->
+  <!-- Step 3: Initial Stock Allocation -->
+  <div class="step-content" *ngIf="currentStep === 3">
+    <h3>Initial Stock Allocation</h3>
+
+    <!-- ✅ Stock Issues Warning -->
+    <div class="stock-warning" *ngIf="hasStockIssues()">
+      <div class="alert alert-danger">
+        <h4>⚠️ Insufficient Stock Detected</h4>
+        <p>The following medicines have insufficient stock:</p>
+        <ul>
+          <li *ngFor="let item of getInsufficientStockItems()">
+            <strong>{{ item.medicine_name }}</strong>:
+            Available <span class="text-danger">{{ item.available_stock || 0 }}</span>,
+            Requested <span class="text-primary">{{ item.units }}</span>
+          </li>
+        </ul>
+        <p><strong>You cannot proceed until stock is sufficient or quantities are reduced.</strong></p>
+      </div>
+    </div>
+
+    <div class="stock-list">
+      <div class="stock-item" *ngFor="let item of stockAllocation">
+        <div class="stock-name">
+          {{ item.medicine_name || item.name }}
+          <span class="critical-badge" *ngIf="item.critical">Critical</span>
+          <span class="availability-badge"
+                [class]="(item.available_stock || 0) >= item.units ? 'available' : 'insufficient'">
+            Available: {{ item.available_stock || 0 }}
+          </span>
+        </div>
+        <div class="stock-details">
+          <div class="stock-request">
+            <!-- ✅ Allow editing of requested units -->
+            <label>Requested Units:</label>
+            <input
+              type="number"
+              [(ngModel)]="item.units"
+              [max]="item.available_stock || 0"
+              min="1"
+              class="form-control stock-input"
+              [class.error]="(item.available_stock || 0) < item.units"
+            />
+          </div>
+          <div class="stock-cost">
+            Cost: ₹{{ (item.cost * (item.units / (item.units > 0 ? item.units : 1))).toFixed(2) }}
+          </div>
+          <span *ngIf="(item.available_stock || 0) < item.units" class="error-text">
+            ⚠️ Insufficient stock! Maximum available: {{ item.available_stock || 0 }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-summary">
+      <div class="summary-item">
+        <span class="label">Total Items:</span>
+        <span class="value">{{ getTotalStockItems() }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="label">Estimated Value:</span>
+        <span class="value">₹{{ getTotalStockValue().toFixed(2) }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="label">Available Medicines:</span>
+        <span class="value" [class.text-danger]="!getAvailableMedicinesCount()">
+          {{ getAvailableMedicinesCount() }} of {{ stockAllocation.length }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+
+
+
+      <!-- Step 4: Review & Confirm -->
+      <div class="step-content" *ngIf="currentStep === 4">
+        <h3>Review & Confirm</h3>
+
+        <div class="review-section">
+          <h4>Pharmacy Details</h4>
+          <div class="review-item">
+            <strong>Name:</strong> {{ newPharmacyForm.name }}
+          </div>
+          <div class="review-item">
+            <strong>Location:</strong> {{ newPharmacyForm.location }}
+          </div>
+          <div class="review-item">
+            <strong>Type:</strong> {{ newPharmacyForm.type }}
+          </div>
+          <div class="review-item">
+            <strong>Manager:</strong> {{ newPharmacyForm.managerName }}
+          </div>
+          <div class="review-item">
+            <strong>Patient Volume:</strong>
+            {{ newPharmacyForm.expectedPatientVolume }}
+          </div>
+          <div class="review-item">
+            <strong>Operating Hours:</strong> {{ newPharmacyForm.operatingHours }}
+          </div>
+        </div>
+
+        <div class="review-section">
+          <h4>Stock Allocation Summary</h4>
+          <div class="review-item">
+            <strong>Total Items:</strong> {{ getTotalStockItems() }}
+          </div>
+          <div class="review-item">
+            <strong>Total Value:</strong> ${{ getTotalStockValue().toFixed(2) }}
+          </div>
+          <div class="review-item">
+            <strong>Critical Medications:</strong> {{ getCriticalMedications() }}
+          </div>
+        </div>
+
+        <div
+          class="review-section"
+          *ngIf="newPharmacyForm.specialCategories.length > 0"
+        >
+          <h4>Special Requirements</h4>
+          <div class="review-item">
+            <strong>Special Categories:</strong>
+            {{ newPharmacyForm.specialCategories.join(", ") }}
+          </div>
+        </div>
+
+        <div class="confirmation-checkbox">
+          <input type="checkbox" id="confirm" [(ngModel)]="confirmationChecked" />
+          <label for="confirm"
+            >I confirm the pharmacy details and approve the initial stock
+            allocation</label
+          >
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button
+          class="btn btn-secondary"
+          *ngIf="currentStep > 1"
+          (click)="previousStep()"
+        >
+          Previous
+        </button>
+
+        <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+
+        <button
+          class="btn btn-primary"
+          *ngIf="currentStep < totalSteps"
+          (click)="nextStep()"
+          [disabled]="!canProceedToNext()"
+        >
+          Next
+        </button>
+
+        <button class="btn btn-success"
+          *ngIf="currentStep === totalSteps"
+          (click)="createPharmacy()"
+          [disabled]="!confirmationChecked">
+          Create Pharmacy
+        </button>
+      </div>
+    </div>
+  </div>

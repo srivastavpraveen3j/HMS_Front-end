@@ -1,0 +1,17 @@
+.debug-section {
+  border: 2px dashed #17a2b8;
+  background-color: #f8f9fa;
+}
+
+.btn-group .btn-sm {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.card-header.bg-info {
+  background-color: #17a2b8 !important;
+}
+
+.debug-section small {
+  font-size: 0.75rem;
+}

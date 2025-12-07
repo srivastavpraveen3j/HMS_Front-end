@@ -1,0 +1,30 @@
+<!-- <p>labmanagement works!</p> -->
+<div class="header">
+  <h2>LAB TEST MANAGEMENT</h2>
+</div>
+
+<div class="m-5">
+  <h2>{{ hospital.name }} - Branch Wise Lab Test Overview</h2>
+  <hr>
+
+  <div class="branches-flex">
+    <div class="branch" *ngFor="let branch of hospital.branches">
+      <div class="branch-header">
+        <h3>{{ branch.name }}</h3>
+        <p><strong>Total Lab Tests:</strong> {{ branch.labTests.length }}</p>
+      </div>
+
+      <div class="patient-list">
+        <div class="patient-card" *ngFor="let test of branch.labTests">
+          <div class="patient-info">
+            <h4>{{ test.patient }}</h4>
+            <p><strong>Test:</strong> {{ test.test }}</p>
+            <p><strong>Department:</strong> {{ test.department }}</p>
+            <p><strong>Referred By:</strong> {{ test.referredBy }}</p>
+            <p><strong>Lab Technician:</strong> {{ test.technician }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

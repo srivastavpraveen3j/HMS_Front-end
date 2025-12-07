@@ -1,0 +1,61 @@
+<div class="header">
+    <h2>Treatment Sheet - {{ activeTab === 'OPD'? 'OPD': 'IPD' }} </h2>
+
+    <div class="d-flex justify-content-between align-items-center filter-tabs">
+        <ul class="nav nav-tabs mb-0">
+            <li class="nav-item">
+                <a class="nav-link no-print" [ngClass]="{ active: activeTab === 'OPD', 'text-dark': true }"
+                    (click)="setActiveTab('OPD')">
+                    OPD
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link no-print" [ngClass]="{ active: activeTab === 'IPD', 'text-dark': true }"
+                    (click)="setActiveTab('IPD')">
+                    IPD
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div *ngIf="filteredPatients.length > 0">
+    <table class="table table-bordered table-hover align-middle diagnosis-table">
+        <thead class="table-dark text-center">
+            <tr>
+                <th>#</th>
+                <th>UHID</th>
+                <th *ngIf="activeTab === 'IPD'">IPD Case Number</th>
+                <th>Patient Name</th>
+                <th>Age</th>
+                <th *ngIf="activeTab === 'IPD'">Weight</th>
+                <th *ngIf="activeTab === 'IPD'">Patient Type</th>
+                <th>Consulting Doctor</th>
+                <th>Referring Doctor</th>
+                <th>Shared date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let data of filteredPatients; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ data.uniqueHealthIdentificationId?.uhid }}</td>
+                <td *ngIf="activeTab === 'IPD'">{{ data.ipdNumber || 'N/A' }}</td>
+                <td>{{ data.uniqueHealthIdentificationId?.patient_name }}</td>
+                <td>{{ data.uniqueHealthIdentificationId?.age }}</td>
+                <td *ngIf="activeTab === 'IPD'">
+                    {{ data.weight }}
+                </td>
+                <td *ngIf="activeTab === 'IPD'"> {{ data.patientType }} </td>
+                <td>{{ data.consulting_Doctor?.name }}</td>
+                <td>{{ data.referringDoctorId?.name }}</td>
+                <td>{{ data.createdAt | date: 'dd-MM-yyyy' }}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-dark" (click)="onViewTreatmentSheet(data.uniqueHealthIdentificationId?._id)">
+                        View
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

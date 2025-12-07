@@ -1,0 +1,74 @@
+<div class="header">
+  <h2>ADD NEW OPD RETURN DATA</h2>
+  <button class="list-cases-btn" [routerLink]="['/opd/returnlist']" routerLinkActive="router-link-active">RETURN LIST</button>
+</div>
+
+<div class="opd-container">
+  <form [formGroup]="returnForm" (ngSubmit)="onSubmit()">
+    <div class="form-half">
+
+      <label>Bill No</label>
+      <input type="text" class="form-control" placeholder="Caseno" formControlName="billnumber"/>
+      <div *ngIf="returnForm.get('billnumber')?.invalid && returnForm.get('billnumber')?.touched" class="error-message">
+        Bill No is required.
+      </div>
+
+      <label>Bill Amount</label>
+      <input type="text" class="form-control" formControlName="patientUhidId" placeholder="Bill Amount" />
+      <div *ngIf="returnForm.get('patientUhidId')?.invalid && returnForm.get('patientUhidId')?.touched" class="error-message">
+        Bill Amount is required and must be positive.
+      </div>
+
+      <label>Amount Return</label>
+      <input type="text" class="form-control" formControlName="outpatientDepositId" placeholder="Amount Return" />
+      <div *ngIf="returnForm.get('outpatientDepositId')?.invalid && returnForm.get('outpatientDepositId')?.touched" class="error-message">
+        Amount Return is required and must be positive.
+      </div>
+
+      <label>Receiver Name</label>
+      <input type="text" class="form-control" formControlName="returnReceiverName" placeholder="Receiver Name" />
+      <div *ngIf="returnForm.get('returnReceiverName')?.invalid && returnForm.get('returnReceiverName')?.touched" class="error-message">
+        Receiver Name is required.
+      </div>
+
+      <label>Payment Mode</label>
+      <div class="radio-group mx-3">
+        <input type="radio" formControlName="returnPaymentMethod" value="cash" /> Cash
+        <input type="radio" formControlName="returnPaymentMethod" value="upi" /> UPI
+        <input type="radio" formControlName="returnPaymentMethod" value="card" /> Card
+      </div>
+      <div *ngIf="returnForm.get('returnPaymentMethod')?.invalid && returnForm.get('returnPaymentMethod')?.touched" class="error-message">
+        Payment Mode is required.
+      </div>
+
+    </div>
+
+    <div class="text-center mt-3">
+      <button type="submit" class="btn btn-dark mx-2" [disabled]="returnForm.invalid">Submit</button>
+      <button type="button" class="btn btn-secondary" >Cancel</button>
+    </div>
+  </form>
+
+  <div class="right-section">
+    <div class="info-box">
+      <h5 style="color: darkred;">Patient List</h5>
+<hr>
+    <div *ngIf="statusMessage" class="alert alert-warning badge-warning tooltip-container ">
+  {{ statusMessage }}
+</div>
+
+      <div class="" *ngFor=" let patient of patientdetails  ">
+
+        <p>Uhid Number : {{patient.patientUhidId?.uhid}}</p>
+        <p>Patient Name : {{patient.patientUhidId?.patient_name}}</p>
+        <p>Gender : {{patient.patientUhidId?.gender}}</p>
+        <p>Age : {{patient.patientUhidId?.age}}</p>
+        <p>Dob : {{patient.patientUhidId?.dob | date}}</p>
+        <p>Mobile Number : {{patient.patientUhidId?.mobile_no}}</p>
+        <p>Total Amount : {{patient.totalamount}}</p>
+        <p>Total Deposited Amount : {{patient.amountreceived}}</p>
+        <p>Payment Method : {{patient.paymentmethod}}</p>
+      </div>
+    </div>
+  </div>
+</div>

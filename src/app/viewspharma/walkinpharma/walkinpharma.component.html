@@ -1,0 +1,259 @@
+<div class="form-meta">
+  <div class="header">
+    <h2 class="dashboard-title">OUTPATIENT MANAGE WALK-IN PHARMACY INVESTIGATION</h2>
+    <div class="">
+      <button class="toggle ipd btn mx-2"
+        [routerLink]="['/pharmalayout/managepharmainward']"
+        routerLinkActive="router-link-active"
+        *ngIf="pharmapermission">OPD</button>
+      <button class="toggle ipd btn"
+        [routerLink]="['/pharmalayout/ipdpharmainward']"
+        routerLinkActive="router-link-active"
+        *ngIf="ipdpharmapermission">IPD</button>
+    </div>
+  </div>
+  <div class="opd-container" *ngIf="userPermissions.create">
+    <h4 class="section-title mb-3">Walk-in Patient Information</h4>
+
+    <!-- Patient Search Section -->
+    <div class="form-group mb-3">
+      <label class="form-label fw-bold">Search Existing Walk-in Patient</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+        <input type="text" class="form-control"
+          [formControl]="walkInSearchControl"
+          placeholder="Search by patient name or phone number..."
+          (focus)="showWalkInSuggestions = filteredWalkInPatients.length > 0"
+          (blur)="hideWalkInSuggestionsWithDelay()"/>
+      </div>
+      <!-- Search Results Dropdown -->
+      <div *ngIf="showWalkInSuggestions && filteredWalkInPatients.length > 0"
+        class="suggestions-container position-relative">
+        <ul class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;">
+          <li *ngFor="let patient of filteredWalkInPatients"
+            class="list-group-item list-group-item-action d-flex justify-content-between"
+            (mousedown)="selectWalkInPatient(patient)"
+            style="cursor: pointer;">
+            <div>
+              <strong>{{ patient.walkInPatient?.name }}</strong><br>
+              <small class="text-muted">
+                Age: {{ patient.walkInPatient?.age }} | Gender: {{ patient.walkInPatient?.gender }}
+              </small>
+            </div>
+            <div class="text-end">
+              <span class="badge bg-primary">{{ patient.walkInPatient?.mobile_no }}</span><br>
+              <small class="text-muted" *ngIf="patient.walkInPatient?.doctor_name">
+                Dr. {{ patient.walkInPatient?.doctor_name }}
+              </small>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <!-- No Results Message -->
+      <div *ngIf="walkInSearchControl.value && filteredWalkInPatients.length === 0" class="alert alert-info mt-2">
+        <i class="fa-solid fa-info-circle me-2"></i>
+        No patients found matching "{{ walkInSearchControl.value }}"
+      </div>
+    </div>
+
+    <form [formGroup]="pharmareq" (ngSubmit)="OnSubmit()">
+      <div formGroupName="walkInPatient" class="mb-3">
+        <div class="row">
+          <div class="form-group col-md-2">
+            <label class="form-label">Name:</label>
+            <input class="form-control" formControlName="name" placeholder="Patient Name"/>
+          </div>
+          <div class="form-group col-md-2">
+            <label class="form-label">Age:</label>
+            <input class="form-control" type="number" formControlName="age" placeholder="Age"/>
+          </div>
+          <div class="form-group col-md-2">
+            <label class="form-label">Gender:</label>
+            <select formControlName="gender" class="form-control">
+              <option value="">Select</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2"
+            [ngClass]="{'is-invalid': pharmareq.get('mobile_no')?.invalid && pharmareq.get('mobile_no')?.touched}">
+            <label class="form-label">Mobile*:</label>
+            <input type="text" formControlName="mobile_no" placeholder="Mobile No"
+              maxlength="10" pattern="[6-9][0-9]{9}"
+              title="Enter 10-digit mobile number starting with 6-9"
+              (keypress)="allowOnlyNumbers($event)" class="form-control"/>
+            <div class="text-danger small"
+              *ngIf="pharmareq.get('mobile_no')?.invalid && pharmareq.get('mobile_no')?.touched">
+              Enter a valid 10-digit mobile number starting with 6-9
+            </div>
+          </div>
+          <div class="form-group col-md-2">
+            <label class="form-label">Doctor Name:</label>
+            <input type="text" formControlName="doctor_name" placeholder="Doctor Name" class="form-control"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medicine Search Section -->
+      <div class="m-3">
+        <div class="mb-3">
+          <label for="medicineSearch" class="form-label fw-bold">Search Medicine</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+            <input id="medicineSearch" type="text" class="form-control form-control-lg"
+              [formControl]="medicineSearchControl" placeholder="Type medicine name..."/>
+          </div>
+        </div>
+        <div *ngIf="filteredMedicines.length > 0" class="mt-3">
+          <h6 class="text-muted mb-2">
+            Search Results ({{ filteredMedicines.length }} found)
+          </h6>
+          <div class="list-group" style="max-height: 300px; overflow-y: auto">
+            <button *ngFor="let med of filteredMedicines"
+              type="button"
+              class="list-group-item list-group-item-action p-3"
+              (click)="selectMedicine(med)"
+              [class.list-group-item-secondary]="med.current_stock === 0 || med.isExpired"
+              [disabled]="med.current_stock === 0 || med.isExpired">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h6 class="mb-1 fw-bold"
+                    [class.text-muted]="med.current_stock === 0 || med.isExpired">
+                    {{ med.medicine_name }}
+                  </h6>
+                  <div class="row g-0">
+                    <div class="col-md-6">
+                      <small class="text-muted">Price:</small>
+                      <span class="fw-semibold"
+                        [class.text-success]="!med.isExpired"
+                        [class.text-danger]="med.isExpired">
+                        ₹{{ med?.medicine?.price || 0 }}
+                      </span>
+                    </div>
+                    <div class="col-md-6">
+                      <small class="text-muted">Stock:</small>
+                      <span class="ms-1 fw-semibold"
+                        [class.text-danger]="med.current_stock === 0 || med.isExpired"
+                        [class.text-warning]="med.current_stock > 0 && med.current_stock <= 10 && !med.isExpired"
+                        [class.text-success]="med.current_stock > 10 && !med.isExpired">
+                        {{ med.current_stock }} units
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="ms-2">
+                  <span *ngIf="med.isExpired" class="badge bg-dark">Expired</span>
+                  <span *ngIf="!med.isExpired && med.current_stock === 0" class="badge bg-danger">Out of Stock</span>
+                  <span *ngIf="!med.isExpired && med.current_stock > 0 && med.current_stock <= 10"
+                    class="badge bg-warning text-dark">Low Stock</span>
+                  <span *ngIf="!med.isExpired && med.current_stock > 10" class="badge bg-success">Available</span>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+        <div *ngIf="medicineSearchControl.value && filteredMedicines.length === 0" class="alert alert-info mt-3">
+          <i class="fa-solid fa-info-circle me-2"></i>
+          No medicines found matching "{{ medicineSearchControl.value }}"
+        </div>
+        <div *ngIf="stockWarning" class="alert alert-danger mt-3">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <strong>Warning:</strong> Selected medicine is currently out of stock or expired.
+        </div>
+      </div>
+
+      <!-- 📋 Medicine List Table -->
+      <table class="table table-bordered table-hover align-middle diagnosis-table">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>MEDICINE NAME</th>
+            <th>QTY</th>
+            <th>Price</th>
+            <th>Dosage Instruction</th>
+            <th>Time</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody formArrayName="medicinesArray">
+          <tr *ngFor="let row of medicinesArray.controls; let i = index"
+            [formGroupName]="i">
+            <td>{{ i + 1 }}</td>
+            <td>
+              <input type="text" class="form-control"
+                formControlName="medicine_name" readonly />
+            </td>
+            <td>
+              <input type="number" class="form-control"
+                formControlName="quantity"
+                [attr.max]="row.get('availableStock')?.value"
+                [attr.min]="1"
+                (change)="checkQuantity(i)" />
+            </td>
+            <td>
+              <input type="text" class="form-control" formControlName="charge" readonly />
+            </td>
+            <td>
+              <input type="text" formControlName="dosageInstruction" class="form-control" readonly />
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input"
+                  id="beforeMeal"
+                  (change)="updateDosageInstruction($event, 'Before Meal', i)" />
+                <label class="form-check-label" for="beforeMeal">Before Meal</label>
+              </div>
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input"
+                  id="afterMeal"
+                  (change)="updateDosageInstruction($event, 'After Meal', i)" />
+                <label class="form-check-label" for="afterMeal">After Meal</label>
+              </div>
+            </td>
+            <td>
+              <div formGroupName="checkbox">
+                <label><input type="checkbox" formControlName="morning" /> Morning</label>
+                <label><input type="checkbox" formControlName="noon" /> Noon</label>
+                <label><input type="checkbox" formControlName="night" /> Night</label>
+              </div>
+            </td>
+            <td>
+              <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeMedicineRow(i)">Remove</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <hr />
+      <div class="form-row">
+        <div class="form-group">
+          <label for="" class="form-label">Total Amount</label>
+          <input type="text" class="form-control"
+            [value]="pharmareq.get('total')?.value | indianCurrency"
+            readonly />
+        </div>
+      </div>
+
+      <!-- PAYMENT SECTION -->
+      <div class="payment-section mt-4 p-3 border rounded shadow-sm">
+        <h5 class="mb-3">Payment Details</h5>
+        <app-pharmapartpayment [parentForm]="pharmareq" (paymentChange)="onPaymentChange($event)"></app-pharmapartpayment>
+        <div class="mt-2" hidden>
+          <label>Total Amount Received</label>
+          <input type="number" class="form-control"
+            [value]="pharmareq.get('cashAmount')?.value + pharmareq.get('upiAmount')?.value + pharmareq.get('cardAmount')?.value" readonly>
+        </div>
+        <div *ngIf="paymentSumMismatch" class="alert alert-danger mt-2">
+          Payment split must exactly match the total amount.
+        </div>
+        <div *ngIf="transactionIdMissing" class="alert alert-danger mt-2">
+          Transaction ID is required for UPI payment.
+        </div>
+      </div>
+      <div class="text-center mt-3">
+        <button type="submit" class="btn btn-dark mx-2" [disabled]="pharmareq.invalid">
+          Submit
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

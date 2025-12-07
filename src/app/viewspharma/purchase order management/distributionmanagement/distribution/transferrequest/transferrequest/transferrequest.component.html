@@ -1,0 +1,919 @@
+<div class="form-meta">
+  <!-- Professional Header -->
+  <div class="header">
+    <div class="header-content">
+      <h2>Transfer Requests Management</h2>
+      <p>Review and approve medicine transfer requests from sub-pharmacies</p>
+    </div>
+    <!-- <div class="header-actions">
+      <button class="btn btn-outline-primary btn-sm" (click)="exportRequests()">
+        <i class="fa fa-download"></i>
+        Export
+      </button>
+      <button class="btn btn-primary btn-sm" (click)="refreshRequests()">
+        <i class="fa fa-refresh"></i>
+        Refresh
+      </button>
+    </div> -->
+  </div>
+
+  <!-- Enhanced Filters Section -->
+  <div class="filters-section mt-3">
+    <div class="filters-card">
+      <div class="row g-3">
+        <!-- Status Filter -->
+        <div class="col-md-2">
+          <label class="form-label">Status</label>
+          <select
+            class="form-select"
+            [(ngModel)]="selectedStatus"
+            (change)="onFilterChange()"
+          >
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+
+        <!-- Priority Filter -->
+        <div class="col-md-2">
+          <label class="form-label">Priority</label>
+          <select
+            class="form-select"
+            [(ngModel)]="selectedPriority"
+            (change)="onFilterChange()"
+          >
+            <option value="">All Priorities</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+
+        <!-- Date Range Filter -->
+        <!-- Enhanced Date Range Filter -->
+        <div class="col-md-3">
+          <label class="form-label">Date Range</label>
+          <div class="date-range-container">
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="dateRange.startDate"
+              (change)="onDateRangeChange()"
+              placeholder="Start Date"
+            />
+            <span class="date-separator">to</span>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="dateRange.endDate"
+              (change)="onDateRangeChange()"
+              placeholder="End Date"
+            />
+          </div>
+
+          <!-- Quick Date Presets -->
+        </div>
+
+        <!-- Search -->
+        <div class="col-md-4">
+          <label class="form-label">Search</label>
+          <div class="search-container">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search by Request ID, Pharmacy name..."
+              [(ngModel)]="searchText"
+              (input)="filterRequests()"
+            />
+            <button
+              class="clear-search-btn"
+              *ngIf="searchText"
+              (click)="clearSearch()"
+              title="Clear search"
+            >
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Records Per Page -->
+        <div class="col-md-1">
+          <label class="form-label">Per Page</label>
+          <select
+            class="form-select"
+            [(ngModel)]="recordsPerPage"
+            (change)="onRecordsPerPageChange()"
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="date-presets mt-2 d-flex">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary me-1"
+          (click)="setDateRange('today')"
+        >
+          Today
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary me-1"
+          (click)="setDateRange('yesterday')"
+        >
+          Yesterday
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary me-1"
+          (click)="setDateRange('last7days')"
+        >
+          7 Days
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary me-1"
+          (click)="setDateRange('last30days')"
+        >
+          30 Days
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary me-1"
+          (click)="setDateRange('thisMonth')"
+        >
+          This Month
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger"
+          (click)="setDateRange('clear')"
+        >
+          Clear
+        </button>
+      </div>
+
+      <!-- Active Filters Display -->
+      <!-- <div class="active-filters" *ngIf="hasActiveFilters()">
+        <span class="filter-label">Active Filters:</span>
+        <span class="filter-tag" *ngIf="selectedStatus">
+          Status: {{ selectedStatus | titlecase }}
+          <button (click)="clearFilter('status')"><i class="fa fa-times"></i></button>
+        </span>
+        <span class="filter-tag" *ngIf="selectedPriority">
+          Priority: {{ selectedPriority | titlecase }}
+          <button (click)="clearFilter('priority')"><i class="fa fa-times"></i></button>
+        </span>
+        <span class="filter-tag" *ngIf="dateRange.startDate || dateRange.endDate">
+          Date: {{ formatDateRange() }}
+          <button (click)="clearFilter('dateRange')"><i class="fa fa-times"></i></button>
+        </span>
+        <button class="btn btn-link btn-sm" (click)="clearAllFilters()">Clear All</button>
+      </div> -->
+    </div>
+  </div>
+
+  <!-- Professional Table -->
+  <div class="table-container">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sortBy('request_id')">
+              Request ID
+              <i class="fa fa-sort" [ngClass]="getSortIcon('request_id')"></i>
+            </th>
+            <th class="sortable" (click)="sortBy('pharmacy_name')">
+              Pharmacy
+              <i
+                class="fa fa-sort"
+                [ngClass]="getSortIcon('pharmacy_name')"
+              ></i>
+            </th>
+            <th>Type</th>
+            <th class="sortable" (click)="sortBy('priority')">
+              Priority
+              <i class="fa fa-sort" [ngClass]="getSortIcon('priority')"></i>
+            </th>
+            <th>Items</th>
+            <th class="sortable text-end" (click)="sortBy('total_cost')">
+              Total Cost
+              <i class="fa fa-sort" [ngClass]="getSortIcon('total_cost')"></i>
+            </th>
+            <th class="sortable" (click)="sortBy('status')">
+              Status
+              <i class="fa fa-sort" [ngClass]="getSortIcon('status')"></i>
+            </th>
+            <th class="sortable" (click)="sortBy('createdAt')">
+              Date
+              <i class="fa fa-sort" [ngClass]="getSortIcon('createdAt')"></i>
+            </th>
+            <th class="sortable">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let request of filteredRequests; trackBy: trackRequestById"
+            class="table-row"
+            [class.row-pending]="request.status === 'pending'"
+            [class.row-approved]="request.status === 'approved'"
+            [class.row-completed]="request.status === 'completed'"
+            [class.row-rejected]="request.status === 'rejected'"
+          >
+            <!-- Request ID -->
+            <td>
+              <div class="request-id">
+                <strong>{{ request.request_id }}</strong>
+                <small class="d-block text-muted">{{
+                  request.request_type | titlecase
+                }}</small>
+              </div>
+            </td>
+
+            <!-- Pharmacy -->
+            <td>
+              <div class="pharmacy-info">
+                <div class="pharmacy-name">
+                  {{ request.to_pharmacy?.pharmacy_name }}
+                </div>
+                <small class="text-muted">{{
+                  request.to_pharmacy?.pharmacy_type | titlecase
+                }}</small>
+              </div>
+            </td>
+
+            <!-- Type -->
+            <!-- Type with Icons for Better Visibility -->
+            <!-- Simple, Always Visible Version -->
+<td>
+  <div class="type-display">
+    <strong>{{ getTypeDisplay(request.request_type) }}</strong>
+  </div>
+</td>
+
+
+            <!-- Priority -->
+            <td>
+              <span
+                class="badge badge-priority"
+                [ngClass]="getPriorityClass(request.priority)"
+              >
+                {{ request.priority | titlecase }}
+              </span>
+            </td>
+
+            <!-- Items -->
+            <td>
+              <div class="items-info">
+                <strong>{{ request.requested_medicines?.length || 0 }}</strong>
+                items
+                <small class="d-block text-muted"
+                  >{{ getTotalRequestedQuantity(request) }} units</small
+                >
+              </div>
+            </td>
+
+            <!-- Cost -->
+            <td class="text-end">
+              <div class="cost-info">
+                <strong
+                  >₹{{
+                    request.total_estimated_cost | number : "1.2-2"
+                  }}</strong
+                >
+                <small
+                  class="d-block text-muted"
+                  *ngIf="
+                    request.total_approved_cost && request.status !== 'pending'
+                  "
+                >
+                  Approved: ₹{{
+                    request.total_approved_cost | number : "1.2-2"
+                  }}
+                </small>
+              </div>
+            </td>
+
+            <!-- Status -->
+            <td>
+              <span
+                class="badge badge-status"
+                [ngClass]="getStatusClass(request.status)"
+              >
+                {{ request.status | titlecase }}
+              </span>
+              <small
+                class="d-block text-muted"
+                *ngIf="request.status === 'completed' && request.completed_at"
+              >
+                {{ formatDate(request.completed_at) }}
+              </small>
+            </td>
+
+            <!-- Date -->
+            <td>
+              <div class="date-info">
+                {{ formatDate(request.createdAt) }}
+                <small class="d-block text-muted">{{
+                  request.requested_by?.user_name
+                }}</small>
+              </div>
+            </td>
+
+            <!-- Actions -->
+            <td class="text-center">
+              <div class="action-buttons">
+                <!-- View Button -->
+                <button
+                  class="btn btn-sm btn-outline-secondary"
+                  (click)="openDetailsModal(request)"
+                  title="View Details"
+                >
+                  View
+                </button>
+
+                <!-- Review Button for Pending -->
+                <button
+                  class="btn btn-sm btn-outline-warning ms-1"
+                  (click)="openApprovalModal(request)"
+                  *ngIf="request.status === 'pending' && canApprove()"
+                  title="Review Request"
+                >
+                  Review
+                </button>
+
+                <!-- Complete Button for Approved -->
+                <button
+                  class="btn btn-sm btn-outline-success ms-1"
+                  (click)="completeApprovedTransfer(request)"
+                  *ngIf="request.status === 'approved' && canComplete(request)"
+                  title="Complete Transfer"
+                >
+                  Complete
+                </button>
+
+                <!-- Status Indicators -->
+                <!-- <span
+                  *ngIf="request.status === 'completed'"
+                  class="text-success ms-2"
+                  title="Transfer Completed">
+                  <i class="fa fa-check-circle"></i>
+                </span> -->
+
+                <span
+                  *ngIf="request.status === 'rejected'"
+                  class="text-danger ms-2"
+                  title="Request Rejected"
+                >
+                  <i class="fa fa-times-circle"></i>
+                </span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- No Data -->
+      <div class="no-data" *ngIf="filteredRequests.length === 0">
+        <div class="text-center py-5">
+          <i class="fa fa-inbox fa-3x text-muted mb-3"></i>
+          <h5>No Transfer Requests Found</h5>
+          <p class="text-muted">
+            <span *ngIf="!hasActiveFilters()"
+              >There are no transfer requests to display.</span
+            >
+            <span *ngIf="hasActiveFilters()"
+              >No requests match your current filters.</span
+            >
+          </p>
+          <button
+            class="btn btn-outline-primary"
+            *ngIf="hasActiveFilters()"
+            (click)="clearAllFilters()"
+          >
+            Clear All Filters
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhanced Pagination -->
+  <!-- Enhanced Pagination -->
+  <div class="pagination-container" *ngIf="totalPages > 1">
+    <div class="pagination-info">
+      <span>
+        Showing {{ getStartRecord() }} to {{ getEndRecord() }} of
+        {{ totalRecords }} requests
+      </span>
+    </div>
+
+    <nav class="pagination-nav">
+      <ul class="pagination pagination-sm">
+        <!-- First Page -->
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a
+            class="page-link"
+            (click)="goToPage(1)"
+            [class.disabled]="currentPage === 1"
+          >
+            First
+          </a>
+        </li>
+
+        <!-- Previous -->
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" (click)="previousPage()">
+            <i class="fa fa-chevron-left"></i>
+          </a>
+        </li>
+
+        <!-- Page Numbers - FIXED -->
+        <li
+          *ngFor="let page of getPageNumbers()"
+          class="page-item"
+          [class.active]="page === currentPage && typeof page === 'number'"
+          [class.disabled]="page === '...'"
+        >
+          <a
+            class="page-link"
+            (click)="handlePageClick(page)"
+            [class.disabled]="page === '...'"
+            style="cursor: pointer"
+          >
+            {{ page }}
+          </a>
+        </li>
+
+        <!-- Next -->
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <a class="page-link" (click)="nextPage()">
+            <i class="fa fa-chevron-right"></i>
+          </a>
+        </li>
+
+        <!-- Last Page -->
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <a
+            class="page-link"
+            (click)="goToPage(totalPages)"
+            [class.disabled]="currentPage === totalPages"
+          >
+            Last
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Quick Page Jump -->
+    <div class="page-jump">
+      <span>Go to page:</span>
+      <input
+        type="number"
+        class="form-control form-control-sm"
+        [value]="currentPage"
+        (keyup.enter)="jumpToPage($event)"
+        [min]="1"
+        [max]="totalPages"
+        style="width: 80px; display: inline-block"
+      />
+    </div>
+  </div>
+</div>
+
+<!-- Simplified Centered Approval Modal -->
+<div class="modal-overlay" *ngIf="showApprovalModal" (click)="closeModals()">
+  <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Review Transfer Request</h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeModals()"
+        ></button>
+      </div>
+
+      <form [formGroup]="approvalForm" (ngSubmit)="approveRequest()">
+        <div class="modal-body">
+          <!-- Request Summary -->
+          <div class="request-summary mb-4">
+            <div class="row">
+              <div class="col-md-6">
+                <h6>Request Information</h6>
+                <p><strong>ID:</strong> {{ selectedRequest?.request_id }}</p>
+                <p>
+                  <strong>Pharmacy:</strong>
+                  {{ selectedRequest?.to_pharmacy?.pharmacy_name }}
+                </p>
+                <p>
+                  <strong>Type:</strong>
+                  {{ selectedRequest?.request_type | titlecase }}
+                </p>
+                <p>
+                  <strong>Priority:</strong>
+                  <span
+                    class="badge badge-priority"
+                    [ngClass]="getPriorityClass(selectedRequest?.priority)"
+                  >
+                    {{ selectedRequest?.priority | titlecase }}
+                  </span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <h6>Request Details</h6>
+                <p>
+                  <strong>Medicines:</strong>
+                  {{ selectedRequest?.requested_medicines?.length }}
+                </p>
+                <p>
+                  <strong>Total Cost:</strong> ₹{{
+                    selectedRequest?.total_estimated_cost | number : "1.2-2"
+                  }}
+                </p>
+                <p>
+                  <strong>Requested By:</strong>
+                  {{ selectedRequest?.requested_by?.user_name }}
+                </p>
+                <p>
+                  <strong>Date:</strong>
+                  {{ formatDate(selectedRequest?.createdAt) }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Medicines Table -->
+          <div class="medicines-review mb-4">
+            <h6>Requested Medicines</h6>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Medicine</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                    <th>Urgency</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let medicine of selectedRequest?.requested_medicines
+                    "
+                  >
+                    <td>
+                      <strong>{{ medicine.medicine_name }}</strong>
+                    </td>
+                    <td>{{ medicine.requested_quantity }}</td>
+                    <td>₹{{ medicine.unit_price | number : "1.2-2" }}</td>
+                    <td>
+                      <strong
+                        >₹{{ medicine.total_cost | number : "1.2-2" }}</strong
+                      >
+                    </td>
+                    <td>
+                      <span
+                        class="badge badge-urgency"
+                        [ngClass]="getUrgencyClass(medicine.urgency_level)"
+                      >
+                        {{ medicine.urgency_level | titlecase }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Decision -->
+          <div class="approval-decision">
+            <div class="row">
+              <div class="col-md-6">
+                <label class="form-label"
+                  >Decision <span class="text-danger">*</span></label
+                >
+                <select formControlName="status" class="form-select">
+                  <option value="approved">Approve Request</option>
+                  <option value="rejected">Reject Request</option>
+                </select>
+              </div>
+              <div
+                class="col-md-6"
+                *ngIf="approvalForm.get('status')?.value === 'approved'"
+              >
+                <label class="form-label">Processing Priority</label>
+                <select
+                  class="form-select"
+                  formControlName="processing_priority"
+                >
+                  <option value="normal">Normal Processing</option>
+                  <option value="urgent">Urgent Processing</option>
+                  <option value="immediate">Immediate Processing</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <label class="form-label">
+                <span *ngIf="approvalForm.get('status')?.value === 'approved'"
+                  >Notes (Optional)</span
+                >
+                <span *ngIf="approvalForm.get('status')?.value === 'rejected'"
+                  >Rejection Reason <span class="text-danger">*</span></span
+                >
+              </label>
+              <textarea
+                [formControlName]="
+                  approvalForm.get('status')?.value === 'approved'
+                    ? 'approval_notes'
+                    : 'rejection_reason'
+                "
+                class="form-control"
+                rows="3"
+                [placeholder]="
+                  approvalForm.get('status')?.value === 'approved'
+                    ? 'Add any approval notes...'
+                    : 'Please provide reason for rejection...'
+                "
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="closeModals()"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="btn"
+            [ngClass]="
+              approvalForm.get('status')?.value === 'approved'
+                ? 'btn-success'
+                : 'btn-danger'
+            "
+            [disabled]="isProcessing || !isApprovalFormValid()"
+          >
+            <span
+              *ngIf="isProcessing"
+              class="spinner-border spinner-border-sm me-2"
+            ></span>
+            {{
+              approvalForm.get("status")?.value === "approved"
+                ? "Approve Request"
+                : "Reject Request"
+            }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Simplified Centered Details Modal -->
+<div class="modal-overlay" *ngIf="showDetailsModal" (click)="closeModals()">
+  <div class="modal-dialog modal-xl" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Transfer Request Details</h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeModals()"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Status Alert -->
+        <div
+          class="alert"
+          [ngClass]="getStatusAlertClass(selectedRequest?.status)"
+        >
+          <h6 class="alert-heading">
+            {{ getStatusTitle(selectedRequest?.status) }}
+          </h6>
+          <p class="mb-0">
+            {{ getStatusDescription(selectedRequest?.status) }}
+          </p>
+          <hr
+            *ngIf="
+              selectedRequest?.status === 'completed' &&
+              selectedRequest?.completed_at
+            "
+          />
+          <small
+            *ngIf="
+              selectedRequest?.status === 'completed' &&
+              selectedRequest?.completed_at
+            "
+          >
+            Completed on {{ formatDate(selectedRequest?.completed_at) }} by
+            {{ selectedRequest?.completed_by?.user_name }}
+          </small>
+        </div>
+
+        <!-- Quick Actions -->
+        <div
+          class="quick-actions mb-4"
+          *ngIf="
+            selectedRequest?.status === 'pending' ||
+            selectedRequest?.status === 'approved'
+          "
+        >
+          <button
+            class="btn btn-warning me-2"
+            (click)="closeModals(); openApprovalModal(selectedRequest)"
+            *ngIf="selectedRequest?.status === 'pending' && canApprove()"
+          >
+            Review Request
+          </button>
+          <button
+            class="btn btn-success"
+            (click)="closeModals(); completeApprovedTransfer(selectedRequest)"
+            *ngIf="
+              selectedRequest?.status === 'approved' &&
+              canComplete(selectedRequest)
+            "
+          >
+            Complete Transfer
+          </button>
+        </div>
+
+        <!-- Request Details Grid -->
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">
+                <h6 class="card-title">Request Information</h6>
+              </div>
+              <div class="card-body">
+                <p>
+                  <strong>Request ID:</strong> {{ selectedRequest?.request_id }}
+                </p>
+                <p>
+                  <strong>Type:</strong>
+                  {{ selectedRequest?.request_type | titlecase }}
+                </p>
+                <p>
+                  <strong>Priority:</strong>
+                  <span
+                    class="badge badge-priority"
+                    [ngClass]="getPriorityClass(selectedRequest?.priority)"
+                  >
+                    {{ selectedRequest?.priority | titlecase }}
+                  </span>
+                </p>
+                <p>
+                  <strong>Date:</strong>
+                  {{ formatDate(selectedRequest?.createdAt) }}
+                </p>
+                <p>
+                  <strong>Notes:</strong>
+                  {{ selectedRequest?.notes || "No notes provided" }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">
+                <h6 class="card-title">Pharmacy Information</h6>
+              </div>
+              <div class="card-body">
+                <p>
+                  <strong>Name:</strong>
+                  {{ selectedRequest?.to_pharmacy?.pharmacy_name }}
+                </p>
+                <p>
+                  <strong>Type:</strong>
+                  {{ selectedRequest?.to_pharmacy?.pharmacy_type | titlecase }}
+                </p>
+                <p>
+                  <strong>Location:</strong>
+                  {{
+                    selectedRequest?.to_pharmacy?.location || "Not specified"
+                  }}
+                </p>
+                <p>
+                  <strong>Pharmacist:</strong>
+                  {{
+                    selectedRequest?.to_pharmacy?.pharmacist || "Not specified"
+                  }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">
+                <h6 class="card-title">Request Summary</h6>
+              </div>
+              <div class="card-body">
+                <p>
+                  <strong>Requested By:</strong>
+                  {{ selectedRequest?.requested_by?.user_name }}
+                </p>
+                <p>
+                  <strong>Email:</strong>
+                  {{ selectedRequest?.requested_by?.user_email }}
+                </p>
+                <p>
+                  <strong>Role:</strong>
+                  {{ selectedRequest?.requested_by?.role }}
+                </p>
+                <p>
+                  <strong>Total Items:</strong>
+                  {{ selectedRequest?.requested_medicines?.length }}
+                </p>
+                <p>
+                  <strong>Total Cost:</strong> ₹{{
+                    selectedRequest?.total_estimated_cost | number : "1.2-2"
+                  }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Medicines Table -->
+        <div class="medicines-details mt-4">
+          <h6>Medicine Details</h6>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Medicine Name</th>
+                  <th>Requested Qty</th>
+                  <th>Approved Qty</th>
+                  <th>Unit Price</th>
+                  <th>Total Cost</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let medicine of selectedRequest?.requested_medicines"
+                >
+                  <td>
+                    <strong>{{ medicine.medicine_name }}</strong>
+                  </td>
+                  <td>{{ medicine.requested_quantity }}</td>
+                  <td>
+                    <span
+                      *ngIf="medicine.approved_quantity > 0"
+                      class="text-success"
+                    >
+                      {{ medicine.approved_quantity }}
+                    </span>
+                    <span
+                      *ngIf="medicine.approved_quantity === 0"
+                      class="text-muted"
+                    >
+                      Pending
+                    </span>
+                  </td>
+                  <td>₹{{ medicine.unit_price | number : "1.2-2" }}</td>
+                  <td>
+                    <strong
+                      >₹{{ medicine.total_cost | number : "1.2-2" }}</strong
+                    >
+                  </td>
+                  <td>
+                    <span
+                      class="badge"
+                      [ngClass]="getMedicineStatusClass(medicine)"
+                    >
+                      {{ getMedicineStatus(medicine) }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModals()">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

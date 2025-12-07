@@ -1,0 +1,5 @@
+name,mobile_no,address,dob,sign,dr_type,type,reg_no,degree,speciality,specialization,qualifications,experience,pan_no,email,status,created_at,updated_at
+Dr. Ananya Iyer,9012345678,"12 Lake View Road, Chennai",1985-04-23,AnanyaSign.png,doctor,consulting,REG202401,MBBS,General Medicine,Internal Medicine,MD,12 years,AZTPQ1234L,ananya.iyer@example.com,ACTIVE,2025-06-12,2025-06-12
+Dr. Karan Bhatt,9023456789,"88 Hill Top, Shimla",1979-11-14,KaranSign.png,superSpecialist,both,REG202402,MD,Neurology,Stroke Medicine,DM,20 years,BXKLM5678Z,karan.bhatt@example.com,ACTIVE,2025-06-12,2025-06-12
+Dr. Ritu Sharma,9034567890,"7 Central Market, Jaipur",1983-02-05,RituSign.png,doctor,referring,REG202403,BDS,Dentistry,Periodontics,MDS,16 years,CPQRS3456M,ritu.sharma@example.com,INACTIVE,2025-06-12,2025-06-12
+Dr. Arjun Patel,9045678901,"55 Airport Road, Ahmedabad",1991-06-17,ArjunSign.png,superSpecialist,

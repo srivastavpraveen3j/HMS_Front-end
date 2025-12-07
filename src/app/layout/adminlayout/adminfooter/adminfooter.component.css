@@ -1,0 +1,301 @@
+/* adminfooter.component.css */
+.admin-footer {
+  position: relative;
+  width: 100%;
+  background: #2c3e50;
+  color: white;
+  border-top: 2px solid #34495e;
+}
+
+.footer-content {
+  padding: 20px;
+  text-align: center;
+  background: #2c3e50;
+  position: relative;
+  z-index: 5;
+}
+
+.footer-text p {
+  margin: 0;
+  font-size: 14px;
+  color: #ecf0f1;
+}
+
+/* GANESH PALKI ANIMATION */
+.palki-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 120px;
+  background: linear-gradient(180deg, rgba(255,215,0,0.9), rgba(255,165,0,0.95));
+  border-top: 2px solid #8B0000;
+  overflow: hidden;
+  z-index: 10;
+  box-shadow: 0 -3px 15px rgba(0,0,0,0.3);
+}
+
+.ganesh-palki {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  animation: palkiMove 12s linear infinite;
+  top: 20px;
+}
+
+@keyframes palkiMove {
+  0% {
+    left: -250px;
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.05);
+  }
+  50% {
+    transform: scale(1);
+  }
+  75% {
+    transform: scale(1.05);
+  }
+  100% {
+    left: calc(100% + 100px);
+    transform: scale(1);
+  }
+}
+
+.palki-base {
+  width: 160px;
+  height: 70px;
+  background: linear-gradient(45deg, #FFD700, #FF8C00);
+  border-radius: 15px;
+  position: relative;
+  border: 3px solid #8B0000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.palki-base::before,
+.palki-base::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  width: 20px;
+  height: 20px;
+  background: #654321;
+  border-radius: 50%;
+  border: 2px solid #8B0000;
+}
+
+.palki-base::before {
+  left: 15px;
+  animation: wheelSpin 1s linear infinite;
+}
+
+.palki-base::after {
+  right: 15px;
+  animation: wheelSpin 1s linear infinite reverse;
+}
+
+@keyframes wheelSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.ganesh-in-palki {
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 3px solid #FFD700;
+  background-size: cover;
+  background-position: center;
+  animation: ganeshBless 2s ease-in-out infinite alternate;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(255,215,0,0.8);
+}
+
+@keyframes ganeshBless {
+  from {
+    transform: translateX(-50%) scale(1);
+    box-shadow: 0 0 15px rgba(255,215,0,0.8);
+  }
+  to {
+    transform: translateX(-50%) scale(1.1);
+    box-shadow: 0 0 25px rgba(255,215,0,1);
+  }
+}
+
+.palki-decorations {
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  right: -15px;
+  bottom: -15px;
+  pointer-events: none;
+}
+
+.decoration {
+  position: absolute;
+  font-size: 18px;
+  animation: decorationDance 2s ease-in-out infinite;
+}
+
+.decoration:nth-child(1) {
+  top: 8px;
+  left: 8px;
+  animation-delay: 0s;
+}
+
+.decoration:nth-child(2) {
+  top: 8px;
+  right: 8px;
+  animation-delay: 0.5s;
+}
+
+.decoration:nth-child(3) {
+  bottom: 25px;
+  left: 25px;
+  animation-delay: 1s;
+}
+
+.decoration:nth-child(4) {
+  bottom: 25px;
+  right: 25px;
+  animation-delay: 1.5s;
+}
+
+@keyframes decorationDance {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(10deg); }
+}
+
+.rats-procession {
+  position: absolute;
+  top: 15px;
+  width: 100%;
+  height: 35px;
+  pointer-events: none;
+}
+
+.rat {
+  position: absolute;
+  font-size: 24px;
+  animation: ratRun 8s linear infinite;
+  top: 0;
+}
+
+.rat:nth-child(1) {
+  animation-delay: 0s;
+  animation-duration: 8s;
+}
+
+.rat:nth-child(2) {
+  animation-delay: 1.5s;
+  animation-duration: 7s;
+}
+
+.rat:nth-child(3) {
+  animation-delay: 3s;
+  animation-duration: 9s;
+}
+
+.rat:nth-child(4) {
+  animation-delay: 0.8s;
+  animation-duration: 6.5s;
+}
+
+.rat:nth-child(5) {
+  animation-delay: 2.2s;
+  animation-duration: 8.5s;
+}
+
+.rat:nth-child(6) {
+  animation-delay: 4s;
+  animation-duration: 7.5s;
+}
+
+@keyframes ratRun {
+  0% {
+    left: -40px;
+    transform: scaleX(1);
+  }
+  45% {
+    transform: scaleX(1);
+  }
+  55% {
+    transform: scaleX(-1);
+  }
+  100% {
+    left: calc(100% + 40px);
+    transform: scaleX(-1);
+  }
+}
+
+.celebration-text {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #8B0000;
+  font-weight: bold;
+  font-size: 12px;
+  text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+  animation: textGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes textGlow {
+  from { text-shadow: 1px 1px 2px rgba(255,255,255,0.8); }
+  to { text-shadow: 1px 1px 2px rgba(255,255,255,0.8), 0 0 8px rgba(139,0,0,0.6); }
+}
+
+.sparkles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.sparkle {
+  position: absolute;
+  font-size: 16px;
+  animation: sparkleEffect 2s ease-out forwards;
+}
+
+@keyframes sparkleEffect {
+  0% {
+    opacity: 1;
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0) rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .palki-footer {
+    height: 100px;
+  }
+
+  .ganesh-palki {
+    transform: scale(0.8);
+  }
+
+  .celebration-text {
+    font-size: 10px;
+  }
+
+  .rat {
+    font-size: 20px;
+  }
+}

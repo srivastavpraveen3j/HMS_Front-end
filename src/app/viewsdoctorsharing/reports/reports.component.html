@@ -1,0 +1,56 @@
+<div class="header">
+    <h2>Reports</h2>
+
+    <div class="d-flex justify-content-between align-items-center filter-tabs">
+        <ul class="nav nav-tabs mb-0">
+            <li class="nav-item">
+                <a class="nav-link no-print" [ngClass]="{ active: activeTab === 'OPD', 'text-dark': true }"
+                    (click)="setActiveTab('OPD')">
+                    OPD
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link no-print" [ngClass]="{ active: activeTab === 'IPD', 'text-dark': true }"
+                    (click)="setActiveTab('IPD')">
+                    IPD
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- OPD Reports -->
+<div *ngIf="activeTab === 'OPD'" class="row">
+    <div class="col-md-6 col-lg-4 mb-3" *ngFor="let card of opdReports">
+        <div class="card p-4 text-white bg-dark h-100 d-flex flex-column justify-content-between">
+            <div class="text-center">
+                <i class="{{ card.icon }} fs-2 mb-2"></i>
+                <h5 class="fw-bold">{{ card.title }}</h5>
+            </div>
+            <hr />
+            <div class="text-end">
+                <a [routerLink]="card.route" class="text-decoration-none text-white">
+                    VIEW MORE <i class="fa fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- IPD Reports (same logic) -->
+<div *ngIf="activeTab === 'IPD'" class="row">
+    <div class="col-md-6 col-lg-4 mb-3" *ngFor="let card of ipdReports">
+        <div class="card p-4 text-white bg-dark h-100 d-flex flex-column justify-content-between">
+            <div class="text-center">
+                <i class="{{ card.icon }} fs-2 mb-2"></i>
+                <h5 class="fw-bold">{{ card.title }}</h5>
+            </div>
+            <hr />
+            <div class="text-end">
+                <a [routerLink]="card.route" class="text-decoration-none text-white">
+                    VIEW MORE <i class="fa fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

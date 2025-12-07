@@ -1,0 +1,165 @@
+<div class="dashboard-container" *ngIf="userPermissions.read">
+  <h3 class="header dashboard-title">Doctor Sharing Dashboard</h3>
+
+  <div class="dashboard-sections mb-5">
+    <div class="card collection-card">
+      <h4 class="section-title">Doctors</h4>
+      <div class="collection-grid">
+        <div class="collection-item">
+          Total Shared Doctors<br /><span>
+            {{ uniqueReferringDoctors.size }}
+          </span>
+        </div>
+        <!-- <div class="collection-item">Total consulting<br><span> {{ this.uniqueConsultingDoctors.size }} </span></div> -->
+      </div>
+    </div>
+
+    <div class="card right-card">
+      <div class="tabs">
+        <span class="active-tab">Departments</span>
+        <!-- <span class="tab"></span> -->
+      </div>
+
+      <div class="collection-grid">
+        <div class="collection-item">
+          Total Departments Involved<br /><span
+            (click)="showDepartment()"
+            class="count"
+          >
+            {{ count }}
+          </span>
+          <div *ngIf="show" class="pill-container">
+            <div
+              *ngFor="let speciality of consultingSpecialityList"
+              class="badge badge-pill"
+            >
+              {{ speciality }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 w-100"
+  >
+    <div class="w-50 py-2 me-3">
+      <input
+        type="text"
+        [(ngModel)]="searchText"
+        (input)="applyFilters()"
+        placeholder="Search doctors by name..."
+        class="form-control"
+      />
+    </div>
+
+    <div class="d-flex align-items-center flex-wrap gap-2">
+      <label class="form-check-label mb-0 me-2">
+        <input
+          type="radio"
+          class="form-check-input me-1"
+          name="filter"
+          value="today"
+          [(ngModel)]="activeFilter"
+          (change)="applyFilters()"
+        />
+        TODAY'S
+      </label>
+
+      <label class="form-check-label mb-0 me-2">
+        <input
+          type="radio"
+          class="form-check-input me-1"
+          name="filter"
+          value="dateRange"
+          [(ngModel)]="activeFilter"
+          (change)="applyFilters()"
+        />
+        Date Range
+      </label>
+
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="startDate"
+        (change)="applyFilters()"
+        class="form-control"
+        style="width: 200px"
+      />
+
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="endDate"
+        (change)="applyFilters()"
+        class="form-control"
+        style="width: 200px"
+      />
+    </div>
+  </div>
+
+  <div class="card requisition-card">
+    <h4 class="section-title">Info</h4>
+
+    <div class="row mb-4">
+      <div
+        class="col-6 text-center py-2 tab"
+        [ngClass]="{ 'active-tab': activeTab === 'OPD' }"
+        (click)="filterByType('OPD')"
+      >
+        OPD
+      </div>
+      <div
+        class="col-6 text-center py-2 tab"
+        [ngClass]="{ 'active-tab': activeTab === 'IPD' }"
+        (click)="filterByType('IPD')"
+      >
+        IPD
+      </div>
+    </div>
+
+    <div class="doctor-grid">
+      <div
+        class="doctor-card"
+        *ngFor="let data of paginatedDoctors"
+        (click)="showPatient(data)"
+      >
+        <div class="doctor-name">
+          Consulting : {{ data.consulting_Doctor?.name }}
+        </div>
+        <div class="doctor-detail">
+          Specialisation : {{ data.consulting_Doctor?.specialization }}
+        </div>
+        <div class="doctor-detail">
+          Department : {{ data.consulting_Doctor?.speciality }}
+        </div>
+        <div class="">
+          Patient : {{ data.uniqueHealthIdentificationId?.patient_name }}
+        </div>
+        <div class="tag">
+          Referring To :
+          <span> {{ data.referringDoctorId?.name }}, {{ data.type }} </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pagination d-flex justify-content-center align-items-center my-3" *ngIf="paginatedDoctors.length > 0">
+    <button
+      class="pagination-btn btn btn-primary mx-2"
+      (click)="previousPage()"
+      [disabled]="currentPage === 1"
+    >
+      Previous
+    </button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button
+      class="pagination-btn btn btn-primary mx-2"
+      (click)="nextPage()"
+      [disabled]="currentPage === totalPages"
+    >
+      Next
+    </button>
+  </div>
+</div>

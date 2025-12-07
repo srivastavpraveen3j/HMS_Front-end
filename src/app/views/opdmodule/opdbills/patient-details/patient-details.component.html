@@ -1,0 +1,30 @@
+<div [formGroup]="parentForm" class="section patient-details mt-3">
+  <h4 class="section-title">PATIENT DETAILS</h4>
+
+  <div class="form-row-centered">
+    <div class="form-item">
+      <label>Bill No*</label>
+      <input type="text" formControlName="Bill_No" placeholder="Bill No" />
+    </div>
+
+    <div class="form-item">
+      <label>Patient*</label>
+      <input type="text" formControlName="patient_name" placeholder="Patient Name" />
+    </div>
+
+    <div class="form-item">
+      <label>UHID No</label>
+      <input type="text" formControlName="caseNo" placeholder="UHID No" />
+    </div>
+
+    <div class="form-item">
+      <label>Age*</label>
+      <input type="text" formControlName="age" placeholder="Age" />
+    </div>
+
+    <div class="form-item">
+      <label>Gender*</label>
+      <input type="text" formControlName="gender" placeholder="Gender" />
+    </div>
+  </div>
+</div>

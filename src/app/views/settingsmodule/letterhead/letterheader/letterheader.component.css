@@ -1,0 +1,37 @@
+.medical-header {
+  border-radius: 10px;
+  margin-bottom: 18px;
+  min-height: 120px;
+  background: transparent;
+  transition: background 0.3s;
+}
+.header-content-row {
+  width: 100%;
+}
+.logo-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hospital-logo {
+  border: 1.5px solid #8B4513;
+  background: #f4f4f6;
+}
+.hospital-info {
+  flex: 1;
+  text-align: center;
+  padding-left: 12px;
+}
+.hospital-name { font-weight: bold; margin-bottom:4px; }
+.hospital-subtitle { font-weight: 500; margin-bottom:2px; }
+.tagline { font-style: italic; color: #555; font-size: 0.98em; }
+.contact-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 28px;
+  font-size: 13.5px;
+  color: #8B4513;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}

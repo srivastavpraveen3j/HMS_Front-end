@@ -1,0 +1,97 @@
+.service-selector {
+  display: flex;
+  gap: 1rem;
+  height: 500px;
+}
+
+.panel {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.5rem;
+  overflow-y: auto;
+  background: #fff;
+}
+
+.panel input {
+  width: 100%;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+li:hover {
+  background: #f9f9f9;
+}
+
+li.active {
+  background: #007bff;
+  color: white;
+}
+
+.placeholder {
+  text-align: center;
+  color: #999;
+  margin-top: 50px;
+}
+
+.count {
+  font-size: 12px;
+  color: #666;
+}
+
+.charge {
+  color: #28a745;
+  font-weight: bold;
+}
+
+button {
+  background: none;
+  border: none;
+  color: red;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+
+.group-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.6rem;
+  margin-top: 2rem;
+}
+
+.group-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.6rem 1.6rem;
+  border: 2px solid #ccc;
+  border-radius: 999px;
+  background-color: rgb(0, 0, 0);
+  color: #ffffff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.group-pill:hover {
+  border-color: #007bff;
+  color: #007bff;
+}

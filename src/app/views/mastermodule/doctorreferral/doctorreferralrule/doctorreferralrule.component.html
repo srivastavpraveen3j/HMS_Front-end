@@ -1,0 +1,161 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>REFERRAL RULE</h2>
+    <span class="icons position-relative">
+      <div class="btn-group">
+        <button
+          class="btn btn-outline-primary"
+          [class.active]="uploadMode === 'single'"
+          (click)="uploadMode = 'single'"
+        >
+          Single Entry
+        </button>
+        <button
+          class="btn btn-outline-success"
+          [class.active]="uploadMode === 'bulk'"
+          (click)="uploadMode = 'bulk'"
+        >
+          Bulk Upload
+        </button>
+      </div>
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/master/doctorreferralrulelist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div *ngIf="userPermissions.create">
+    <!-- Bulk Upload Section -->
+    <div *ngIf="uploadMode === 'bulk'">
+      <label>Import Referral Rules in Bulk (CSV):</label>
+      <div class="d-flex align-items-center mt-3">
+        <h5 class="mx-3">Sample Referral Rule Csv File</h5>
+        <a
+          href="https://drive.google.com/file/d/1SgOpQa30jRsmTN2gh9uLW1oLrDq2hgc0/view?usp=sharing"
+          download
+        >
+          <i class="fa-solid fa-file-csv"></i>
+        </a>
+      </div>
+      <input
+        type="file"
+        (change)="onFileSelected($event)"
+        accept=".csv"
+        class="form-control mt-3"
+      />
+      <div class="text-center mt-3">
+        <button
+          class="btn btn-dark mx-2"
+          type="submit"
+          (click)="uploadCSV()"
+          [disabled]="!selectedFile"
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+
+    <!-- Single Entry Form -->
+    <div *ngIf="uploadMode === 'single'">
+      <form [formGroup]="referralform" (ngSubmit)="OnSubmit()">
+        <div class="form-container">
+          <div class="form-half">
+            <div class="form-group">
+              <label>Department <span class="required">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Department Name"
+                formControlName="department"
+              />
+              <div
+                *ngIf="referralform.get('department')?.touched && referralform.get('department')?.invalid"
+                class="text-danger"
+              >
+                Department is Required
+              </div>
+            </div>
+
+            <div class="form-group position-relative">
+              <label>Service <span class="required">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                [formControl]="ServiceSearchControl"
+                placeholder="Search Service..."
+                (focus)="showServiceList = true"
+                (blur)="hideDropdown()"
+              />
+              <ul
+                *ngIf="showServiceList && filteredservcies.length > 0"
+                class="form-control mt-1"
+                style="max-height: 200px; overflow-y: auto; position: absolute; z-index: 10;"
+              >
+                <li
+                  *ngFor="let tp of filteredservcies"
+                  (mousedown)="selectService(tp)"
+                  [class.selected]="referralform.get('serviceName')?.value === tp._id"
+                  style="cursor: pointer; padding: 5px"
+                >
+                  {{ tp.name }}
+                </li>
+              </ul>
+              <div
+                class="text-danger small"
+                *ngIf="referralform.get('serviceName')?.invalid && referralform.get('serviceName')?.touched"
+              >
+                Service is required.
+              </div>
+            </div>
+          </div>
+
+          <div class="form-half">
+            <div class="form-group">
+              <label>Referral % <span class="required">*</span></label>
+              <input
+                type="number"
+                class="form-control"
+                placeholder="Referral percentage"
+                formControlName="referralPercent"
+              />
+              <div
+                *ngIf="referralform.get('referralPercent')?.touched && referralform.get('referralPercent')?.invalid"
+                class="text-danger"
+              >
+                Referral % is Required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Cap/Limit (₹)<span class="required">*</span></label>
+              <input
+                type="number"
+                class="form-control"
+                placeholder="Limit"
+                formControlName="capLimit"
+              />
+              <div
+                *ngIf="referralform.get('capLimit')?.touched && referralform.get('capLimit')?.invalid"
+                class="text-danger"
+              >
+                Limit is Required
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions text-center mt-3">
+          <button
+            type="submit"
+            class="btn btn-dark mx-2"
+            [disabled]="referralform.invalid"
+          >
+            {{ editMode ? "UPDATE" : "SAVE" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

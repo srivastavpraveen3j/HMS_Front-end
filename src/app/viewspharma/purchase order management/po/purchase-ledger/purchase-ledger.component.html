@@ -1,0 +1,55 @@
+<div class="form-meta">
+  <div class="header">
+  <h2>Purchase Ledger Report</h2>
+  <!-- Example icon and dropdown -->
+
+</div>
+<div class="container mt-4">
+  <!-- <h2>📊 Purchase Ledger Report</h2> -->
+
+  <!-- Filter Section -->
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <input class="form-control" type="text" placeholder="Search by Vendor" [(ngModel)]="vendorSearch" />
+    </div>
+    <div class="col-md-4">
+      <input class="form-control" type="date" [(ngModel)]="filterDate" />
+    </div>
+    <div class="col-md-4 text-end">
+      <button class="btn btn-outline-success" (click)="exportLedger()">Export Excel</button>
+    </div>
+  </div>
+
+  <!-- Ledger Table -->
+  <table class="table table-bordered table-hover align-middle diagnosis-table">
+    <thead class="table-dark">
+      <tr>
+        <th>#</th>
+        <th>PO Number</th>
+        <th>Vendor</th>
+        <th>Invoice No</th>
+        <th>Invoice Amount</th>
+        <th>Payment Mode</th>
+        <th>Transaction ID</th>
+        <th>Payment Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let record of filteredLedger(); let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ record.poNumber }}</td>
+        <td>{{ record.vendor }}</td>
+        <td>{{ record.invoiceNo }}</td>
+        <td>₹{{ record.invoiceAmount }}</td>
+        <td>{{ record.paymentMode }}</td>
+        <td>{{ record.transactionId }}</td>
+        <td>
+          <span class="badge bg-success" *ngIf="record.status === 'Paid'">Paid</span>
+          <span class="badge bg-warning text-dark" *ngIf="record.status !== 'Paid'">Pending</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</div>

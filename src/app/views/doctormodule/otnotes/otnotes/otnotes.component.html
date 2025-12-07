@@ -1,0 +1,526 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>OT Sheet</h2>
+    <div class="">
+      <!-- <button class="list-cases-btn mx-3"><i class="fa-solid fa-user-group"></i></button>
+      <button class="list-cases-btn mx-3" routerLink="/doctor/otnoteslist">OT NOTES LIST</button> -->
+
+      <span class="icons position-relative">
+        <!-- <i
+          class="fa-solid fa-user-tie mx-2"
+          (click)="showUHIDDropdown = !showUHIDDropdown"
+        ></i>
+        <i
+          class="fa-solid fa-signal"
+          [routerLink]="['/doctor/otnoteslist']"
+          routerLinkActive="router-link-active"
+        ></i> -->
+
+        <!-- Dropdown -->
+        <!-- Dropdown -->
+        <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+          <div
+            *ngIf="uhidTodayRecords?.length === 0"
+            class="text-center text-muted py-2"
+          >
+            No InPatient Case Created today.
+          </div>
+
+          <ul class="uhid-list">
+            <li
+              *ngFor="let record of uhidTodayRecords"
+              (click)="selectPatientFromUHID(record)"
+              style="cursor: pointer"
+            >
+              <div class="uhid-name">
+                {{ record.uniqueHealthIdentificationId?.patient_name }}
+              </div>
+              <div class="uhid-meta">
+                UHID: {{ record.uniqueHealthIdentificationId?.uhid }} | Age:
+                {{ record.uniqueHealthIdentificationId?.age }}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </span>
+    </div>
+  </div>
+
+  <div class="opd-container" *ngIf="userPermissions.create">
+    <form [formGroup]="otnotes" (ngSubmit)="OnSubmit()">
+      <!-- <h4 class="m-4">Patient Details</h4>
+      <hr /> -->
+      <div class="row g-6">
+        <div class="form-group col-md-2">
+          <label class="form-label">UHID</label>
+          <input
+            type="text"
+            placeholder="UHID No"
+            class="form-control"
+            formControlName="uhid"
+            (input)="onUhidInput()"
+            readonly
+          />
+          <div
+            *ngIf="otnotes.get('uhid')?.invalid && otnotes.get('uhid')?.touched"
+            class="text-danger"
+          >
+            IPD Number is required.
+          </div>
+        </div>
+
+        <div class="form-group col-md-2">
+          <label class="form-label">Patient name</label>
+          <input
+            type="text"
+            class="input-text form-control"
+            placeholder="Enter patient name"
+            formControlName="patient_name"
+            (input)="onPatientInput()"
+            (focus)="showSuggestions = true"
+            (blur)="hideSuggestionsWithDelay()"
+            readonly
+          />
+          <!-- </div> -->
+          <!-- Patient Suggestions Dropdown - MOVED OUTSIDE BUT STILL IN THE FORM-GROUP -->
+          <div
+            *ngIf="showSuggestions && filteredPatients.length > 0"
+            class="suggestions-container"
+          >
+            <ul class="suggestions">
+              <li
+                *ngFor="let patient of filteredPatients"
+                (mousedown)="selectPatient(patient)"
+              >
+                {{ patient?.patient_name }}
+                {{
+                  patient?.uniqueHealthIdentificationId?.mobile_no
+                    ? "| " + patient?.uniqueHealthIdentificationId?.mobile_no
+                    : ""
+                }}
+                {{ patient?.uhid ? "| " + patient?.uhid : "" }} | Operation:
+                {{ patient?.operationTheatresheets?.surgeryPackageId?.name }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Debug info - MODIFIED to check for manuallySelected flag -->
+          <div
+            *ngIf="
+              otnotes.get('patient_name')?.value &&
+              otnotes.get('patient_name')?.value.length > 2 &&
+              !filteredPatients.length &&
+              !manuallySelected
+            "
+            class="text-danger"
+          >
+            No matching patients found
+          </div>
+          <div
+            *ngIf="
+              otnotes.get('patient_name')?.touched &&
+              otnotes.get('patient_name')?.invalid
+            "
+            class="text-danger"
+          >
+            Patient name is required
+          </div>
+        </div>
+
+           <div class="form-group col-md-2">
+          <label class="form-label">Age/Gender</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="age/gender"
+            formControlName="age"
+            readonly
+          />
+          <div
+            *ngIf="otnotes.get('age')?.invalid && otnotes.get('age')?.touched"
+            class="text-danger"
+          >
+            Age is required.
+          </div>
+        </div>
+        <div class="form-group col-md-2">
+          <label class="form-label">Weight</label>
+          <input
+            type="text"
+            placeholder="Weight"
+            class="form-control"
+            formControlName="weight"
+            readonly
+          />
+          <!-- <app-customcalendar formControlName="doa"></app-customcalendar> -->
+        </div>
+          <div class="form-group col-md-2">
+          <label class="form-label">Bed</label>
+          <input
+            type="text"
+            placeholder="Bed No"
+            class="form-control"
+            formControlName="bed"
+            readonly
+          />
+          <!-- <app-customcalendar formControlName="doa"></app-customcalendar> -->
+        </div>
+        <div class="form-group col-md-2">
+          <label class="form-label">Consulting doctor</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Cons. Doctor"
+            formControlName="doctor"
+            readonly
+          />
+        </div>
+      </div>
+
+
+      <div class="row g-3">
+        <div class="form-group col-md-4">
+          <label>Surgeon name</label>
+          <input
+            type="text"
+            placeholder="Surgeon name"
+            formControlName="surgeon_name"
+          />
+        </div>
+        <div class="form-group col-md-4">
+          <label>Anesthetist name</label>
+          <input
+            type="text"
+            placeholder="Anesthetist name"
+            formControlName="anesthetist"
+          />
+        </div>
+        <div class="form-group col-md-4">
+          <label>Anesthesia</label>
+          <input
+            type="text"
+            placeholder="Anesthesia type"
+            formControlName="anethesia"
+          />
+        </div>
+      </div>
+
+      <h4 class="m-4">OT Notes</h4>
+      <hr />
+
+      <div class="row g-3">
+        <!-- <div class="form-group"> -->
+        <!-- <label>In Time*:</label> -->
+        <!-- <div class="d-flex"> -->
+        <!-- <app-customcalendar class="w-50" formControlName="indate" ></app-customcalendar> -->
+        <!-- <input type="date" name="" id="" class="w-50" formControlName="indate">
+                <input type="time" name="" id="" class="w-50" formControlName="intime"> -->
+        <!-- <input type="date" name="" id="" class="w-50" formControlName="indate"> -->
+        <!-- <app-customcalendar class="w-50" formControlName="indate" ></app-customcalendar> -->
+        <!-- <app-customtimepicker class="w-50" formControlName="intime"></app-customtimepicker> -->
+        <!-- </div> -->
+        <!-- </div> -->
+        <div class="form-group col-md-4">
+          <!-- <app-customcalendar class="w-50" formControlName="startdate"></app-customcalendar>
+              <app-customtimepicker class="w-50" formControlName="starttime"></app-customtimepicker> -->
+
+          <label>Operation Date*</label>
+          <input type="date" name="" id="" formControlName="startingdate" />
+        </div>
+
+        <div class="form-group col-md-4">
+          <label>Operation In Time*</label>
+          <input type="time" name="" id="" formControlName="intime" />
+        </div>
+
+        <div class="form-group col-md-4">
+          <!-- <app-customcalendar class="w-50" formControlName="startdate"></app-customcalendar>
+              <app-customtimepicker class="w-50" formControlName="starttime"></app-customtimepicker> -->
+          <label>Induction Time*</label>
+          <input type="time" name="" id="" formControlName="startingtime" />
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="form-group col-md-4">
+          <!-- <app-customcalendar class="w-50" formControlName="startdate"></app-customcalendar>
+              <app-customtimepicker class="w-50" formControlName="starttime"></app-customtimepicker> -->
+          <label>Incision Time*</label>
+          <input type="time" name="" id="" formControlName="outtime" />
+        </div>
+
+        <div class="form-group col-md-4">
+          <!-- <app-customcalendar class="w-50" formControlName="startdate"></app-customcalendar>
+              <app-customtimepicker class="w-50" formControlName="starttime"></app-customtimepicker> -->
+          <label>Operation Out Date*</label>
+          <input type="date" name="" id="" formControlName="endingdate" />
+        </div>
+        <div class="form-group col-md-4">
+          <!-- <app-customcalendar class="w-50" formControlName="startdate"></app-customcalendar>
+              <app-customtimepicker class="w-50" formControlName="starttime"></app-customtimepicker> -->
+          <label>Closer Time*</label>
+          <input type="time" name="" id="" formControlName="endingtime" />
+        </div>
+      </div>
+
+      <!-- <div class="form-row">
+          <div class="form-group">
+              <label>Out Time*:</label>
+              <div class="d-flex"> -->
+      <!-- <app-customcalendar class="w-50" formControlName="outdate"></app-customcalendar>
+                <app-customtimepicker class="w-50" formControlName="outtime"></app-customtimepicker> -->
+
+      <!-- <input type="date" name="" id="" class="w-50" formControlName="outdate">
+              </div>
+
+          </div> -->
+      <!-- <div class="form-group">
+            <label>Ending Time*:</label>
+            <div class="d-flex">
+                   <input type="date" name="" id="" class="w-50" formControlName="enddate">
+                <input type="time" name="" id="" class="w-50" formControlName="endtime">
+            </div>
+        </div> -->
+      <!-- </div> -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Operating Suregon*</label>
+          <input
+            type="text"
+            name=""
+            id=""
+            placeholder="Operating Suergon"
+            formControlName="suregon"
+          />
+          <div
+            *ngIf="
+              otnotes.get('suregon')?.invalid && otnotes.get('suregon')?.touched
+            "
+            class="text-danger"
+          >
+            Surgeon name is required.
+          </div>
+        </div>
+      </div>
+      <div class="row g-2">
+        <div class="form-group col-md-6">
+          <label>Procedure Name*</label>
+          <input
+            type="text"
+            name=""
+            id=""
+            class="form-control"
+            placeholder="Procedure Name"
+            formControlName="procedure_name"
+          />
+        </div>
+        <div
+          *ngIf="
+            otnotes.get('procedure_name')?.invalid &&
+            otnotes.get('procedure_name')?.touched
+          "
+          class="text-danger"
+        >
+          Procedure name is required.
+        </div>
+        <div class="form-group col-md-6">
+          <label>Diagnosis</label>
+          <input
+            type="text"
+            name=""
+            id=""
+            class="form-control"
+            placeholder="Diagnosis"
+            formControlName="diagnosis"
+          />
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="form-group col-md-3">
+          <label>Consent</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Consent"
+            formControlName="consent"
+          />
+        </div>
+        <div class="form-group col-md-3">
+          <label>Position</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Position"
+            formControlName="position"
+          />
+        </div>
+        <div class="form-group col-md-3">
+          <label>Skin incision</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Skin incision"
+            formControlName="skin_incision"
+          />
+        </div>
+        <div class="form-group col-md-3">
+          <label>Approach</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Approach"
+            formControlName="approach"
+          />
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="form-group col-md-4">
+          <label>Steps</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Steps"
+            formControlName="steps"
+          />
+        </div>
+        <div class="form-group col-md-4">
+          <label>Closure</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Closure"
+            formControlName="closure"
+          />
+        </div>
+        <div class="form-group col-md-4">
+          <label>Shifting</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Shifting"
+            formControlName="shifting"
+          />
+        </div>
+      </div>
+
+      <div class="row g-2">
+        <div class="form-group col-md-6">
+          <label>Operative Note</label>
+          <textarea
+            type="text"
+            name=""
+            id=""
+            class="form-control"
+            placeholder="Enter details for Operation Note"
+            formControlName="operation_note"
+          >
+          </textarea>
+        </div>
+        <div class="form-group col-md-6">
+          <label>Anesthesia Note</label>
+          <textarea
+            class="form-control section-textarea"
+            placeholder="Enter details for Anesthesia Note"
+            formControlName="anesthesia_note"
+          >
+          </textarea>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="form-group col-md-4">
+          <label>Circulatory Staff</label>
+          <input
+            type="text"
+            name=""
+            id=""
+            class="form-control"
+            placeholder="Circulatory Staff"
+            formControlName="circulatory_staff"
+          />
+        </div>
+        <div class="form-group col-md-4">
+          <label>Scrub Nurse 1</label>
+          <input
+            type="text"
+            name=""
+            id=""
+            class="form-control"
+            placeholder="Nurse name"
+            formControlName="scrub_nurse_1"
+          />
+        </div>
+        <div class="form-group col-md-4">
+          <label>Scrub Nurse 2</label>
+          <input
+            type="text"
+            name=""
+            id=""
+            class="form-control"
+            placeholder="Nurse name"
+            formControlName="scrub_nurse_2"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Remark</label>
+          <input
+            type="text"
+            name=""
+            id=""
+            class="form-control"
+            placeholder="Remark"
+            formControlName="remark"
+          />
+        </div>
+      </div>
+
+      <div class="summary-container d-flex">
+        <div class="summary-sidebar p-3">
+          <ul class="section-list">
+            <li
+              *ngFor="let section of sections"
+              (click)="selectSection(section)"
+              [class.active]="selectedSection === section"
+            >
+              {{ section }}
+            </li>
+          </ul>
+        </div>
+        <div class="summary-content p-3 flex-fill">
+          <h2 class="section-title p-2">{{ selectedSection }}</h2>
+          <textarea
+            [(ngModel)]="sectionContent[selectedSection]"
+            [ngModelOptions]="{ standalone: true }"
+            class="form-control section-textarea"
+            placeholder="Enter details for {{ selectedSection }}"
+            name="sectionContent"
+            *ngIf="selectedSection"
+          >
+          </textarea>
+
+          <!-- <button (click)="saveTemplate()">Save Template</button> -->
+        </div>
+      </div>
+
+      <div class="text-center mt-3">
+        <button
+          class="btn btn-dark mx-2"
+          type="submit"
+          [disabled]="otnotes.invalid"
+        >
+          Submit
+        </button>
+        <!-- <button class="btn btn-secondary" type="button" (click)="resetForm()">
+          Cancel
+        </button> -->
+      </div>
+    </form>
+    <!-- <div class="right-section">
+      <div class="info-box">PREVIOUS OT NOTES</div>
+    </div> -->
+  </div>
+</div>

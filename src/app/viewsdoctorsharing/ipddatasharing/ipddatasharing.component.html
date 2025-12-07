@@ -1,0 +1,118 @@
+<div class="header">
+  <h2>IPD Data Shared</h2>
+</div>
+
+<div class="container-fluid mt-2">
+  <div class="row g-3">
+    <div
+      class="col-12 col-sm-6 col-md-4 col-lg-3"
+      *ngFor="
+        let data of selectedData !== null ? [selectedData] : sharedData;
+        let i = index
+      "
+    >
+      <div class="card h-100 position-relative d-flex flex-column">
+        <!-- Dropdown (now inside and relative to card) -->
+        <div class="position-absolute top-0 end-0 mt-5 me-2 dropdown z-1">
+          <i
+            class="fa-solid fa-ellipsis-vertical"
+            role="button"
+            [attr.id]="'dropdownMenu' + i"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            [attr.aria-controls]="'dropdownList' + i"
+          >
+          </i>
+          <ul
+            class="dropdown-menu dropdown-menu-end"
+            [attr.aria-labelledby]="'dropdownMenu' + i"
+            [attr.id]="'dropdownList' + i"
+            role="menu"
+          >
+            <li role="menuitem">
+              <button class="dropdown-item" (click)="viewPatient(data._id)">
+                View
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Card Header -->
+        <div class="d-flex justify-content-between text-white fw-bold small">
+          <div
+            class="bg-white text-dark px-2 py-1 text-center flex-grow-1 border-end border-dark"
+          >
+            {{ data.uniqueHealthIdentificationId?.uhid }}
+          </div>
+          <div class="datetime-box">
+            {{ data.createdAt | date : "dd-MM-yyyy" }}
+          </div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body">
+          <h2>{{ data.uniqueHealthIdentificationId?.patient_name }}</h2>
+          <p>
+            Ipd Case Number: <span class="bold">{{ data.ipdNumber }}</span>
+          </p>
+          <p>
+            Bed: <span class="bold">{{ data.bed_id?.bed_number }}</span>
+          </p>
+          <p>
+            Shared By:
+            <span class="bold">{{ data.consulting_Doctor?.name }}</span>
+          </p>
+          <p>
+            Shared To:
+            <span class="bold">{{ data.referringDoctorId?.name }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="selectedPatient">
+  <div class="modal-content-box">
+    <div class="modal-header">
+      <h3 style="visibility: hidden">Patient Details</h3>
+      <button class="close-btn" (click)="closeModal()">×</button>
+    </div>
+    <hr />
+    <div class="modal-body">
+      <!-- <app-patient-ipdcase [patientData]="selectedPatient"></app-patient-ipdcase> -->
+      <app-ipdadmissionview
+        [patientData]="selectedPatient"
+      ></app-ipdadmissionview>
+    </div>
+  </div>
+</div>
+
+<!-- <div class="" *ngIf="sharedData.length > 0">
+    <table class="table table-bordered table-hover align-middle diagnosis-table">
+        <thead class="table-dark text-center">
+            <tr>
+                <th>#</th>
+                <th>UHID</th>
+                <th>Patient Name</th>
+                <th>Age</th>
+                <th>IPD Case Number</th>
+                <th>Consulting Doctor</th>
+                <th>Referring Doctor</th>
+                <th>Shared date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let data of sharedData; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ data.uniqueHealthIdentificationId?.uhid }}</td>
+                <td>{{ data.uniqueHealthIdentificationId?.patient_name }}</td>
+                <td>{{ data.uniqueHealthIdentificationId?.age }}</td>
+                <td>{{  "N/A" }}</td>
+                <td>{{ data.consulting_Doctor?.name }}</td>
+                <td>{{ data.referringDoctorId?.name }}</td>
+                <td>{{ data.createdAt | date: 'dd-MM-yyyy'}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div> -->

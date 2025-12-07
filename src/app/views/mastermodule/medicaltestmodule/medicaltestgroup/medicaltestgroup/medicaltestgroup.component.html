@@ -1,0 +1,111 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>MEDICAL TEST GROUP</h2>
+    <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/master/medicaltestgrouplist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div *ngIf="userPermissions.create">
+    <form [formGroup]="medicalTestGroup" (ngSubmit)="OnSubmit()">
+      <div class="form-container">
+        <div class="form-half">
+          <div class="form-group">
+            <label>Test Group Name <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Test Group Name"
+              formControlName="testGroup"
+            />
+            <div
+              *ngIf="medicalTestGroup.get('testGroup')?.touched && medicalTestGroup.get('testGroup')?.invalid"
+              class="text-danger"
+            >
+              Test Group Name is Required
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Description"
+              formControlName="description"
+            />
+            <div
+              *ngIf="medicalTestGroup.get('description')?.touched && medicalTestGroup.get('description')?.invalid"
+              class="text-danger"
+            >
+              Description is Required
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Price <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Price"
+              formControlName="price"
+            />
+            <div
+              *ngIf="medicalTestGroup.get('price')?.touched && medicalTestGroup.get('price')?.invalid"
+              class="text-danger"
+            >
+              Price is Required
+            </div>
+          </div>
+        </div>
+
+        <div class="form-half">
+          <div class="form-group">
+            <label>Test Parameters <span class="required">*</span></label>
+            <div class="multi-select-container">
+              <div class="selected-tags mb-2">
+                <span *ngFor="let tp of selectedTestParameters" class="tag">
+                  {{ tp.test_name }}
+                  <span class="remove" (click)="removeTestParameter(tp)">×</span>
+                </span>
+              </div>
+              <input
+                type="text"
+                class="form-control"
+                [formControl]="testParameterSearchControl"
+                placeholder="Search test parameters..."
+              />
+              <ul
+                *ngIf="filteredTestParameters.length > 0"
+                class="form-control mt-1"
+                style="max-height: 200px; overflow-y: auto;"
+              >
+                <li
+                  *ngFor="let tp of filteredTestParameters"
+                  (click)="selectTestParameter(tp)"
+                  [class.selected]="isTestParameterSelected(tp)"
+                  style="cursor: pointer; padding: 5px;"
+                >
+                  {{ tp.test_name }}
+                </li>
+              </ul>
+            </div>
+            <div
+              *ngIf="medicalTestGroup.get('testParameters')?.touched && medicalTestGroup.get('testParameters')?.invalid"
+              class="text-danger"
+            >
+              At least one test parameter is required
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions text-center mt-3">
+        <button class="btn btn-dark mx-2" [disabled]="medicalTestGroup.invalid">
+          SAVE
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

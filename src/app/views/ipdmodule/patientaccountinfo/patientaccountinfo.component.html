@@ -1,0 +1,373 @@
+<!-- patientaccountinfo.component.html -->
+<div class="form-meta">
+  <!-- ✅ Hidden print content for PDF generation -->
+  <div id="patient-account-print" style="display: none;">
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h2 style="margin: 0; font-size: 16px;">PP MANIYA HOSPITAL PVT. LTD.</h2>
+      <h3 style="margin: 5px 0; font-size: 14px; text-decoration: underline;">PATIENT ACCOUNT INFO</h3>
+      <div style="text-align: right; font-size: 12px; margin-top: 10px;">
+        {{ today | date:'dd-MM-yyyy HH:mm' }}<br>
+        Page 1 of 1
+      </div>
+    </div>
+
+    <!-- Date Range -->
+    <div style="text-align: center; margin-bottom: 15px;">
+      <strong>Date: {{ startDate | date:'dd-MM-yyyy' }} to {{ endDate | date:'dd-MM-yyyy' }}</strong>
+    </div>
+
+    <!-- Patient Account Table -->
+    <table >
+      <thead>
+        <tr>
+          <th >Sr. No.</th>
+          <th >D.O.A</th>
+          <th >Bed No.</th>
+          <th >Patient Name</th>
+          <th >Dr. Name</th>
+          <th >Remarks</th>
+          <th >Current Bill</th>
+          <th >Deposit</th>
+          <th >Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let patient of getSortedPatientData(); let i = index"
+          >
+          <td>{{ i + 1 }}</td>
+          <td>{{ patient.admissionTime | date:'dd-MM-yy' }}</td>
+          <td>{{ patient.bedNumber }}</td>
+          <td>{{ patient.patientName }}</td>
+          <td>{{ patient.doctorName }}</td>
+          <td>{{ patient.remarks }}</td>
+          <td>{{ patient.currentBill | indianCurrency }}</td>
+          <td>{{ patient.deposit | indianCurrency }}</td>
+          <td>{{ patient.balance | indianCurrency }}</td>
+        </tr>
+        <!-- Empty row if no data -->
+        <tr *ngIf="patientAccountData.length === 0">
+          <td colspan="9" >
+            No patient account data found
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ✅ Enhanced Header Section -->
+  <div class="header">
+    <!-- <div class="d-flex justify-content-end">
+      <div class="header-title">
+        <h2 class="main-title mb-1">
+          <i class="fas fa-file-invoice-dollar text-primary me-2"></i>
+          Patient Account Information
+        </h2>
+        <p class="subtitle text-muted mb-0">Monitor patient bills, deposits and outstanding balances</p>
+      </div>
+      <div class="header-badge">
+        <span class="badge bg-primary fs-6 px-3 py-2">
+          <i class="fas fa-calendar-alt me-1"></i>
+          {{ today | date:'MMM dd, yyyy' }}
+        </span>
+      </div>
+    </div> -->
+     <h2 class="main-title mb-1">
+          <!-- <i class="fas fa-file-invoice-dollar text-primary me-2"></i> -->
+          Patient Account Information
+        </h2>
+
+         <span class="icons position-relative">
+        <i class="fas fa-calendar-alt me-1"></i>
+          {{ today | date:'MMM dd, yyyy' }}
+    </span>
+  </div>
+
+  <!-- ✅ Enhanced Action Bar -->
+  <!-- <div class="action-bar bg-light rounded-3 p-3 mb-4 shadow-sm">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <div class="d-flex gap-2">
+          Print Button
+          <button
+            class="btn btn-success btn-modern"
+            (click)="printPatientAccount()"
+            [disabled]="patientAccountData.length === 0 || isLoading"
+            title="Print Patient Account Info"
+          >
+            <i class="fas fa-print me-2"></i>Print Report
+          </button>
+
+          Export Button
+          <button class="btn btn-outline-secondary btn-modern" disabled>
+            <i class="fas fa-file-excel me-2"></i>Export
+          </button>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="d-flex gap-2 align-items-center justify-content-end">
+          <label class="form-label mb-0 fw-medium">Date Range:</label>
+          <input
+            type="date"
+            class="form-control form-control-sm date-input"
+            [(ngModel)]="startDateStr"
+            (change)="onDateChange()"
+          />
+          <span class="text-muted">to</span>
+          <input
+            type="date"
+            class="form-control form-control-sm date-input"
+            [(ngModel)]="endDateStr"
+            (change)="onDateChange()"
+          />
+          <button
+            class="btn btn-primary btn-modern"
+            (click)="loadPatientAccountData()"
+            [disabled]="isLoading"
+          >
+            <i class="fas fa-search me-2"></i>Search
+          </button>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- ✅ Enhanced Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-container text-center py-5">
+    <div class="loading-content">
+      <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <h5 class="text-primary">Loading Patient Data</h5>
+      <p class="text-muted mb-0">Fetching account information from multiple sources...</p>
+    </div>
+  </div>
+
+  <!-- ✅ Enhanced Summary Cards -->
+  <div class="row mb-4" *ngIf="patientAccountData.length > 0">
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="stats-card card h-100 border-0 shadow-sm">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center">
+            <div class="stats-icon bg-info bg-opacity-10 rounded-circle p-3 me-3">
+              <i class="fas fa-users text-info fs-4"></i>
+            </div>
+            <div>
+              <h6 class="card-subtitle text-muted mb-1">Total Patients</h6>
+              <h3 class="card-title mb-0 fw-bold">{{ patientAccountData.length }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="stats-card card h-100 border-0 shadow-sm">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center">
+            <div class="stats-icon bg-warning bg-opacity-10 rounded-circle p-3 me-3">
+              <i class="fas fa-file-invoice text-warning fs-4"></i>
+            </div>
+            <div>
+              <h6 class="card-subtitle text-muted mb-1">Total Bills</h6>
+              <h3 class="card-title mb-0 fw-bold">{{ getTotalCurrentBill() | indianCurrency }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="col-lg-3 col-md-6 mb-3">
+      <div class="stats-card card h-100 border-0 shadow-sm">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center">
+            <div class="stats-icon bg-success bg-opacity-10 rounded-circle p-3 me-3">
+              <i class="fas fa-money-bill-wave text-success fs-4"></i>
+            </div>
+            <div>
+              <h6 class="card-subtitle text-muted mb-1">Total Deposits</h6>
+              <h3 class="card-title mb-0 fw-bold">{{ getTotalDeposit() | indianCurrency }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> -->
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="stats-card card h-100 border-0 shadow-sm">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center">
+            <div class="stats-icon bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+              <i class="fas fa-balance-scale text-primary fs-4"></i>
+            </div>
+            <div>
+              <h6 class="card-subtitle text-muted mb-1">Net Balance</h6>
+              <h3 class="card-title mb-0 fw-bold" [ngClass]="{'text-danger': getTotalBalance() < 0, 'text-success': getTotalBalance() >= 0}">
+                {{ getTotalBalance() | indianCurrency }}
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Enhanced Tabbed Content -->
+  <div *ngIf="!isLoading" class="content-tabs">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-bottom">
+        <ul class="nav nav-tabs card-header-tabs" id="accountTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active fw-medium" id="account-tab" data-bs-toggle="tab" data-bs-target="#account" type="button" role="tab">
+              <i class="fas fa-table me-2"></i>Patient Account Info
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link fw-medium" id="deposit-tab" data-bs-toggle="tab" data-bs-target="#deposit" type="button" role="tab">
+              <i class="fas fa-coins me-2"></i>Deposit Details
+              <span class="badge bg-primary ms-1">{{ getCurrentPatientDepositsCount() }}</span>
+            </button>
+          </li>
+          <li  class="nav-item" role="presentation">
+            <button
+            class="nav-link fw-medium"
+            (click)="printPatientAccount()"
+            [disabled]="patientAccountData.length === 0 || isLoading"
+            title="Print Patient Account Info"
+          >
+            <i class="fas fa-print me-2"></i>Print Report
+          </button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="tab-content" id="accountTabsContent">
+          <!-- ✅ Enhanced Patient Account Tab -->
+          <div class="tab-pane fade show active" id="account" role="tabpanel">
+            <div class="">
+              <table class="table table-bordered table-hover table-sm">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Sr. No.</th>
+                    <th>D.O.A</th>
+                    <th>Bed No.</th>
+                    <th>Patient Name</th>
+                    <th>Dr. Name</th>
+                    <th>Type</th>
+                    <th class="text-end">Current Bill</th>
+                    <!-- <th class="text-end">Deposit</th> -->
+                    <th class="text-end">Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let patient of getSortedPatientData(); let i = index" class="table-row-hover">
+                    <td class="text-center fw-medium">{{ i + 1 }}</td>
+                    <td>
+                      <small class="text-muted">{{ patient.admissionTime | date:'dd-MM-yyyy' }}</small>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark">{{ patient.bedNumber }}</span>
+                    </td>
+                    <td>
+                      <div class="patient-info">
+                        <strong>{{ patient.patientName }}</strong>
+                      </div>
+                    </td>
+                    <td>
+                      <small class="text-muted">{{ patient.doctorName }}</small>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="{
+                        'bg-success': patient.remarks === 'CASH',
+                        'bg-warning': patient.remarks === 'CASHLESS',
+                        'bg-info': patient.remarks === 'MEDICLAIM'
+                      }">{{ patient.remarks }}</span>
+                    </td>
+                    <td class="text-end fw-medium">{{ patient.currentBill | indianCurrency }}</td>
+                    <!-- <td class="text-end text-success fw-medium">{{ patient.deposit | indianCurrency }}</td> -->
+                    <td class="text-end fw-bold" [ngClass]="{'text-danger': patient.balance < 0, 'text-success': patient.balance >= 0}">
+                      {{ patient.balance | indianCurrency }}
+                    </td>
+                  </tr>
+                  <tr *ngIf="patientAccountData.length === 0">
+                    <td colspan="9" class="text-center py-5">
+                      <div class="empty-state">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No patient account data found</h5>
+                        <p class="text-muted mb-0">Try adjusting your search criteria</p>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+                <!-- Enhanced Totals Row -->
+                <tfoot *ngIf="patientAccountData.length > 0" class="table-light border-top-2">
+                  <tr class="fw-bold">
+                    <th colspan="6" class="text-end py-3">
+                      <i class="fas fa-calculator me-2 text-primary"></i>TOTALS:
+                    </th>
+                    <th class="text-end py-3">{{ getTotalCurrentBill() | indianCurrency }}</th>
+                    <!-- <th class="text-end py-3 text-white">{{ getTotalDeposit() | indianCurrency }}</th> -->
+                    <th class="text-end py-3" [ngClass]="{'text-danger': getTotalBalance() < 0, 'text-white': getTotalBalance() >= 0}">
+                      {{ getTotalBalance() | indianCurrency }}
+                    </th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <!-- ✅ Enhanced Deposit Details Tab -->
+          <div class="tab-pane fade" id="deposit" role="tabpanel">
+            <div class="">
+              <table class="table table-bordered table-hover table-sm ">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Sr. No.</th>
+                    <th>UHID</th>
+                    <th>Patient Name</th>
+                    <th>Bed No.</th>
+                    <th>Depositor Name(s)</th>
+                    <th>Deposit Amount(s)</th>
+                    <th>Payment Mode(s)</th>
+                    <th class="text-end">Total Deposit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let patientDeposit of getCurrentPatientDeposits(); let i = index" class="table-row-hover">
+                    <td class="text-center fw-medium">{{ i + 1 }}</td>
+                    <td>
+                      <span class="badge bg-light text-dark">{{ getPatientUHID(patientDeposit.uhid) }}</span>
+                    </td>
+                    <td>
+                      <strong>{{ getPatientName(patientDeposit.uhid) }}</strong>
+                    </td>
+                    <td>
+                      <span class="badge bg-info text-white">{{ getBedNumber(patientDeposit.uhid) }}</span>
+                    </td>
+                    <td>
+                      <small>{{ patientDeposit.depositorNames }}</small>
+                    </td>
+                    <td>
+                      <small class="text-success fw-medium">{{ patientDeposit.amounts }}</small>
+                    </td>
+                    <td>
+                      <small>{{ patientDeposit.paymentModes }}</small>
+                    </td>
+                    <td class="text-end fw-bold text-success">{{ patientDeposit.totalAmount | indianCurrency }}</td>
+                  </tr>
+                  <tr *ngIf="getCurrentPatientDeposits().length === 0">
+                    <td colspan="8" class="text-center py-5">
+                      <div class="empty-state">
+                        <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No deposit records found</h5>
+                        <p class="text-muted mb-0">No deposits available for current patients</p>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

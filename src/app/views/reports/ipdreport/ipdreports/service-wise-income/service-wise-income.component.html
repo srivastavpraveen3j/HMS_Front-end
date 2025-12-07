@@ -1,0 +1,77 @@
+<div #pdfContent>
+  <div class="header d-flex justify-content-between align-items-center mb-3">
+    <h2>
+      {{
+        activeTab === "admitted" ? "ADMITTED PATIENTS" : "DISCHARGED PATIENTS"
+      }}
+    </h2>
+
+    <ul class="nav nav-tabs mb-0">
+      <li class="nav-item">
+        <a
+          class="nav-link no-print"
+          [ngClass]="{ active: activeTab === 'admitted' }"
+          (click)="setActiveTab('admitted')"
+        >
+          Admitted Patients
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link no-print"
+          [ngClass]="{ active: activeTab === 'discharge' }"
+          (click)="setActiveTab('discharge')"
+        >
+          Discharged Patients
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div *ngIf="filteredPatients.length > 0">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark text-center">
+        <tr>
+          <th>#</th>
+          <th>Patient Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Consulting Doctor</th>
+          <th>Services Taken</th>
+          <th>Services Name</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let patient of filteredPatients; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td style="cursor: pointer; color: blue">
+            {{ patient.patient_name }}
+          </td>
+          <td>{{ patient.age }}</td>
+          <td>{{ patient.gender }}</td>
+          <td>{{ patient.inpatientCase?.admittingDoctor?.name }}</td>
+          <td>{{ getServiceCountForPatient(patient) }}</td>
+          <td>
+            <ul *ngFor="let bill of patient.inpatientBills">
+              <li *ngFor="let service of bill.service">{{ service.name }}</li>
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="d-flex justify-content-end">
+      <button (click)="downloadPDF()" class="btn btn-dark mb-3 no-print">
+        Download
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-loader
+  [patientData]="filteredPatients"
+  [title]="activeTab === 'admitted' ? 'admitted patients' : 'discharged patients'"
+></app-loader>

@@ -1,0 +1,56 @@
+.breakdown-card, .variant-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 14px #e2e8f044;
+  padding: 18px 10px 10px 10px;
+  margin-bottom: 24px;
+}
+.breakdown-table, .variant-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.breakdown-table th, .breakdown-table td,
+.variant-table th, .variant-table td {
+  padding: 11px 8px;
+  font-size: 15px;
+  border-bottom: 1px solid #ebebeb;
+}
+.breakdown-table thead, .variant-table thead {
+  background: #f4f8fb;
+  color: #243a55;
+  font-weight: bold;
+}
+.breakdown-table tfoot td {
+  background: #e6f4ff;
+  font-weight: bold;
+}
+.total-cell {
+  font-weight: 700;
+}
+.input-table {
+  width: 95px;
+  padding: 6px;
+  border: 1px solid #dde2ee;
+  border-radius: 5px;
+  background: #f7fafd;
+}
+.btn-addrow {
+  background: #2e6eea;
+  color: #fff;
+  border-radius: 22px;
+  padding: 7px 22px;
+  margin-top: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-delete {
+  background: #f88181;
+  color: #fff;
+  border: none;
+  border-radius: 22px;
+  padding: 5px 13px;
+  font-size: 17px;
+  cursor: pointer;
+}
+.btn-delete i { pointer-events: none; }

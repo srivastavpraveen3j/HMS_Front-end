@@ -1,0 +1,111 @@
+/* Make layout full-width and balanced */
+.discount-container {
+  display: flex;
+  gap: 20px; /* space between left and right */
+  align-items: flex-start;
+}
+
+.discount-container > * {
+  flex: 1; /* both take equal width */
+}
+
+.section.payment-details.wide-layout {
+  width: 95%; /* Use almost full viewport width */
+  margin: 0 auto; /* Center the form */
+  padding: 1rem 1rem; /* Reduce vertical padding */
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Title styling */
+.section.payment-details h4 {
+  text-align: center;
+  margin-bottom: 0.2rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.6px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Flexible responsive row layout */
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  width: 100%;
+}
+
+/* Use more width for each column */
+.col {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Label + input styling */
+label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+  color: #333;
+}
+
+input {
+  height: 34px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  outline: none;
+  background-color: #fff;
+}
+
+input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+}
+
+.readonly {
+  border: 1px solid #ddd;
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.9rem;
+}
+
+/* Discount components use full width evenly */
+.discount-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  width: 100%;
+}
+
+billing-discount-box,
+app-discount-percentage {
+  flex: 1;
+  min-width: 380px;
+}
+
+/* Compact form spacing */
+.form-group {
+  margin-bottom: 0.3rem;
+}
+
+input:disabled {
+  background-color: #f1f3f5;
+  color: #333;
+  border: 1px solid #ccc;
+  cursor: not-allowed;
+}

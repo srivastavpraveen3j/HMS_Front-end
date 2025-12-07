@@ -1,0 +1,151 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>OPD APPOINTMENT LIST</h2>
+    <button *ngIf="hasModuleAccess('appointment', 'create')" class="list-cases-btn" [routerLink]="['/opd/opdappointment']"
+      routerLinkActive="router-link-active">
+      ADD APPOINTMENT
+    </button>
+  </div>
+  
+  <!-- <div class="filters text-center m-3 d-flex justify-content-between">
+    <label for="">Status:</label>
+    <select class="form-control w-25" >
+      <option value="">Status</option>
+      <option value="">Approved</option>
+      <option value="">Rescheduled</option>
+      <option value="">Rejected</option>
+    </select>
+  
+    <label for=""> From:</label>
+  <app-customcalendar class="w-25"></app-customcalendar>
+  <label for="">To:</label>
+  <app-customcalendar class="w-25"></app-customcalendar>
+  </div> -->
+  
+  <!-- <div class="top-bar p-3">
+    <form [formGroup]="filterForm" class="top-bar p-3">
+      <input type="text" placeholder="Search..." formControlName="searchText" />
+    </form>
+  
+  
+  </div> -->
+  
+  <!-- Filter by Today or Date Range -->
+  <div class="filters d-flex align-items-center m-3">
+  
+    <div class="form-group w-50 mx-3 position-relative" *ngIf="!isDoctor">
+      <!-- <label>Search Doctor</label> -->
+      <input type="text" class="form-control" placeholder="Search by doctor name..." [(ngModel)]="doctorSearchText"
+        (input)="onDoctorSearchChange(doctorSearchText)" autocomplete="off" />
+      <button class="btn btn-outline-secondary" type="button" (click)="clearDoctorFilter()" *ngIf="doctorSearchText">
+        ✕
+      </button>
+  
+      <ul *ngIf="filteredDoctors.length > 0 && doctorSearchText.trim().length > 0"
+        class="list-group position-absolute w-100 zindex-dropdown" style="max-height: 200px; overflow-y: auto">
+        <li class="list-group-item list-group-item-action" *ngFor="let doctor of filteredDoctors"
+          (click)="onDoctorSelected(doctor.name)">
+          {{ doctor.name }}
+        </li>
+      </ul>
+    </div>
+  
+    <div class="form-group position-relative w-50">
+      <input type="text" [(ngModel)]="searchText" (input)="applyFilters()" placeholder="Search by uhid/patient/mobile"
+        class="form-control" />
+    </div>
+  
+    <!-- TODAY Filter -->
+    <label class="m-3">
+      <input type="radio" name="filter" value="today" [checked]="activeFilter === 'today'"
+        (change)="setFilterType('today')" />
+      TODAY'S
+    </label>
+  
+    <!-- DATE RANGE Filter -->
+    <label class="m-3">
+      <input type="radio" name="filter" value="dateRange" [checked]="activeFilter === 'dateRange'"
+        (change)="setFilterType('dateRange')" />
+      Date Range
+    </label>
+  
+    <!-- Date Inputs Only Show for Date Range -->
+    <input *ngIf="activeFilter === 'dateRange'" type="date" [(ngModel)]="startDate" (change)="applyFilters()"
+      class="form-control mx-2" />
+  
+    <input *ngIf="activeFilter === 'dateRange'" type="date" [(ngModel)]="endDate" (change)="applyFilters()"
+      class="form-control mx-2" />
+  </div>
+  
+  <app-loader [patientData]="filteredCases" [title]="module" [activeFilter]="activeFilter" [startDate]="startDate"
+    [endDate]="endDate"></app-loader>
+  
+  <div class="" *ngIf="userPermissions.read && filteredCases.length > 0">
+    <table class="table table-bordered table-hover align-middle diagnosis-table">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <!-- <th>Case No</th> -->
+          <th>Token No</th>
+          <th>Patient Name</th>
+          <th>UHID</th>
+          <th>Doctor Name</th>
+          <th>Appointment Date</th>
+          <th>Appointment Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let patient of filteredCases; let i = index">
+          <td>{{ i + 1 }}</td>
+          <!-- <td>{{ "OPD"+ i+1}}</td> -->
+          <td>{{ patient.token_number }}</td>
+          <td>{{ patient.uhid?.patient_name }}</td>
+          <td>{{ patient.uhid?.uhid }}</td>
+          <td>{{ patient.Consulting_Doctor?.name }}</td>
+          <td>{{ patient.date | date : "yyyy-MM-dd" }}</td>
+          <td>{{ formatTimeToAmPm(patient.time) }}</td>
+  
+          <td>
+            <!-- <i class="fa-solid fa-print action-btn"></i> -->
+            <i class="fa-solid fa-eye action-btn" (click)="viewPatient(patient._id)"></i>
+            <i class="fa-solid fa-pencil action-btn" *ngIf="userPermissions.update"
+              (click)="editPatientappointments(patient._id)"></i>
+            <!-- <i
+              class="fa-solid fa-trash action-btn"
+              *ngIf="userPermissions.delete"
+              (click)="deletPatientappointments(patient._id)"
+            ></i> -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <!-- Pagination Controls -->
+    <div class="pagination d-flex justify-content-center align-items-center my-3">
+      <button class="pagination-btn btn btn-primary mx-2" (click)="previousPage()" [disabled]="currentPage === 1">
+        Previous
+      </button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button class="pagination-btn btn btn-primary mx-2" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+    </div>
+  </div>
+  
+  <!-- Modal -->
+  <div class="modal-backdrop" *ngIf="selectedPatient">
+    <div class="modal-content-box">
+      <div class="modal-header">
+        <h3 style="visibility: hidden">Patient Details</h3>
+        <button class="close-btn mt-5" (click)="closeModal()">×</button>
+      </div>
+      <hr />
+      <div class="modal-body">
+        <app-patient-appointment [patientData]="selectedPatient"></app-patient-appointment>
+      </div>
+    </div>
+  </div>
+  <!-- Modal -->
+
+</div>

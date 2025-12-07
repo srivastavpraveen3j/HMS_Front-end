@@ -1,0 +1,16 @@
+.big-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--dropdown-color);
+  background-color: white;
+  appearance: none;
+  -webkit-appearance: none;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+.big-circle:checked {
+  background-color:var(--sidebar-color);
+  border-color:var(--dropdown-color);
+}

@@ -1,0 +1,54 @@
+<div class="logcontainer">
+  <div class="login-box">
+    <!-- <img src="DigiLogocropped-removebg-preview 1.png" alt="Catalyst Logo" class="logo" /> -->
+
+     <div class="logo-container" >
+  <div class="logo">
+    <img
+      [src]="logoUrl"
+      alt="Hospital Logo"
+      class="logo-image"
+      [ngStyle]="getLogoStyleForSidebar()"
+      (error)="onLogoError($event)"
+    />
+
+  </div>
+</div>
+
+    <p class="subtitle">Health Care Software Solution</p>
+
+    <form [formGroup]="onLogin" (ngSubmit)="userlogin()">
+      <input
+        type="text"
+        placeholder="Username"
+        formControlName="username"
+        class="input-field"
+        autocomplete="username"
+      />
+
+      <input
+        type="password"
+        placeholder="Password"
+        formControlName="password"
+        class="input-field"
+        autocomplete="current-password"
+      />
+
+      <!-- <select
+        formControlName="loginType"
+        class="input-field"
+      >
+        <option value="branch">Branch Admin</option>
+        <option value="user">Branch User</option>
+        <option value="superadmin">Digitalks</option>
+      </select> -->
+
+      <button
+        type="submit"
+        class="login-btn"
+      >Login</button>
+    </form>
+
+    <p class="support-text">2025 © Digitalks</p>
+  </div>
+</div>

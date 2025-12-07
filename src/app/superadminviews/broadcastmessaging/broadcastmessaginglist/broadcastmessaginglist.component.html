@@ -1,0 +1,48 @@
+<!-- <p>broadcastmessaginglist works!</p> -->
+
+<div class="header">
+  <h2>BROADCAST LIST</h2>
+  <!-- <button class="list-cases-btn"  routerLinkActive="router-link-active" >Add New Cases</button> -->
+  <button class="list-cases-btn" [routerLink]="['/superadmin/braodcastingmessage']" routerLinkActive="router-link-active" >ADD NEW BROADCAST</button>
+</div>
+<!-- <div class="container"> -->
+
+
+  <div class="top-bar p-3">
+    <select formControl="recordsPerPage">
+      <option *ngFor="let num of [25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+    </select>
+
+    <input type="text" placeholder="Search..." formControl="searchText" />
+
+  </div>
+    <table class="table table-bordered table-hover align-middle diagnosis-table">
+   <thead class="table-dark text-center" >
+      <tr>
+        <th>Title</th>
+        <th>Message</th>
+        <th>Schedule Date</th>
+        <th>Schedule Time</th>
+        <th>Target Audience</th>
+        <th>Message Type</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let broadcast of broadcastMessages">
+        <td>{{ broadcast.title }}</td>
+        <td>{{ broadcast.message }}</td>
+        <td>{{ broadcast.scheduleDate }}</td>
+        <td>{{ broadcast.scheduleTime }}</td>
+        <td>{{ broadcast.targetAudience }}</td>
+        <td>{{ broadcast.type }}</td>
+        <td>
+          <i class="fa-solid fa-print action-btn"></i>
+          <i class="fa-solid fa-eye action-btn"></i>
+          <i class="fa-solid fa-pencil action-btn"></i>
+          <i class="fa-solid fa-trash action-btn"></i>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+

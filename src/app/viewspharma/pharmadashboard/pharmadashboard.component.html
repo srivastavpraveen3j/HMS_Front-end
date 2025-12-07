@@ -1,0 +1,144 @@
+<div class="form-meta">
+  <!-- <p>pharmadashboard works!</p> -->
+<!-- <p>pathodashboard works!</p> -->
+<div class="header">
+  <h2 class="dashboard-title">Inpatient PHARMACY DASHBOARD</h2>
+
+   <!-- <span class="icons position-relative">
+        <button class="btn"  [routerLink]="['/pharmalayout/opdpharmalayout']" routerLinkActive="router-link-active" >OPD</button>
+    <button class="toggle ipd btn active" [routerLink]="['/pharmalayout/pharmalayout']" routerLinkActive="router-link-active" >IPD</button>
+  </span> -->
+<!-- 
+   <div class="toggle-buttons">
+      <button class="btn" [routerLink]="['/pharmalayout/opdpharmalayout']" routerLinkActive="router-link-active" *ngIf="opduserPermissions" >OPD</button> -->
+      <!-- <button class="toggle ipd btn active" [routerLink]="['/pharmalayout/pharmalayout']"  routerLinkActive="router-link-active">IPD</button> -->
+      <!-- <button class="toggle ipd btn " [routerLink]="['/pharmalayout/walkinpharma']"  routerLinkActive="router-link-active">Walk-In</button>
+    </div> -->
+</div>
+<!-- <div class=""> -->
+
+<!-- </div> -->
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <!-- Filter by Today or Date Range -->
+    <div class="filters d-flex align-items-center m-3">
+
+      <div class="form-group position-relative w-50">
+        <input type="text" [(ngModel)]="searchText" (input)="applyFilters()" placeholder="Search by uhid/patient name"
+          class="form-control" />
+      </div>
+
+      <label class="m-3">
+        <input type="radio" name="filter" value="today" [(ngModel)]="activeFilter" (change)="applyFilters()" checked>
+        TODAY'S
+      </label>
+
+      <label class="m-3">
+        <input type="radio" name="filter" value="dateRange" [(ngModel)]="activeFilter" (change)="applyFilters()">
+        Date Range
+      </label>
+
+      <!-- Date Inputs Visible Only for Date Range -->
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="startDate"
+        (change)="applyFilters()"
+        class="form-control mx-2"
+      />
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="endDate"
+        (change)="applyFilters()"
+        class="form-control mx-2"
+      />
+    </div>
+
+  <!-- Data Table -->
+   <div class="" *ngIf="userPermissions.read && filteredCases.length > 0">
+
+     <table class="data-table">
+       <thead class="table-dark">
+         <tr>
+           <th>INWARD ID</th>
+           <th>DATE TIME</th>
+           <th>PATIENT NAME</th>
+           <th>AGE / GENDER</th>
+           <th>UHID NO</th>
+           <th>Medicine Name</th>
+           <th>Total Amount</th>
+           <th>STATUS</th>
+           <th>Action</th>
+         </tr>
+       </thead>
+       <tbody>
+         <tr *ngFor="let record of filteredCases">
+           <td>{{ record.inwardSerialNumber }}</td>
+           <td>{{ record.createdAt | date:'shortTime' }}</td>
+
+           <!-- Use enriched data here -->
+           <!-- <td class="patient-name"  (click)="viewPatient(record?._id)">{{ record.patient_name || '-' }}</td> -->
+          <td >{{ record.patient_name || '-' }} <span *ngIf="!record.patient_name">[Missing]</span></td>
+
+           <td>{{ record.age || '-' }} / {{ record.gender || '-' }}</td>
+           <td>{{ record.uhid }}</td>
+
+           <td>
+             <ul>
+               <li *ngFor="let med of record.packages">
+                 {{ med.medicineName }} - {{ med.quantity }} × ₹{{ med.charge }}
+               </li>
+             </ul>
+           </td>
+
+           <td>{{ record.total }}</td>
+           <td>{{ record.status }}</td>
+           <td><i class="fa-solid fa-eye action-btn"  (click)="viewPatient(record?._id)"></i></td>
+         </tr>
+              <tr class="bg-warning text-end" *ngIf="filteredCases.length > 0">
+                 <td colspan="3" class="fw-bold">Total Amount</td>
+                 <td class="fw-bold">{{ totalAmount | indianCurrency }}</td>
+               </tr>
+       </tbody>
+
+
+     </table>
+
+
+
+     <!-- Modal -->
+     <div class="modal-backdrop" *ngIf="selectedPatient">
+       <div class="modal-content-box">
+         <div class="modal-header">
+           <h3 style="visibility: hidden;">Patient Details</h3>
+           <!-- <button class="close-btn" (click)="closeModal()">×</button> -->
+    <i class="fa-solid fa-times me-2" (click)="closeModal()"></i>
+
+         </div>
+         <hr>
+         <div class="modal-body">
+           <!-- <app-patient-opdmedicine-request [patientData]="selectedPatient"></app-patient-opdmedicine-request> -->
+           <!-- <app-patient-opdpharmabill [patientData]="selectedPatient"></app-patient-opdpharmabill> -->
+         <app-patient-opdpharmabill
+       *ngIf="selectedPatient"
+       [patientData]="[selectedPatient]"
+      >
+     </app-patient-opdpharmabill>
+
+         </div>
+       </div>
+     </div>
+     <!-- Modal -->
+   </div>
+
+
+    <div *ngIf="filteredCases && filteredCases.length === 0" class="alert alert-warning text-center mt-3">
+    No Inpatient record found today.
+  </div>
+
+
+</div>
+
+
+</div>

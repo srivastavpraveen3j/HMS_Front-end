@@ -1,0 +1,80 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>SYMPTOMS GROUP</h2>
+    <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/master/symptomsgrouplist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div *ngIf="userPermissions.create">
+    <form [formGroup]="symptomsgroup" (ngSubmit)="onSubmit()">
+      <div class="form-container">
+        <div class="form-half">
+          <div class="form-group">
+            <label>Symptom Group Name <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="symptomGroups"
+              placeholder="Enter group name"
+            />
+            <div
+              class="text-danger small"
+              *ngIf="symptomsgroup.get('symptomGroups')?.invalid && symptomsgroup.get('symptomGroups')?.touched"
+            >
+              Symptom Group Name is required.
+            </div>
+          </div>
+        </div>
+        <div class="form-half">
+          <div class="form-group">
+            <label>Symptoms <span class="required">*</span></label>
+            <div class="multi-select-container">
+              <div class="selected-tags">
+                <span *ngFor="let s of selectedsymptoms" class="tag">
+                  {{ s.name }}
+                  <span class="remove" (click)="removeService(s)">×</span>
+                </span>
+              </div>
+              <input
+                type="text"
+                class="form-control"
+                [formControl]="symptomsSearchControl"
+                placeholder="Search symptoms..."
+              />
+              <ul
+                *ngIf="filteredSymtpoms.length > 0"
+                class="form-control mt-1"
+                style="max-height: 200px; overflow-y: auto;"
+              >
+                <li
+                  *ngFor="let tp of filteredSymtpoms"
+                  (click)="selectService(tp)"
+                  [class.selected]="isServiceSelected(tp)"
+                  style="cursor: pointer; padding: 5px;"
+                >
+                  {{ tp.name }}
+                </li>
+              </ul>
+            </div>
+            <div
+              class="text-danger small"
+              *ngIf="symptomsgroup.get('symptoms')?.invalid && symptomsgroup.get('symptoms')?.touched"
+            >
+              At least one symptom is required.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions text-center mt-3">
+        <button type="submit" class="btn btn-dark mx-2" [disabled]="symptomsgroup.invalid">
+          SAVE
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

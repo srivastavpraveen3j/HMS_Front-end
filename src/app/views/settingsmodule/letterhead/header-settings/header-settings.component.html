@@ -1,0 +1,93 @@
+<div class="form-meta">
+  <div class="header mb-5">
+    <h2>Letter Header Settings</h2>
+    <button class="btn-secondary" (click)="resetToDefault()" type="button">🔄 Reset to Default</button>
+  </div>
+  <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
+    <!-- Hospital Information -->
+    <div class="form-section">
+      <h3>Hospital Name</h3>
+      <input formControlName="hospitalName" placeholder="Hospital Name">
+      <input formControlName="hospitalNameFontSize" placeholder="Font Size (e.g. 2.4rem)">
+      <select formControlName="hospitalNameFontWeight"><option value="700">Bold</option><option value="600">Semi-bold</option><option value="400">Normal</option></select>
+      <input formControlName="hospitalNameFontColor" type="color" placeholder="Font Color">
+      <input formControlName="hospitalNameLineHeight" placeholder="Line Height (e.g. 1.15)">
+      <input formControlName="hospitalNameFontFamily" placeholder="Font Family">
+    </div>
+
+    <div class="form-section">
+      <h3>Subtitle</h3>
+      <textarea formControlName="hospitalSubtitle" placeholder="Subtitle"></textarea>
+      <input formControlName="subtitleFontSize" placeholder="Font Size">
+      <select formControlName="subtitleFontWeight"><option value="500">Medium</option><option value="400">Normal</option></select>
+      <input formControlName="subtitleFontColor" type="color" placeholder="Font Color">
+      <input formControlName="subtitleLineHeight" placeholder="Line Height">
+      <input formControlName="subtitleFontFamily" placeholder="Font Family">
+    </div>
+
+    <div class="form-section">
+      <h3>Tagline</h3>
+      <input formControlName="tagline" placeholder="Tagline">
+      <input formControlName="taglineFontSize" placeholder="Font Size">
+      <select formControlName="taglineFontWeight"><option value="400">Normal</option><option value="500">Medium</option></select>
+      <input formControlName="taglineFontColor" type="color" placeholder="Font Color">
+      <input formControlName="taglineLineHeight" placeholder="Line Height">
+      <input formControlName="taglineFontFamily" placeholder="Font Family">
+    </div>
+
+    <!-- Contact Details -->
+    <div class="form-section">
+      <h3>Contact Row</h3>
+      <input formControlName="address" placeholder="Address">
+      <input formControlName="phone" placeholder="Phone">
+      <input formControlName="email" placeholder="Email">
+      <input formControlName="website" placeholder="Website">
+      <input formControlName="contactFontSize" placeholder="Font Size">
+      <select formControlName="contactFontWeight"><option value="400">Normal</option><option value="500">Medium</option></select>
+      <input formControlName="contactFontColor" type="color" placeholder="Font Color">
+      <input formControlName="contactLineHeight" placeholder="Line Height">
+      <input formControlName="contactFontFamily" placeholder="Font Family">
+    </div>
+
+    <!-- Logo & Alignment -->
+    <div class="form-section">
+      <h3>Logo & Alignment</h3>
+      <input type="file" (change)="onFileSelected($event)" accept="image/*" [disabled]="loading">
+      <select formControlName="logoPosition">
+        <option value="left">Logo Left</option>
+        <option value="center">Logo Center</option>
+        <option value="right">Logo Right</option>
+      </select>
+      <select formControlName="headerAlign">
+        <option value="left">Header Left</option>
+        <option value="center">Header Center</option>
+        <option value="right">Header Right</option>
+      </select>
+      <input formControlName="logoMaxWidth" placeholder="Logo Max Width">
+      <input formControlName="logoMaxHeight" placeholder="Logo Max Height">
+      <input formControlName="logoBorderRadius" placeholder="Logo Border Radius">
+      <div class="logo-preview" *ngIf="logoPreviewUrl"><img [src]="logoPreviewUrl" alt="Preview"></div>
+    </div>
+
+    <!-- Header Layout -->
+    <div class="form-section">
+      <h3>Header Area</h3>
+      <input formControlName="headerWidth" placeholder="Header Width (e.g. 3in)">
+      <input formControlName="headerHeight" placeholder="Header Height (e.g. 2in)">
+      <input formControlName="headerGap" placeholder="Flex Gap">
+      <input formControlName="backgroundColor" type="color">
+      <input formControlName="marginTop" placeholder="Top Margin">
+      <input formControlName="marginBottom" placeholder="Bottom Margin">
+      <input formControlName="marginSides" placeholder="Side Margin">
+    </div>
+
+    <!-- <div class="actions"> -->
+      <button class="btn" type="submit" [disabled]="loading">Apply Settings</button>
+    <!-- </div> -->
+  </form>
+  <div class="preview-section">
+    <h3></h3>
+    <app-letterheader></app-letterheader>
+  </div>
+</div>
+  

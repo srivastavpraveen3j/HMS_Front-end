@@ -1,0 +1,330 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>Visit Type Master</h2>
+    <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/master/visittypemasterlist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div *ngIf="userPermissions.create">
+    <form [formGroup]="visitTypeForm" (ngSubmit)="onSubmit()">
+      <!-- BASIC DETAILS -->
+      <div class="row">
+        <div class="form-group col-md-6">
+          <label class="form-label">
+            Head Name <span class="text-danger">*</span>
+          </label>
+          <input
+            class="form-control"
+            formControlName="headName"
+            placeholder="Enter head name"
+          />
+          <div
+            *ngIf="
+              visitTypeForm.get('headName')?.errors &&
+              visitTypeForm.get('headName')?.touched
+            "
+            class="text-danger small"
+          >
+            Head Name is required
+          </div>
+        </div>
+
+        <div class="form-group col-md-6">
+          <label class="form-label">
+            Visit Type <span class="text-danger">*</span>
+          </label>
+          <select
+            formControlName="visitType"
+            class="form-control"
+            (change)="onVisitTypeChange()"
+          >
+            <option value="">Select Visit Type</option>
+            <option *ngFor="let vt of visitTypeEnum" [value]="vt">
+              {{ vt }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- DOCTOR -->
+      <div class="row mt-2">
+        <div class="form-group col-md-6">
+          <label class="form-label">
+            Doctor <span class="text-danger">*</span>
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search Doctor by Name"
+            [formControl]="doctorSearchControl"
+            (focus)="showDoctorSuggestions = true"
+            (blur)="hideSuggestionsLater()"
+            (input)="filterDoctors($any($event.target).value)"
+            autocomplete="off"
+          />
+
+          <div class="suggestion-container">
+            <ul
+              class="suggestions list-group"
+              *ngIf="showDoctorSuggestions && filteredDoctors.length > 0"
+            >
+              <li
+                class="list-group-item list-group-item-action"
+                *ngFor="let doc of filteredDoctors"
+                (mousedown)="selectDoctor(doc)"
+              >
+                {{ doc.name }}
+              </li>
+            </ul>
+          </div>
+          <small
+            class="text-danger"
+            *ngIf="
+              visitTypeForm.get('doctorId')?.errors?.['required'] &&
+              visitTypeForm.get('doctorId')?.touched
+            "
+          >
+            Doctor is required
+          </small>
+        </div>
+      </div>
+
+      <!-- SERVICES SECTION – ONLY WHEN PROCEDURE -->
+      <div
+        class="section services mt-4"
+        *ngIf="visitTypeForm.get('visitType')?.value === 'procedure'"
+      >
+        <h4>SERVICE DETAILS</h4>
+
+        <!-- search -->
+        <div class="form-group mb-2">
+          <input
+            type="text"
+            class="form-control"
+            [formControl]="searchTextControl"
+            placeholder="Search services..."
+          />
+        </div>
+
+        <!-- 3-column services grid -->
+        <div formArrayName="procedureServices" class="table-responsive">
+          <table class="table table-sm table-hover">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 20%">Service</th>
+                <th style="width: 13%">Service Charge</th>
+                <th style="width: 20%">Service</th>
+                <th style="width: 13%">Service Charge</th>
+                <th style="width: 20%">Service</th>
+                <th style="width: 14%">Service Charge</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let row of procedureServiceRows; trackBy: trackRow">
+                <ng-container *ngFor="let item of row">
+                  <ng-container [formGroupName]="item.index">
+                    <td>
+                      {{ item.control.get("name")?.value }}
+                    </td>
+                    <td>
+                      <!-- <input
+                        type="number"
+                        class="form-control form-control-sm"
+                        formControlName="serviceAmount"
+                        min="0"
+                        step="0.01"
+                        (input)="onServiceAmountChange()"
+                      /> -->
+                      <input
+                        type="number"
+                        class="form-control form-control-sm"
+                        formControlName="serviceAmount"
+                        min="0"
+                        step="0.01"
+                        (input)="onServiceAmountInput()"
+                      />
+                    </td>
+                  </ng-container>
+                </ng-container>
+
+                <!-- pad last row to 3 services -->
+                <ng-container *ngIf="row.length < 3">
+                  <td
+                    *ngFor="let _ of getEmptyCells(row.length)"
+                    colspan="2"
+                  ></td>
+                </ng-container>
+              </tr>
+
+              <tr *ngIf="procedureServices.length === 0">
+                <td colspan="6" class="text-center text-muted">
+                  No services found
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- CHARGE PREVIEW (kept commented as in your code) -->
+        <!-- <div class="alert alert-info mt-3" *ngIf="chargePreview.length > 0">
+          <strong>Final Charges Preview (Service + Room):</strong>
+          <div class="mt-2 small">
+            <div *ngFor="let preview of chargePreview">{{ preview }}</div>
+          </div>
+        </div> -->
+
+        <!-- pagination -->
+        <div class="pagination mt-2 text-center">
+          <button
+            class="pagination-btn btn btn-sm btn-outline-secondary me-2"
+            type="button"
+            (click)="previousPage()"
+            [disabled]="currentPage === 1 || saving"
+          >
+            Previous
+          </button>
+          Page {{ currentPage }} of {{ totalPages }}
+          <button
+            class="pagination-btn btn btn-sm btn-outline-secondary ms-2"
+            type="button"
+            (click)="nextPage()"
+            [disabled]="currentPage === totalPages || saving"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+
+      <!-- ROOM TYPE VISIT CHARGES -->
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <h5>
+            Room Type Visit Charges
+            <small class="text-muted"
+              >(Added to service amounts for procedures)</small
+            >
+          </h5>
+
+          <div formArrayName="roomRates" class="table-responsive">
+            <table class="table table-bordered table-sm align-middle mb-2">
+              <thead class="table-light">
+                <tr>
+                  <th>Room Type Name</th>
+                  <th>Visit Charge (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let rr of roomRates.controls; let i = index"
+                  [formGroupName]="i"
+                >
+                  <td>
+                    <select
+                      class="form-control form-control-sm"
+                      formControlName="roomTypeId"
+                      (change)="updateRoomCombinations()"
+                    >
+                      <option value="">Select Room Type</option>
+                      <option *ngFor="let room of roomTypes" [value]="room._id">
+                        {{ room.name }}
+                      </option>
+                    </select>
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      class="form-control form-control-sm"
+                      formControlName="visitCharge"
+                      min="0"
+                      step="0.01"
+                      (input)="updateRoomCombinations()"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- BED TYPES (hidden) -->
+        <div class="col-md-6" hidden>
+          <h5>Bed Type Visit Charges</h5>
+          <div formArrayName="bedRates" class="table-responsive">
+            <table class="table table-bordered table-sm align-middle mb-2">
+              <thead class="table-light">
+                <tr>
+                  <th>Bed Type Name</th>
+                  <th>Visit Charge</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let br of bedRates.controls; let i = index"
+                  [formGroupName]="i"
+                >
+                  <td>
+                    <select
+                      class="form-control form-control-sm"
+                      formControlName="bedTypeId"
+                    >
+                      <option value="">Select Bed Type</option>
+                      <option *ngFor="let bed of bedTypes" [value]="bed._id">
+                        {{ bed.name }}
+                      </option>
+                    </select>
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      class="form-control form-control-sm"
+                      formControlName="visitCharge"
+                      min="0"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="visitTypeForm.invalid || saving"
+        >
+          {{ editMode ? "Update Visit Type" : "Create Visit Type" }}
+        </button>
+      </div>
+
+      <div
+        class="saving-overlay"
+        *ngIf="saving"
+        style="
+          position: fixed;
+          inset: 0;
+          background: rgba(255, 255, 255, 0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1050;
+        "
+      >
+        <div
+          class="spinner-border text-primary"
+          role="status"
+          style="width: 3rem; height: 3rem"
+        >
+          <span class="visually-hidden">Saving...</span>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,95 @@
+<div class="form-meta">
+  <!-- <p>radaitiontestgroupmaster works!</p> -->
+<div class="header">
+  <h2>TEST MASTER GROUP</h2>
+  <!-- <button class="list-cases-btn" [routerLink]="['/radiationlayout/radiationtestgrouplist']" routerLinkActive="router-link-active" >TEST LIST</button> -->
+
+    <span class="icons position-relative">
+
+  <i class="fa-solid fa-signal" [routerLink]="['/radiationlayout/radiationtestgrouplist']" routerLinkActive="router-link-active"></i>
+
+</span>
+</div>
+<div class="" *ngIf="userPermissions.create">
+
+  <form action="" [formGroup]="medicalTestGroup" (ngSubmit)="OnSubmit()">
+    <div class="opd-container">
+
+      <div class="form-row">
+  <div class="form-group">
+        <label>Test Group Name <span class="required">*</span></label>
+        <input type="text" class="form-control" placeholder="Test Name" formControlName="testGroup">
+        <div *ngIf="medicalTestGroup.get('testGroup')?.touched && medicalTestGroup.get('testGroup')?.invalid" class="text-danger">
+        Test Group Name is Required
+        </div>
+
+      </div>
+
+      <!-- <div class="form-group">
+        <label>Parameter <span class="required">*</span></label>
+        <input type="text" class="form-control" placeholder="Parameter" formControlName="parameters">
+        <div *ngIf="medicalTestGroup.get('parameters')?.touched && medicalTestGroup.get('parameters')?.invalid" class="text-danger">
+          Parameters is Required
+          </div>
+      </div> -->
+      </div>
+
+
+  <div class="form-group">
+    <label>Test Parameters <span class="required">*</span></label>
+    <div class="multi-select-container">
+      <div class="selected-tags">
+        <span *ngFor="let tp of selectedTestParameters" class="tag">
+          {{ tp.test_name }} <span class="remove" (click)="removeTestParameter(tp)">×</span>
+        </span>
+        <input type="text" placeholder="Select test parameters" readonly (click)="toggleTestParamDropdown()" />
+      </div>
+      <div class="dropdown" *ngIf="dropdownOpenTestParams">
+        <div
+          *ngFor="let tp of testParametersList"
+          (click)="selectTestParameter(tp)"
+          class="dropdown-option"
+          [class.selected]="isTestParameterSelected(tp)">
+          {{ tp.test_name }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+      <div class="form-group">
+        <label>Description <span class="required">*</span></label>
+        <input type="text" class="form-control" placeholder="description" formControlName="description">
+        <div *ngIf="medicalTestGroup.get('description')?.touched && medicalTestGroup.get('description')?.invalid" class="text-danger">
+          default is Required
+          </div>
+      </div>
+
+      <div class="form-row">
+     <div class="form-group">
+        <label>Price <span class="required">*</span></label>
+        <input type="text" class="form-control" placeholder="price" formControlName="price">
+        <div *ngIf="medicalTestGroup.get('price')?.touched && medicalTestGroup.get('price')?.invalid" class="text-danger">
+          Price is Required
+          </div>
+      </div>
+
+      </div>
+
+
+
+      <div class="button-group">
+        <button class="btn save-list" [disabled]="medicalTestGroup.invalid" >SAVE</button>
+        <!-- <button class="btn save-add mx-3">SAVE & ADD NEW</button>
+        <button class="btn cancel">CANCEL</button> -->
+      </div>
+
+      <!-- <p class="compulsory-note">MARK (*) FIELDS ARE COMPULSORY</p> -->
+    </div>
+  </form>
+</div>
+
+
+</div>

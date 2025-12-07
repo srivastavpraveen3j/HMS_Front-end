@@ -1,0 +1,85 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>SYMPTOMS GROUP LIST</h2>
+    <div class="">
+      <!-- <button class="list-cases-btn mx-3"   ><i class="fa-solid fa-user-group"></i></button> -->
+      <button
+        class="list-cases-btn mx-3"
+        [routerLink]="['/master/symptomsgroup']"
+        routerLinkActive="router-link-active"
+      >
+        ADD SYMPTOMS GROUP
+      </button>
+    </div>
+  </div>
+  <form [formGroup]="filterForm" class="top-bar p-3">
+    <!-- <select formControlName="recordsPerPage">
+      <option *ngFor="let num of [10, 25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+    </select> -->
+
+    <input type="text" placeholder="Search..." formControlName="searchText" />
+  </form>
+
+  <!-- <div class="loader-wrapper" *ngIf="symptoms.length === 0">
+    <div class="loader">
+      <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+    </div>
+  </div> -->
+
+  <div
+    class="table-responsive"
+    *ngIf="userPermissions.read && symptoms.length > 0"
+  >
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Symptom Group Name</th>
+          <th>Symptoms</th>
+          <!-- <th>Remarks</th> -->
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let symptom of symptoms; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ symptom.symptomGroups }}</td>
+          <td>
+            <ul class="mb-0">
+              <li *ngFor="let med of symptom.symptoms">{{ med.name }}</li>
+            </ul>
+          </td>
+
+          <td>
+            <i
+              class="fa-solid fa-pencil action-btn mx-3"
+              (click)="editsymptomsGroup(symptom._id)"
+              *ngIf="userPermissions.update"
+            ></i>
+            <!-- <i class="fa-solid fa-trash action-btn"  (click)="deletesymptomsGroup(symptom._id)" *ngIf="userPermissions.delete"></i> -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination">
+      <button
+        class="pagination-btn"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      Page {{ currentPage }} of {{ totalPages }}
+      <button
+        class="pagination-btn"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>

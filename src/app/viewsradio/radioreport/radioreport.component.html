@@ -1,0 +1,45 @@
+<div class="form-meta">
+  <!-- <p>radioreport works!</p> -->
+<!-- <p>pathoreport works!</p> -->
+<!-- <div class="dashboard-container"> -->
+  <!-- Header Section -->
+
+
+
+  <div class="header mb-3">
+    <h2>  RADIOLOGY REPORTS</h2>
+
+  </div>
+
+
+  <!-- <div class="loader-wrapper" *ngIf="reports.length === 0">
+  <div class="loader">
+    <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+  </div>
+</div> -->
+  <!-- Cards Section -->
+
+<div class="row cards-grid m-3">
+  <div class="col-md-4 mb-4" *ngFor="let report of reports">
+    <div class="card h-100 text-center shadow p-3 bg-dark text-white rounded">
+      <div class="card-body">
+        <i class="{{ report.icon }} fa-2x mb-3"></i>
+        <h5 class="card-title">{{ report.title }}</h5>
+      </div>
+      <div class="card-footer bg-transparent border-top-0">
+        <a
+          class="btn btn-outline-light btn-sm"
+          [routerLink]="['/radiologylayout/radioreports']"
+          [queryParams]="{ title: report.title }"
+        >
+          VIEW MORE <i class="fa-solid fa-arrow-right ms-1"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- </div> -->
+
+
+</div>

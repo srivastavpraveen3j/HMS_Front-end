@@ -1,0 +1,77 @@
+<div class="header">
+  <h2>STOCK MANAGEMENT</h2>
+  <div>
+    <button class="list-cases-btn" [routerLink]="['/doctor/medpackagelist']" routerLinkActive="router-link-active">
+      MEDICINE PACKAGE
+    </button>
+  </div>
+</div>
+
+<div class="opd-container">
+  <form class="m-3" [formGroup]="stock" (ngSubmit)="OnSubmit()">
+    <div class="form-container">
+      <div class="form-half">
+        <div class="form-group">
+          <label>Stock Name <span class="required">*</span></label>
+          <input type="text" class="form-control" placeholder="Stock Name" formControlName="medicineGroupName" />
+          <div *ngIf="stock.get('medicineGroupName')?.touched && stock.get('medicineGroupName')?.invalid" class="text-danger">
+            Stock Name is Required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Medicines <span class="required">*</span></label>
+          <div class="multi-select-container">
+            <div class="selected-tags">
+              <span *ngFor="let m of selectedMedicines" class="tag">
+                {{ m.medicine_name }}
+                <span class="remove" (click)="removeMedicine(m)">×</span>
+              </span>
+              <input type="text" placeholder="Select medicines" readonly (click)="toggleMedicineDropdown()" />
+            </div>
+            <div class="dropdown" *ngIf="dropdownOpenMedicines">
+              <div
+                *ngFor="let m of medicines"
+                (click)="selectMedicine(m)"
+                class="dropdown-option"
+                [class.selected]="isMedicineSelected(m)">
+                {{ m.medicine_name }}
+              </div>
+            </div>
+          </div>
+          <div *ngIf="stock.get('medicines')?.touched && stock.get('medicines')?.invalid" class="text-danger">
+            At least one medicine is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Pharmacy <span class="required">*</span></label>
+          <input type="text" formControlName="pharmacyName" class="form-control" />
+          <div *ngIf="stock.get('pharmacyName')?.touched && stock.get('pharmacyName')?.invalid" class="text-danger">
+            Pharmacy is Required
+          </div>
+        </div>
+      </div>
+
+      <div class="form-half">
+        <div class="form-group">
+          <label>Batch Number</label>
+          <input type="text" class="form-control" formControlName="batch_no" />
+        </div>
+        <div class="form-group">
+          <label>Price</label>
+          <input type="number" class="form-control" formControlName="price" />
+        </div>
+        <div class="form-group">
+          <label>Stock</label>
+          <input type="number" class="form-control" formControlName="stock" />
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-3">
+      <button class="btn btn-dark mx-2" type="submit" [disabled]="stock.invalid || isSubmitting">Submit</button>
+      <!-- <button class="btn btn-secondary" type="button" (click)="cancel()">Cancel</button> -->
+    </div>
+  </form>
+</div>

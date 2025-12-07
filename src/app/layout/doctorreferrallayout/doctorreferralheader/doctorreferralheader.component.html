@@ -1,0 +1,292 @@
+<aside class="sidebar"  [ngClass]="{ collapsed: isCollapsed }">
+  <div *ngIf="hasModuleAccess('sharedPatientCases')" class="logo-container" routerLink="/doctorreferrallayout">
+    <div class="logo">
+      <!-- Show image only when NOT collapsed -->
+      <img
+        *ngIf="!isCollapsed"
+        [src]="logoUrl"
+        alt="Hospital Logo"
+        class="logo-image"
+        style="width: 100%; height: auto"
+        (error)="onLogoError($event)"
+      />
+
+      <!-- Show icon only when collapsed -->
+      <i
+        *ngIf="isCollapsed"
+        class="fa-solid fa-hospital logo-icon"
+        style="
+          color: var(--sidebar-color);
+          background-color: var(--sidebar-color);
+        "
+      >
+      </i>
+    </div>
+  </div>
+  <nav>
+    <ul class="sidebar-nav">
+
+      <li >
+        <a class="nav-link" routerLink="/doctorreferrallayout/referraldatalist">
+          <i class="fas fa-handshake nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Referral Data</span>
+        </a>
+      </li>
+      <li >
+        <a class="nav-link" routerLink="/doctorreferrallayout/referralapprovalpage">
+          <i class="fas fa-file-invoice-dollar nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Payout Approval</span>
+        </a>
+      </li>
+      <!-- <li >
+        <a class="nav-link" routerLink="/doctorsharinglayout/reports">
+          <i class="fa-solid fa-chart-bar nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Reports</span>
+        </a>
+      </li> -->
+      <!-- <li >
+        <a class="nav-link" routerLink="/doctorsharinglayout/treatmentsheet">
+          <i class="fa-solid fa-clipboard-list nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Treatment Sheet</span>
+        </a>
+      </li> -->
+        <li class="nav-item">
+        <a class="nav-link" style="
+          color: var(--sidebar-color) !important;
+          background-color: var(--sidebar-color);
+        ">
+          <!-- <i class="fa-solid fa-file-alt nav-icon" *ngIf="isCollapsed"></i> -->
+         <app-notification ></app-notification>
+        </a>
+      </li>
+
+
+    </ul>
+      <div class="user-menu">
+      <div class="nav-item dropdown">
+        <a
+          class="nav-link dropdown-toggle"
+          (click)="toggleDropdown('settings')"
+        >
+          <i
+            class="fa-solid fa-gear nav-icon"
+            *ngIf="isCollapsed"
+            routerLink="/profilesetting"
+          ></i>
+          <span class="nav-text">Settings</span>
+        </a>
+        <ul class="dropdown-menu" [class.open]="dropdowns.settings">
+          <div class="dropdown-grid">
+            <li>
+              <a class="dropdown-item" href="/profilesetting"> Profile </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="setting/logo"> Logo </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="setting/theme"> Theme </a>
+            </li>
+          </div>
+        </ul>
+      </div>
+
+      <div class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" (click)="toggleDropdown('layout')">
+          <i class="fa-solid fa-hospital nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Doctor Sharing</span>
+        </a>
+        <ul
+          class="dropdown-menu masters-menu"
+          *ngIf="hasAnyDropdownAccess()"
+          [class.open]="dropdowns.layout"
+        >
+          <div class="dropdown-grid">
+            <!-- <li *ngIf="hasModuleAccess('inward')">
+              <a
+                class="dropdown-item"
+                href="/pathologylayout/pathologydashboard"
+              >
+                Pathology
+              </a>
+            </li> -->
+            <!-- <li *ngIf="hasModuleAccess('pharmaceuticalInward')">
+              <a class="dropdown-item" href="/pharmalayout/pharmacydashboard">
+                Pharmacy
+              </a>
+            </li> -->
+            <!-- <li *ngIf="hasModuleAccess('inward')">
+              <a
+                class="dropdown-item"
+                href="/radiologylayout/radiologydashboard"
+              >
+                Radiology
+              </a>
+            </li> -->
+            <!-- <li *ngIf="hasModuleAccess('inventoryItem')">
+              <a class="dropdown-item" href="/inventorylayout">
+                Central Store
+              </a>
+            </li> -->
+            <li >
+              <a class="dropdown-item" href="/opddashboard">
+                HIMS
+              </a>
+            </li>
+          </div>
+        </ul>
+      </div>
+
+      <div>
+        <a class="nav-link" (click)="logout()">
+          <i class="fa-solid fa-sign-out-alt nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Logout</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-toggle" (click)="toggleCollapse()">
+    <i
+      class="fa-solid"
+      [ngClass]="isCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"
+    ></i>
+  </div>
+</aside>
+
+<!-- <div class="d-flex">
+  <div class="logo-container w-25" routerLink="/doctorreferrallayout">
+    <div class="logo">
+      <img src="Untitled design (6).jpg" alt="logo" />
+    </div>
+  </div>
+  <div class="w-75">
+    <nav class="header navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="nav-links navbar-nav me-auto">
+            <li>
+              <a
+                class="dropdown-item"
+                href="/doctorreferrallayout/referraldatalist"
+                >Referral Data
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="/doctorreferrallayout/referralapprovalpage"
+                >Payout Approval</a
+              >
+            </li>
+            <li class="nav-item">
+                            <a class="nav-link" href="/doctorsharinglayout/patientlist">Patient List</a>
+                        </li>
+            <li class="nav-item">
+                            <a class="nav-link" href="/doctorsharinglayout/reports">Reports</a>
+                        </li>
+            <li class="nav-item" *ngIf="hasModuleAccess('sharedPatientCases')">
+                            <a class="nav-link" href="/doctorsharinglayout/treatmentsheet">Treatment Sheet</a>
+                        </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="doctorDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                Reports
+              </a>
+            </li>
+          </ul>
+
+          <div class="user-menu">
+            <a class="nav-item" href="#"> HMS</a>
+            <div class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="hmsDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                Doctor Sharing
+              </a>
+              <ul class="dropdown-menu">
+                <div class="dropdown-grid">
+                  <li>
+                    <a class="dropdown-item" href="dashboard"
+                      ><i class="fa-solid fa-gear"></i>HMS</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('inventorylayout')">
+                    <a class="dropdown-item" href="#"
+                      ><i class="fa-solid fa-gear"></i>Centeral Store</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('inward')">
+                    <a class="dropdown-item" href="/pathologylayout"
+                      ><i class="fa-solid fa-gear"></i>Pathology</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('pharmaceuticalInward')">
+                    <a class="dropdown-item" href="/pharmalayout"
+                      ><i class="fa-solid fa-gear"></i> Pharmacy</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('inward')">
+                    <a class="dropdown-item" href="/radiologylayout"
+                      ><i class="fa-solid fa-gear"></i>Radiology</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('inward')"><a class="dropdown-item" href="/radiationlayout"><i class="fa-solid fa-gear"></i>Radiation</a></li>
+                </div>
+              </ul>
+            </div>
+
+            <div class="">
+              <app-notification></app-notification>
+            </div>
+
+            <div class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="hmsDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fa-solid fa-user-tie"></i>
+              </a>
+              <ul class="dropdown-menu">
+                <div class="dropdown-grid">
+                  <li>
+                    <a class="dropdown-item" href="/profilesetting"
+                      ><i class="fa-solid fa-gear"></i>Profile</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="nav-link"
+                      [routerLink]="['/login']"
+                      routerLinkActive="router-link-active"
+                      ><i class="fa-solid fa-gear"></i>Logout</a
+                    >
+                  </li>
+                </div>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div> -->

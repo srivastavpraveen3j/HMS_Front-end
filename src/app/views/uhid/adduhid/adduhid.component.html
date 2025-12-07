@@ -1,0 +1,117 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>ADD UNIQUE HOSPITAL IDENTIFICATION (UHID)</h2>
+    <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/uhid']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div *ngIf="userPermissions.create">
+    <form [formGroup]="uhidForm" (ngSubmit)="onSubmit()">
+      <div class="form-container">
+        <div class="form-half">
+          <div class="form-group">
+            <label>Patient* <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Patient Name"
+              formControlName="patient_name"
+              title="Enter full name of patient"
+            />
+            <div class="text-danger small" *ngIf="uhidForm.get('patient_name')?.invalid && uhidForm.get('patient_name')?.touched">
+              Patient name is required (minimum 2 characters).
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Gender*</label>
+            <div class="radio-group" title="Select gender">
+              <label>
+                <input type="radio" value="male" formControlName="gender" /> MALE
+              </label>
+              <label>
+                <input type="radio" value="female" formControlName="gender" /> FEMALE
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>DOB*</label>
+            <input type="date" class="form-control" formControlName="dob" title="Select date of birth" />
+            <div class="text-danger small" *ngIf="uhidForm.get('dob')?.invalid && uhidForm.get('dob')?.touched">
+              Date of birth is required.
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Age*</label>
+            <input type="text" class="form-control" formControlName="age" placeholder="Age" readonly title="Auto-calculated from DOB" />
+          </div>
+          <div class="form-group">
+            <label>Address</label>
+            <textarea class="form-control" formControlName="area" placeholder="Address"></textarea>
+          </div>
+        </div>
+
+        <div class="form-half">
+          <div class="form-group">
+            <label>Date of Registration*</label>
+            <input type="date" class="form-control" formControlName="dor" title="Select registration date" />
+            <div class="text-danger small" *ngIf="uhidForm.get('dor')?.invalid && uhidForm.get('dor')?.touched">
+              Registration date is required.
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Time*</label>
+            <input type="time" class="form-control" formControlName="dot" title="Select registration time" />
+            <div class="text-danger small" *ngIf="uhidForm.get('dot')?.invalid && uhidForm.get('dot')?.touched">
+              Registration time is required.
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Mobile*</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="mobile_no"
+              placeholder="Mobile No"
+              maxlength="10"
+              pattern="[6-9][0-9]{9}"
+              title="Enter 10-digit mobile number starting with 6-9"
+              (keypress)="allowOnlyNumbers($event)"
+            />
+            <div class="text-danger small" *ngIf="uhidForm.get('mobile_no')?.invalid && uhidForm.get('mobile_no')?.touched">
+              Enter a valid 10-digit mobile number starting with 6-9.
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Pincode</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="pincode"
+              placeholder="Pincode"
+              maxlength="6"
+              pattern="[1-9][0-9]{5}"
+              title="Enter a valid 6-digit pincode starting with 1-9"
+              (keypress)="allowOnlyNumbers($event)"
+            />
+            <div class="text-danger small" *ngIf="uhidForm.get('pincode')?.invalid && uhidForm.get('pincode')?.touched">
+              Enter a valid 6-digit pincode.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions text-center mt-3">
+        <button class="btn btn-dark mx-2" type="submit" [disabled]="uhidForm.invalid">
+          Generate UHID
+        </button>
+        <!-- <button class="btn btn-secondary" type="button" (click)="resetForm()">
+          Cancel
+        </button> -->
+      </div>
+    </form>
+  </div>
+</div>

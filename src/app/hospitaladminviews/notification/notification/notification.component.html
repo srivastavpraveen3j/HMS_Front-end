@@ -1,0 +1,27 @@
+<!-- <p>notification works!</p> -->
+<div class="header">
+  <h2>NOTIFICATION MESSAGE</h2>
+  <!-- <button class="list-cases-btn" [routerLink]="['/superadmin/braodcastingmessagelist']">LIST CASES</button> -->
+</div>
+
+<!-- <div class="opd-container"> -->
+<!-- notification.component.html -->
+<div class="accordion mt-2">
+  <div *ngFor="let broadcast of broadcastMessages; let i = index" class="accordion-item">
+    <div class="accordion-title" (click)="toggleAccordion(i)">
+      <h4>{{ broadcast.title }}</h4>
+      <i [class]="activeIndex === i ? 'fa fa-chevron-up' : 'fa fa-chevron-down'"></i>
+    </div>
+    <div class="accordion-content" *ngIf="activeIndex === i">
+      <p><strong>Message:</strong> {{ broadcast.message }}</p>
+      <p><strong>Date:</strong> {{ broadcast.scheduleDate }}</p>
+      <p><strong>Time:</strong> {{ broadcast.scheduleTime }}</p>
+      <p><strong>Type:</strong> {{ broadcast.type }}</p>
+      <p><strong>Audience:</strong> {{ broadcast.targetAudience }}</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- </div> -->
+

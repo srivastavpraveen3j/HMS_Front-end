@@ -1,0 +1,17 @@
+<div class="d-flex flex-wrap align-items-center gap-2 w-100">
+
+  <!-- 1️⃣ Doctor Search -->
+  <div class="position-relative flex-grow-1" style="max-width: 500px;">
+    <input type="text" class="form-control" placeholder="Search by doctor name..." [formControl]="searchControl"
+      (focus)="onFocus()" (blur)="onBlur()" />
+    <div *ngIf="loading" class="spinner-border spinner-border-sm text-primary mt-1 position-absolute"
+      style="right: 10px; top: 8px;"></div>
+
+    <ul class="dropdown-menu show w-100" *ngIf="showSuggestions && filteredUsers.length > 0"
+      style="max-height: 200px; overflow-y: auto;">
+      <li *ngFor="let user of filteredUsers" class="dropdown-item" (click)="selectUser(user)">
+        {{ user.name || user.fullName || user.username }}
+      </li>
+    </ul>
+  </div>
+</div>

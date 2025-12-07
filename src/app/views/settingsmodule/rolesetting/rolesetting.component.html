@@ -1,0 +1,50 @@
+<div class="header">
+  <h2>PERMISSION MANAGEMNET</h2>
+  <!-- <button class="list-cases-btn"  routerLinkActive="router-link-active" routerLink="/master/usermaster" >ADD NEW USER</button> -->
+</div>
+
+
+<div class="top-bar p-3">
+  <div class="form-group col-md-6">
+    <label for="roleName" class="form-label">Staff Name</label>
+    <input type="text" class="form-control" placeholder="Neha " readonly>
+  </div>
+
+  <div class="form-group col-md-6">
+    <label for="roleName"  class="form-label">Role Name</label>
+    <input type="text" class="form-control" placeholder="Nurse" readonly>
+  </div>
+
+</div>
+  <div class="mt-4">
+
+
+
+
+    <div class="permissions">
+      <div *ngFor="let section of permissionSections" class="permission-group">
+        <div class="group-header">
+          <strong>{{ section.title }} Permission</strong>
+          <label>
+            <input type="checkbox" (change)="toggleSelectAll(section)" />
+            Select All
+          </label>
+        </div>
+        <div class="checkboxes">
+          <label *ngFor="let permission of section.permissions">
+            <input
+              type="checkbox"
+              [(ngModel)]="permission.checked"
+            />
+            {{ permission.label }}
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary">Close</button>
+      <button class="btn btn-secondary" (click)="updateRole()">Update Role</button>
+    </div>
+  </div>
+

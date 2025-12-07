@@ -1,0 +1,78 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>BED LIST</h2>
+    <button class="list-cases-btn" routerLink="/master/bedmaster">
+      ADD NEW BED
+    </button>
+  </div>
+  <!-- <div class="container"> -->
+
+  <form [formGroup]="filterForm" class="top-bar p-3">
+    <input type="text" placeholder="Search..." formControlName="searchText" />
+  </form>
+
+  <app-loader [patientData]="wards" [title]="module"></app-loader>
+
+  <div class="" *ngIf="userPermissions.read && wards.length > 0">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Bed Number</th>
+          <th>Bed Charge ₹/Day</th>
+          <th>Bed Type/ Day</th>
+          <th>Is Occupied</th>
+          <th>Is Active</th>
+          <th>Remarks</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let ward of wards; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ ward.bed_number }}</td>
+          <td>{{ ward?.bed_type_id?.price_per_day }}</td>
+          <td>{{ ward?.bed_type_id?.name }}</td>
+          <td>{{ ward.is_occupied }}</td>
+          <td>{{ ward.is_active }}</td>
+          <td>{{ ward.remarks }}</td>
+          <td>
+            <i
+              class="fa-solid fa-pencil action-btn"
+              (click)="editWard(ward._id)"
+              *ngIf="userPermissions.update"
+            ></i>
+            <i
+              class="fa-solid fa-trash action-btn"
+              (click)="deleteWard(ward._id)"
+              *ngIf="userPermissions.delete"
+            ></i>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination">
+      <button
+        class="pagination-btn"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      Page {{ currentPage }} of {{ totalPages }}
+      <button
+        class="pagination-btn"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+
+  <!-- </div> -->
+</div>

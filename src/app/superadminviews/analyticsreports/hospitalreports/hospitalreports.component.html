@@ -1,0 +1,171 @@
+
+<div class="header">
+  <h2>Hospital-Wise Reports</h2>
+
+  <div class="report-controls ">
+    <div class="control-item ">
+      <label for="hospital" class="form-label">Hospital:</label>
+      <select id="hospital" [formControl]="selectedHospitalIndex" class="form-control">
+        <option *ngFor="let option of hospitalOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+    <div class="control-item">
+      <label for="period" class="form-label">Time Period:</label>
+      <select id="period" [formControl]="selectedPeriod" class="form-control">
+        <option *ngFor="let option of periodOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+</div>
+
+
+
+  <div class="opd-container">
+    <div class="summary-cards">
+      <div class="summary-card total-revenue">
+        <div class="card-icon">
+          <!-- <i class="fas fa-rupee-sign"></i> -->
+        </div>
+        <div class="card-content">
+          <h4>Total Revenue (All Hospitals)</h4>
+          <p class="amount">₹{{ calculateTotalRevenue() | number }}</p>
+        </div>
+      </div>
+      <div class="summary-card total-patients">
+        <div class="card-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="card-content">
+          <h4>Total Patients (All Hospitals)</h4>
+          <p class="amount">{{ calculateTotalPatients() | number }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Single Hospital Detail Section -->
+    <div class="hospital-detail-container">
+      <div class="hospital-header">
+        <h3>{{ currentHospital.name }}</h3>
+        <div class="growth-indicator" [ngClass]="getGrowthClass(currentHospital.growth)">
+          <i class="fas" [ngClass]="currentHospital.growth > 0 ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+          {{ currentHospital.growth }}%
+        </div>
+      </div>
+
+      <!-- Main Hospital Metrics -->
+      <div class="metrics-section">
+        <h4>Performance Overview</h4>
+        <div class="hospital-metrics">
+          <div class="metric-box">
+            <h5>Revenue</h5>
+            <p class="metric-value">₹{{ currentHospital.revenue | number }}</p>
+          </div>
+          <div class="metric-box">
+            <h5>Patients</h5>
+            <p class="metric-value">{{ currentHospital.patients }}</p>
+          </div>
+          <div class="metric-box">
+            <h5>OPD Cases</h5>
+            <p class="metric-value">{{ currentHospital.opd }}</p>
+          </div>
+          <div class="metric-box">
+            <h5>IPD Cases</h5>
+            <p class="metric-value">{{ currentHospital.ipd }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue Breakdown Chart Placeholder -->
+      <div class="chart-section">
+        <h4>Revenue Breakdown</h4>
+        <div class="chart-container">
+          <div class="chart-placeholder">
+            <p>Revenue distribution chart would appear here</p>
+            <div class="chart-mock">
+              <div class="bar-chart">
+                <div class="bar" style="height: 60%;">
+                  <span>OPD</span>
+                </div>
+                <div class="bar" style="height: 40%;">
+                  <span>IPD</span>
+                </div>
+                <div class="bar" style="height: 20%;">
+                  <span>Lab</span>
+                </div>
+                <div class="bar" style="height: 30%;">
+                  <span>Pharmacy</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Branch Performance -->
+      <div class="branches-section">
+        <h4>Branch Performance</h4>
+        <div class="branches-detail">
+          <div *ngFor="let branch of currentHospital.branches" class="branch-box">
+            <div class="branch-header">
+              <h5>{{ branch.name }}</h5>
+              <div class="staff-count">
+                <i class="fas fa-user-md"></i> {{ branch.staff }} Staff
+              </div>
+            </div>
+
+            <div class="branch-metrics">
+              <div class="branch-metric-item">
+                <span class="label">Revenue</span>
+                <span class="value">₹{{ branch.revenue | number }}</span>
+              </div>
+              <div class="branch-metric-item">
+                <span class="label">OPD Cases</span>
+                <span class="value">{{ branch.opd }}</span>
+              </div>
+              <div class="branch-metric-item">
+                <span class="label">IPD Cases</span>
+                <span class="value">{{ branch.ipd }}</span>
+              </div>
+            </div>
+
+            <div class="branch-chart">
+              <div class="revenue-bar">
+                <div class="revenue-progress" [style.width]="(branch.revenue / currentHospital.revenue * 100) + '%'"></div>
+              </div>
+              <div class="revenue-percentage">
+                {{ (branch.revenue / currentHospital.revenue * 100).toFixed(1) }}% of hospital revenue
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Patient Trend Placeholder -->
+      <div class="trend-section">
+        <h4>Patient Trend</h4>
+        <div class="trend-chart">
+          <div class="trend-placeholder">
+            <p>Patient trend over time would appear here</p>
+            <div class="line-chart-mock">
+              <div class="line"></div>
+              <div class="line-points">
+                <div class="point" style="bottom: 20%; left: 10%"></div>
+                <div class="point" style="bottom: 30%; left: 25%"></div>
+                <div class="point" style="bottom: 45%; left: 40%"></div>
+                <div class="point" style="bottom: 60%; left: 55%"></div>
+                <div class="point" style="bottom: 50%; left: 70%"></div>
+                <div class="point" style="bottom: 65%; left: 85%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <!-- </div> -->
+  </div>
+

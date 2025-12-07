@@ -1,0 +1,260 @@
+.diagnosis-container {
+  width: 100%;
+  padding: 20px;
+  background: #f5f5f5;
+  font-family: Arial, sans-serif;
+}
+
+h3 {
+  text-align: left;
+  margin-bottom: 10px;
+  color: #333;
+  font-weight: bold;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section {
+  background: white;
+  color: black;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+}
+
+h4 {
+  margin-bottom: 10px;
+  border-bottom: 2px solid white;
+  padding-bottom: 5px;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+/* .row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+} */
+
+
+
+.row {
+  display: flex;
+  align-items: center; /* Align all items vertically */
+  gap: 10px; /* Adds spacing between elements */
+}
+
+.row select {
+  height: 45px; /* Match input field height */
+  margin-bottom: 10px;
+}
+
+input, select {
+  flex: 1;
+  padding: 10px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  background: white;
+  color: #333;
+}
+
+.visit-history {
+  background: darkred;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 10px;
+  text-transform: uppercase;
+}
+
+
+.tags-container {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 60%;
+}
+
+.tags {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tags span {
+  background: black;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  min-width: 120px;
+}
+
+.tags span:hover {
+  background: #444;
+}
+
+.symptom-inputs {
+  width: 35%;
+}
+
+.row input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+.unit-label {
+  background: darkred;
+  color: white;
+  padding: 8px;
+  border-radius: 3px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.right-section {
+  flex: 1;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-box {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: darkred;
+  border-bottom: 2px solid darkred;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color:#000;
+}
+
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+/* Clean Medical Signature Styles */
+.signature-section {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  background: #fefefe;
+}
+
+.signature-box {
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.signature-canvas {
+  border: none;
+  background: transparent;
+  cursor: crosshair;
+  display: block;
+}
+
+.upload-placeholder {
+  text-align: center;
+  padding: 30px;
+  cursor: pointer;
+  width: 100%;
+  color: #999;
+}
+
+.upload-placeholder:hover {
+  background: #f8f9fa;
+  color: #666;
+}
+
+.signature-preview img,
+.signature-display img {
+  max-width: 100%;
+  max-height: 100px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+.signature-type-toggle .btn-check:checked + .btn {
+  background-color: #6c757d;
+  color: white;
+  border-color: #6c757d;
+}
+
+.signature-controls .btn {
+  font-size: 0.875rem;
+}
+
+.signature-status {
+  text-align: center;
+}
+
+/* Canvas specific styles */
+.canvas-container {
+  width: 100%;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Upload container */
+.upload-container {
+  width: 100%;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

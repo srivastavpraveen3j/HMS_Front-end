@@ -1,0 +1,69 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>ADD NEW BED DETAILS</h2>
+    <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/master/bedmasterlist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div *ngIf="userPermissions.create">
+    <form [formGroup]="bedForm" (ngSubmit)="onSubmit()">
+      <div class="form-container">
+        <div class="form-half">
+          <div class="form-group">
+            <label>Bed Number <span class="required">*</span></label>
+            <input
+              formControlName="bed_number"
+              class="form-control"
+              placeholder="e.g., B101"
+            />
+            <div
+              *ngIf="bedForm.get('bed_number')?.touched && bedForm.get('bed_number')?.invalid"
+              class="text-danger"
+            >
+              Bed Number is Required
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Bed Type <span class="required">*</span></label>
+            <select class="form-control" formControlName="bed_type_id">
+              <option *ngFor="let bedType of bedTypes" [ngValue]="bedType._id">
+                {{ bedType.name }} - ₹{{ bedType.price_per_day }}
+              </option>
+            </select>
+            <div
+              *ngIf="bedForm.get('bed_type_id')?.touched && bedForm.get('bed_type_id')?.invalid"
+              class="text-danger"
+            >
+              Bed Type is Required
+            </div>
+          </div>
+        </div>
+        <div class="form-half">
+          <div class="form-group">
+            <label>Active</label>
+            <input type="checkbox" formControlName="is_active" />
+          </div>
+          <div class="form-group">
+            <label>Remarks</label>
+            <textarea formControlName="remarks" class="form-control"></textarea>
+          </div>
+          <app-billing-config></app-billing-config>
+        </div>
+      </div>
+      <div class="form-actions text-center mt-3">
+        <button
+          type="submit"
+          class="btn btn-dark mx-2"
+          [disabled]="bedForm.invalid"
+        >
+          Submit
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

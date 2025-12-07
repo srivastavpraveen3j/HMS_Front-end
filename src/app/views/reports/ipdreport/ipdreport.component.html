@@ -1,0 +1,123 @@
+<div class="form-meta">
+  <!-- <p>ipdreport works!</p> -->
+
+<!-- <div class="dashboard-container"> -->
+  <!-- Header Section -->
+
+
+
+  <div class="header">
+    <h2> IPD REPORTS</h2>
+    <!-- <div class="toggle-buttons">
+      <button class="toggle opd  btn" [routerLink]="['/report/opdreport']" routerLinkActive="router-link-active" >OPD</button>
+      <button class="toggle ipd active btn" [routerLink]="['/report/ipdreport']" routerLinkActive="router-link-active"  >IPD</button>
+    </div> -->
+  </div>
+
+  <!-- Cards Section -->
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-content">
+        <i class="fa-solid fa-users"></i>
+        <h3>IPD SUMMARY</h3>
+      </div>
+      <div class="card-footer">
+        <a [routerLink]="['/report/ipdcase']" [queryParams]="{ title: 'IPD Summary' }">
+          VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-content">
+        <i class="fa-solid fa-people-arrows"></i>
+        <h3>ADMISSION/DISCHARGE</h3>
+      </div>
+      <div class="card-footer">
+        <a [routerLink]="['/report/ipdadmissiondischarge']">
+          VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-content">
+        <i class="fa-solid fa-bed-pulse"></i>
+        <h3>BED MASTER</h3>
+      </div>
+      <div class="card-footer">
+        <a [routerLink]="['/report/bedmaster']" [queryParams]="{ title: 'Bed Master' }">
+          VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-content">
+        <i class="fa-solid fa-person-booth"></i>
+        <h3>ROOM WISE OCCUPANCY</h3>
+      </div>
+      <div class="card-footer">
+        <a [routerLink]="['/report/roomwiseoccupancy']">
+          VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-content">
+        <i class="fa-solid fa-file-invoice"></i>
+        <h3>PATIENT BALANCE REPORT</h3>
+      </div>
+      <div class="card-footer">
+        <a [routerLink]="['/report/patientbalancereport']" [queryParams]="{ title: 'Patient Balance Report' }">
+          VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- <div class="card">
+      <div class="card-content">
+        <i class="fa-solid fa-file-invoice"></i>
+        <h3>FINAL BILL</h3>
+      </div>
+      <div class="card-footer">
+        <a [routerLink]="['/report/']">
+          VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div> -->
+
+    <div class="card">
+      <div class="card-content">
+        <i class="fa-solid fa-file-invoice"></i>
+        <h3>SERVICE WISE INCOME</h3>
+      </div>
+      <div class="card-footer">
+        <a [routerLink]="['/report/servicewiseincome']" [queryParams]="{ title: 'Service Wise Income' }">
+          VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- <div class="card">
+      <div class="card-content">
+        <i class="fa-solid fa-file-invoice"></i>
+        <h3>RECEPTIONIST/PAYMENT REGISTER</h3>
+      </div>
+      <div class="card-footer">
+        <a [routerLink]="['/report/']">
+          VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div> -->
+
+
+
+    <!-- <div class="d-flex ">
+      <button class="btn btn-secondary ">Export</button>
+    </div> -->
+  </div>
+<!-- </div> -->
+
+</div>

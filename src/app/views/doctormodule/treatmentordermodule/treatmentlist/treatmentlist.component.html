@@ -1,0 +1,152 @@
+<div class="form-meta">
+  <!-- Header Section -->
+  <div class="header">
+    <h2>TREATMENT LIST</h2>
+    <div class="">
+      <button
+        class="list-cases-btn"
+        [routerLink]="['/doctor/tretmentordersheet']"
+        routerLinkActive="router-link-active"
+      >
+        ADD TREATMENT SHEETT
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter by Today or Date Range -->
+  <div class="filters d-flex align-items-center m-3">
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="today"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+        checked
+      />
+      TODAY'S
+    </label>
+
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="dateRange"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+      />
+      Date Range
+    </label>
+
+    <!-- Date Inputs Visible Only for Date Range -->
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="startDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+    />
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="endDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+    />
+  </div>
+
+  <app-loader
+    [patientData]="filteredCases"
+    [title]="module"
+    [activeFilter]="activeFilter"
+    [startDate]="startDate"
+    [endDate]="endDate"
+  ></app-loader>
+
+  <!-- Table Section -->
+  <div
+    class="diagnosis-container"
+    *ngIf="userPermissions.read && filteredCases.length > 0"
+  >
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Inpatient Case Number</th>
+          <th>Patient Name</th>
+          <th>Gender</th>
+          <th>Age Name</th>
+          <th>Date Of Birth</th>
+          <th>Doctor</th>
+          <th>Medication</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of filteredCases; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ item?.inpatientCaseId?.inpatientCaseNumber }}</td>
+          <td>{{ item?.uniqueHealthIdentificationId?.patient_name }}</td>
+          <td>{{ item?.uniqueHealthIdentificationId?.gender }}</td>
+          <td>{{ item?.uniqueHealthIdentificationId?.age }}</td>
+          <td>{{ item?.uniqueHealthIdentificationId?.dob | date }}</td>
+          <td>{{ item?.doctorId?.name || "-" }}</td>
+          <!-- <td>{{ item.medicalTest.length > 0 ? item.medicalTest[0]?.billNumber : '-' }}</td> -->
+
+          <!-- Test Names (assuming serviceId contains test objects later) -->
+
+          <!-- Service Names -->
+
+          <!-- Service Time (use createdAt from medicalId) -->
+          <td>
+            <div *ngIf="item.medicalId.length > 0; else noMeds">
+              <div
+                *ngFor="let med of item.medicalId"
+                class="mb-2 border-bottom pb-2"
+              >
+                <strong>Pharma Inward Number:</strong>
+                {{ med.inwardSerialNumber }}<br />
+                <strong>Requested At:</strong>
+                {{ med.createdAt | date : "medium" }}<br />
+
+                <div *ngFor="let pkg of med.packages" class="ms-2 mt-2">
+                  <strong>{{ pkg.medicineName }}</strong
+                  ><br />
+                  Quantity: {{ pkg.quantity }}<br />
+                  Charge: ₹{{ pkg.charge }}<br />
+                  Dosage: {{ pkg.dosageInstruction }}<br />
+                  Timing:
+                  <span *ngIf="pkg.checkbox.morning">Morning </span>
+                  <span *ngIf="pkg.checkbox.noon">Noon </span>
+                  <span *ngIf="pkg.checkbox.evening">Evening </span>
+                  <span *ngIf="pkg.checkbox.night">Night </span>
+                  <hr />
+                </div>
+              </div>
+            </div>
+
+            <ng-template #noMeds>-</ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <button
+        class="pagination-btn"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      Page {{ currentPage }} of {{ totalPages }}
+      <button
+        class="pagination-btn"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>

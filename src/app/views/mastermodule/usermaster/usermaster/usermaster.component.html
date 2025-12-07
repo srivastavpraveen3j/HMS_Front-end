@@ -1,0 +1,105 @@
+<div class="form-meta">
+  <!-- Header Section -->
+  <div class="header">
+    <h2>ADD NEW USER DETAILS</h2>
+    <div>
+      <span class="icons position-relative">
+        <i class="fa-solid fa-signal"
+           [routerLink]="['/master/usermasterlist']"
+           routerLinkActive="router-link-active"></i>
+      </span>
+    </div>
+  </div>
+
+<div class="form-container ">
+  <!-- Left: User Form -->
+  <form [formGroup]="userform" (ngSubmit)="OnSubmit()" class="d-flex w-100">
+
+    <!-- LEFT HALF -->
+    <div class="form-half mx-2">
+      <h4 class="m-4">Basic Profile</h4>
+      <hr />
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Role:</label>
+          <div class="custom-dropdown-wrapper custom-dropdown" (click)="$event.stopPropagation()">
+            <input type="text" class="form-control"
+                   placeholder="Search roles..."
+                   [value]="roleSearch"
+                   (input)="onRoleSearch($event)" />
+
+            <ul class="dropdown-list" *ngIf="dropdownOpen && filteredRoles().length">
+              <li *ngFor="let role of filteredRoles()" (click)="selectRole(role)">
+                {{ role.name }}
+              </li>
+
+            </ul>
+            <div *ngIf="userform.get('role')?.touched && userform.get('role')?.invalid"
+                 class="text-danger">
+              Role is required
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Name:</label>
+          <input type="text" class="form-control" placeholder="Name" formControlName="name" />
+          <div *ngIf="userform.get('name')?.touched && userform.get('name')?.invalid"
+               class="text-danger">
+            User Name is required
+          </div>
+        </div>
+
+              <div *ngIf="showDoctorDropdown" class="form-group mt-2 position-relative">
+        <label>Select Doctor (Optional)</label>
+
+        <input type="text" class="form-control" placeholder="Search Doctor..."
+          [formControl]="searchDoctorControl" autocomplete="off" />
+
+        <!-- Suggestion List -->
+        <ul class="dropdown-menu show w-100"
+            *ngIf="searchDoctorControl.value?.trim() && doctorList.length">
+          <li *ngFor="let doc of doctorList" (click)="onSelectDoctor(doc)">
+            <a class="dropdown-item">
+              {{ doc.name }} - {{ doc.specialization }}
+            </a>
+          </li>
+        </ul>
+
+        <!-- No Results -->
+        <div class="dropdown-menu show w-100 p-2 text-muted"
+            *ngIf="searchDoctorControl.value?.trim() && !doctorList.length">
+          No doctor found
+        </div>
+      </div>
+        <!-- <div class="form-group">
+          <label>Age:</label>
+          <input type="number" class="form-control" placeholder="Age" formControlName="age" />
+        </div> -->
+      </div>
+    </div>
+      <!-- Additional Doctor Search Field ONLY if role is Doctor -->
+
+    <!-- RIGHT HALF -->
+    <div class="form-half">
+      <h4 class="m-4">Login Credentials</h4>
+      <hr />
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email:</label>
+          <input type="email" class="form-control" placeholder="Email" formControlName="email" />
+        </div>
+        <div class="form-group">
+          <label>Password:</label>
+          <input type="password" class="form-control" placeholder="Password" formControlName="password" />
+        </div>
+      </div>
+      <div class="text-center mt-3">
+        <button class="btn btn-dark mx-2" type="submit" [disabled]="userform.invalid">
+          Submit
+        </button>
+      </div>
+    </div>
+
+  </form>
+</div>
+

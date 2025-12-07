@@ -1,0 +1,492 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>PATIENT ADMIT LIST</h2>
+    <!-- <button
+      class="list-cases-btn"
+      [routerLink]="['/ipd/ipdadmission']"
+      routerLinkActive="router-link-active"
+    >
+      ADMIT NEW PATIENT
+    </button> -->
+
+    <!-- <div class="header"> -->
+      <div class="header-content">
+        <div class="d-flex justify-content-between">
+          <!-- Room Occupancy Quick Access -->
+
+          <div class="room-occupancy-card mx-2">
+            <div class="occupancy-info">
+              <span
+                class="occupancy-label"
+                routerLink="/report/roomwiseoccupancy"
+                >Room Occupancy</span
+              >
+            </div>
+          </div>
+
+          <!-- Admit New Patient Button -->
+          <button
+            class="list-cases-btn"
+            [routerLink]="['/ipd/ipdadmission']"
+            routerLinkActive="router-link-active"
+          >
+            ADMIT NEW PATIENT
+          </button>
+        </div>
+      </div>
+    <!-- </div> -->
+  </div>
+
+  <!-- <div class="top-bar p-3">
+    <form [formGroup]="filterForm" class="top-bar p-3">
+      <input type="text" placeholder="Search..." formControlName="searchText" />
+    </form>
+
+  </div> -->
+
+  <div class="d-flex justify-content-between m-3">
+    <!-- Filter by Today or Date Range -->
+    <!-- <div class="filters d-flex align-items-center m-3">
+      <label class="">
+        <input
+          type="radio"
+          name="filter"
+          value="today"
+          [(ngModel)]="activeFilter"
+          (change)="applyFilters()"
+          checked
+        />
+        TODAY'S
+      </label>
+
+      <label class="m-3">
+        <input
+          type="radio"
+          name="filter"
+          value="dateRange"
+          [(ngModel)]="activeFilter"
+          (change)="applyFilters()"
+        />
+        Date Range
+      </label> -->
+
+    <!-- Date Inputs Visible Only for Date Range -->
+    <!-- <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="startDate"
+        (change)="applyFilters()"
+        class="form-control mx-2"
+      />
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="endDate"
+        (change)="applyFilters()"
+        class="form-control mx-2"
+      /> -->
+    <!-- </div> -->
+    <!-- <div class="">
+      <ul class="nav nav-tabs mb-3">
+        <li class="nav-item" (click)="selectTab('mediclaim')">
+          <a class="nav-link" [class.active]="tab === 'mediclaim'"
+            >Mediclaim Patient</a
+          >
+        </li>
+        <li class="nav-item" (click)="selectTab('cash')">
+          <a class="nav-link" [class.active]="tab === 'cash'">Cash Patient</a>
+        </li>
+        <li class="nav-item" (click)="selectTab('cashless')">
+          <a class="nav-link" [class.active]="tab === 'cashless'"
+            >Cashless Pateint</a
+          >
+        </li>
+      </ul>
+    </div> -->
+
+    <div class="form-group w-25 mx-3 position-relative">
+      <!-- <label>Search Doctor</label> -->
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search by doctor name..."
+        [(ngModel)]="doctorSearchText"
+        (input)="onDoctorSearchChange(doctorSearchText)"
+        autocomplete="off"
+      />
+
+      <ul
+        *ngIf="filteredDoctors.length > 0 && doctorSearchText.trim().length > 0"
+        class="list-group position-absolute w-100 zindex-dropdown"
+        style="max-height: 200px; overflow-y: auto"
+      >
+        <li
+          class="list-group-item list-group-item-action"
+          *ngFor="let doctor of filteredDoctors"
+          (click)="onDoctorSelected(doctor.name)"
+        >
+          {{ doctor.name }}
+        </li>
+      </ul>
+    </div>
+
+    <div class="form-group position-relative w-25">
+      <input
+        type="text"
+        [(ngModel)]="searchText"
+        (input)="patientFilter()"
+        placeholder="Search by uhid/patient/mobile"
+        class="form-control"
+      />
+    </div>
+  </div>
+  <div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card h-100 chart-nav-card" [routerLink]="['/ipd/inpatientsummarychart']"
+         routerLinkActive="active" style="cursor: pointer;">
+      <div class="card-body text-center">
+        <i class="fas fa-bed fa-2x text-primary mb-2"></i>
+        <h6 class="card-title">Indoor Patient Chart</h6>
+        <small class="text-muted">View all admitted patients</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100 chart-nav-card" [routerLink]="['/ipd/drwiseadmission']"
+         routerLinkActive="active" style="cursor: pointer;">
+      <div class="card-body text-center">
+        <i class="fas fa-user-md fa-2x text-success mb-2"></i>
+        <h6 class="card-title">Dr. Wise Patient Chart</h6>
+        <small class="text-muted">Patients by doctor</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100 chart-nav-card" [routerLink]="['/ipd/patientaccountinfo']"
+         routerLinkActive="active" style="cursor: pointer;">
+      <div class="card-body text-center">
+        <i class="fas fa-file-invoice fa-2x text-warning mb-2"></i>
+        <h6 class="card-title">Account Info Chart</h6>
+        <small class="text-muted">Billing & payments</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100 chart-nav-card" [routerLink]="['/ipd/patientdietchart']"
+         routerLinkActive="active" style="cursor: pointer;">
+      <div class="card-body text-center">
+        <i class="fas fa-utensils fa-2x text-info mb-2"></i>
+        <h6 class="card-title">Diet Chart</h6>
+        <small class="text-muted">Bed wise nutrition plans</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+  <!-- <app-loader [patientData]="filteredCases" [title]="module" [activeFilter]="activeFilter" [startDate]="startDate"
+    [endDate]="endDate"></app-loader> -->
+
+  <div class="" *ngIf="displayedCases.length > 0">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+      *ngIf="userPermissions.read"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Uhid No</th>
+          <th>IPD No</th>
+          <th>Patient Name</th>
+          <!-- <th>Company</th> -->
+          <th>Gender</th>
+          <th>Age</th>
+          <th>Date of Admission</th>
+          <th>Bed Number</th>
+          <th>Doctor Consulted</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let patient of displayedCases; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ patient?.uniqueHealthIdentificationId?.uhid }}</td>
+          <td>{{ patient?.inpatientCaseNumber }}</td>
+          <td
+            (click)="viewPatientSummary(patient)"
+            style="cursor: pointer; color: blue"
+          >
+            {{ patient?.uniqueHealthIdentificationId?.patient_name }} <br />
+            <span
+              style="cursor: pointer; color: rgb(227, 7, 7)"
+              *ngIf="patient.patient_type === 'cashless'"
+            >
+              ({{ patient.companyName }})
+            </span>
+          </td>
+          <!-- <td style="cursor: pointer; color: rgb(227, 7, 7)">
+            <span *ngIf="patient.patient_type === 'cashless'">{{ patient.companyName }}</span>
+          </td> -->
+          <td>
+            {{
+              patient?.uniqueHealthIdentificationId?.gender ? "Male" : "Female"
+            }}
+          </td>
+          <td>{{ patient?.uniqueHealthIdentificationId?.age }}</td>
+          <td>{{ patient.admissionTime | date }}</td>
+          <td>
+            {{ "Room No: " }} {{ patient?.room_id?.roomNumber }} ,
+            {{ "Bed No: " }} {{ patient?.bed_id?.bed_number }}
+          </td>
+
+          <td>{{ patient.admittingDoctorId?.name }}</td>
+          <td>
+            <!-- <i class="fa-solid fa-print action-btn"></i> -->
+            <i
+              class="fa-solid fa-eye action-btn"
+              (click)="viewPatient(patient._id)"
+            ></i>
+            <i
+              class="fa-solid fa-pencil action-btn"
+              *ngIf="userPermissions.update"
+              (click)="editPatientipd(patient._id)"
+            ></i>
+            <!-- <i
+              class="fa-solid fa-trash action-btn"
+              *ngIf="userPermissions.delete"
+              (click)="deletPatientipd(patient._id)"
+            ></i> -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <button
+        class="pagination-btn"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      Page {{ currentPage }} of {{ totalPages }}
+      <button
+        class="pagination-btn"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+
+  <!-- <div class="container-fluid" *ngIf="ipdcases.length > 0">
+    <div class="row g-3">
+      <div
+        class="col-12 col-sm-6 col-md-4 col-lg-3"
+        *ngFor="let patient of ipdcases; let i = index"
+      >
+        <div
+          class="card border border-dark rounded shadow-sm bg-light h-100 d-flex flex-column position-relative"
+        >
+          <div class="position-absolute top-0 end-0 mt-5 me-1 dropdown">
+            <i
+              class="fa-solid fa-ellipsis-vertical mt-5"
+              role="button"
+              [attr.id]="'dropdownMenu' + i"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              aria-haspopup="true"
+              [attr.aria-controls]="'dropdownList' + i"
+            ></i>
+            <ul
+              class="dropdown-menu dropdown-menu-end"
+              [attr.aria-labelledby]="'dropdownMenu' + i"
+              [attr.id]="'dropdownList' + i"
+              role="menu"
+            >
+              <li role="menuitem">
+                <button
+                  class="dropdown-item"
+                  (click)="openBarcodePopup(patient, i)"
+                >
+                  Show Patient Sticker
+                </button>
+              </li>
+              <li role="menuitem">
+                <button
+                  class="dropdown-item"
+                  (click)="openDeposit(patient._id)"
+                >
+                  Deposit
+                </button>
+              </li>
+              <li role="menuitem">
+                <button
+                  class="dropdown-item"
+                  (click)="
+                    openSummary(patient.uniqueHealthIdentificationId?._id)
+                  "
+                >
+                  Patient Balance Report
+                </button>
+              </li>
+              <li role="menuitem">
+                <button
+                  class="dropdown-item"
+                  (click)="viewPatient(patient._id)"
+                >
+                  View
+                </button>
+              </li>
+              <li role="menuitem">
+                <button class="dropdown-item" (click)="openBill(patient._id)">
+                  Add Services Charge
+                </button>
+              </li>
+              <li role="menuitem">
+                <button
+                  class="dropdown-item"
+                  (click)="viewPatientBill(patient._id)"
+                >
+                  View Bill
+                </button>
+              </li>
+            </ul>
+            <div class="form-group">
+              <div *ngIf="openIndex === i" class="zindex-dropdown">
+                <app-opdbarcode
+                  [data]="selectedBarcodePatient"
+                  (close)="closebardModal()"
+                ></app-opdbarcode>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between text-white fw-bold small">
+            <div class="bg-dark px-2 py-1 text-center" style="width: 25%">
+              {{ patient.createdAt | date : "dd-MM-yy" }}
+            </div>
+            <div
+              class="bg-white text-dark px-2 py-1 text-center flex-grow-1 border-start border-end border-dark"
+            >
+              {{ patient.uniqueHealthIdentificationId?.uhid || "N/A" }}
+            </div>
+            <div class="bg-dark px-2 py-1 text-center" style="width: 25%">
+              {{ patient.createdAt | date : "dd-MM-yy" }}
+              {{ patient.uniqueHealthIdentificationId?.dot || "N/A" }}
+            </div>
+          </div>
+
+          <div class="card-body p-2 flex-grow-1">
+            <div class="fw-bold text-uppercase">
+              {{ patient.uniqueHealthIdentificationId?.patient_name || "N/A" }}
+            </div>
+            <div class="text-muted small">
+              Ipd Case Number: {{ patient.inpatientCaseNumber || "N/A" }}
+            </div>
+            <div class="text-muted small">
+              Bed: {{ patient?.bed_id?.bed_number || "N/A" }}
+            </div>
+            <div class="text-uppercase small">
+              {{ patient.admittingDoctorId?.name || "N/A" }}
+            </div>
+            <div class="ribbon-wrapper">
+              <div class="ribbon ribbon-top-left text-white text-uppercase">
+                {{ getPatientTypeLabel(patient.patient_type) }}
+              </div>
+            </div>
+
+            <div
+              class="text-uppercase small"
+              *ngIf="
+                ['med', 'cashless'].includes(
+                  patient.patient_type?.toLowerCase()
+                )
+              "
+            >
+              Company Name: {{ patient.companyName || "N/A" }}
+            </div>
+
+            <div class="card-footer bg-light d-flex justify-content-between">
+              <button
+                class="btn btn-sm btn-outline-success"
+                *ngIf="userPermissions.update"
+                (click)="editPatientipd(patient._id)"
+              >
+                <i class="fa fa-pencil-alt"></i>
+              </button>
+              <span
+                *ngIf="[true].includes(patient?.isMedicoLegalCase)"
+                class="badge bg-warning"
+              >
+                Medical Case
+              </span>
+              <button
+                class="btn btn-sm btn-outline-danger"
+                *ngIf="userPermissions.delete"
+                (click)="deletPatientipd(patient._id)"
+              >
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pagination">
+        <button
+          class="pagination-btn"
+          (click)="previousPage()"
+          [disabled]="currentPage === 1"
+        >
+          Previous
+        </button>
+        Page {{ currentPage }} of {{ totalPages }}
+        <button
+          class="pagination-btn"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+
+  </div> -->
+
+  <div class="modal-backdrop" *ngIf="selectedPatient">
+    <div class="modal-content-box">
+      <div class="modal-header">
+        <h3 style="visibility: hidden">Patient Details</h3>
+        <!-- <button class="close-btn mt-5" (click)="closeModal()">×</button> -->
+            <!-- <button type="button" class="no-print" > -->
+              <i class="fas fa-times" (click)="closeModal()" ></i>
+            <!-- </button> -->
+      </div>
+      <hr />
+      <div class="modal-body">
+        <!-- <app-patient-ipdcase [patientData]="selectedPatient"></app-patient-ipdcase> -->
+        <app-ipdadmissionview
+          [patientData]="selectedPatient"
+        ></app-ipdadmissionview>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="selectedPatientBill">
+    <div class="modal-content-box">
+      <div class="modal-header">
+        <h3 style="visibility: hidden">Patient Details</h3>
+        <button class="close-btn mt-5" (click)="closeModal()">×</button>
+      </div>
+      <hr />
+      <div class="modal-body">
+        <app-ipdpatientinfo
+          [patientData]="selectedPatientBill"
+        ></app-ipdpatientinfo>
+      </div>
+    </div>
+  </div>
+</div>

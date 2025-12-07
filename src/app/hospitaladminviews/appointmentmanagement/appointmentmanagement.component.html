@@ -1,0 +1,31 @@
+<!-- <p>appointmentmanagement works!</p> -->
+<div class="header">
+  <h2>APPOINTMENT MANAGEMENT</h2>
+</div>
+
+<div class="m-5">
+  <h2>{{ hospital.name }} - Branch Wise Appointment Overview</h2>
+  <hr>
+
+  <div class="branches-flex">
+    <div class="branch" *ngFor="let branch of hospital.branches">
+      <div class="branch-header">
+        <h3>{{ branch.name }}</h3>
+        <p><strong>Total Appointments:</strong> {{ branch.appointments.length }}</p>
+      </div>
+
+      <div class="patient-list">
+        <div class="patient-card" *ngFor="let app of branch.appointments">
+          <div class="patient-info">
+            <h4>{{ app.patient }}</h4>
+            <p><strong>Doctor:</strong> {{ app.doctor }}</p>
+            <p><strong>Appointment Time:</strong> {{ app.startTime }} - {{ app.endTime }}</p>
+            <p><strong>Age:</strong> {{ app.age }}</p>
+            <p><strong>Disease:</strong> {{ app.disease }}</p>
+            <p><strong>Reason:</strong> {{ app.reason }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

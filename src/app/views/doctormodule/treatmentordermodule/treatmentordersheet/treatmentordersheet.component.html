@@ -1,0 +1,266 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>ADD TREATMENT ORDER SHEET</h2>
+    <div class="">
+      <!-- <button class="list-cases-btn mx-3"><i class="fa-solid fa-user-group"></i></button> -->
+      <!-- <span class="icons"><i class="fa-solid fa-signal" routerLink="/doctor/treatmentlist"></i> <i class="fa-solid fa-user-tie mx-2"></i> </span> -->
+      <span class="icons position-relative">
+        <!-- <i class="fa-solid fa-user-tie mx-2" (click)="showUHIDDropdown = !showUHIDDropdown"></i> -->
+        <i
+          class="fa-solid fa-signal"
+          [routerLink]="['/doctor/treatmentlist']"
+          routerLinkActive="router-link-active"
+        ></i>
+
+        <!-- Dropdown -->
+        <!-- Dropdown -->
+        <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+          <div
+            *ngIf="uhidTodayRecords?.length === 0"
+            class="text-center text-muted py-2"
+          >
+            No InPatient Case Created today.
+          </div>
+
+          <ul class="uhid-list">
+            <li
+              *ngFor="let record of uhidTodayRecords"
+              (click)="selectPatientFromUHID(record)"
+              style="cursor: pointer"
+            >
+              <div class="uhid-name">
+                {{ record.uniqueHealthIdentificationId?.patient_name }}
+              </div>
+              <div class="uhid-meta">
+                UHID: {{ record.uniqueHealthIdentificationId?.uhid }} | Age:
+                {{ record.uniqueHealthIdentificationId?.age }}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </span>
+    </div>
+  </div>
+
+  <div class="opd-container" *ngIf="userPermissions.create">
+    <form [formGroup]="treatmentordersheet" (ngSubmit)="OnSubmit()">
+      <h4 class="m-4">Patient Details</h4>
+      <hr />
+      <div class="row g-2">
+        <div class="form-group col-md-6">
+          <label>UHID No:</label>
+          <input
+            type="text"
+            placeholder="UHID No"
+            class="required"
+            formControlName="uhid"
+            (input)="onUhidInput()"
+          />
+          <div
+            *ngIf="
+              treatmentordersheet.get('uhid')?.invalid &&
+              treatmentordersheet.get('uhid')?.touched
+            "
+            class="error-message"
+          >
+            UHID no. is required.
+          </div>
+        </div>
+        <!-- <div class="form-group">
+          <label>Patient Type:</label>
+          <select formControlName="patient_type">
+            <option value="">Select</option>
+            <option value="cash">Cash</option>
+            <option value="med">Medi Claim</option>
+            <option value="cashless">Cashless</option>
+          </select>
+          <div class="error-message" *ngIf="treatmentordersheet.get('patient_type')?.touched && treatmentordersheet.get('patient_type')?.invalid">
+            Patient Type is required.
+          </div>
+        </div> -->
+        <div class="form-group col-md-6">
+          <label>Patient*:</label>
+          <input
+            type="text"
+            class="input-text"
+            placeholder="Enter patient name"
+            formControlName="patient_name"
+            (input)="onPatientInput()"
+            (focus)="showSuggestions = true"
+            (blur)="hideSuggestionsWithDelay()"
+          />
+          <!-- </div> -->
+          <!-- Patient Suggestions Dropdown - MOVED OUTSIDE BUT STILL IN THE FORM-GROUP -->
+          <div
+            *ngIf="showSuggestions && filteredPatients.length > 0"
+            class="suggestions-container"
+          >
+            <ul class="suggestions">
+              <li
+                *ngFor="let patient of filteredPatients"
+                (mousedown)="selectPatient(patient)"
+              >
+                {{ patient.patient_name }}
+                {{ patient.mobile_no ? "| " + patient.mobile_no : "" }}
+                {{ patient.uhid ? "| " + patient.uhid : "" }}
+              </li>
+            </ul>
+          </div>
+  
+          <!-- Debug info - MODIFIED to check for manuallySelected flag -->
+          <div
+            *ngIf="
+              treatmentordersheet.get('patient_name')?.value &&
+              treatmentordersheet.get('patient_name')?.value.length > 2 &&
+              !filteredPatients.length &&
+              !manuallySelected
+            "
+            class="text-danger"
+          >
+            No matching patients found
+          </div>
+          <div
+            *ngIf="
+              treatmentordersheet.get('patient_name')?.touched &&
+              treatmentordersheet.get('patient_name')?.invalid
+            "
+            class="text-danger"
+          >
+            Patient name is required
+          </div>
+        </div>
+      </div>
+      <div class="row g-2">
+        <div class="form-group col-md-6">
+          <label>Age*:</label>
+          <input type="text" placeholder="Age" formControlName="age" />
+          <div
+            *ngIf="
+              treatmentordersheet.get('age')?.invalid &&
+              treatmentordersheet.get('age')?.touched
+            "
+            class="error-message"
+          >
+            Age is required.
+          </div>
+        </div>
+        <div class="form-group col-md-6">
+          <label>Address:</label>
+          <input type="text" placeholder="area" formControlName="area" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cons. Doctor*:</label>
+          <input
+            type="text"
+            placeholder="Cons. Doctor"
+            class="required"
+            formControlName="cons_doc"
+          />
+        </div>
+      </div>
+
+      <h4 class="m-4">Medical Order Details</h4>
+      <hr />
+
+      <div class="card">
+        <div class="card-header bg-warning text-dark">
+          Pharma Inward ({{ pharmaceuticalinward.length }})
+        </div>
+        <div class="card-body">
+          <!-- Pharma Inward Table -->
+          <div *ngIf="pharmaceuticalinward.length">
+            <h5>Pharmacy Inward Details</h5>
+            <div *ngFor="let pharma of pharmaceuticalinward" class="card mb-2">
+              <div class="card-header bg-light">
+                <strong>Pharmacy Order Date:</strong
+                >{{ pharma.createdAt | date : "short" }}
+              </div>
+              <div class="card-body p-2">
+                <table class="table table-sm table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Medicine Name</th>
+                      <th>Quantity</th>
+                      <th>Charge</th>
+                      <th>Dosage Instruction</th>
+                      <th>Timing</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let med of pharma.packages">
+                      <td>{{ med.medicineName }}</td>
+                      <td>{{ med.quantity }}</td>
+                      <td>{{ med.charge }}</td>
+                      <td>{{ med.dosageInstruction }}</td>
+                      <td>
+                        <span *ngIf="med.checkbox?.morning">Morning </span>
+                        <span *ngIf="med.checkbox?.noon">Noon </span>
+                        <span *ngIf="med.checkbox?.evening">Evening </span>
+                        <span *ngIf="med.checkbox?.night">Night</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- <p class="text-end fw-bold">Pharmaceutical Total: ₹{{ pharmaTotal | number }}</p> -->
+        </div>
+      </div>
+
+      <!-- <div *ngIf="tab === 'bills'"> -->
+
+      <!-- </div> -->
+
+      <h4 class="m-4">Other Order Details</h4>
+      <hr />
+
+      <div class="card">
+        <div class="card-header bg-success text-white">
+          Inpatient Bills ({{ inpatientbills.length }})
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered table-sm">
+            <thead>
+              <tr>
+                <th>Bill Number</th>
+                <th>Services</th>
+                <th>Total Charge</th>
+                <th>Bill Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let bill of inpatientbills">
+                <td>{{ bill?.billNumber }}</td>
+                <td>
+                  <span *ngFor="let s of bill.service; let last = last">
+                    {{ s.name }}<span *ngIf="!last">, </span>
+                  </span>
+                </td>
+                <td>{{ bill?.totalBillAmount }}</td>
+                <td>{{ bill?.billingDate | date : "short" }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- <p class="text-end fw-bold">Inpatient Bills Total: ₹{{ inpatientBillsTotal | number }}</p> -->
+        </div>
+      </div>
+
+      <div class="text-center mt-3">
+        <button
+          class="btn btn-dark mx-2"
+          [disabled]="treatmentordersheet.invalid"
+        >
+          Submit
+        </button>
+        <!-- <button class="btn btn-secondary">Cancel</button> -->
+      </div>
+    </form>
+    <!-- <div class="right-section">
+      <div class="info-box">PREVIOUS TREATMENT SHEET</div>
+    </div> -->
+  </div>
+</div>

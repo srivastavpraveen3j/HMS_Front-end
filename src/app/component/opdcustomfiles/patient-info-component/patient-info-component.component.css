@@ -1,0 +1,217 @@
+.opd-sheet {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #000;
+  width: 100%;
+  padding: 20px;
+  border: 1px solid #000;
+}
+
+.table thead th {
+  background-color: #007bff;
+  color: white;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+
+.header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  /* border-bottom: 1px solid #000; */
+  padding-bottom: 10px;
+}
+
+.logo {
+  width: 200px;
+  height: auto;
+}
+
+.center-title {
+  text-align: center;
+  margin: 10px 0 20px 0;
+  font-weight: bold;
+  background-color: #e0e0e0;
+  padding: 6px;
+  font-size: 18px;
+  letter-spacing: 1px;
+  border: 1px solid #000;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #000;
+  margin: 10px 0;
+}
+
+.info-grid {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.left-info, .right-info {
+  width: 48%;
+  line-height: 1.8;
+}
+
+.vitals-complaints {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 20px;
+}
+
+.vitals-box, .complaint-box {
+  width: 48%;
+  /* border-top: 1px solid #000; */
+  padding-top: 10px;
+}
+
+.vitals-box h4, .complaint-box h4 {
+  margin-bottom: 10px;
+  font-weight: bold;
+  /* text-decoration: underline; */
+}
+
+.spaced-lines {
+  height: 60px;
+  border: 1px solid #ccc;
+  margin: 10px 0;
+}
+
+.complaint-area {
+  min-height: 120px;
+  /* border: 1px solid #000; */
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+/* .footer {
+  text-align: left;
+  font-weight: bold;
+  margin-top: 40px;
+  padding-bottom: 10px;
+} */
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-top: 60px;
+}
+
+.footer div p {
+  margin: 0;
+  padding: 2px 0;
+}
+
+.header {
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+
+.logo {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  border: 1px solid black; /* Optional: keeps the image covering the area without distortion */
+}
+
+
+.vertical-dashed-line {
+  border-left: 1px solid black;
+  height: 100%;
+  width: 0;
+  margin: 0 20px;
+}
+
+@media print {
+  .opd-sheet {
+    max-height: 100vh;
+    overflow: hidden;
+  }
+}
+
+
+@media print {
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+  }
+
+  .opd-sheet {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .vitals-complaints,
+  .info-grid {
+    page-break-inside: avoid;
+  }
+
+  .spaced-lines {
+    page-break-inside: avoid;
+  }
+
+  /* Optional: shrink content slightly to help fit */
+  body {
+    zoom: 0.95;
+  }
+
+  footer, .no-print {
+    display: none !important;
+  }
+}
+
+
+/* Make table clean and boxed like sample */
+.table.bill-table {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table.bill-table th,
+.table.bill-table td {
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  vertical-align: middle;
+}
+
+.table.bill-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+/* Billing Summary Styling */
+.billing-summary .col-md-6 p,
+.footer p {
+  margin: 0;
+  padding: 3px 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.text-end {
+  text-align: right !important;
+}
+
+/* Footer alignment fix */
+.footer {
+  margin-top: 30px;
+  font-size: 13px;
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+}
+
+
+

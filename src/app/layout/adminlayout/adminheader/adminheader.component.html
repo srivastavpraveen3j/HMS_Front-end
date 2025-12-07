@@ -1,0 +1,998 @@
+<aside class="sidebar" [ngClass]="{ collapsed: isCollapsed }">
+  <div class="logo-container" routerLink="/dashboard">
+    <div class="logo">
+      <img
+        [src]="logoUrl"
+        alt="Hospital Logo"
+        class="logo-image"
+        [ngStyle]="getLogoStyleForSidebar()"
+        (error)="onLogoError($event)"
+      />
+
+      <!-- <i
+        *ngIf="isCollapsed"
+        class="fa-solid fa-hospital logo-icon"
+        [ngStyle]="getIconStyle()"
+      </i>
+      >  -->
+      <!--
+      <i
+      class="fa-solid fa-hospital logo-icon"
+      *ngIf="isCollapsed"
+        [ngStyle]="getIconStyle()"
+
+    ></i> -->
+    </div>
+  </div>
+
+  <nav>
+    <ul class="sidebar-nav">
+      <li
+        class="nav-item"
+        *ngIf="hasAnyMasterDropdownAccess()"
+        routerLink="/master/ui"
+      >
+        <a class="nav-link" (click)="toggleDropdown('master')">
+          <i
+            class="fa-solid fa-cogs nav-icon"
+            *ngIf="isCollapsed"
+            routerLink="/master/ui"
+          ></i>
+          <span class="nav-text" routerLink="/master/ui">Master</span>
+        </a>
+        <!-- <ul class="dropdown-menu masters-menu" [class.open]="dropdowns.master">
+                    <div class="dropdown-grid">
+                        <li *ngIf="hasModuleAccess('service', 'create')">
+                            <a class="dropdown-item" href="/master/opdmasterservice">
+                                Services
+                            </a>
+                        </li>
+                        <li *ngIf="hasModuleAccess('serviceGroup')">
+                            <a class="dropdown-item" href="/master/masteropdchargelist">
+                                Services GROUP
+                            </a>
+                        </li>
+                        <li *ngIf="hasModuleAccess('surgeryService')">
+                            <a class="dropdown-item" href="/master/surgerymasterlist">
+                                Surgery Services
+                            </a>
+                        </li>
+                        <li *ngIf="hasModuleAccess('packages')">
+                            <a class="dropdown-item" href="/master/packagemasterlist">
+                                Package
+                            </a>
+                        </li>
+                        <li *ngIf="hasModuleAccess('symptoms')">
+                            <a class="dropdown-item" href="/master/symptomslist">
+                                Symptoms
+                            </a>
+                        </li>
+                        <li *ngIf="hasModuleAccess('symptomGroup')">
+                            <a class="dropdown-item" href="/master/symptomsgrouplist">
+                                Symptoms Group
+                            </a>
+                        </li>
+                           <li *ngIf="hasModuleAccess('testGroup')">
+                            <a class="dropdown-item" href="/master/medicaltestgrouplist">
+                                Test Group
+                            </a>
+                        </li>
+                    </div>
+                    <div class="dropdown-grid">
+                        <li *ngIf="hasModuleAccess('bedType')">
+                            <a class="dropdown-item" href="/master/bedtypemasterlist">
+                                Bed Type Master
+                            </a>
+                        </li>
+                        <li *ngIf="hasModuleAccess('bed')">
+                            <a class="dropdown-item" href="/master/bedmasterlist">
+                                Bed Master
+                            </a>
+                        </li>
+                        <li *ngIf="hasModuleAccess('roomType')">
+                            <a class="dropdown-item" href="/master/roomtypemasterlist">
+                                Room Type Master
+                            </a>
+                        </li>
+                        <li *ngIf="hasModuleAccess('room')">
+                            <a class="dropdown-item" href="/master/roommasterlist">
+                                Room Master
+                            </a>
+                        </li>
+                        <li *ngIf="hasModuleAccess('wardMaster')">
+                            <a class="dropdown-item" href="/master/wardmasterlist">
+                                Ward Master
+                            </a>
+                        </li>
+                        <li *ngIf="hasModuleAccess('medicine')">
+                            <a class="dropdown-item" href="/master/medicinemasterlist">
+                                Medicines
+                            </a>
+                        </li>
+                        <li *ngIf="hasModuleAccess('testParameter')">
+                            <a class="dropdown-item" href="/master/medicaltestlist">
+                                Medical Test
+                            </a>
+                        </li>
+
+                    </div>
+                </ul> -->
+      </li>
+
+      <li *ngIf="hasModuleAccess('uhid', 'create')">
+        <a class="nav-link" routerLink="/uhid">
+          <i class="fa-solid fa-id-card nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">UHID</span>
+        </a>
+      </li>
+
+      <li
+        class="nav-item"
+        *ngIf="hasModuleAccess('outpatientCase')"
+        routerLink="opd/ui"
+      >
+        <a class="nav-link" (click)="toggleDropdown('opd')">
+          <i
+            class="fa-solid fa-user-md nav-icon"
+            *ngIf="isCollapsed"
+            routerLink="/opd/ui"
+          ></i>
+          <span class="nav-text" routerLink="opd/ui">OPD</span>
+        </a>
+        <!-- <ul class="dropdown-menu opd-menu" [class.open]="dropdowns.opd">
+                    <div class="dropdown-grid">
+                        <li *ngIf="hasModuleAccess('outpatientCase') || hasModuleAccess('medicoLegalCase')">
+                            <a class="dropdown-item" href="opd/opdcases">
+                                NEW / FOLLOW UP
+                            </a>
+                        </li>
+                        <li *ngIf="hasModuleAccess('outpatientBill')">
+                            <a class="dropdown-item" href="opd/opddiagnosissheetlist">
+                                OPD Diagnosis
+                            </a>
+                        </li>
+                    </div>
+                    <div class="dropdown-grid">
+                        <li *ngIf="hasModuleAccess('outpatientBill')">
+                            <a class="dropdown-item" href="opd/listopbills">
+                                OPD BILL
+                            </a>
+                        </li>
+                        <li *ngIf="hasModuleAccess('appointment')">
+                            <a class="dropdown-item" href="/opd/opdappointmentlist">
+                                APPOINTMENT
+                            </a>
+                        </li>
+                        <li *ngIf="hasModuleAccess('appointment')">
+                            <a class="dropdown-item" href="/opd/opdappointmentquelist">
+                                Waiting Que
+                            </a>
+                        </li>
+                    </div>
+                </ul> -->
+      </li>
+
+      <li
+        class="nav-item"
+        *ngIf="hasModuleAccess('inpatientCase', 'create')"
+        routerLink="ipd/ipdadmissionlist"
+      >
+        <a class="nav-link" (click)="toggleDropdown('ipd')">
+          <i
+            class="fa-solid fa-bed nav-icon"
+            *ngIf="isCollapsed"
+            routerLink="ipd/ipdadmissionlist"
+          ></i>
+          <span class="nav-text">IPD</span>
+        </a>
+        <!-- <ul class="dropdown-menu ipd-menu" [class.open]="dropdowns.ipd">
+          <div class="dropdown-grid">
+            <li
+              *ngIf="
+                hasModuleAccess('inpatientCase') ||
+                hasModuleAccess('medicoLegalCase')
+              "
+            >
+              <a class="dropdown-item" href="/ipd/ipdadmissionlist">
+                Admission
+              </a>
+            </li>
+            <li *ngIf="hasModuleAccess('inpatientDeposit')">
+              <a class="dropdown-item" href="/ipd/ipddepositlist"> Deposit </a>
+            </li>
+            <li *ngIf="hasModuleAccess('inpatientBilling')">
+              <a class="dropdown-item" href="/ipd/ipdbilllist"> IPD Billing </a>
+            </li>
+            <li *ngIf="hasModuleAccess('oprationTheatresheet')">
+              <a class="dropdown-item" href="/ipd/otsheetlist"> OT SHEET </a>
+            </li>
+          </div>
+          <div class="dropdown-grid">
+            <li *ngIf="hasModuleAccess('inpatientIntermBill')">
+              <a class="dropdown-item" href="/ipd/intermbill"> Interim Bill </a>
+            </li>
+            <li *ngIf="hasModuleAccess('thirdPartyAdministrator')">
+              <a class="dropdown-item" href="/ipd/tpalist"> TPA </a>
+            </li>
+            <li *ngIf="hasModuleAccess('discharge')">
+              <a class="dropdown-item" href="/ipd/ipddischargelist">
+                Discharge
+              </a>
+            </li>
+          </div>
+        </ul> -->
+      </li>
+
+      <!-- <li class="nav-item dropdown" *ngIf="hasAnyDoctorAccess()">
+          <a class="nav-link dropdown-toggle" (click)="toggleDropdown('doctor')">
+            <i class="fa-solid fa-user nav-icon" *ngIf="isCollapsed" routerLink="doctor"></i>
+            <span class="nav-text">DOCTOR</span>
+          </a>
+          <ul class="dropdown-menu ipd-menu" [class.open]="dropdowns.doctor">
+            <div class="dropdown-grid">
+              <li *ngIf="hasModuleAccess('vitals')">
+                <a class="dropdown-item" href="/doctor/vitallist">Vital
+                  Chart</a>
+              </li>
+              <li *ngIf="hasModuleAccess('diagnosisSheet')">
+                <a class="dropdown-item" href="/doctor/diagnosissheetlist">Diagnosis
+                  Sheet</a>
+              </li>
+              <li *ngIf="hasModuleAccess('operationTheatreNotes')">
+                <a class="dropdown-item" href="/doctor/otnoteslist">Operation
+                  Note</a>
+              </li>
+              <li *ngIf="hasModuleAccess('dischargeSummary')">
+                <a class="dropdown-item" href="/doctor/doctordischargelist">
+                  Discharge
+                  Summary</a>
+              </li>
+              <li *ngIf="hasModuleAccess('treatmentHistorySheet')"><a class="dropdown-item" href="/doctor/tretmentordersheet"> Treatment Sheet</a></li>
+            </div>
+            <div class="dropdown-grid">
+              <li *ngIf="hasModuleAccess('pharmaceuticalRequestList')">
+                <a class="dropdown-item" href="/doctor/pharmareqlist">Pharmacy
+                  Request</a>
+              </li>
+              <li *ngIf="hasModuleAccess('departmentRequestList')">
+                <a class="dropdown-item" href="/doctor/pathologyreqlist">
+                  Pathology
+                  Request</a>
+              </li>
+              <li><a class="dropdown-item" href="/doctor/pathologyresult">
+                  Pathology Result</a></li>
+              <li *ngIf="hasModuleAccess('departmentRequestList')">
+                <a class="dropdown-item" href="/doctor/radiologyreqlist">Radiology
+                  Request</a>
+              </li>
+              <li *ngIf="hasModuleAccess('departmentRequestList')"><a class="dropdown-item" href="/doctor/radiationreq">Radiation Request</a></li>
+              <li *ngIf="hasModuleAccess('treatmentHistorySheet')">
+                <a class="dropdown-item" href="/doctor/treatmentlist"> Treatment
+                  Sheet</a>
+              </li>
+              <li><a class="dropdown-item" href="/doctor/radiationdischarge">Radiation Discharge Summary</a></li>
+              <li><a class="dropdown-item" href="/doctor/chemotherapy">Chemotherapy Discharge Card</a></li>
+            </div>
+          </ul>
+        </li> -->
+
+      <!-- <li class="nav-item" *ngIf="hasModuleAccess('reports')">
+        <a class="nav-link" routerLink="/report/roomwiseoccupancy">
+          <i class="fa-solid fa-chart-bar nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Room Occupancy</span>
+        </a>
+      </li> -->
+
+      <li class="nav-item dropdown" *ngIf="hasModuleAccess('reports', 'read')">
+        <a class="nav-link dropdown-toggle" (click)="toggleDropdown('report')">
+          <i
+            class="fa-solid fa-user nav-icon"
+            *ngIf="isCollapsed"
+            routerLink="/master/usermaster"
+          ></i>
+          <span class="nav-text">REPORTS</span>
+        </a>
+        <ul class="dropdown-menu settingmenu" [class.open]="dropdowns.report">
+          <div class="dropdown-grid">
+            <li *ngIf="hasModuleAccess('reports')">
+              <a class="dropdown-item" href="/report/opdreport">
+                OPD REPORTS
+              </a>
+            </li>
+            <li *ngIf="hasModuleAccess('reports')">
+              <a class="dropdown-item" href="/report/ipdreport">
+                IPD REPORTS
+              </a>
+            </li>
+          </div>
+        </ul>
+      </li>
+
+      <li class="nav-item dropdown" *ngIf="hasModuleAccess('user', 'create')">
+        <a class="nav-link dropdown-toggle" (click)="toggleDropdown('user')">
+          <i
+            class="fa-solid fa-user nav-icon"
+            *ngIf="isCollapsed"
+            routerLink="/master/usermaster"
+          ></i>
+          <span class="nav-text">User</span>
+        </a>
+        <ul class="dropdown-menu settingmenu" [class.open]="dropdowns.user">
+          <div class="dropdown-grid">
+            <li *ngIf="hasModuleAccess('user')">
+              <a class="dropdown-item" href="/master/usermaster">
+                User Management
+              </a>
+            </li>
+            <li *ngIf="hasModuleAccess('discountDashboard')">
+              <a class="dropdown-item" href="/ipd/discount"> Discount </a>
+            </li>
+            <li *ngIf="hasModuleAccess('roles')">
+              <a class="dropdown-item" href="/setting/roles"> Role </a>
+            </li>
+            <li *ngIf="hasModuleAccess('permissions')">
+              <a class="dropdown-item" href="/setting/permission">
+                Permission
+              </a>
+            </li>
+          </div>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="user-menu">
+      <div class="nav-item dropdown">
+        <a
+          class="nav-link dropdown-toggle"
+          (click)="toggleDropdown('settings')"
+        >
+          <i
+            class="fa-solid fa-gear nav-icon"
+            *ngIf="isCollapsed"
+            routerLink="/profilesetting"
+          ></i>
+          <span class="nav-text">Settings</span>
+        </a>
+        <ul class="dropdown-menu" [class.open]="dropdowns.settings">
+          <div class="dropdown-grid">
+            <li>
+              <a class="dropdown-item" href="/profilesetting"> Profile </a>
+            </li>
+            <li *ngIf="hasModuleAccess('logo')">
+              <a class="dropdown-item" href="setting/logo"> Logo </a>
+            </li>
+            <li *ngIf="hasModuleAccess('theme')">
+              <a class="dropdown-item" href="setting/theme"> Theme </a>
+            </li>
+            <li *ngIf="hasModuleAccess('letterheader')">
+              <a class="dropdown-item" href="setting/letterheader">
+                Letter Header
+              </a>
+            </li>
+          </div>
+        </ul>
+      </div>
+
+      <div class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" (click)="toggleDropdown('layout')">
+          <i class="fa-solid fa-hospital nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">HIMS</span>
+        </a>
+        <ul
+          class="dropdown-menu masters-menu"
+          *ngIf="hasAnyDropdownAccess()"
+          [class.open]="dropdowns.layout"
+        >
+          <div class="dropdown-grid">
+            <!-- <li *ngIf="hasModuleAccess('inward')">
+              <a
+                class="dropdown-item"
+                href="/pathologylayout/pathologydashboard"
+              >
+                Pathology
+              </a>
+            </li> -->
+            <li *ngIf="hasModuleAccess('pharmaceuticalInward')">
+              <a class="dropdown-item" href="/pharmalayout/pharmacydashboard">
+                <i
+                  class="fa-solid fa-house-medical-flag"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="nav-text" *ngIf="!isCollapsed">Pharmacy</span>
+              </a>
+            </li>
+            <li *ngIf="hasModuleAccess('radiologyRequestList')">
+              <a
+                class="dropdown-item"
+                href="/radiologylayout/radiologydashboard"
+              >
+                <i class="fa-solid fa-x-ray nav-icon" *ngIf="isCollapsed"></i>
+                <span class="nav-text" *ngIf="!isCollapsed">Radiology</span>
+              </a>
+            </li>
+            <li *ngIf="hasModuleAccess('inventoryItem')">
+              <a class="dropdown-item" href="/inventorylayout">
+                <i
+                  class="fa-solid fa-building-columns nav-icon"
+                  *ngIf="isCollapsed"
+                ></i>
+                <span class="nav-text" *ngIf="!isCollapsed">Central Store</span>
+              </a>
+            </li>
+            <!-- <li *ngIf="hasModuleAccess('sharedPatientCases')">
+              <a class="dropdown-item" href="/doctorreferrallayout">
+                Doctor Sharing
+              </a>
+            </li> -->
+          </div>
+        </ul>
+      </div>
+
+      <div>
+        <a class="nav-link" (click)="logout()">
+          <i class="fa-solid fa-sign-out-alt nav-icon" *ngIf="isCollapsed"></i>
+          <span class="nav-text">Logout</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-toggle" (click)="toggleCollapse()">
+    <i
+      class="fa-solid"
+      [ngClass]="isCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"
+    ></i>
+  </div>
+</aside>
+
+<!-- <div class="d-flex w-100">
+  <div
+    class="logo-container w-25"
+    style="background-color: white !important"
+    (click)="navigateBasedOnPermission()"
+  >
+    <div class="logo" style="background-color: white !important">
+      <img src="Untitled design (6).jpg" alt="logo" />
+    </div>
+  </div>
+
+  <div class="w-75">
+    <nav class="header navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="nav-links navbar-nav me-auto"> -->
+<!-- <li class="nav-item" *ngIf="hasModuleAccess('uhid', 'create')">
+              <a class="nav-link" routerLink="/uhid">UHID</a>
+            </li> -->
+
+<!-- <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="opdDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                OPD
+              </a>
+              <ul class="dropdown-menu opd-menu" [class.open]="dropdowns.opd">
+                <div class="dropdown-grid">
+                  <li
+                    *ngIf="
+                      hasModuleAccess('outpatientCase') ||
+                      hasModuleAccess('medicoLegalCase')
+                    "
+                  >
+                    <a class="dropdown-item" href="opd/opdcases"
+                      ><i class="fa-regular fa-hand-point-right"></i> NEW /
+                      FOLLOW UP</a
+                    >
+                  </li>
+                   <li *ngIf="hasModuleAccess('outpatientBill')">
+                    <a class="dropdown-item" href="opd/opddiagnosissheetlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> OPD
+                      Diagnosis</a
+                    >
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="/opd/opdmedicolegalcase"><i
+                        class="fa-regular fa-hand-point-right"></i>MEDICAL LEGAL CASE</a>
+                  </li>
+                  <li *ngIf="hasModuleAccess('outpatientBill')">
+                    <a class="dropdown-item" href="opd/listopbills"
+                      ><i class="fa-regular fa-hand-point-right"></i> OPD
+                      BILL</a
+                    >
+                  </li>
+                  <li><a class="dropdown-item" href="/opd/mrd"><i class="fa-regular fa-hand-point-right"></i> MRD DATA</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i>HEALTH CHECKUP BILL</a></li>
+                </div>
+                <div class="dropdown-grid">
+                  <li *ngIf="hasModuleAccess('outpatientBill')">
+                    <a class="dropdown-item" href="opd/listopbills"
+                      ><i class="fa-regular fa-hand-point-right"></i> OPD
+                      BILL</a
+                    >
+                  </li>
+
+                  <li *ngIf="hasModuleAccess('outpatientDeposit')">
+                    <a class="dropdown-item" href="/opd/depositlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> DEPOSIT</a
+                    >
+                  </li>
+                  <li><a class="dropdown-item" href="/opd/return"><i class="fa-regular fa-hand-point-right"></i> RETURN</a></li>
+                  <li *ngIf="hasModuleAccess('appointment')">
+                    <a class="dropdown-item" href="/opd/opdappointmentlist"
+                      ><i class="fa-regular fa-hand-point-right"></i>
+                      APPOINTMENT</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('appointment')"><a class="dropdown-item" href="/opd/opdappointmentfollowup"><i class="fa-regular fa-hand-point-right"></i> APPOINTMENT TRACK</a></li>
+                </div>
+              </ul>
+            </li> -->
+<!-- <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="opdDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                Appointment Management
+              </a>
+              <ul class="dropdown-menu opd-menu" >
+                <div class="dropdown-grid">
+                  <li *ngIf="hasModuleAccess('appointment')">
+                    <a class="dropdown-item" href="/opd/opdappointmentlist"
+                      ><i class="fa-regular fa-hand-point-right"></i>
+                      APPOINTMENT</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('appointment')">
+                    <a class="dropdown-item" href="/opd/opdappointmentfollowup"
+                      ><i class="fa-regular fa-hand-point-right"></i>
+                      APPOINTMENT Que Management</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('appointment')">
+                    <a class="dropdown-item" href="/opd/opdappointmentquelist"
+                      ><i class="fa-regular fa-hand-point-right"></i>
+                      APPOINTMENT Waiting Que</a
+                    >
+                  </li>
+                </div>
+              </ul>
+            </li> -->
+
+<!-- <li
+              class="nav-item dropdown"
+              *ngIf="hasModuleAccess('inpatientCase')"
+            >
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="ipdDropdown"
+                role="button  "
+                data-bs-toggle="dropdown"
+              >
+                IPD
+              </a>
+              <ul class="dropdown-menu ipd-menu">
+                <div class="dropdown-grid">
+                  <li
+                    *ngIf="
+                      hasModuleAccess('inpatientCase') ||
+                      hasModuleAccess('medicoLegalCase')
+                    "
+                  >
+                    <a class="dropdown-item" href="/ipd/ipdadmissionlist"
+                      ><i class="fa-regular fa-hand-point-right"></i
+                      >Admission</a
+                    >
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="/ipd/ipdmedicolegalcase"><i
+                        class="fa-regular fa-hand-point-right"></i>MEDICAL LEGAL CASE</a>
+                  </li>
+                  <li *ngIf="hasModuleAccess('inpatientDeposit')">
+                    <a class="dropdown-item" href="/ipd/ipddepositlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Deposit</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('inpatientBilling')">
+                    <a class="dropdown-item" href="/ipd/ipdbilllist"
+                      ><i class="fa-regular fa-hand-point-right"></i> IPD
+                      Billing</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('oprationTheatresheet')">
+                    <a class="dropdown-item" href="/ipd/otsheetlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> OT
+                      SHEET</a
+                    >
+                  </li>
+                  <li><a class="dropdown-item" href="/ipd/intermbill"><i class="fa-regular fa-hand-point-right"></i> Interim Bill</a></li>
+                  <li><a class="dropdown-item" href="/ipd/ipdreturn"><i class="fa-regular fa-hand-point-right"></i> Return</a></li>
+                  <li><a class="dropdown-item" href="/ipd/ipdroomtransfer"><i class="fa-regular fa-hand-point-right"></i> Room Transfer</a></li>
+                </div>
+                <div class="dropdown-grid">
+                  <li *ngIf="hasModuleAccess('inpatientIntermBill')">
+                    <a class="dropdown-item" href="/ipd/intermbill"
+                      ><i class="fa-regular fa-hand-point-right"></i> Interim
+                      Bill</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('thirdPartyAdministrator')">
+                    <a class="dropdown-item" href="/ipd/tpalist"
+                      ><i class="fa-regular fa-hand-point-right"></i> TPA</a
+                    >
+                  </li>
+                  <li  *ngIf="hasModuleAccess('finalBill')"  ><a class="dropdown-item" href="/ipd/finalbill"><i class="fa-regular fa-hand-point-right"></i> Final Bill</a></li>
+                  <li *ngIf="hasModuleAccess('discharge')">
+                    <a class="dropdown-item" href="/ipd/ipddischargelist"
+                      ><i class="fa-regular fa-hand-point-right"></i
+                      >Discharge</a
+                    >
+                  </li>
+                </div>
+              </ul>
+            </li> -->
+
+<!-- <li class="nav-item" *ngIf="
+                      hasModuleAccess('reports')" >
+              <a class="nav-link" routerLink="/report/roomwiseoccupancy"
+                >Room Occupancy</a
+              >
+            </li> -->
+<!-- <li class="nav-item dropdown" *ngIf="hasAnyDoctorAccess()">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="doctorDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                DOCTOR
+              </a>
+              <ul class="dropdown-menu ipd-menu">
+                <div class="dropdown-grid">
+                  <li *ngIf="hasModuleAccess('vitals')">
+                    <a class="dropdown-item" href="/doctor/vitallist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Vital
+                      Chart</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('diagnosisSheet')">
+                    <a class="dropdown-item" href="/doctor/diagnosissheetlist"
+                      ><i class="fa-regular fa-hand-point-right"></i>Diagnosis
+                      Sheet</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('operationTheatreNotes')">
+                    <a class="dropdown-item" href="/doctor/otnoteslist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Operation
+                      Note</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('dischargeSummary')">
+                    <a class="dropdown-item" href="/doctor/doctordischargelist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Discharge
+                      Summary</a
+                    >
+                  </li>
+                  <li  *ngIf="hasModuleAccess('treatmentHistorySheet')"><a class="dropdown-item" href="/doctor/tretmentordersheet"><i class="fa-regular fa-hand-point-right"></i> Treatment Sheet</a></li>
+                </div>
+                <div class="dropdown-grid">
+                  <li *ngIf="hasModuleAccess('pharmaceuticalRequestList')">
+                    <a class="dropdown-item" href="/doctor/pharmareqlist"
+                      ><i class="fa-regular fa-hand-point-right"></i>Pharmacy
+                      Request</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('departmentRequestList')">
+                    <a class="dropdown-item" href="/doctor/pathologyreqlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Pathology
+                      Request</a
+                    >
+                  </li>
+                  <li><a class="dropdown-item" href="/doctor/pathologyresult"><i class="fa-regular fa-hand-point-right"></i>  Pathology Result</a></li>
+                  <li *ngIf="hasModuleAccess('departmentRequestList')">
+                    <a class="dropdown-item" href="/doctor/radiologyreqlist"
+                      ><i class="fa-regular fa-hand-point-right"></i>Radiology
+                      Request</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('departmentRequestList')"><a class="dropdown-item" href="/doctor/radiationreq"><i class="fa-regular fa-hand-point-right"></i>Radiation Request</a></li>
+                  <li *ngIf="hasModuleAccess('treatmentHistorySheet')">
+                    <a class="dropdown-item" href="/doctor/treatmentlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Treatment
+                      Sheet</a
+                    >
+                  </li>
+                  <li><a class="dropdown-item" href="/doctor/radiationdischarge"><i class="fa-regular fa-hand-point-right"></i>Radiation Discharge Summary</a></li>
+                  <li><a class="dropdown-item" href="/doctor/chemotherapy"><i class="fa-regular fa-hand-point-right"></i>Chemotherapy Discharge Card</a></li>
+                </div>
+              </ul>
+            </li> -->
+<!-- <li
+              class="nav-item"
+              *ngIf="hasModuleAccess('reports') || hasModuleAccess('reports')"
+            >
+              <a class="nav-link" href="/report/opdreport">REPORTS</a>
+            </li> -->
+
+<!-- <li class="nav-item dropdown" *ngIf="hasAnyMasterDropdownAccess()">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="mastersDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                MASTERS
+              </a>
+              <ul class="dropdown-menu masters-menu">
+                <div class="dropdown-grid">
+                  <li *ngIf="hasModuleAccess('doctor', 'create')">
+                    <a class="dropdown-item" href="/master/doctorlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Doctor</a
+                    >
+                  </li>
+                  <li><a class="dropdown-item" href="/master/servicegroupmaster"><i class="fa-regular fa-hand-point-right"></i> Service Group</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Diagnosis (ICD Codes)</a></li>
+                  <li><a class="dropdown-item" href="/master/roommaster"><i class="fa-regular fa-hand-point-right"></i>Ward</a></li>
+                  <li *ngIf="hasModuleAccess('service', 'create')">
+                    <a class="dropdown-item" href="/master/opdmasterservice"
+                      ><i class="fa-regular fa-hand-point-right"></i>
+                      Services</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('serviceGroup')">
+                    <a class="dropdown-item" href="/master/masteropdchargelist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Services
+                      GROUP</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('surgeryService')">
+                    <a class="dropdown-item" href="/master/surgerymasterlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Surgery
+                      Services
+                    </a>
+                  </li>
+                  <li *ngIf="hasModuleAccess('packages')">
+                    <a class="dropdown-item" href="/master/packagemasterlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Package</a
+                    >
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="/master/doctorreferralrulelist"><i class="fa-regular fa-hand-point-right"></i> Referral
+                      Rule</a>
+                  </li>
+
+                  <li *ngIf="hasModuleAccess('testGroup')">
+                    <a class="dropdown-item" href="/master/medicaltestgrouplist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Medical
+                      Test Group</a
+                    >
+                  </li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> TPA & Company</a></li>
+                  <li *ngIf="hasModuleAccess('symptoms')">
+                    <a class="dropdown-item" href="/master/symptomslist"
+                      ><i class="fa-regular fa-hand-point-right"></i>
+                      Symptoms</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('symptomGroup')">
+                    <a class="dropdown-item" href="/master/symptomsgrouplist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Symptoms
+                      Group</a
+                    >
+                  </li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> TPA & Company</a></li>
+                </div>
+                <div class="dropdown-grid">
+                  <li *ngIf="hasModuleAccess('bedType')">
+                    <a class="dropdown-item" href="/master/bedtypemasterlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Bed Type
+                      MAster</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('bed')">
+                    <a class="dropdown-item" href="/master/bedmasterlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Bed
+                      MAster</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('roomType')">
+                    <a class="dropdown-item" href="/master/roomtypemasterlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Room Type
+                      Master</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('room')">
+                    <a class="dropdown-item" href="/master/roommasterlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Room
+                      MAster</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('wardMaster')">
+                    <a class="dropdown-item" href="/master/wardmasterlist"
+                      ><i class="fa-regular fa-hand-point-right"></i>Ward
+                      Master</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('medicine')">
+                    <a class="dropdown-item" href="/master/medicinemasterlist"
+                      ><i class="fa-regular fa-hand-point-right"></i>
+                      Medicines</a
+                    >
+                  </li>
+                  <li><a class="dropdown-item" href="/doctor/medpackage"><i class="fa-regular fa-hand-point-right"></i> Medicine Stock</a></li>
+                  <li *ngIf="hasModuleAccess('testParameter')">
+                    <a class="dropdown-item" href="/master/medicaltestlist"
+                      ><i class="fa-regular fa-hand-point-right"></i> Medical
+                      Test
+                    </a>
+                  </li>
+                </div>
+                <div class="dropdown-grid">
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Certificates</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Options</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Health Checkup Plan</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Department</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Expense Group</a></li>
+                </div>
+              </ul>
+            </li> -->
+
+<!-- <li class="nav-item dropdown" *ngIf="hasModuleAccess('user')">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="settings"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                SETTINGS
+              </a>
+              <ul class="dropdown-menu settingmenu">
+                <div class="dropdown-grid">
+                  <li><a class="dropdown-item" href="/setting/general"><i class="fa-regular fa-hand-point-right"></i> General Setting</a></li>
+                  <li><a class="dropdown-item" href="/setting/administrative"><i class="fa-regular fa-hand-point-right"></i> Authorities Management</a></li>
+                  <li *ngIf="hasModuleAccess('user')">
+                    <a class="dropdown-item" href="/master/usermaster"
+                      ><i class="fa-regular fa-hand-point-right"></i> User
+                      Management</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('discountDashboard')">
+                    <a class="dropdown-item" href="/ipd/discount"
+                      ><i class="fa-regular fa-hand-point-right"></i>
+                      Discount</a
+                    >
+                  </li>
+                  <li><a class="dropdown-item" href="/setting/rolemanagement"><i class="fa-regular fa-hand-point-right"></i> User Permission Management</a></li>
+                  <li *ngIf="hasModuleAccess('roles')">
+                    <a class="dropdown-item" href="/setting/roles"
+                      ><i class="fa-regular fa-hand-point-right"></i>User Role
+                      Management</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('permissions')">
+                    <a class="dropdown-item" href="/setting/permission"
+                      ><i class="fa-regular fa-hand-point-right"></i>User Role
+                      Permission Management</a
+                    >
+                  </li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Report Sheet</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-hand-point-right"></i> Diagnosis Sheet</a></li>
+                </div>
+              </ul>
+            </li> -->
+
+<!-- <a class="nav-link " href="#" id="hmsDropdown" role="button" data-bs-toggle="dropdown">
+                <i class="fa-solid fa-user-tie"></i>
+              </a>
+            <li class="nav-item"><a class="nav-link" href="#">PHONE BOOK</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">EXPENSE</a></li> -->
+<!-- </ul> -->
+
+<!-- <div class="user-menu">
+            <a class="nav-item" href="#"> HMS</a>
+            <div class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="hmsDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                HMS
+              </a>
+              <ul class="dropdown-menu" *ngIf="hasAnyDropdownAccess()">
+                <div class="dropdown-grid">
+                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-gear"></i>Centeral Store</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-gear"></i> DR Sharing</a></li>
+                  <li *ngIf="hasModuleAccess('inward')">
+                    <a
+                      class="dropdown-item"
+                      href="/pathologylayout/pathologydashboard"
+                      ><i class="fa-solid fa-gear"></i>Pathology</a
+                    >
+                  </li>
+
+                  <li *ngIf="hasModuleAccess('pharmaceuticalInward')">
+                    <a
+                      class="dropdown-item"
+                      href="/pharmalayout/pharmacydashboard"
+                      ><i class="fa-solid fa-gear"></i> Pharmacy</a
+                    >
+                  </li>
+
+                  <li *ngIf="hasModuleAccess('inward')">
+                    <a
+                      class="dropdown-item"
+                      href="/radiologylayout/radiologydashboard"
+                      ><i class="fa-solid fa-gear"></i>Radiology</a
+                    >
+                  </li>
+                  <li *ngIf="hasModuleAccess('inventoryItem')">
+                    <a class="dropdown-item" href="/inventorylayout"
+                      ><i class="fa-solid fa-gear"></i>Central Store</a
+                    >
+                  </li>
+
+                  <li *ngIf="hasModuleAccess('sharedPatientCases')">
+                    <a class="dropdown-item" href="/doctorsharinglayout"
+                      ><i class="fa-solid fa-gear"></i>Doctor Sharing</a
+                    >
+                  </li>
+                  <li  ><a class="dropdown-item" href="hrms"><i class="fa-solid fa-gear"></i>HRMS</a></li>
+                  <li *ngIf="hasModuleAccess('inward')"><a class="dropdown-item" href="/radiationlayout"><i class="fa-solid fa-gear"></i>Radiation</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-gear"></i>Tally</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-gear"></i>Whatsapp</a></li>
+                </div>
+              </ul>
+            </div>
+            <div class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="hmsDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fa-solid fa-user-tie"></i>
+              </a>
+              <ul class="dropdown-menu">
+                <div class="dropdown-grid">
+                  <li>
+                    <a class="dropdown-item" href="/profilesetting"
+                      ><i class="fa-solid fa-gear"></i>Profile</a
+                    >
+                  </li>
+                  <li>
+                    <a class="nav-link" (click)="logout()"
+                      ><i class="fa-solid fa-gear"></i>Logout</a
+                    >
+                  </li>
+                </div>
+              </ul>
+            </div>
+            <a class="nav-link" [routerLink]="['/login']" routerLinkActive="router-link-active"><i class="fa-solid fa-user-tie"></i></a>
+          </div> -->
+<!-- </div>
+      </div>
+    </nav>
+  </div>
+</div> -->

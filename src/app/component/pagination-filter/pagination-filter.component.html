@@ -1,0 +1,22 @@
+<div class="pagination-filter">
+  <!-- Filter input -->
+  <input
+    type="text"
+    placeholder="Search..."
+    [(ngModel)]="filterText"
+    (ngModelChange)="onFilterChange()"
+  />
+
+  <!-- Pagination buttons -->
+  <div class="pagination">
+    <button (click)="changePage(ngModel - 1)" [disabled]="ngModel === 0">
+      Prev
+    </button>
+    <button
+      (click)="changePage(ngModel + 1)"
+      [disabled]="ngModel === maxLength - 1"
+    >
+      Next
+    </button>
+  </div>
+</div>

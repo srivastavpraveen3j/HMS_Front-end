@@ -1,0 +1,37 @@
+<div class="billing-config">
+  <h5>Billing Settings</h5>
+
+  <label>
+    <input type="checkbox" [(ngModel)]="billingSettings.applyGST" />
+    Apply GST
+  </label>
+
+  <label class="mt-2 d-block">
+    GST %
+    <input
+      type="number"
+      class="form-control"
+      [(ngModel)]="billingSettings.gstPercentage"
+      style="width: 120px; display: inline-block;"
+    />
+  </label>
+
+  <hr class="my-3" />
+
+  <label>
+    <input type="checkbox" [(ngModel)]="billingSettings.adminDiscountAllowed" />
+    Discount Allowed
+  </label>
+
+  <label class="mt-2 d-block" *ngIf="billingSettings.adminDiscountAllowed">
+    Discount (₹)
+    <input
+      type="number"
+      class="form-control"
+      [(ngModel)]="billingSettings.adminMaxDiscount"
+      style="width: 140px; display: inline-block;"
+    />
+  </label>
+
+  <button class="btn btn-primary mt-3" (click)="logSettings()">Save</button>
+</div>

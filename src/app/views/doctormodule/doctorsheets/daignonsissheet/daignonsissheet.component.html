@@ -1,0 +1,819 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>INDOOR CASE SUMMARY</h2>
+    <span class="icons position-relative">
+      <!-- <i class="fa-solid fa-user-tie mx-2" (click)="showUHIDDropdown = !showUHIDDropdown"></i>
+      <i class="fa-solid fa-signal" [routerLink]="['/doctor/diagnosissheetlist']"
+        routerLinkActive="router-link-active"></i> -->
+
+      <!-- Dropdown -->
+      <!-- Dropdown -->
+      <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+        <div
+          *ngIf="uhidTodayRecords?.length === 0"
+          class="text-center text-muted py-2"
+        >
+          No InPatient Case Created today.
+        </div>
+
+        <ul class="uhid-list">
+          <li
+            *ngFor="let record of uhidTodayRecords"
+            (click)="selectPatientFromUHID(record)"
+            style="cursor: pointer"
+          >
+            <div class="uhid-name">
+              {{ record.uniqueHealthIdentificationId?.patient_name }}
+            </div>
+            <div class="uhid-meta">
+              UHID: {{ record.uniqueHealthIdentificationId?.uhid }} | Age:
+              {{ record.uniqueHealthIdentificationId?.age }}
+            </div>
+          </li>
+        </ul>
+      </div>
+    </span>
+  </div>
+  <div class="diagnosis-container" *ngIf="userPermissions.create">
+    <form action="" [formGroup]="diagnosisheet" (ngSubmit)="OnSubmit()">
+      <div class="section patient-details mt-3">
+        <!-- <h4 class="m-4">Patient Details</h4>
+        <hr /> -->
+
+        <div class="d-flex">
+          <div class="w-100">
+            <div class="row g-6">
+              <div class="form-group col-md-2">
+                <label for="" class="form-label">Patient UHID</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="UHID"
+                  formControlName="uhid"
+                  required
+                  (input)="onUHIDInput()"
+                  readonly
+                />
+                <div
+                  *ngIf="
+                    diagnosisheet.get('uhid')?.invalid &&
+                    diagnosisheet.get('uhid')?.touched
+                  "
+                  class="text-danger"
+                >
+                  UHID Number is required.
+                </div>
+              </div>
+              <div class="form-group col-md-2">
+                <label>Patient*:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Enter patient name"
+                  formControlName="patient_name"
+                  (input)="onPatientInput()"
+                  (focus)="showSuggestions = true"
+                  (blur)="hideSuggestionsWithDelay()"
+                  readonly
+                />
+                <!-- </div> -->
+                <!-- Patient Suggestions Dropdown - MOVED OUTSIDE BUT STILL IN THE FORM-GROUP -->
+                <div
+                  *ngIf="showSuggestions && filteredPatients.length > 0"
+                  class="suggestions-container"
+                >
+                  <ul class="suggestions">
+                    <li
+                      *ngFor="let patient of filteredPatients"
+                      (mousedown)="selectPatient(patient)"
+                    >
+                      {{ patient?.uniqueHealthIdentificationId?.patient_name }}
+                      {{
+                        patient?.uniqueHealthIdentificationId?.mobile_no
+                          ? "| " +
+                            patient?.uniqueHealthIdentificationId?.mobile_no
+                          : ""
+                      }}
+                      {{
+                        patient?.uniqueHealthIdentificationId?.uhid
+                          ? "| " + patient?.uniqueHealthIdentificationId?.uhid
+                          : ""
+                      }}
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Debug info - MODIFIED to check for manuallySelected flag -->
+                <div
+                  *ngIf="
+                    diagnosisheet.get('patient_name')?.value &&
+                    diagnosisheet.get('patient_name')?.value.length > 2 &&
+                    !filteredPatients.length &&
+                    !manuallySelected
+                  "
+                  class="text-danger"
+                >
+                  No matching patients found
+                </div>
+                <div
+                  *ngIf="
+                    diagnosisheet.get('patient_name')?.touched &&
+                    diagnosisheet.get('patient_name')?.invalid
+                  "
+                  class="text-danger"
+                >
+                  Patient name is required
+                </div>
+              </div>
+              <!-- <div class="form-group">
+              <label for="" class="form-label">Token No.</label>
+              <input type="text" class="form-control" placeholder="Token No." formControlName="tokenumber">
+              <div *ngIf="diagnosisheet.get('tokenumber')?.invalid && diagnosisheet.get('tokenumber')?.touched" class="error-message">
+                Token Number is required.
+              </div>
+             </div> -->
+              <div class="form-group col-md-2">
+                <label for="" class="form-label">Bed</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="bed"
+                  formControlName="bed_id"
+                  readonly
+                />
+                <!-- <app-customcalendar class="date" formControlName="date"></app-customcalendar> -->
+              </div>
+
+                <div class="form-group col-md-2">
+                <label for="" class="form-label">Age</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Age"
+                  formControlName="age"
+                  readonly
+                />
+                <div
+                  *ngIf="
+                    diagnosisheet.get('age')?.invalid &&
+                    diagnosisheet.get('age')?.touched
+                  "
+                  class="text-danger"
+                >
+                  Age is required.
+                </div>
+              </div>
+              <div class="form-group col-md-2">
+                <label for="" class="form-label">Gender</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Gender"
+                  formControlName="gender"
+                  readonly
+                />
+                <div
+                  *ngIf="
+                    diagnosisheet.get('gender')?.invalid &&
+                    diagnosisheet.get('gender')?.touched
+                  "
+                  class="text-danger"
+                >
+                  Gender is required.
+                </div>
+              </div>
+              <div class="form-group col-md-2">
+                <label for="" class="form-label">Weight</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Weight"
+                  formControlName="weight"
+                  readonly
+                />
+              </div>
+            </div>
+            <!-- <div class="row g-3"> -->
+
+
+            <!-- </div> -->
+          </div>
+
+          <!-- <div class="right-section w-25">
+          <div class="info-box">VISIT HISTORY</div>
+
+      </div> -->
+        </div>
+      </div>
+
+      <div class="section history-exam">
+        <h4 class="m-4">HISTORY</h4>
+        <hr />
+        <textarea
+          placeholder="Enter the details here..."
+          class="form-control"
+          formControlName="medicalHistory"
+        ></textarea>
+        <!-- <div class="actions">
+         <button class="save btn btn-secondary m-3">SAVE TEMPLATE</button>
+         <button class="select btn btn-secondary">SELECT TEMPLATE</button>
+        </div> -->
+      </div>
+
+      <div class="mb-3">
+        <h4 class="m-4">Symptoms</h4>
+        <hr />
+        <!-- Search Box -->
+        <div class="form-group mb-2">
+          <input
+            type="text"
+            class="form-control"
+            [formControl]="searchTextControl"
+            placeholder="Search symptoms..."
+          />
+        </div>
+
+        <div class="d-flex gap-3">
+          <!-- Symptoms List with Scroll -->
+          <div
+            class="card p-4"
+            style="width: 280px; max-height: 300px; overflow-y: auto"
+          >
+            <ng-container *ngIf="symptoms && symptoms.length > 0; else loading">
+              <span
+                *ngFor="let symptom of symptoms"
+                (click)="addSymptom(symptom)"
+                class="badge name m-1"
+                [class.selected]="isSymptomSelected(symptom)"
+                [style.background-color]="
+                  isSymptomSelected(symptom) ? '#0d6efd' : '#6c757d'
+                "
+                [style.color]="'white'"
+                [style.cursor]="'pointer'"
+              >
+                {{ symptom.name }}
+              </span>
+            </ng-container>
+            <!-- Symptoms List with Multi-Select (Left Side) -->
+            <!-- <ng-container *ngIf="symptoms && symptoms.length > 0; else loading">
+              <span *ngFor="let symptom of symptoms; let i = index" (click)="selectSymptom($event, symptom, i)"
+                class="badge name m-1" [class.selected]="isSymptomSelected(symptom)"
+                [style.background-color]="isSymptomSelected(symptom) ? '#0d6efd' : '#6c757d'" [style.color]="'white'"
+                [style.cursor]="'pointer'">
+                {{ symptom.name }}
+              </span>
+            </ng-container> -->
+            <ng-template #loading>
+              <p>Loading symptoms...</p>
+            </ng-template>
+          </div>
+
+          <!-- Selected Symptoms Panel (Middle) -->
+          <!-- <div class="card p-2" style="width: 250px; max-height: 300px; overflow-y: auto">
+            <h6 class="mb-2">Selected ({{ selectedSymptoms.length }})</h6>
+            <div class="d-flex flex-wrap gap-1 mb-2">
+              <span *ngFor="let symptom of selectedSymptoms" class="badge bg-primary" style="cursor: pointer"
+                (click)="removeSelectedSymptom(symptom)">
+                {{ symptom.name }} <i class="fas fa-times ms-1"></i>
+              </span>
+            </div>
+            <hr>
+            <div class="d-grid gap-2">
+              <button type="button" class="btn btn-sm btn-outline-success" (click)="addSelectedSymptomsToTable()"
+                [disabled]="selectedSymptoms.length === 0">
+                Add to Table ({{ selectedSymptoms.length }})
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearSymptomSelection()"
+                [disabled]="selectedSymptoms.length === 0">
+                Clear All
+              </button> -->
+          <!-- <button
+               type="button"
+               class="btn btn-sm btn-outline-info"
+              (click)="addNewRow()"
+                >
+              + Add Blank Row
+             </button> -->
+          <!-- </div> -->
+
+          <!-- Usage Instructions -->
+          <!-- <div class="mt-2 text-muted" style="font-size: 10px;">
+              <strong>Multi-Select:</strong><br>
+              • Click: Single select<br>
+              • Ctrl+Click: Toggle select<br>
+              • Shift+Click: Range select
+            </div>
+          </div> -->
+
+          <!-- Table Section with Scroll (Right Side) -->
+          <div
+            class="card p-2"
+            style="flex-grow: 1; max-height: 300px; overflow: auto"
+          >
+            <table
+              class="table table-sm table-bordered table-hover align-middle mb-0"
+            >
+              <thead class="table-dark">
+                <tr>
+                  <th style="width: 40px; text-align: center">
+                    <i
+                      class="fa-solid fa-plus"
+                      style="cursor: pointer"
+                      (click)="addNewRow()"
+                    ></i>
+                  </th>
+                  <th>SYMPTOMS</th>
+                  <th>PROPERTIES</th>
+                  <th>SINCE</th>
+                  <th>REMARKS</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of symptomRows; let i = index">
+                  <td class="">{{ i + 1 }}</td>
+                  <td>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="row.symptomName"
+                      [ngModelOptions]="{ standalone: true }"
+                      placeholder="Enter Symptoms"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="row.properties"
+                      [ngModelOptions]="{ standalone: true }"
+                      placeholder="Enter Properties"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="row.since"
+                      [ngModelOptions]="{ standalone: true }"
+                      placeholder="Since"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="row.remarks"
+                      [ngModelOptions]="{ standalone: true }"
+                      placeholder="Remarks"
+                    />
+                  </td>
+                  <td class="">
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger btn-sm"
+                      (click)="removeRow(i)"
+                    >
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </td>
+                </tr>
+                <!-- <tr *ngIf="symptomRows.length === 0">
+                  <td colspan="6" class="text-center text-muted">
+                    No symptoms added. Select symptoms from left or add manually.
+                  </td>
+                </tr> -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-controls mt-3">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-primary"
+            [disabled]="currentPage === 1"
+            (click)="previousPage()"
+          >
+            Previous
+          </button>
+          <span class="mx-3"> Page {{ currentPage }} of {{ totalPages }} </span>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-primary"
+            [disabled]="currentPage === totalPages"
+            (click)="nextPage()"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+
+      <div class="section diagnosisheet">
+        <h4 class="m-4">Vitals</h4>
+        <hr />
+
+        <div class="row g-4">
+          <div class="form-group col-md-3">
+            <label for="" class="form-label">Systolic</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Systolic"
+              formControlName="systolicBloodPressure"
+            />
+          </div>
+          <div class="form-group col-md-3">
+            <label for="" class="form-label">Diastolic</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Diastolic"
+              formControlName="diastolicBloodPressure"
+            />
+          </div>
+          <div class="form-group col-md-3">
+            <label class="form-label fw-semibold">Blood Group</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="bloodGroup"
+              readonly
+            />
+          </div>
+          <div class="form-group col-md-3">
+            <label for="" class="form-label">Temperature</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Temperature"
+              formControlName="temperature"
+            />
+          </div>
+        </div>
+        <!-- <div class="row g-3"> -->
+          <!-- <div class="form-group col-md-4">
+            <label for="" class="form-label">Height (cm)</label>
+            <input type="text" class="form-control" placeholder="Height in centimeter" formControlName="height" />
+          </div> -->
+          <!-- <div class="form-group col-md-4">
+            <label for="" class="form-label">Weight (kg)</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Weight in kilogram"
+              formControlName="weight"
+            />
+          </div> -->
+        <!-- </div> -->
+
+        <div class="row g-4">
+          <div class="form-group col-md-3">
+            <label for="" class="form-label">Pulse</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Pulse"
+              formControlName="pulseRate"
+            />
+          </div>
+          <div class="form-group col-md-3">
+            <label for="" class="form-label">SPO2</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="SPO2"
+              formControlName="spo2"
+            />
+          </div>
+          <div class="form-group col-md-3">
+            <label for="" class="form-label">Blood Sugar</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="bloodSugar"
+              formControlName="bloodSugar"
+            />
+          </div>
+          <div class="form-group col-md-3">
+            <label for="" class="form-label">Respiratory Rate</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="respiratoryRate"
+              formControlName="respiratoryRate"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="section clinical-exam">
+        <h4 class="m-4">EXAMINATION</h4>
+        <hr />
+
+        <textarea
+          placeholder="Enter the details here..."
+          class="form-control"
+          formControlName="clinicalExamination"
+        ></textarea>
+        <!-- <div class="actions">
+         <button class="save btn btn-secondary m-3">SAVE TEMPLATE</button>
+         <button class="select btn btn-secondary">SELECT TEMPLATE</button>
+       </div> -->
+      </div>
+      <div class="section diagnosis-exam">
+        <h4 class="m-4">PROVISIONAL DIAGNOSIS</h4>
+        <hr />
+
+        <textarea
+          placeholder="Enter the details here..."
+          class="form-control"
+          formControlName="diagnosis"
+        ></textarea>
+        <!-- <div class="actions">
+         <button class="save btn btn-secondary m-3">SAVE TEMPLATE</button>
+         <button class="select btn btn-secondary">SELECT TEMPLATE</button>
+        </div> -->
+      </div>
+      <div class="section diagnosis-exam">
+        <h4 class="m-4">INVESTIGATION</h4>
+        <hr />
+
+        <textarea
+          placeholder="Enter the details here..."
+          class="form-control"
+          formControlName="investigation"
+        ></textarea>
+      </div>
+
+      <!-- opening  -->
+
+      <!-- <div class="section medican-exam">
+        <h4>MEDICAL PRESCRIPTION</h4> -->
+
+      <!-- Filters Section -->
+      <!-- <div class="filters m-3 d-flex">
+          <div class="w-25">
+            <div class="form-group">
+              <label>Select Package*:</label>
+              <select
+                *ngIf="packages?.length"
+                (change)="onPackageSelect($event)"
+              >
+                <option value="">Select Package</option>
+                <option *ngFor="let package of packages" [value]="package._id">
+                  {{ package.packagename }}
+                </option>
+              </select>
+              <div
+                class="text-danger small"
+                *ngIf="
+                  diagnosisheet.get('package')?.invalid &&
+                  diagnosisheet.get('package')?.touched
+                "
+              >
+                Package is Required
+              </div>
+            </div>
+          </div> -->
+
+      <!-- <div class="mx-5 my-3">
+            <label class="">PRINT PRESCRIPTION IN</label>
+            <input type="radio" name="language" /> ENGLISH
+            <input type="radio" name="language" /> GUJARATI
+            <input type="radio" name="language" /> HINDI
+          </div>
+        </div> -->
+
+      <!-- Table Section -->
+      <!-- Check if the selectedPackage is not undefined -->
+      <!-- <div class="table-container" *ngIf="selectedPackage?.medicines?.length">
+          <table
+            class="table table-bordered table-hover align-middle diagnosis-table"
+          >
+            <thead class="table-dark">
+              <tr>
+                <th>
+                  <button
+                    class="btn btn-outline-primary"
+                    (click)="addMedicineRow()"
+                  >
+                    ➕ Add Medicine
+                  </button>
+                </th>
+                <th>MEDICINE NAME</th>
+                <th>MOR</th>
+                <th>AFT</th>
+                <th>EVE</th>
+                <th>NIGHT</th>
+                <th>QTY</th>
+                <th>Charge</th>
+              </tr>
+            </thead>
+
+            <tbody> -->
+      <!-- Display selected package medicines (static) -->
+      <!-- <tr *ngFor="let med of selectedPackage.medicines; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ med.medicine_name }}</td>
+                <td>{{ selectedPackage.checkbox?.morning ? "✅" : "❌" }}</td>
+                <td>{{ selectedPackage.checkbox?.noon ? "✅" : "❌" }}</td>
+                <td>{{ selectedPackage.checkbox?.evening ? "✅" : "❌" }}</td>
+                <td>{{ selectedPackage.checkbox?.night ? "✅" : "❌" }}</td>
+                <td>
+                  <input
+                    type="number"
+                    class="form-control"
+                    value="1"
+                    readonly
+                  />
+                </td>
+                <td>{{ med.price }}</td>
+              </tr> -->
+
+      <!-- Dynamic Medicines (Reactive FormArray) -->
+      <!-- <ng-container formArrayName="medicinesArray">
+                <tr
+                  *ngFor="let row of medicinesArray.controls; let i = index"
+                  [formGroupName]="i"
+                >
+                  <td>{{ i + selectedPackage.medicines.length + 1 }}</td>
+
+
+                  <td>
+                    <select class="form-select" formControlName="medicine_name">
+                      <option value="">-- Select Medicine --</option>
+                      <option
+                        *ngFor="let med of medicines"
+                        [value]="med.medicine_name"
+                      >
+                        {{ med.medicine_name }}
+                      </option>
+                    </select>
+                  </td>
+
+                  <td colspan="4">
+                    <div
+                      class="d-flex justify-content-between"
+                      formGroupName="checkbox"
+                    >
+                      <label class="me-2">
+                        <input type="checkbox" formControlName="morning" /> Mor
+                      </label>
+                      <label class="me-2">
+                        <input type="checkbox" formControlName="noon" /> Aft
+                      </label>
+                      <label class="me-2">
+                        <input type="checkbox" formControlName="evening" /> Eve
+                      </label>
+                      <label>
+                        <input type="checkbox" formControlName="night" /> Night
+                      </label>
+                    </div>
+                  </td>
+
+                  <td>
+                    <input
+                      type="number"
+                      class="form-control"
+                      formControlName="quantity"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      class="form-control"
+                      formControlName="charge"
+                    />
+                  </td>
+                </tr>
+              </ng-container> -->
+
+      <!-- </tbody>
+          </table>
+        </div>
+      </div> -->
+
+      <!-- <div class="section primary-exam">
+    <h4>PRIMARY DIAGNOSIS</h4>
+    <textarea placeholder="Enter the details here..." class="form-control" formControlName="primaryDiagnosis"></textarea> -->
+      <!-- <div class="actions">
+      <button class="save btn btn-secondary m-3">SAVE TEMPLATE</button>
+      <button class="select btn btn-secondary">SELECT TEMPLATE</button>
+    </div> -->
+      <!-- </div> -->
+      <!-- <div class="section allergic-exam"> -->
+      <!-- <h4>ADDICTION/ALLERGY/OCCUPATION</h4> -->
+
+      <!-- <h6>ADDICTION</h6> -->
+      <!-- <hr> -->
+      <!-- <div class="form-row">
+
+      <div class="form-group">
+          <label>ALOCHOL:</label>
+          <div class="d-flex">
+            <input type="checkbox" name="" id="">
+            <input type="text" placeholder="ALOCHOL" formControlName="addiction">
+          </div>
+      </div>
+      <div class="form-group">
+        <label>SMOKING:</label>
+        <div class="d-flex">
+          <input type="checkbox" name="" id="">
+          <input type="text" placeholder="SMOKING"   formControlName="addiction">
+        </div>
+    </div>
+      <div class="form-group">
+          <label>TOBACCO:</label>
+          <div class="d-flex">
+            <input type="checkbox" name="" id="">
+            <input type="text" placeholder="TOBACCO"  formControlName="addiction">
+          </div>
+      </div>
+  </div> -->
+      <!-- <h6>ALLERGY</h6>
+      <hr> -->
+      <!-- <div class="form-row">
+
+      <div class="form-group">
+          <label>DRUGS:</label>
+          <div class="d-flex">
+            <input type="checkbox" name="" id="">
+            <input type="text" placeholder="DRUGS"  formControlName="allergy">
+          </div>
+      </div>
+      <div class="form-group">
+        <label>FOOD:</label>
+        <div class="d-flex">
+          <input type="checkbox" name="" id="">
+          <input type="text" placeholder="FOOD"  formControlName="allergy">
+        </div>
+    </div>
+      <div class="form-group">
+          <label>SEASONAL:</label>
+          <div class="d-flex">
+            <input type="checkbox" name="" id="">
+            <input type="text" placeholder="SEASONAL"  formControlName="allergy">
+          </div>
+      </div>
+  </div> -->
+      <!-- <h6>OCCUPATION</h6>
+      <hr>
+    <div class="form-row">
+
+      <div class="form-group">
+          <label>108:</label>
+          <div class="d-flex">
+            <input type="checkbox" name="" id="">
+            <input type="text" placeholder="108">
+          </div>
+      </div>
+      <div class="form-group">
+        <label>CHEMICAL:</label>
+        <div class="d-flex">
+          <input type="checkbox" name="" id="">
+          <input type="text" placeholder="CHEMICAL">
+        </div>
+    </div>
+      <div class="form-group">
+          <label>HOUSEWIFE:</label>
+          <div class="d-flex">
+            <input type="checkbox" name="" id="">
+            <input type="text" placeholder="HOUSEWIFE">
+          </div>
+      </div>
+  </div> -->
+
+      <!-- <div class="section extra-exam">
+    <h4>EXTRA DETAILS</h4>
+    <textarea placeholder="Enter the details here..." class="form-control" formControlName="extraDetails"></textarea> -->
+      <!-- <div class="actions">
+      <button class="save btn btn-secondary m-3">SAVE TEMPLATE</button>
+      <button class="select btn btn-secondary">SELECT TEMPLATE</button>
+    </div> -->
+      <!-- </div> -->
+
+      <!-- </div> -->
+
+      <!-- <div class="section general-exam">
+    <h4>GENERAL ADVICE</h4>
+    <textarea placeholder="Enter the details here..." class="form-control" formControlName="generalAdvice"></textarea> -->
+      <!-- <div class="actions">
+      <button class="save btn btn-secondary m-3">SAVE TEMPLATE</button>
+      <button class="select btn btn-secondary">SELECT TEMPLATE</button>
+    </div> -->
+      <!-- </div> -->
+
+      <div class="text-center">
+        <button
+          class="btn btn-dark"
+          type="submit"
+          [disabled]="diagnosisheet.invalid"
+        >
+          Save & Print
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

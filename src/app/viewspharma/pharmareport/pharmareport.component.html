@@ -1,0 +1,100 @@
+<div class="form-meta">
+  <div class="header">
+  <h2>PHARMACY REPORTS</h2>
+</div>
+
+<div class="cards-grid">
+  @if(pharmapermission){
+  <div class="card">
+    <div class="card-content">
+      <h3>OPD PHARMA REPORTS</h3>
+    </div>
+    <div class="card-footer">
+      <a [routerLink]="['/pharmalayout/pharmareports']">
+        VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+  }
+
+  @if(ipdpharmapermission){
+  <div class="card">
+    <div class="card-content">
+      <h3>IPD PHARMA REPORTS</h3>
+    </div>
+    <div class="card-footer">
+      <a [routerLink]="['/pharmalayout/pharmareportsipd']">
+        VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+  }
+
+
+
+  <div class="card">
+    <div class="card-content">
+      <h3>WALK IN PHARMA REPORTS</h3>
+    </div>
+    <div class="card-footer">
+      <a [routerLink]="['/pharmalayout/pharmareportswalkin']">
+        VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-content">
+      <h3>RETURN MEDICINE IN PHARMA REPORTS</h3>
+    </div>
+    <div class="card-footer">
+      <a [routerLink]="['/pharmalayout/returnmedicinereport']">
+        VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+  <!-- <div class="card">
+    <div class="card-content">
+      <h3>EXPIRED STOCK REPORTS</h3>
+    </div>
+    <div class="card-footer">
+      <a [routerLink]="['/pharmalayout/pharmareportexpired']">
+        VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div> -->
+  <!-- <div class="card">
+    <div class="card-content">
+      <h3>MEDICINE STOCK REPORTS</h3>
+    </div>
+    <div class="card-footer">
+      <a [routerLink]="['/pharmalayout/pharmareportsmedicinestock']">
+        VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div> -->
+
+  @if(centeralstorepermission){
+  <div class="card">
+    <div class="card-content">
+      <h3>STOCK REQUESTED FROM CENTRAL STORE REPORTS</h3>
+    </div>
+    <div class="card-footer">
+      <a [routerLink]="['/pharmalayout/pharmareportscentralreq']">
+        VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-content">
+      <h3>CENTERAL STORE DELIVERED STOCK REPORTS</h3>
+    </div>
+    <div class="card-footer">
+      <a [routerLink]="['/pharmalayout/pharmareportscenteralstoreallot']">
+        VIEW MORE <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+  }
+</div>
+
+</div>

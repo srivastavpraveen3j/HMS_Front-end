@@ -1,0 +1,91 @@
+<div class="header">
+  <h2>DEPOSIT LIST</h2>
+  <button class="list-cases-btn" [routerLink]="['/opd/deposit']">ADD OPD DEPOSIT DATA</button>
+</div>
+
+<!-- <div class="top-bar p-3">
+  <form [formGroup]="filterForm" class="top-bar p-3">
+    <input type="text" placeholder="Search..." formControlName="searchText" />
+    <select formControlName="recordsPerPage">
+      <option [value]="10">10</option>
+      <option [value]="25">25</option>
+      <option [value]="50">50</option>
+    </select>
+  </form>
+</div> -->
+
+
+  <!-- Filter by Today or Date Range -->
+    <div class="filters d-flex align-items-center m-3">
+      <label class="m-3">
+        <input type="radio" name="filter" value="today" [(ngModel)]="activeFilter" (change)="applyFilters()" checked>
+        TODAY'S
+      </label>
+
+      <label class="m-3">
+        <input type="radio" name="filter" value="dateRange" [(ngModel)]="activeFilter" (change)="applyFilters()">
+        Date Range
+      </label>
+
+      <!-- Date Inputs Visible Only for Date Range -->
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="startDate"
+        (change)="applyFilters()"
+        class="form-control mx-2"
+      />
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="endDate"
+        (change)="applyFilters()"
+        class="form-control mx-2"
+      />
+    </div>
+
+
+<!--
+      <div class="loader-wrapper" *ngIf="filteredCases.length === 0">
+  <div class="loader">
+    <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+  </div>
+</div> -->
+
+
+<div class="" *ngIf="userPermissions.read &&  filteredCases.length >0">
+
+<table class="table table-bordered table-hover align-middle diagnosis-table">
+  <thead class="table-dark text-center">
+    <tr>
+      <th>Bill No</th>
+      <th>Bill Amount</th>
+      <th>Amount Deposited</th>
+      <th>Depositor Name</th>
+      <th>Payment Mode</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let patient of filteredCases">
+      <td>{{ patient.outpatientBillId?.billnumber }}</td>
+      <td>{{ patient.outpatientBillId?.totalamount }}</td>
+      <td>{{ patient.depositAmount }}</td>
+      <td>{{ patient.depositorName }}</td>
+      <td>{{ patient.depositPaymentMethod }}</td>
+      <td>
+        <i class="fa-solid fa-pencil action-btn" (click)="editPatientdeposit(patient._id)" *ngIf="userPermissions.update"></i>
+        <!-- <i class="fa-solid fa-trash action-btn" (click)="deletPatientdeposit(patient._id)" *ngIf="userPermissions.delete"></i> -->
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="pagination">
+  <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+  Page {{ currentPage }} of {{ totalPages }}
+  <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+</div>
+
+</div>
+

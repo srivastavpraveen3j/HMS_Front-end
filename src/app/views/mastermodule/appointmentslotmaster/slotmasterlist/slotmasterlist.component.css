@@ -1,0 +1,7 @@
+.form-group .zindex-dropdown {
+  position: absolute;
+  z-index: 1050;
+  /* Higher than Bootstrap modals (1040) */
+  background: white;
+  border: 1px solid #ddd;
+}

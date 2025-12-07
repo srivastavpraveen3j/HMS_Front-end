@@ -1,0 +1,42 @@
+<div class="policy-details">
+  <h3>Master Discount Policies</h3>
+
+  <!-- Search -->
+  <input
+    type="text"
+    class="form-control mb-2"
+    placeholder="Search by name or type..."
+    [(ngModel)]="searchTerm"
+    (input)="searchPolicies()"
+  />
+
+  <!-- Policy Table -->
+  <table class="table table-bordered table-sm">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Discount</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let policy of filteredPolicies">
+        <td>{{ policy.name }}</td>
+        <td>{{ policy.policyType }}</td>
+        <td>
+          <span *ngIf="policy.policyType === 'Percentage'">{{ policy.discountValue }}%</span>
+          <span *ngIf="policy.policyType === 'Flat'">₹{{ policy.discountValue }}</span>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-primary" (click)="selectPolicy(policy)">
+            Select
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="filteredPolicies.length === 0">
+        <td colspan="4" class="text-center text-muted">No policies found</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

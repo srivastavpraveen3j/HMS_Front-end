@@ -1,0 +1,111 @@
+<div #pdfContent>
+  <div class="header d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">
+      {{ activeTab === "Available" ? "AVAILABLE BEDS" : "OCCUPIED BEDS" }}
+    </h2>
+
+    <ul class="nav nav-tabs mb-0">
+      <li class="nav-item">
+        <a
+          class="nav-link no-print"
+          [ngClass]="{ active: activeTab === 'Occupied' }"
+          (click)="setActiveTab('Occupied')"
+        >
+          Occupied Beds
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link no-print"
+          [ngClass]="{ active: activeTab === 'Available' }"
+          (click)="setActiveTab('Available')"
+        >
+          Available Beds
+        </a>
+      </li>
+    </ul>
+
+    <!-- <div class="d-flex justify-content-end gap-2 my-3 filter-tab">
+      <button
+        class="btn btn-dark no-print"
+        (click)="selectedFilter = 'today'; setFilter('today')"
+      >
+        Today
+      </button>
+      <button
+        class="btn btn-dark no-print"
+        (click)="selectedFilter = 'week'; setFilter('week')"
+      >
+        This Week
+      </button>
+      <button
+        class="btn btn-dark no-print"
+        (click)="selectedFilter = 'month'; setFilter('month')"
+      >
+        This Month
+      </button>
+      <button
+        class="btn btn-dark no-print"
+        (click)="selectedFilter = 'year'; setFilter('year')"
+      >
+        This Year
+      </button>
+    </div> -->
+  </div>
+
+  <div class="mb-2 text-end">
+    <span class="me-3">
+      <strong>Occupied Beds:</strong> {{ getBedCount("Occupied") }}
+    </span>
+    <span>
+      <strong>Available Beds:</strong> {{ getBedCount("Available") }}
+    </span>
+  </div>
+
+  <div class="" *ngIf="filteredPatients.length > 0">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark text-center">
+        <tr>
+          <th>#</th>
+          <th>Ward Name</th>
+          <th>Room Number</th>
+          <th>Bed Type</th>
+          <th>Bed Number</th>
+          <th>Bed Status</th>
+          <th *ngIf="activeTab === 'Occupied'">Patient Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let bed of filteredPatients; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ bed.ward }}</td>
+          <td>{{ bed.roomNumber }}</td>
+          <td>{{ bed.bed_type_id?.name || "N/A" }}</td>
+          <td>{{ bed.bedNumber }}</td>
+          <td>
+            <span
+              class="badge"
+              [ngClass]="bed.isOccupied ? 'bg-danger' : 'bg-success'"
+            >
+              {{ bed.isOccupied ? "Occupied" : "Available" }}
+            </span>
+          </td>
+          <td *ngIf="bed.isOccupied">
+            {{ bed.patientName || "N/A" }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="d-flex justify-content-end">
+      <button (click)="downloadPDF()" class="btn btn-dark mb-3 no-print">
+        Download
+      </button>
+    </div>
+  </div>
+
+      <!-- <app-loader [patientData]="filteredPatients"  [title]="activeTab === 'Available' ? 'Avaialable beds' : 'Occupied beds'"></app-loader> -->
+
+</div>

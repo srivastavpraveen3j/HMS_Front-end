@@ -1,0 +1,156 @@
+<!-- <p>pathologyresult works!</p> -->
+<!-- <p>pathologyreq works!</p> -->
+
+<div class="header">
+  <h2>PATHOLOGY INVESTIGATION COMPARISON</h2>
+
+</div>
+<div class="opd-container">
+  <form [formGroup]="pathologyresult">
+    <h4 class="m-4">Patient Details</h4>
+    <hr>
+      <div class="form-row">
+        <div class="form-group">
+          <label>IPD No:</label>
+          <input type="text" placeholder="IPD No" class="required" formControlName="ipdno" >
+          <div class="text-danger small"
+          *ngIf="pathologyresult.get('ipdno')?.invalid && pathologyresult.get('ipdno')?.touched">
+          Ipd No is required.
+        </div>
+      </div>
+
+          <div class="form-group">
+              <label>DOA:</label>
+              <!-- <input type="date" value="2025-03-20"> -->
+              <app-customcalendar formControlName="doa"></app-customcalendar>
+          </div>
+
+
+      </div>
+
+      <div class="form-row">
+          <div class="form-group">
+              <label>Name*:</label>
+              <input type="text" placeholder="Patient Name" class="required" formControlName="patient_name">
+              <div class="text-danger small"
+          *ngIf="pathologyresult.get('patient_name')?.invalid && pathologyresult.get('patient_name')?.touched">
+          Patient Name is required.
+        </div>
+          </div>
+          <div class="form-group">
+              <label>Age*:</label>
+              <input type="text" placeholder="Age/Gender" formControlName="age">
+              <div class="text-danger small"
+              *ngIf="pathologyresult.get('age')?.invalid && pathologyresult.get('age')?.touched">
+             Age is required.
+            </div>
+
+          </div>
+
+      </div>
+      <div class="form-row">
+          <div class="form-group">
+              <label>Patient Type*:</label>
+              <!-- <input type="text" placeholder="Patient Name" class="required"> -->
+              <select name="" id="" formControlName="patient_type">
+                <option value="cash">Cash</option>
+                <option value="mediclaim">Mediclaim</option>
+                <!-- <option value=""></option> -->
+               </select>
+               <div class="text-danger small"
+               *ngIf="pathologyresult.get('patient_type')?.invalid && pathologyresult.get('patient_type')?.touched">
+               Patient Type is required.
+             </div>
+          </div>
+          <div class="form-group">
+            <label>Cons. Doctor*:</label>
+            <input type="text" placeholder="Cons. Doctor" formControlName="cnsdoc" >
+            <div class="text-danger small"
+            *ngIf="pathologyresult.get('cnsdoc')?.invalid && pathologyresult.get('cnsdoc')?.touched">
+            Doctor is required.
+          </div>
+        </div>
+      </div>
+
+
+      <div class="text-center mt-3">
+        <button class="btn btn-dark mx-2" [disabled]="pathologyresult.invalid">Get Result</button>
+          <button class="btn btn-secondary">Cancel</button>
+      </div>
+
+
+      <h4 class="m-4">Result</h4>
+      <hr>
+
+      <!-- <div class="d-flex w-100">
+        <div class="w-50">
+          <h4 class="m-4">Complete Lab Test</h4>
+          <hr>
+          <div class="form-row">
+            <div class="form-group">
+              <input type="text" placeholder="Enter Lab Test Name">
+          </div>
+
+          <div class="form-group">
+            <input type="text" placeholder="Enter Extra Note">
+        </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <input type="text" placeholder="Enter Lab Test Name">
+          </div>
+
+          <div class="form-group">
+            <input type="text" placeholder="Enter Extra Note">
+        </div>
+          </div>
+
+        </div>
+        <div class="w-50">
+          <h4 class="m-4">Assign Lab Test</h4>
+          <hr>
+
+          <div class="form-row">
+            <div class="form-group">
+              <input type="text" placeholder="Enter Lab Test Name">
+          </div>
+
+          <div class="form-group">
+            <input type="text" placeholder="Enter Extra Note">
+        </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <input type="text" placeholder="Enter Lab Test Name">
+          </div>
+
+          <div class="form-group">
+            <input type="text" placeholder="Enter Extra Note">
+        </div>
+          </div>
+
+
+
+
+
+
+        </div>
+      </div> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </form>
+
+</div>

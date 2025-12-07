@@ -1,0 +1,136 @@
+<!-- <p>radiationreqlist works!</p> -->
+<!-- <p>radiologyreqlist works!</p> -->
+<div class="header">
+  <h2>RADIATION REQUSITION LIST</h2>
+  <div class="">
+    <button class="list-cases-btn" [routerLink]="['/doctor/radiationreq']" routerLinkActive="router-link-active">ADD RADIATION REQUSITION REQUEST</button>
+  </div>
+</div>
+
+<!-- <div class="top-bar p-3">
+  <select formControl="recordsPerPage">
+    <option *ngFor="let num of [25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+  </select>
+
+  <input type="text" placeholder="Search..." formControl="searchText" />
+
+</div> -->
+ <!-- Filter by Today or Date Range -->
+    <div class="filters d-flex align-items-center m-3">
+      <label class="m-3">
+        <input type="radio" name="filter" value="today" [(ngModel)]="activeFilter" (change)="applyFilters()" checked>
+        TODAY'S
+      </label>
+
+      <label class="m-3">
+        <input type="radio" name="filter" value="dateRange" [(ngModel)]="activeFilter" (change)="applyFilters()">
+        Date Range
+      </label>
+
+      <!-- Date Inputs Visible Only for Date Range -->
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="startDate"
+        (change)="applyFilters()"
+        class="form-control mx-2"
+      />
+      <input
+        *ngIf="activeFilter === 'dateRange'"
+        type="date"
+        [(ngModel)]="endDate"
+        (change)="applyFilters()"
+        class="form-control mx-2"
+      />
+    </div>
+
+       <div class="loader-wrapper" *ngIf="filteredCases.length === 0">
+  <div class="loader">
+    <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+  </div>
+</div>
+
+    <div class=""  *ngIf="userPermissions.read && filteredCases.length > 0">
+
+<table class="table table-bordered table-hover align-middle diagnosis-table">
+  <thead class="table-dark text-center">
+    <tr>
+      <th>#</th>
+      <th>Date</th>
+      <th>Type</th>
+      <th>Patient Name</th>
+      <th>Request For</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+    <tbody>
+      <tr *ngFor="let test of filteredCases; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ test.createdAt | date: 'mediumDate' }}</td>
+        <td>{{ test.patientType }}</td>
+        <td>{{ test.patient_name }}</td>
+
+        <!-- Request For -->
+        <td>
+          <div *ngFor="let med of test.testGroup">{{ med.testGroup }}</div>
+        </td>
+
+        <!-- Status as badge -->
+        <td>
+          <div *ngFor="let med of test.testGroup">
+            <span class="badge"
+                  [ngClass]="{
+                    'bg-success': med.status === 'completed',
+                    'bg-danger': med.status === 'pending'
+                  }">
+              {{ med.status }}
+            </span>
+          </div>
+        </td>
+
+        <!-- Conditional Actions -->
+        <td class="text-center">
+          <ng-container *ngIf="test.testGroup[0]?.status === 'pending'; else completedBlock">
+            <i class="fa-solid fa-pencil action-btn mx-1" *ngIf="userPermissions.update"  (click)="edittest(test._id)"></i>
+            <i class="fa-solid fa-trash action-btn mx-1"  *ngIf="userPermissions.delete" (click)="deletetest(test._id)"></i>
+          </ng-container>
+<ng-template #completedBlock>
+  <ng-container *ngIf="matchedPathoMap.has(test._id)">
+    <i
+      class="fa-solid fa-eye action-btn mx-1"
+      (click)="viewPatient(matchedPathoMap.get(test._id)._id)"
+    ></i>
+  </ng-container>
+</ng-template>
+
+
+
+        </td>
+      </tr>
+    </tbody>
+</table>
+
+
+
+
+<!-- Modal -->
+<div class="modal-backdrop" *ngIf="selectedPatient">
+  <div class="modal-content-box">
+    <div class="modal-header">
+      <h3 style="visibility: hidden;">Patient Details</h3>
+      <button class="close-btn" (click)="closeModal()">×</button>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <!-- <app-patient-opdmedicine-request [patientData]="selectedPatient"></app-patient-opdmedicine-request> -->
+      <!-- <app-patient-opdpharmabill [patientData]="selectedPatient"></app-patient-opdpharmabill> -->
+
+
+<app-test *ngIf="selectedPatient" [patientData]="[selectedPatient]" ></app-test>
+    </div>
+  </div>
+</div>
+
+    </div>
+

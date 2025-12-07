@@ -1,0 +1,137 @@
+<div class="d-flex">
+  <div *ngIf="hasModuleAccess('sharedPatientCases')" class="logo-container w-25" routerLink="/doctorsharinglayout">
+    <div class="logo">
+      <img src="Untitled design (6).jpg" alt="logo" />
+    </div>
+  </div>
+  <div class="w-75">
+    <nav class="header navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="nav-links navbar-nav me-auto">
+            <li *ngIf="hasModuleAccess('sharedPatientCases')">
+              <a
+                class="dropdown-item"
+                href="/doctorsharinglayout/opddatasharing"
+                >OPD Shared Data </a
+              >
+            </li>
+            <li *ngIf="hasModuleAccess('sharedPatientCases')">
+              <a
+                class="dropdown-item"
+                href="/doctorsharinglayout/ipddatasharing"
+                >IPD Shared Data </a
+              >
+            </li>
+            <!-- <li class="nav-item">
+                            <a class="nav-link" href="/doctorsharinglayout/patientlist">Patient List</a>
+                        </li> -->
+            <!-- <li class="nav-item">
+                            <a class="nav-link" href="/doctorsharinglayout/reports">Reports</a>
+                        </li> -->
+            <li class="nav-item" *ngIf="hasModuleAccess('sharedPatientCases')">
+              <a class="nav-link" href="/doctorsharinglayout/treatmentsheet"
+                >Treatment Sheet</a
+              >
+            </li>
+            <!-- <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="doctorDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                Reports
+              </a>
+            </li> -->
+          </ul>
+
+          <div class="user-menu">
+            <!-- <a class="nav-item" href="#"> HMS</a> -->
+            <div class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="hmsDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                Doctor Sharing
+              </a>
+              <ul class="dropdown-menu">
+                <div class="dropdown-grid">
+                  <li>
+                    <a class="dropdown-item" href="dashboard"
+                      ><i class="fa-solid fa-gear"></i>HMS</a
+                    >
+                  </li>
+                  <!-- <li *ngIf="hasModuleAccess('inventorylayout')">
+                    <a class="dropdown-item" href="#"
+                      ><i class="fa-solid fa-gear"></i>Centeral Store</a
+                    >
+                  </li> -->
+                  <!-- <li *ngIf="hasModuleAccess('inward')">
+                    <a class="dropdown-item" href="/pathologylayout/pathologydashboard"
+                      ><i class="fa-solid fa-gear"></i>Pathology</a
+                    >
+                  </li> -->
+                  <!-- <li *ngIf="hasModuleAccess('pharmaceuticalInward')">
+                    <a class="dropdown-item" href="/pharmalayout/pharmacydashboard"
+                      ><i class="fa-solid fa-gear"></i> Pharmacy</a
+                    >
+                  </li> -->
+
+                  <!-- <li *ngIf="hasModuleAccess('inward')">
+                    <a class="dropdown-item" href="/radiologylayout/radiologydashboard"
+                      ><i class="fa-solid fa-gear"></i>Radiology</a
+                    >
+                  </li> -->
+                  <!-- <li *ngIf="hasModuleAccess('inward')"><a class="dropdown-item" href="/radiationlayout"><i class="fa-solid fa-gear"></i>Radiation</a></li> -->
+                </div>
+              </ul>
+            </div>
+
+            <div class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="hmsDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fa-solid fa-user-tie"></i>
+              </a>
+              <ul class="dropdown-menu">
+                <div class="dropdown-grid">
+                  <li>
+                    <a class="dropdown-item" href="/profilesetting"
+                      ><i class="fa-solid fa-gear"></i>Profile</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="nav-link"
+                      [routerLink]="['/login']"
+                      routerLinkActive="router-link-active"
+                      ><i class="fa-solid fa-gear"></i>Logout</a
+                    >
+                  </li>
+                </div>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div>

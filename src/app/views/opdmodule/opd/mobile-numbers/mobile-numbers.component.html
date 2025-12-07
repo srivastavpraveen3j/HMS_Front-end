@@ -1,0 +1,35 @@
+<div class="field-pane" [formGroup]="form">
+  <label class="fw-bold">Mobile Numbers</label>
+
+  <div formArrayName="mobiles">
+    <div
+      *ngFor="let mobile of mobiles.controls; let i = index"
+      [formGroupName]="i"
+      class="d-flex gap-2 align-items-center mb-2"
+    >
+      <input
+        type="text"
+        class="form-control"
+        formControlName="number"
+        placeholder="Enter mobile number"
+      />
+
+      <button
+        type="button"
+        class="btn btn-outline-danger btn-sm"
+        (click)="removeMobile(i)"
+      >
+        Remove
+      </button>
+    </div>
+  </div>
+
+  <button
+    type="button"
+    class="btn btn-outline-primary btn-sm mt-2"
+    (click)="addMobile()"
+  >
+    + Add More
+  </button>
+
+</div>

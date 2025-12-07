@@ -1,0 +1,43 @@
+<div class="form-meta">
+  <!-- Header -->
+  <div class="header">
+    <h2>DOCTOR MASTER</h2>
+    <button class="btn btn-dark ms-2" [routerLink]="['/master/doctorlist']" routerLinkActive="active">
+      <i class="fa-solid fa-list me-1"></i> View List
+    </button>
+  </div>
+
+  <!-- Doctor Form -->
+  <form [formGroup]="doctorform" (ngSubmit)="OnSubmit()">
+    <div class="form-container">
+      <div class="form-half">
+        <!-- Doctor Name -->
+        <div class="form-group">
+          <label>Name*</label>
+          <input type="text" class="form-control" placeholder="Doctor Name" formControlName="name" required />
+          <div *ngIf="doctorform.get('name')?.touched && doctorform.get('name')?.invalid" class="text-danger">
+            Name is required.
+          </div>
+        </div>
+
+        <!-- Mobile Number -->
+        <div class="form-group">
+          <label>Mobile*</label>
+          <input type="text" class="form-control" placeholder="Enter 10-digit mobile number" maxlength="10"
+            formControlName="mobile_no" (keypress)="allowOnlyNumbers($event)" />
+          <div *ngIf="doctorform.get('mobile_no')?.touched && doctorform.get('mobile_no')?.invalid"
+            class="text-danger small">
+            Enter a valid 10-digit mobile number starting with 6–9.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="form-actions text-center mt-3">
+      <button class="btn btn-dark mx-2" type="submit" [disabled]="doctorform.invalid">
+        Submit
+      </button>
+    </div>
+  </form>
+</div>

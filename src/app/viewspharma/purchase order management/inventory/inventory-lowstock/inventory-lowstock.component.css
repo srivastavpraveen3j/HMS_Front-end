@@ -1,0 +1,17 @@
+/* inventory-lowstock.component.css */
+.table-secondary {
+  background-color: #f8f9fa !important;
+  opacity: 0.6;
+}
+
+.table-secondary input[type="checkbox"]:disabled {
+  opacity: 0.5;
+}
+
+.text-muted {
+  font-size: 0.8em;
+}
+
+.badge-secondary {
+  background-color: #6c757d;
+}

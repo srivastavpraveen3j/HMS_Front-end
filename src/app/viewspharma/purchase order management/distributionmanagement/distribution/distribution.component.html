@@ -1,0 +1,1561 @@
+<!-- distribution.component.html -->
+<div class="form-meta">
+  <div class="header">
+    <h2>Distribution Management</h2>
+    <div class="header-actions">
+      <button
+        class="btn btn-secondary"
+        (click)="exportTransfers()"
+        [disabled]="isExportLoading() || loading"
+      >
+        <span
+          *ngIf="isExportLoading()"
+          class="spinner-border spinner-border-sm me-1"
+        ></span>
+        Export Transfers
+      </button>
+
+      <!-- NEW: Bulk Upload Button -->
+      <button
+        class="btn btn-info me-2"
+        (click)="openBulkUploadModal()"
+        [disabled]="loading"
+      >
+        <i class="fas fa-upload me-1"></i>
+        Bulk Upload
+      </button>
+
+      <button class="btn btn-primary" (click)="createTransfer()">
+        Create Transfer
+      </button>
+    </div>
+  </div>
+
+  <!-- Status Cards -->
+  <!-- <div class="status-cards">
+    <div class="status-card pending" [class.loading]="summaryLoading">
+      <div class="status-icon">⏳</div>
+      <div class="status-info">
+        <div class="status-number">
+          <span *ngIf="!summaryLoading">{{ pendingTransfers }}</span>
+          <span
+            *ngIf="summaryLoading"
+            class="spinner-border spinner-border-sm"
+          ></span>
+        </div>
+        <div class="status-label">Pending Transfers</div>
+      </div>
+    </div>
+
+    <div class="status-card in-progress" [class.loading]="summaryLoading">
+      <div class="status-icon">🚛</div>
+      <div class="status-info">
+        <div class="status-number">
+          <span *ngIf="!summaryLoading">{{ inProgress }}</span>
+          <span
+            *ngIf="summaryLoading"
+            class="spinner-border spinner-border-sm"
+          ></span>
+        </div>
+        <div class="status-label">In Progress</div>
+      </div>
+    </div>
+
+    <div class="status-card completed" [class.loading]="summaryLoading">
+      <div class="status-icon">✅</div>
+      <div class="status-info">
+        <div class="status-number">
+          <span *ngIf="!summaryLoading">{{ completedToday }}</span>
+          <span
+            *ngIf="summaryLoading"
+            class="spinner-border spinner-border-sm"
+          ></span>
+        </div>
+        <div class="status-label">Completed Today</div>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- Distribution Flow -->
+  <div class="distribution-flow">
+    <!-- <h3>Distribution Flow</h3> -->
+    <div class="flow-container">
+      <div class="flow-step">
+        <div class="flow-circle">🏪</div>
+        <div class="flow-label">Central Store</div>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-step">
+        <div class="flow-circle">📋</div>
+        <div class="flow-label">Request Processing</div>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-step">
+        <div class="flow-circle">✅</div>
+        <div class="flow-label">Approval</div>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-step">
+        <div class="flow-circle">🚛</div>
+        <div class="flow-label">Transfer</div>
+      </div>
+      <div class="flow-arrow">→</div>
+
+      <div class="flow-step">
+        <div class="flow-circle">🏥</div>
+        <div class="flow-label">Sub-Pharmacy</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="card mb-4">
+    <div class="card-header bg-light">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h6 class="mb-0"><i class="fas fa-filter"></i> Filters & Search</h6>
+        </div>
+        <div class="col-md-6 text-end">
+          <div class="btn-group"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <!-- Quick Date Range Buttons -->
+      <div class="row mb-3">
+        <div class="col-12">
+          <label class="form-label">Quick Date Filters:</label>
+          <div class="btn-group flex-wrap">
+            <button
+              class="btn btn-sm"
+              [ngClass]="
+                isShowingTodayData() ? 'btn-primary' : 'btn-outline-primary'
+              "
+              (click)="setDateRange('today')"
+            >
+              <i class="fas fa-calendar-day"></i> Today
+            </button>
+            <button
+              class="btn btn-sm btn-outline-primary"
+              (click)="setDateRange('yesterday')"
+            >
+              <i class="fas fa-calendar-minus"></i> Yesterday
+            </button>
+            <button
+              class="btn btn-sm btn-outline-primary"
+              (click)="setDateRange('last7days')"
+            >
+              <i class="fas fa-calendar-week"></i> Last 7 Days
+            </button>
+            <button
+              class="btn btn-sm btn-outline-primary"
+              (click)="setDateRange('thisMonth')"
+            >
+              <i class="fas fa-calendar-alt"></i> This Month
+            </button>
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              (click)="setDateRange('clear')"
+            >
+              <i class="fas fa-calendar"></i> All Time
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Search -->
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Search</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+            placeholder="Transfer ID, Pharmacy..."
+          />
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-md-2 mb-3">
+          <label class="form-label">Status</label>
+          <select
+            class="form-select"
+            [(ngModel)]="statusFilter"
+            (change)="applyFilters()"
+          >
+            <option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Priority Filter -->
+        <div class="col-md-2 mb-3">
+          <label class="form-label">Priority</label>
+          <select
+            class="form-select"
+            [(ngModel)]="priorityFilter"
+            (change)="applyFilters()"
+          >
+            <option
+              *ngFor="let option of priorityOptions"
+              [value]="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- From Date -->
+        <div class="col-md-2 mb-3">
+          <label class="form-label">From Date</label>
+          <input
+            type="date"
+            class="form-control"
+            [(ngModel)]="fromDate"
+            (change)="onDateChange()"
+            [max]="toDate || getTodayString()"
+          />
+        </div>
+
+        <!-- To Date -->
+        <div class="col-md-2 mb-3">
+          <label class="form-label">To Date</label>
+          <input
+            type="date"
+            class="form-control"
+            [(ngModel)]="toDate"
+            (change)="onDateChange()"
+            [min]="fromDate"
+            [max]="getTodayString()"
+          />
+        </div>
+
+        <!-- Clear Filters -->
+        <div class="col-md-1 mb-3 d-flex align-items-end">
+          <button
+            class="btn btn-outline-secondary w-100"
+            (click)="clearFilters()"
+            title="Clear All Filters"
+            *ngIf="hasActiveFilters()"
+          >
+            <i class="fas fa-eraser"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Filters Display -->
+      <div class="row" *ngIf="hasActiveFilters()">
+        <div class="col-12">
+          <div class="alert alert-info py-2 mb-0">
+            <small>
+              <i class="fas fa-info-circle"></i>
+              <strong>Active Filters:</strong>
+              <span *ngIf="!isShowingTodayData()">
+                Date: {{ getFilterSummary() }}
+              </span>
+              <span *ngIf="statusFilter">
+                Status: {{ statusFilter | titlecase }}
+              </span>
+              <span *ngIf="priorityFilter">
+                Priority: {{ priorityFilter | titlecase }}
+              </span>
+              <span *ngIf="searchTerm"> Search: "{{ searchTerm }}" </span>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stock Transfers Table -->
+  <div class="stock-transfers">
+    <h3>Stock Transfers</h3>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center p-4">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading transfers...</p>
+    </div>
+
+    <!-- Data Table -->
+    <div *ngIf="shouldShowTable()" class="table-container">
+      <table class="transfers-table">
+        <thead>
+          <tr>
+            <th>Transfer ID</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Items</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Date</th>
+            <th>Total Value</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let transfer of filteredTransfers;
+              trackBy: trackByTransferId;
+              let i = index
+            "
+          >
+            <td>
+              <strong>{{ transfer.transferId }}</strong>
+              <br /><small class="text-muted">Row {{ i + 1 }}</small>
+            </td>
+            <td>{{ transfer.from }}</td>
+            <td>{{ getToDisplay(transfer) }}</td>
+            <td>{{ getItemsDisplay(transfer) }}</td>
+            <td>
+              <span
+                class="status-badge"
+                [ngClass]="getStatusClass(transfer.status)"
+              >
+                {{ transfer.status | titlecase }}
+              </span>
+            </td>
+            <td>
+              <span
+                class="priority-badge"
+                [ngClass]="getPriorityClass(transfer.priority)"
+              >
+                {{ transfer.priority | titlecase }}
+              </span>
+            </td>
+            <td>
+              {{ getFormattedDate(transfer.createdAt) }}
+            </td>
+            <td>{{ getFormattedValue(getCalculatedTotalValue(transfer)) }}</td>
+            <td>
+              <div class="action-buttons">
+                <button
+                  class="btn btn-sm btn-outline"
+                  (click)="viewTransfer(transfer.transferId)"
+                >
+                  View
+                </button>
+
+                <button
+                  *ngIf="transfer.status === 'in_progress'"
+                  class="btn btn-sm btn-success"
+                  [disabled]="isActionLoading(transfer.transferId)"
+                  (click)="completeTransfer(transfer.transferId)"
+                >
+                  <span
+                    *ngIf="isActionLoading(transfer.transferId)"
+                    class="spinner-border spinner-border-sm me-1"
+                  ></span>
+                  Complete
+                </button>
+
+                <button
+                  *ngIf="transfer.status === 'pending'"
+                  class="btn btn-sm btn-primary"
+                  [disabled]="isActionLoading(transfer._id)"
+                  (click)="approveTransfer(transfer._id)"
+                >
+                  <span
+                    *ngIf="isActionLoading(transfer._id)"
+                    class="spinner-border spinner-border-sm me-1"
+                  ></span>
+                  Approve
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="shouldShowEmptyState()" class="text-center p-4">
+      <div class="text-muted">
+        <i class="fas fa-inbox fa-3x mb-3"></i>
+        <h5>No Transfers Found</h5>
+
+        <p *ngIf="isShowingTodayData() && stockTransfers.length === 0">
+          No transfers have been created today.
+        </p>
+        <p *ngIf="isShowingTodayData() && stockTransfers.length > 0">
+          No transfers found for today ({{ getTodayString() }}), but
+          {{ stockTransfers.length }} total transfers loaded.
+        </p>
+        <p *ngIf="!isShowingTodayData() && hasActiveFilters()">
+          No transfers match your current filters. Try adjusting your search
+          criteria.
+        </p>
+        <p *ngIf="!hasActiveFilters() && stockTransfers.length === 0">
+          No transfers available. Create your first transfer to get started.
+        </p>
+
+        <div class="mt-3">
+          <button class="btn btn-primary me-2" (click)="createTransfer()">
+            Create First Transfer
+          </button>
+          <button
+            class="btn btn-outline-secondary me-2"
+            (click)="clearFilters()"
+            *ngIf="hasActiveFilters()"
+          >
+            Clear Filters
+          </button>
+          <button
+            class="btn btn-outline-success"
+            (click)="setDateRange('clear')"
+          >
+            Show All Data
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW: Bulk Upload Modal -->
+  <div
+    class="modal fade"
+    [class.show]="showBulkUploadModal"
+    [style.display]="showBulkUploadModal ? 'block' : 'none'"
+    *ngIf="showBulkUploadModal"
+    tabindex="-1"
+    role="dialog"
+  >
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-upload me-2"></i>Bulk Stock Transfer Upload
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeBulkUploadModal()"
+          ></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Step 1: Instructions -->
+          <div class="alert alert-info">
+            <h6><i class="fas fa-info-circle me-2"></i>Upload Instructions</h6>
+            <ul class="mb-0">
+              <li>Upload a CSV file with the required format</li>
+              <li>Required columns: <strong>medicine_name</strong>, <strong>requested_quantity</strong></li>
+              <li>Maximum file size: 5MB</li>
+              <li>All medicines must exist in the system</li>
+            </ul>
+          </div>
+
+          <!-- Step 2: Sub-Pharmacy Selection -->
+          <div class="mb-4">
+            <label for="bulkSubPharmacy" class="form-label">
+              <strong>Select Destination Sub-Pharmacy *</strong>
+            </label>
+            <select
+              class="form-select"
+              id="bulkSubPharmacy"
+              [(ngModel)]="selectedSubPharmacyId"
+              [disabled]="subPharmaciesLoading"
+            >
+              <option value="">
+                {{
+                  subPharmaciesLoading
+                    ? "Loading pharmacies..."
+                    : "Select Sub-Pharmacy"
+                }}
+              </option>
+              <option
+                *ngFor="let pharmacy of subPharmacies"
+                [value]="pharmacy._id"
+              >
+                {{ pharmacy.name }} ({{ pharmacy.type }}) -
+                {{ pharmacy.location }}
+              </option>
+            </select>
+            <div
+              *ngIf="!selectedSubPharmacyId && bulkUploadAttempted"
+              class="text-danger small mt-1"
+            >
+              Please select a sub-pharmacy
+            </div>
+          </div>
+
+          <!-- Step 3: CSV Template Download -->
+          <div class="mb-4">
+            <h6>CSV Template</h6>
+            <p class="text-muted">
+              Download the template file to ensure correct format:
+            </p>
+            <!-- <button
+              type="button"
+              class="btn btn-outline-primary btn-sm"
+              (click)="downloadCSVTemplate()"
+            > -->
+              <a href="https://digitalks-crm-bucket.s3.ap-south-1.amazonaws.com/HIMS/bulk_transfer_template.csv" download>
+          <i class="fa-solid fa-file-csv"></i>
+        </a>
+            <!-- </button> -->
+          </div>
+
+          <!-- Step 4: File Upload -->
+          <div class="mb-4">
+            <label for="csvFileInput" class="form-label">
+              <strong>Select CSV File *</strong>
+            </label>
+            <input
+              type="file"
+              class="form-control"
+              id="csvFileInput"
+              #fileInput
+              accept=".csv"
+              (change)="onFileSelected($event)"
+            />
+            <div
+              *ngIf="!selectedFile && bulkUploadAttempted"
+              class="text-danger small mt-1"
+            >
+              Please select a CSV file
+            </div>
+            <div *ngIf="selectedFile" class="mt-2">
+              <small class="text-success">
+                <i class="fas fa-check-circle me-1"></i>
+                Selected: {{ selectedFile.name }} ({{ getFileSize(selectedFile.size) }})
+              </small>
+            </div>
+          </div>
+
+          <!-- Step 5: Upload Progress -->
+          <div *ngIf="bulkUploadLoading" class="mb-4">
+            <div class="alert alert-info">
+              <div class="d-flex align-items-center">
+                <div class="spinner-border spinner-border-sm me-2"></div>
+                <span>Processing bulk upload...</span>
+              </div>
+              <div class="progress mt-2">
+                <div
+                  class="progress-bar progress-bar-striped progress-bar-animated"
+                  style="width: 100%"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+       <!-- Step 6: Upload Results - Enhanced Version -->
+<div *ngIf="bulkUploadResult" class="mb-4">
+  <div class="alert" [ngClass]="bulkUploadResult.success ? 'alert-success' : 'alert-danger'">
+    <!-- Existing success/error display -->
+    <h6>
+      <i class="fas" [ngClass]="bulkUploadResult.success ? 'fa-check-circle' : 'fa-times-circle'" [class.me-2]="true"></i>
+      Upload {{ bulkUploadResult.success ? 'Successful' : 'Failed' }}
+    </h6>
+
+    <!-- Enhanced success information -->
+    <div *ngIf="bulkUploadResult.success" class="row">
+      <div class="col-md-3">
+        <strong>Total Records:</strong> {{ bulkUploadResult.totalRecords }}
+      </div>
+      <div class="col-md-3">
+        <strong>Uploaded:</strong> {{ bulkUploadResult.uploaded }}
+      </div>
+      <div class="col-md-3">
+        <strong>Failed:</strong> {{ bulkUploadResult.failed }}
+      </div>
+      <div class="col-md-3">
+        <strong>Transfer ID:</strong>
+        <span class="badge bg-primary">{{ bulkUploadResult.transferId }}</span>
+      </div>
+    </div>
+
+    <!-- NEW: Stock Updates Summary -->
+    <div *ngIf="bulkUploadResult.success && bulkUploadResult.stockUpdates" class="mt-3">
+      <h6 class="text-info">
+        <i class="fas fa-chart-line me-2"></i>
+        Stock Updates Applied
+      </h6>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped">
+          <thead>
+            <tr>
+              <th>Medicine</th>
+              <th>Transferred Qty</th>
+              <th>Previous Stock</th>
+              <th>Updated Stock</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let update of bulkUploadResult.stockUpdates">
+              <td>{{ update.medicine }}</td>
+              <td class="text-primary fw-bold">{{ update.transferred }}</td>
+              <td class="text-muted">{{ update.previousStock }}</td>
+              <td class="text-success fw-bold">{{ update.updatedStock }}</td>
+              <td>
+                <span class="badge bg-success">
+                  <i class="fas fa-check me-1"></i>Updated
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhanced failed items display -->
+  <div *ngIf="bulkUploadResult.failures && bulkUploadResult.failures.length > 0" class="mt-3">
+    <h6 class="text-warning">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      Failed Items - Stock Issues ({{ bulkUploadResult.failures.length }})
+    </h6>
+    <div class="table-responsive">
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr>
+            <th>Medicine Name</th>
+            <th>Requested Quantity</th>
+            <th>Error Reason</th>
+            <th>Action Required</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let failure of bulkUploadResult.failures">
+            <td>{{ failure.input?.medicine_name || 'N/A' }}</td>
+            <td>{{ failure.input?.requested_quantity || 'N/A' }}</td>
+            <td class="text-danger">{{ failure.error }}</td>
+            <td>
+              <small class="text-muted">
+                <span *ngIf="failure.error.includes('Insufficient stock')">
+                  Check current stock levels
+                </span>
+                <span *ngIf="failure.error.includes('not found')">
+                  Verify medicine name spelling
+                </span>
+              </small>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="closeBulkUploadModal()"
+            [disabled]="bulkUploadLoading"
+          >
+            Close
+          </button>
+          <button
+            type="button"
+            class="btn btn-success"
+            (click)="processBulkUpload()"
+            [disabled]="!canProcessBulkUpload() || bulkUploadLoading || (bulkUploadResult && bulkUploadResult.success)"
+
+          >
+            <span
+              *ngIf="bulkUploadLoading"
+              class="spinner-border spinner-border-sm me-2"
+            ></span>
+            <i class="fas fa-upload me-1"></i>
+            Upload & Process
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Transfer Modal -->
+ <div
+    class="modal fade"
+    [class.show]="showCreateModal"
+    [style.display]="showCreateModal ? 'block' : 'none'"
+    *ngIf="showCreateModal"
+    tabindex="-1"
+    role="dialog"
+  >
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Create New Transfer</h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeCreateModal()"
+          ></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Create Transfer Form -->
+          <form
+            [formGroup]="createTransferForm"
+            (ngSubmit)="submitCreateTransfer()"
+          >
+            <!-- Destination Pharmacy -->
+            <div class="mb-3">
+              <label for="toPharmacy" class="form-label">To Pharmacy *</label>
+              <select
+                class="form-select"
+                id="toPharmacy"
+                formControlName="to"
+                [disabled]="subPharmaciesLoading"
+              >
+                <option value="">
+                  {{
+                    subPharmaciesLoading
+                      ? "Loading pharmacies..."
+                      : "Select Pharmacy"
+                  }}
+                </option>
+                <option
+                  *ngFor="let pharmacy of subPharmacies"
+                  [value]="pharmacy._id"
+                >
+                  {{ pharmacy.name }} ({{ pharmacy.type }}) -
+                  {{ pharmacy.location }}
+                </option>
+              </select>
+              <div
+                *ngIf="
+                  createTransferForm.get('to')?.invalid &&
+                  createTransferForm.get('to')?.touched
+                "
+                class="text-danger small"
+              >
+                Please select a pharmacy
+              </div>
+            </div>
+
+            <!-- Medicine Search Section -->
+            <div class="mb-4 p-3 border rounded bg-light">
+              <div class="mb-3">
+                <label for="medicineSearch" class="form-label fw-bold"
+                  >🔍 Search & Add Medicine</label
+                >
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                  </span>
+                  <input
+                    id="medicineSearch"
+                    type="text"
+                    class="form-control form-control-lg"
+                    [formControl]="medicineSearchControl"
+                    placeholder="Type medicine name to search..."
+                  />
+                  <span *ngIf="medicinesLoading" class="input-group-text">
+                    <div
+                      class="spinner-border spinner-border-sm"
+                      role="status"
+                    ></div>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Search Results -->
+              <div *ngIf="filteredMedicines.length > 0" class="mt-3">
+                <h6 class="text-muted mb-2">
+                  Search Results ({{ filteredMedicines.length }} found)
+                </h6>
+
+                <div
+                  class="list-group"
+                  style="max-height: 300px; overflow-y: auto"
+                >
+                  <button
+                    *ngFor="let med of filteredMedicines"
+                    type="button"
+                    class="list-group-item list-group-item-action p-3"
+                    (click)="selectMedicine(med)"
+                    [class.list-group-item-secondary]="med.stock === 0"
+                    [disabled]="med.stock === 0"
+                  >
+                    <div
+                      class="d-flex justify-content-between align-items-start"
+                    >
+                      <div class="flex-grow-1">
+                        <!-- Medicine Name -->
+                        <h6
+                          class="mb-1 fw-bold"
+                          [class.text-muted]="med.stock === 0"
+                        >
+                          {{ med.medicine_name }} - {{ med.dose }}mg
+                        </h6>
+
+                        <!-- Additional Info -->
+                        <div class="row g-0">
+                          <div class="col-md-4">
+                            <small class="text-muted">Price:</small>
+                            <span class="fw-semibold text-success ms-1"
+                              >₹{{ med.price }}</span
+                            >
+                          </div>
+                          <div class="col-md-4">
+                            <small class="text-muted">Stock:</small>
+                            <span
+                              class="ms-1 fw-semibold"
+                              [class.text-danger]="med.stock === 0"
+                              [class.text-warning]="
+                                med.stock > 0 && med.stock <= 10
+                              "
+                              [class.text-success]="med.stock > 10"
+                            >
+                              {{ med.stock }} units
+                            </span>
+                          </div>
+                          <div class="col-md-4">
+                            <small class="text-muted">Batch:</small>
+                            <span class="ms-1">{{ med.batch_no }}</span>
+                          </div>
+                        </div>
+
+                        <!-- Expiry Date -->
+                        <div class="mt-1">
+                          <small class="text-muted">Expiry:</small>
+                          <span
+                            class="ms-1"
+                            [ngClass]="getExpiryClass(med.expiry_date)"
+                          >
+                            {{ med.expiry_date | date : "mediumDate" }}
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Stock Status Badge -->
+                      <div class="ms-2">
+                        <span *ngIf="med.stock === 0" class="badge bg-danger">
+                          Out of Stock
+                        </span>
+                        <span
+                          *ngIf="med.stock > 0 && med.stock <= 10"
+                          class="badge bg-warning text-dark"
+                        >
+                          Low Stock
+                        </span>
+                        <span *ngIf="med.stock > 10" class="badge bg-success">
+                          Available
+                        </span>
+                        <span
+                          *ngIf="med.isLowStock"
+                          class="badge bg-warning text-dark ms-1"
+                        >
+                          ⚠️ Low
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- No Results Message -->
+              <div
+                *ngIf="
+                  medicineSearchControl.value &&
+                  filteredMedicines.length === 0 &&
+                  !medicinesLoading
+                "
+                class="alert alert-info mt-3"
+              >
+                <i class="fas fa-info-circle me-2"></i>
+                No medicines found matching "{{ medicineSearchControl.value }}"
+              </div>
+
+              <!-- Stock Warning -->
+              <div *ngIf="stockWarning" class="alert alert-danger mt-3">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Warning:</strong> Selected medicine is currently out of
+                stock.
+              </div>
+            </div>
+
+            <!-- Selected Medicine Items -->
+            <div class="mb-3">
+              <label class="form-label fw-bold"
+                >Selected Medicine Items *</label
+              >
+
+              <div formArrayName="items">
+                <div
+                  *ngFor="let item of itemsFormArray.controls; let i = index"
+                  [formGroupName]="i"
+                  class="medicine-item border p-3 mb-3 rounded"
+                >
+                  <div class="row">
+                    <div class="col-md-4">
+                      <label class="form-label">Medicine</label>
+                      <select
+                        class="form-select"
+                        formControlName="medicine"
+                        (change)="onMedicineSelect(i, $event)"
+                      >
+                        <option value="">
+                          Select Medicine (or search above)
+                        </option>
+                        <option
+                          *ngFor="let medicine of medicines"
+                          [value]="medicine._id"
+                        >
+                          {{ medicine.medicine_name }} - {{ medicine.dose }}mg
+                          (Stock: {{ medicine.stock }})
+                        </option>
+                      </select>
+                      <div
+                        *ngIf="
+                          itemsFormArray.at(i).get('medicine')?.invalid &&
+                          itemsFormArray.at(i).get('medicine')?.touched
+                        "
+                        class="text-danger small"
+                      >
+                        Please select a medicine
+                      </div>
+                    </div>
+
+                    <div class="col-md-2">
+                      <label class="form-label">Quantity</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        formControlName="requested_quantity"
+                        min="1"
+                      />
+                      <small
+                        class="text-muted"
+                        *ngIf="
+                          itemsFormArray.at(i).get('available_stock')?.value > 0
+                        "
+                      >
+                        Available:
+                        {{ itemsFormArray.at(i).get("available_stock")?.value }}
+                      </small>
+                      <div
+                        *ngIf="
+                          itemsFormArray.at(i).get('requested_quantity')
+                            ?.invalid &&
+                          itemsFormArray.at(i).get('requested_quantity')
+                            ?.touched
+                        "
+                        class="text-danger small"
+                      >
+                        Invalid quantity
+                      </div>
+                    </div>
+
+                    <div class="col-md-2">
+                      <label class="form-label">Unit Price</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        formControlName="unit_price"
+                        step="0.01"
+                        readonly
+                      />
+                    </div>
+
+                    <div class="col-md-2">
+                      <label class="form-label">Batch No</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        formControlName="batch_no"
+                        readonly
+                      />
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                      <button
+                        type="button"
+                        class="btn btn-danger btn-sm w-100"
+                        (click)="removeMedicineItem(i)"
+                        [disabled]="itemsFormArray.length === 1"
+                      >
+                        <i class="fas fa-trash"></i> Remove
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    class="row mt-2"
+                    *ngIf="itemsFormArray.at(i).get('medicine')?.value"
+                  >
+                    <div class="col-md-6">
+                      <small class="text-info">
+                        <strong>Expiry:</strong>
+                        <span
+                          [ngClass]="
+                            getExpiryClass(
+                              itemsFormArray.at(i).get('expiry_date')?.value
+                            )
+                          "
+                        >
+                          {{
+                            itemsFormArray.at(i).get("expiry_date")?.value
+                              | date : "mediumDate"
+                          }}
+                        </span>
+                      </small>
+                    </div>
+                    <div class="col-md-6">
+                      <small class="text-info">
+                        <strong>Item Total:</strong> ₹{{
+                          getItemTotal(i).toFixed(2)
+                        }}
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-outline-primary btn-sm"
+                (click)="addMedicineItem()"
+              >
+                <i class="fas fa-plus"></i> Add Medicine Item
+              </button>
+            </div>
+
+            <!-- Priority -->
+            <div class="mb-3">
+              <label for="priority" class="form-label">Priority</label>
+              <select
+                class="form-select"
+                id="priority"
+                formControlName="priority"
+              >
+                <option value="low">Low</option>
+                <option value="normal">Normal</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+
+            <!-- Remarks -->
+            <div class="mb-3">
+              <label for="remarks" class="form-label">Remarks</label>
+              <textarea
+                class="form-control"
+                id="remarks"
+                formControlName="remarks"
+                rows="3"
+                placeholder="Add any special instructions or notes..."
+              ></textarea>
+            </div>
+
+            <!-- Total Summary -->
+            <div class="alert alert-info">
+              <div class="row">
+                <div class="col-md-4">
+                  <strong>Total Items:</strong> {{ itemsFormArray.length }}
+                </div>
+                <div class="col-md-4">
+                  <strong>Total Quantity:</strong> {{ getTotalQuantity() }}
+                </div>
+                <div class="col-md-4">
+                  <strong>Total Value:</strong> ₹{{
+                    getTotalValue().toFixed(2)
+                  }}
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="closeCreateModal()"
+            [disabled]="createFormLoading"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="submitCreateTransfer()"
+            [disabled]="!isFormValid() || createFormLoading"
+          >
+            <span
+              *ngIf="createFormLoading"
+              class="spinner-border spinner-border-sm me-2"
+            ></span>
+            Create Transfer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Transfer Modal -->
+  <div
+    class="modal fade"
+    [class.show]="showViewModal"
+    [style.display]="showViewModal ? 'block' : 'none'"
+    *ngIf="showViewModal"
+    tabindex="-1"
+    role="dialog"
+  >
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <!-- Add this print button in the modal header, next to the close button -->
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-eye me-2"></i>Transfer Details
+            <span
+              *ngIf="selectedTransfer"
+              class="badge bg-{{
+                getStatusColor(selectedTransfer.status)
+              }} ms-2"
+            >
+              {{ selectedTransfer.status | titlecase }}
+            </span>
+          </h5>
+          <div class="d-flex">
+            <!-- Print Button -->
+            <button
+              *ngIf="selectedTransfer"
+              class="btn btn-outline-primary btn-sm me-2"
+              (click)="printTransfer()"
+              title="Print Transfer"
+            >
+              <i class="fas fa-print me-1"></i>Print
+            </button>
+            <i class="fas fa-times me-2" (click)="closeViewModal()"></i>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <!-- Loading State -->
+          <div *ngIf="viewTransferLoading" class="text-center p-4">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading transfer details...</p>
+          </div>
+
+          <!-- Transfer Details -->
+          <div *ngIf="selectedTransfer && !viewTransferLoading">
+            <!-- Transfer Header Info -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <h6 class="mb-0">Transfer Information</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <strong>Transfer ID:</strong><br />
+                        <span class="text-primary">{{
+                          selectedTransfer.transferId
+                        }}</span>
+                      </div>
+                      <div class="col-sm-6">
+                        <strong>Priority:</strong><br />
+                        <span
+                          class="badge bg-{{
+                            getPriorityColor(selectedTransfer.priority)
+                          }}"
+                        >
+                          {{ selectedTransfer.priority | titlecase }}
+                        </span>
+                      </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <strong>From:</strong><br />
+                        <span>{{ selectedTransfer.from }}</span>
+                      </div>
+                      <div class="col-sm-6">
+                        <strong>To:</strong><br />
+                        <span>{{ getToDisplay(selectedTransfer) }}</span>
+                      </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <strong>Requested By:</strong><br />
+                        <span>{{ selectedTransfer.requested_by }}</span>
+                      </div>
+                      <div class="col-sm-6">
+                        <strong>Date Created:</strong><br />
+                        <span>{{
+                          getFormattedDate(selectedTransfer.createdAt)
+                        }}</span>
+                      </div>
+                    </div>
+                    <div *ngIf="selectedTransfer.approved_by" class="row mt-2">
+                      <div class="col-sm-12">
+                        <strong>Approved By:</strong><br />
+                        <span>{{ selectedTransfer.approved_by }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <h6 class="mb-0">Transfer Summary</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-6">
+                        <div class="text-center">
+                          <h4 class="text-primary mb-0">
+                            {{ selectedTransfer.items.length }}
+                          </h4>
+                          <small class="text-muted">Total Items</small>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="text-center">
+                          <h4 class="text-success mb-0">
+                            {{
+                              getFormattedValue(
+                                getCalculatedTotalValue(selectedTransfer)
+                              )
+                            }}
+                          </h4>
+                          <small class="text-muted">Total Value</small>
+                        </div>
+                      </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                      <div class="col-6">
+                        <div class="text-center">
+                          <h5 class="text-info mb-0">
+                            {{ getRequestedQuantityTotal(selectedTransfer) }}
+                          </h5>
+                          <small class="text-muted">Requested Qty</small>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="text-center">
+                          <h5 class="text-warning mb-0">
+                            {{ getApprovedQuantityTotal(selectedTransfer) }}
+                          </h5>
+                          <small class="text-muted">Approved Qty</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Remarks Section -->
+            <!-- <div *ngIf="selectedTransfer.remarks" class="row mb-4">
+              <div class="col-12">
+                <div class="alert alert-info">
+                  <strong><i class="fas fa-sticky-note me-2"></i>Remarks:</strong><br>
+                  {{ selectedTransfer.remarks }}
+                </div>
+              </div>
+            </div> -->
+
+            <!-- Items Table -->
+            <div class="card">
+              <div class="card-header">
+                <h6 class="mb-0">Medicine Items</h6>
+              </div>
+              <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                      <tr>
+                        <th>#</th>
+                        <th>Medicine Name</th>
+                        <th>Requested Qty</th>
+                        <th>Approved Qty</th>
+                        <th>Unit Price</th>
+                        <th>Batch Details</th>
+                        <th>Item Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let item of getSelectedTransferItems();
+                          let i = index
+                        "
+                      >
+                        <td>{{ i + 1 }}</td>
+                        <td>
+                          <div class="fw-bold">{{ getMedicineName(item) }}</div>
+                          <small class="text-muted" *ngIf="item.medicine?.dose">
+                            Dose: {{ item.medicine.dose }}mg
+                          </small>
+                        </td>
+                        <td>
+                          <span class="badge bg-info">{{
+                            item.requested_quantity
+                          }}</span>
+                        </td>
+                        <td>
+                          <span
+                            class="badge"
+                            [class.bg-success]="item.approved_quantity > 0"
+                            [class.bg-secondary]="item.approved_quantity === 0"
+                          >
+                            {{ item.approved_quantity || 0 }}
+                          </span>
+                        </td>
+                        <td>{{ getFormattedValue(item.unit_price) }}</td>
+                        <td>
+                          <small>{{ getBatchDetails(item) }}</small>
+                        </td>
+                        <td class="fw-bold text-success">
+                          {{ getFormattedValue(getItemDisplayTotal(item)) }}
+                        </td>
+                      </tr>
+                    </tbody>
+                    <tfoot class="table-secondary">
+                      <tr>
+                        <th colspan="6" class="text-end">Grand Total:</th>
+                        <th class="text-success">
+                          {{
+                            getFormattedValue(
+                              getCalculatedTotalValue(selectedTransfer)
+                            )
+                          }}
+                        </th>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons for Transfer Status -->
+            <div class="mt-4">
+              <div class="d-flex justify-content-between align-items-center">
+                <!-- <div>
+                  <span
+                    class="badge bg-{{
+                      getStatusColor(selectedTransfer.status)
+                    }} fs-6 px-3 py-2"
+                  >
+                    <i class="fas fa-info-circle me-2"></i>
+                    Status: {{ selectedTransfer.status | titlecase }}
+                  </span>
+                </div> -->
+
+                <div class="btn-group">
+                  <button
+                    *ngIf="selectedTransfer.status === 'pending'"
+                    class="btn btn-success"
+                    [disabled]="isActionLoading(selectedTransfer.transferId)"
+                    (click)="approveTransfer(selectedTransfer._id)"
+                  >
+                    <span
+                      *ngIf="isActionLoading(selectedTransfer.transferId)"
+                      class="spinner-border spinner-border-sm me-1"
+                    ></span>
+                    <i class="fas fa-check me-2"></i>Approve Transfer
+                  </button>
+
+                  <button
+                    *ngIf="selectedTransfer.status === 'in_progress'"
+                    class="btn btn-sm btn-success"
+                    [disabled]="isActionLoading(selectedTransfer._id)"
+                    (click)="completeTransfer(selectedTransfer._id)"
+                  >
+                    <span
+                      *ngIf="isActionLoading(selectedTransfer._id)"
+                      class="spinner-border spinner-border-sm me-1"
+                    ></span>
+                    Complete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- pritn fucntion -->
+ <!-- Print Template (Hidden from screen) -->
+<!-- Print Template (Hidden from screen) -->
+<!-- Print Template (Hidden from screen) -->
+<!-- Print Template (Hidden from screen) -->
+<div #printTemplate class="d-none print-template">
+  <div class="print-content" *ngIf="selectedTransfer">
+    <!-- Letter Header -->
+    <app-letterheader></app-letterheader>
+
+    <!-- Document Title -->
+    <div class="document-title">
+      <h3>MEDICINE TRANSFER REQUISITION</h3>
+    </div>
+
+    <!-- Transfer Details Section -->
+    <div class="transfer-details-section">
+      <div class="left-details">
+        <h6>Transfer Details</h6>
+        <div class="detail-row">
+          <span class="detail-label">Transfer ID:</span>
+          <span class="detail-value">{{ selectedTransfer.transferId }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Date:</span>
+          <span class="detail-value">{{ getFormattedDate(selectedTransfer.createdAt) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Department:</span>
+          <span class="detail-value">{{ selectedTransfer.from }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Requested By:</span>
+          <span class="detail-value">{{ selectedTransfer.requested_by }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Priority:</span>
+          <span class="detail-value">{{ selectedTransfer.priority | titlecase }}</span>
+        </div>
+      </div>
+
+      <div class="right-details">
+        <h6>Reference Information</h6>
+        <div class="detail-row">
+          <span class="detail-label">Status:</span>
+          <span class="detail-value">{{ selectedTransfer.status | titlecase }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Destination:</span>
+          <span class="detail-value">{{ getToDisplay(selectedTransfer) }}</span>
+        </div>
+        <div class="detail-row" *ngIf="selectedTransfer.approved_by">
+          <span class="detail-label">Approved By:</span>
+          <span class="detail-value">{{ selectedTransfer.approved_by }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Total Items:</span>
+          <span class="detail-value">{{ selectedTransfer.items.length }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="items-section">
+      <h5>Transfer Items</h5>
+      <table class="clean-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Item Description</th>
+            <th>Unit</th>
+            <th>Requested Quantity</th>
+            <th>Approved Quantity</th>
+            <th>Unit Price (₹)</th>
+            <th>Total Amount (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of getSelectedTransferItems(); let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>
+              <div class="item-name">{{ getMedicineName(item) }}</div>
+              <div class="item-details" *ngIf="getBatchDetails(item)">{{ getBatchDetails(item) }}</div>
+            </td>
+            <td>Nos</td>
+            <td>{{ item.requested_quantity }}</td>
+            <td>{{ item.approved_quantity || 0 }}</td>
+            <td>{{ getFormattedValue(item.unit_price) }}</td>
+            <td>{{ getFormattedValue(getItemDisplayTotal(item)) }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="6"><strong>Grand Total:</strong></td>
+            <td><strong>{{ getFormattedValue(getCalculatedTotalValue(selectedTransfer)) }}</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Bottom Summary (Right Side) -->
+    <div class="bottom-summary">
+      <div class="summary-box-right">
+        <div class="summary-item">
+          <span class="sum-label">Total Items:</span>
+          <span class="sum-value">{{ selectedTransfer.items.length }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="sum-label">Requested Quantity:</span>
+          <span class="sum-value">{{ getRequestedQuantityTotal(selectedTransfer) }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="sum-label">Approved Quantity:</span>
+          <span class="sum-value">{{ getApprovedQuantityTotal(selectedTransfer) }}</span>
+        </div>
+        <div class="summary-item final-total">
+          <span class="sum-label">Grand Total:</span>
+          <span class="sum-value">{{ getFormattedValue(getCalculatedTotalValue(selectedTransfer)) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="final-divider"></div>
+
+    <!-- Signature Section -->
+    <div class="final-signatures">
+      <div class="sig-col">
+        <div class="sig-line"></div>
+        <div class="sig-title">Requested By</div>
+        <div class="sig-name">{{ selectedTransfer.requested_by }}</div>
+        <div class="sig-date">Date: {{ getFormattedDate(selectedTransfer.createdAt) }}</div>
+      </div>
+
+      <div class="sig-col">
+        <div class="sig-line"></div>
+        <div class="sig-title">Approved By</div>
+        <div class="sig-name">Department Head</div>
+        <div class="sig-date">Date: ___________</div>
+      </div>
+
+      <div class="sig-col">
+        <div class="sig-line"></div>
+        <div class="sig-title">Authorized By</div>
+        <div class="sig-name">Purchase Manager</div>
+        <div class="sig-date">Date: ___________</div>
+      </div>
+
+      <div class="sig-col">
+        <div class="sig-line"></div>
+        <div class="sig-title">Store Head Officer</div>
+        <div class="sig-name">Store Manager</div>
+        <div class="sig-date">Date: ___________</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="final-footer">
+      <p>This transfer requisition is electronically generated and is valid without signature. Please quote Transfer ID <strong>{{ selectedTransfer.transferId }}</strong> in all correspondence.</p>
+      <p>Generated on {{ getCurrentDate() }}</p>
+    </div>
+  </div>
+</div>
+
+

@@ -1,0 +1,53 @@
+/* companymaster.component.css */
+.modal {
+  z-index: 1050;
+}
+
+.modal-backdrop {
+  z-index: 1040;
+}
+
+.card-header {
+  font-weight: bold;
+}
+
+.badge {
+  font-size: 0.85em;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+.company-rate-item {
+  border-left: 4px solid #007bff;
+  padding-left: 1rem;
+}
+
+.savings-positive {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.savings-negative {
+  color: #dc3545;
+  font-weight: bold;
+}

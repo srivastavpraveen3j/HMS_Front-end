@@ -1,0 +1,39 @@
+<div class="time-picker-container">
+  <!-- Input Field -->
+  <input type="text" class="time-input" [value]="formattedTime" (click)="toggleTimePicker()" readonly />
+
+  <!-- Time Picker UI -->
+  <div class="time-picker" *ngIf="showTimePicker">
+    <div class="time-header">
+      <span>{{ selectedHour }}:{{ selectedMinute.toString().padStart(2, '0') }} {{ period }}</span>
+    </div>
+
+    <div class="time-grid">
+      <!-- Hours -->
+      <h6>Hours</h6>
+      <div class="hour-section">
+        <div *ngFor="let h of hours"
+             [class.selected]="h === selectedHour"
+             (click)="setHour(h)">
+          {{ h }}
+        </div>
+      </div>
+
+      <!-- Minutes -->
+      <h6 class="mt-3">Minutes</h6>
+      <div class="minute-section">
+        <div *ngFor="let m of minutes"
+             [class.selected]="m === selectedMinute"
+             (click)="setMinute(m)">
+          {{ m.toString().padStart(2, '0') }}
+        </div>
+      </div>
+    </div>
+
+    <!-- AM/PM Toggle -->
+    <div class="period-toggle">
+      <span [class.selected]="period === 'AM'" (click)="setPeriod('AM')">AM</span>
+      <span [class.selected]="period === 'PM'" (click)="setPeriod('PM')">PM</span>
+    </div>
+  </div>
+</div>

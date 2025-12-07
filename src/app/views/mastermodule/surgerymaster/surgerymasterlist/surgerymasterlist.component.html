@@ -1,0 +1,98 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>SURGERY MASTER LIST</h2>
+    <div class="">
+      <!-- <button class="list-cases-btn mx-3"   ><i class="fa-solid fa-user-group"></i></button> -->
+      <button
+        class="list-cases-btn mx-3"
+        [routerLink]="['/master/surgerymaster']"
+        routerLinkActive="router-link-active"
+      >
+        ADD SURGERY
+      </button>
+    </div>
+  </div>
+  <form [formGroup]="filterForm" class="top-bar p-3">
+    <!-- <select formControlName="recordsPerPage">
+      <option *ngFor="let num of [10, 25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+    </select> -->
+
+    <input type="text" placeholder="Search..." formControlName="searchText" />
+  </form>
+
+  <!-- <div class="loader-wrapper" *ngIf="surgery.length === 0">
+    <div class="loader">
+      <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+    </div>
+  </div> -->
+
+  <div
+    class="table-responsive"
+    *ngIf="userPermissions.read && surgery.length > 0"
+  >
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Surgery Name</th>
+          <th>Surgery Grade</th>
+          <th>Category</th>
+          <th>Emergency</th>
+          <th>Risk</th>
+          <th>Surgery Amount</th>
+          <!-- <th>Surgery Time</th> -->
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pkg of surgery; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ pkg.name }}</td>
+          <td>{{ pkg.grade }}</td>
+          <td>{{ parseCategory(pkg.category) }}</td>
+          <td>{{ pkg.emergency }}</td>
+          <td>{{ pkg.risk }}</td>
+          <td>{{ pkg.amount }}</td>
+          <!-- <td>{{ pkg.surgery_time }}</td> -->
+          <!-- <td>
+            <ul class="mb-0">
+              <li *ngFor="let symp of pkg.symptom_group?.symptoms">{{ symp.name }}</li>
+            </ul>
+          </td> -->
+
+          <td>
+            <i
+              class="fa-solid fa-pencil action-btn mx-3"
+              *ngIf="userPermissions.update"
+              (click)="editSurgery(pkg._id)"
+            ></i>
+            <!-- <i
+              class="fa-solid fa-trash action-btn"
+              *ngIf="userPermissions.delete"
+              (click)="deleteSurgery(pkg._id)"
+            ></i> -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <button
+        class="pagination-btn"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      Page {{ currentPage }} of {{ totalPages }}
+      <button
+        class="pagination-btn"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>

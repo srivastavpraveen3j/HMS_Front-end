@@ -1,0 +1,219 @@
+<div class="" #pdfContent>
+  <div class="header d-flex justify-content-between align-items-center mb-3">
+    <h2>Patient Ledger Summary {{ subTitle }}</h2>
+
+    <div
+      class="d-flex justify-content-end gap-2 my-3 filter-tab"
+      *ngIf="!patientId"
+    >
+      <button
+        class="btn btn-dark no-print"
+        [ngClass]="{ active: selectedFilter === 'today' }"
+        (click)="selectedFilter = 'today'; setFilter('today')"
+      >
+        Today
+      </button>
+      <button
+        class="btn btn-dark no-print"
+        [ngClass]="{ active: selectedFilter === 'week' }"
+        (click)="selectedFilter = 'week'; setFilter('week')"
+      >
+        This Week
+      </button>
+      <button
+        class="btn btn-dark no-print"
+        [ngClass]="{ active: selectedFilter === 'month' }"
+        (click)="selectedFilter = 'month'; setFilter('month')"
+      >
+        This Month
+      </button>
+      <button
+        class="btn btn-dark no-print"
+        [ngClass]="{ active: selectedFilter === 'year' }"
+        (click)="selectedFilter = 'year'; setFilter('year')"
+      >
+        This Year
+      </button>
+    </div>
+  </div>
+
+  <div class="" *ngIf="filteredPatients.length > 0">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark text-center">
+        <tr>
+          <th>#</th>
+          <th>UHID</th>
+          <th>Patient Name</th>
+          <th>Address</th>
+          <th>Age</th>
+          <th>Service Details</th>
+          <th *ngIf="pharmaData.length > 0">Pharma Details</th>
+          <th *ngIf="testData.length > 0">Test Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let summary of filteredPatients; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ summary.uhid }}</td>
+          <td>{{ summary.patientName }}</td>
+          <td>{{ summary.address }}</td>
+          <td>{{ summary.age }}</td>
+          <td>
+            <table class="table table-sm table-bordered w-100 mb-0">
+              <thead class="table-light text-center">
+                <tr>
+                  <th>Bill Number</th>
+                  <th>Date</th>
+                  <th>Service Name</th>
+                  <th>Charge</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let bill of summary.bills">
+                  <tr *ngFor="let service of bill.services; let j = index">
+                    <td
+                      *ngIf="j === 0"
+                      [attr.rowspan]="bill.services.length"
+                      class="text-center align-middle"
+                    >
+                      {{ bill.billNumber }}
+                    </td>
+                    <td
+                      *ngIf="j === 0"
+                      [attr.rowspan]="bill.services.length"
+                      class="text-center align-middle"
+                    >
+                      {{ bill.date | date : "mediumDate" }}
+                    </td>
+                    <td>{{ service.name }}</td>
+                    <td>₹{{ service.charge }}</td>
+                  </tr>
+
+                  <!-- 🔽 Display summary after each bill -->
+                  <tr class="bg-light font-weight-bold">
+                    <td colspan="4">
+                      <div class="d-flex justify-content-end">
+                        <strong>Total Amount :</strong> ₹ {{ bill.totalAmount }}
+                      </div>
+                      <div class="d-flex justify-content-end">
+                        <strong>Amount Received :</strong> ₹
+                        {{ bill.amountReceived }}
+                      </div>
+                      <div class="d-flex justify-content-end">
+                        <strong>Payment Mode :</strong> {{ bill.paymentMode }}
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </td>
+          <td *ngIf="getPharmaForPatient(summary.id).length > 0; else noPharma">
+            <!-- Only show if pharmaData is available and has at least one item -->
+            <div>
+              <!-- Package details -->
+              <table
+                *ngFor="let item of getPharmaForPatient(summary.id)"
+                class="table table-sm table-bordered w-100 mb-0"
+              >
+                <thead class="thead-light">
+                  <tr>
+                    <th>Medicine Name</th>
+                    <th>Quantity</th>
+                    <th>Charge</th>
+                    <!-- <th>Dosage Instruction</th> -->
+                    <!-- <th>Timing</th> -->
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let pack of item.packages">
+                    <td>{{ pack.medicineName }}</td>
+                    <td>{{ pack.quantity }}</td>
+                    <td>₹{{ pack.charge }}</td>
+                    <!-- <td>{{ pack.dosageInstruction }}</td> -->
+                    <!-- <td>
+                        <span *ngIf="pack.checkbox.morning">Morning </span>
+                        <span *ngIf="pack.checkbox.noon">Noon </span>
+                        <span *ngIf="pack.checkbox.evening">Evening </span>
+                        <span *ngIf="pack.checkbox.night">Night</span>
+                      </td> -->
+                  </tr>
+                  <tr class="bg-light font-weight-bold">
+                    <td colspan="4">
+                      <div class="d-flex justify-content-end">
+                        <strong>Payment Mode :</strong> {{ item.PaymentMode }}
+                      </div>
+                      <div class="d-flex justify-content-end">
+                        <strong>Total Amount :</strong> ₹ {{ item.total }}
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </td>
+          <ng-template #noPharma>
+            <td>
+              <p class="text-muted text-center">No Pharmacy Data</p>
+            </td>
+          </ng-template>
+          <td *ngIf="getPathoForPatient(summary.id).length > 0; else noPatho">
+            <div>
+              <table
+                *ngFor="let item of getPathoForPatient(summary.id)"
+                class="table table-sm table-bordered w-100 mb-0"
+              >
+                <thead class="thead-light">
+                  <tr>
+                    <th>Test Group Name ({{item.requestedDepartment}})</th>
+                    <th>Charge</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let test of item.testMaster">
+                    <td>{{ test.testGroup }}</td>
+                    <td>₹{{ test.price }}</td>
+                    <td>{{ test.status }}</td>
+                  </tr>
+                  <tr class="bg-light font-weight-bold">
+                    <td colspan="4">
+                      <div class="d-flex justify-content-end">
+                        <strong>Payment Mode :</strong> {{ item.PaymentMode }}
+                      </div>
+                      <div class="d-flex justify-content-end">
+                        <strong>Total Amount :</strong> ₹
+                        {{ item.amountReceived }}
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- <div class="">
+              radiology
+            </div> -->
+          </td>
+          <ng-template #noPatho>
+            <td>
+              <p class="text-muted text-center">No Pathology Data</p>
+            </td>
+          </ng-template>
+        </tr>
+      </tbody>
+    </table>
+    <div class="d-flex justify-content-end no-print">
+      <button (click)="downloadPDF()" class="btn btn-dark mb-3 no-print">
+        Download
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-loader
+  [patientData]="filteredPatients"
+  [title]="title"
+  [activeFilter]="selectedFilter"
+></app-loader>

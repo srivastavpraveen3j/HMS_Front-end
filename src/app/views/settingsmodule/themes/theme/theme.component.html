@@ -1,0 +1,332 @@
+<div class="form-meta">
+<div class="header mb-5">
+  <h2>🎨 Advanced Theme Settings</h2>
+  <button class="btn-secondary" (click)="resetTheme()">🔄 Reset</button>
+</div>
+
+<div class="settings-body">
+  <!-- Primary Color Section -->
+  <div class="color-section">
+    <h3>Primary Color</h3>
+    <div class="form-row">
+      <label for="primaryColor">Base Color</label>
+      <input
+        type="color"
+        id="primaryColor"
+        [(ngModel)]="theme.primaryColor"
+        (ngModelChange)="onPrimaryColorChange($event)"
+      />
+      <span class="color-value">{{ theme.primaryColor }}</span>
+    </div>
+
+    <!-- Auto-generate from primary -->
+    <div class="form-actions">
+      <button class="btn-secondary" (click)="generateFromPrimary()">
+        🎯 Auto-Generate Theme
+      </button>
+      <button class="btn-secondary" (click)="generateComplementary()">
+        🔄 Use Complementary
+      </button>
+    </div>
+  </div>
+
+  <!-- Generated Color Palette Display -->
+  <div class="palette-preview" *ngIf="theme.colorPalette">
+    <h4>Generated Palette</h4>
+    <div class="palette-grid">
+      <div
+        class="palette-swatch"
+        *ngFor="let color of getPaletteColors()"
+        [style.background-color]="color.value"
+        [title]="color.name + ': ' + color.value"
+        (click)="applyPaletteColor(color.value)"
+      >
+        <span class="swatch-label">{{ color.name }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Individual Color Controls -->
+  <div class="color-section">
+    <h3>Individual Colors</h3>
+
+    <div class="form-row">
+      <label for="sidebarColor">Sidebar Color</label>
+      <input
+        type="color"
+        id="sidebarColor"
+        [(ngModel)]="theme.sidebarColor"
+        (ngModelChange)="onColorChange()"
+      />
+      <span class="color-value">{{ theme.sidebarColor }}</span>
+      <button class="btn-mini" (click)="lightenColor('sidebar')">
+        Lighten
+      </button>
+      <button class="btn-mini" (click)="darkenColor('sidebar')">Darken</button>
+    </div>
+
+    <div class="form-row">
+      <label for="dropdownColor">Dropdown Color</label>
+      <input
+        type="color"
+        id="dropdownColor"
+        [(ngModel)]="theme.dropdownColor"
+        (ngModelChange)="onColorChange()"
+      />
+      <span class="color-value">{{ theme.dropdownColor }}</span>
+      <button class="btn-mini" (click)="lightenColor('dropdown')">
+        Lighten
+      </button>
+      <button class="btn-mini" (click)="darkenColor('dropdown')">Darken</button>
+    </div>
+
+    <div class="form-row">
+      <label for="footerColor">Footer Color</label>
+      <input
+        type="color"
+        id="footerColor"
+        [(ngModel)]="theme.footerColor"
+        (ngModelChange)="onColorChange()"
+      />
+      <span class="color-value">{{ theme.footerColor }}</span>
+      <button class="btn-mini" (click)="lightenColor('footer')">Lighten</button>
+      <button class="btn-mini" (click)="darkenColor('footer')">Darken</button>
+    </div>
+  </div>
+
+  <!-- Layout Settings -->
+ <!-- Layout Settings -->
+<div class="layout-section">
+  <div class="section-header">
+    <h3><i class="fas fa-layout-grid"></i> Layout Settings</h3>
+    <p class="section-description">Customize your sidebar appearance and layout</p>
+  </div>
+
+  <!-- Width Settings -->
+  <div class="settings-group">
+    <h4 class="group-title">Width Settings</h4>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="sidebarwidth" class="form-label">
+          <i class="fas fa-arrows-alt-h"></i>
+          Sidebar Width
+        </label>
+        <div class="input-wrapper">
+          <input
+            type="text"
+            id="sidebarwidth"
+            class="form-control"
+            [(ngModel)]="theme.sidebarwidth"
+            placeholder="260px"
+          />
+          <span class="input-helper">e.g., 260px</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="sidebarcollapsedwidth" class="form-label">
+          <i class="fas fa-compress-alt"></i>
+          Collapsed Width
+        </label>
+        <div class="input-wrapper">
+          <input
+            type="text"
+            id="sidebarcollapsedwidth"
+            class="form-control"
+            [(ngModel)]="theme.sidebarcollapsedwidth"
+            placeholder="90px"
+          />
+          <span class="input-helper">e.g., 90px</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Font Settings -->
+  <div class="settings-group">
+    <h4 class="group-title">Sidebar Font Settings</h4>
+
+    <div class="form-grid three-columns">
+      <div class="form-group">
+        <label for="sidebarfontsize" class="form-label">
+          <i class="fas fa-text-height layoutfont"></i>
+          Font Size
+        </label>
+        <div class="input-wrapper">
+          <input
+            type="text"
+            id="sidebarfontsize"
+            class="form-control"
+            [(ngModel)]="theme.navlinktext"
+            placeholder="16px"
+          />
+          <span class="input-helper">e.g., 16px</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="sidebarfontcolor" class="form-label">
+          <i class="fas fa-palette"></i>
+          Font Color
+        </label>
+        <div class="color-input-wrapper">
+          <input
+            type="color"
+            id="sidebarfontcolor"
+            class="form-control color-input"
+            [(ngModel)]="theme.navlinktextcolor"
+          />
+          <div class="color-preview" [style.background-color]="theme.navlinktextcolor"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="navlinkfont" class="form-label">
+          <i class="fas fa-font"></i>
+          Font Style
+        </label>
+        <select
+          id="navlinkfont"
+          class="form-control select-control"
+          [(ngModel)]="theme.navlinkfont"
+        >
+          <option value="Arial, sans-serif">Arial</option>
+          <option value="'Roboto', sans-serif">Roboto</option>
+          <option value="'Times New Roman', serif">Times New Roman</option>
+          <option value="'Courier New', monospace">Courier New</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dropdown Font Settings -->
+  <div class="settings-group">
+    <h4 class="group-title">Dropdown Font Settings</h4>
+
+    <div class="form-grid three-columns">
+      <div class="form-group">
+        <label for="dropdownfontsize" class="form-label">
+          <i class="fas fa-text-height"></i>
+          Font Size
+        </label>
+        <div class="input-wrapper">
+          <input
+            type="text"
+            id="dropdownfontsize"
+            class="form-control"
+            [(ngModel)]="theme.dropdownitemtext"
+            placeholder="14px"
+          />
+          <span class="input-helper">e.g., 14px</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="dropdownfontcolor" class="form-label">
+          <i class="fas fa-palette"></i>
+          Font Color
+        </label>
+        <div class="color-input-wrapper">
+          <input
+            type="color"
+            id="dropdownfontcolor"
+            class="form-control color-input"
+            [(ngModel)]="theme.dropdownitemtextcolor"
+          />
+          <div class="color-preview" [style.background-color]="theme.dropdownitemtextcolor"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="dropdownitemfont" class="form-label">
+          <i class="fas fa-font"></i>
+          Font Style
+        </label>
+        <select
+          id="dropdownitemfont"
+          class="form-control select-control"
+          [(ngModel)]="theme.dropdownitemfont"
+        >
+          <option value="Arial, sans-serif">Arial</option>
+          <option value="'Roboto', sans-serif">Roboto</option>
+          <option value="'Times New Roman', serif">Times New Roman</option>
+          <option value="'Courier New', monospace">Courier New</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Section -->
+ <div class="settings-group">
+    <h4 class="group-title">Preview</h4>
+    <div class="preview-container">
+      <div class="sidebar-preview"
+           [style.width]="theme.sidebarwidth"
+           [style.font-family]="theme.navlinkfont"
+           [style.font-size]="theme.navlinktext"
+           [style.color]="theme.navlinktextcolor">
+        <div class="preview-item">Main Menu Item</div>
+        <div class="preview-dropdown"
+            [style.font-family]="theme.dropdownitemfont"
+     [style.font-size]="theme.dropdownitemtext + ' !important'"
+     [style.color]="theme.dropdownitemtextcolor + ' !important'">
+          <div class="preview-item dropdown-item">Dropdown Item</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Preset Themes -->
+  <div class="presets-section">
+    <h3>Quick Presets</h3>
+    <div class="preset-grid">
+      <button
+        class="preset-btn"
+        *ngFor="let preset of colorPresets"
+        [style.background]="preset.color"
+        (click)="applyPreset(preset)"
+        [title]="preset.name"
+      >
+        {{ preset.name }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <button class="btn-primary" (click)="saveTheme()"> Save Theme</button>
+    <!-- <button class="btn-secondary" (click)="exportTheme()">📤 Export</button> -->
+    <!-- <input type="file" #fileInput (change)="importTheme($event)" accept=".json" style="display: none"> -->
+    <!-- <button class="btn-secondary" (click)="fileInput.click()">📥 Import</button> -->
+  </div>
+
+
+</div>
+</div>
+
+<div class="form-meta mt-5">
+   <!-- Color Analysis -->
+  <div class="analysis-section" *ngIf="colorAnalysis">
+    <h4>Color Analysis</h4>
+    <div class="analysis-grid">
+      <div class="analysis-item">
+        <label>Brightness:</label>
+        <span>{{ colorAnalysis.brightness }}%</span>
+      </div>
+      <div class="analysis-item">
+        <label>Contrast Ratio:</label>
+        <span>{{ colorAnalysis.contrastRatio }}</span>
+      </div>
+      <div class="analysis-item">
+        <label>Accessibility:</label>
+        <span [class]="'status-' + colorAnalysis.accessibility">{{
+          colorAnalysis.accessibility
+        }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+

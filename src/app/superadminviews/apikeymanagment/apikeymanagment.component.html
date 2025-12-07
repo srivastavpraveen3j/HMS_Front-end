@@ -1,0 +1,42 @@
+<div class="container mt-4">
+  <h2 class="mb-3">API Key Management</h2>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="alert alert-info">Loading namespaces...</div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <!-- Namespaces Table -->
+  <table class="table table-bordered table-hover table-striped align-middle shadow-sm">
+    <thead class="table-dark">
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col">API Key</th>
+        <th scope="col" class="text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let ns of namespaces; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ ns.name }}</td>
+        <td>
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            [(ngModel)]="ns.api_Key"
+            readonly
+          />
+        </td>
+        <td class="text-center">
+          <button
+            class="btn btn-sm btn-primary me-2"
+            (click)="updateNamespace(ns)">
+            Update
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,111 @@
+.hospital-box {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  background: #f9f9f9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  min-height: 150px !important;
+  /* max-height: 150px !important; */
+}
+
+.hospital-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.hospital-header h3 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.summary {
+  font-size: 14px;
+  color: #555;
+}
+
+.subscription {
+  display: inline-block;
+  font-size: 13px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: capitalize;
+  width: fit-content;
+}
+
+.sub-active {
+  background-color: #e6ffed;
+  color: #1f9d55;
+  border: 1px solid #c6f6d5;
+}
+
+.sub-expired {
+  background-color: #fff5f5;
+  color: #e53e3e;
+  border: 1px solid #fed7d7;
+}
+
+.sub-pending {
+  background-color: #fffbea;
+  color: #d69e2e;
+  border: 1px solid #fefcbf;
+}
+
+.branches {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.branch-header {
+  background: #f1f1f1;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.branch-details-card {
+  background: white;
+  border: 1px solid #eee;
+  padding: 12px 16px;
+  margin-top: 6px;
+  border-radius: 8px;
+}
+
+.detail-row {
+  padding: 4px 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+
+.subscription-box {
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.active-badge {
+  background-color: #28a745;
+  color: white;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+.inactive-badge {
+  background-color: #dc3545;
+  color: white;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+

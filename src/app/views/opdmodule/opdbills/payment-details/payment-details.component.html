@@ -1,0 +1,71 @@
+<!-- Bind the entire section to parentForm -->
+<form [formGroup]="parentForm" class="section payment-details compact-layout">
+  <h4>PAYMENT DETAILS</h4>
+
+  <!-- Total & Due Row -->
+  <div class="row">
+    <div class="col-6">
+      <label>Total Amount (₹)</label>
+      <p class="readonly">{{ parentForm.value.totalAmount }}</p>
+    </div>
+
+    <!-- <div class="col">
+      <label>Due Amount</label>
+      <p class="readonly">{{ remainder() }}</p>
+    </div> -->
+  </div>
+
+  <div class="discount-container">
+    <billing-discount-box [parentForm]="parentForm" (requestDiscount)="requestDiscount()"
+      (fullDataChange)="onDiscountDataChange($event)">
+    </billing-discount-box>
+
+    <div class="discount-row">
+      <app-discount-percentage [totalAmount]="parentForm.value.totalAmount" [existingDiscount]="0"
+        (discountChanged)="onDiscountUpdate($event)">
+      </app-discount-percentage>
+    </div>
+  </div>
+
+  <!-- Payment Inputs in Single Row -->
+  <div class="row">
+    <div class="col">
+      <label>CASH (₹)</label>
+      <input type="number" min="0" formControlName="cash" (input)="updateAmountReceived()" />
+    </div>
+    <div class="col">
+      <label>UPI (₹)</label>
+      <input type="number" min="0" formControlName="upi" (input)="updateAmountReceived()" />
+    </div>
+    <div class="col">
+      <label>CARD (₹)</label>
+      <input type="number" min="0" formControlName="card" (input)="updateAmountReceived()" />
+    </div>
+  </div>
+
+  <!-- Transaction ID (only if UPI used) -->
+  <div class="row" *ngIf="parentForm.get('upi')?.value > 0">
+    <div class="col">
+      <label>Transaction ID</label>
+      <input type="text" formControlName="transactionId" />
+    </div>
+  </div>
+
+  <!-- Amount Received -->
+  <div class="row">
+    <div class="col">
+      <label>Amount Received (₹)</label>
+      <input type="number" formControlName="amountreceived" readonly />
+    </div>
+    <div class="col">
+      <label>Due Amount</label>
+      <p class="readonly">{{ remainder() }}</p>
+    </div>
+  </div>
+
+  <!-- Discount Section -->
+  <!-- <div class="discount-row">
+    <app-discount-percentage [totalAmount]="parentForm.value.totalAmount" [existingDiscount]="0"
+      (discountChanged)="onDiscountUpdate($event)"></app-discount-percentage>
+  </div> -->
+</form>

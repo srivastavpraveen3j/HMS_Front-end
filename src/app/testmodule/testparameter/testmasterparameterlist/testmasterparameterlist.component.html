@@ -1,0 +1,83 @@
+<!-- <p>testmasterparameterlist works!</p> -->
+<div class="header">
+  <h2>TEST MASTER PARAMETER LIST</h2>
+  <button class="list-cases-btn" [routerLink]="['/pathologylayout/testparameter']" routerLinkActive="router-link-active" >ADD TEST MASTER PARAMETER</button>
+</div>
+
+<form [formGroup]="filterForm" class="top-bar p-3">
+  <!-- <select formControlName="recordsPerPage">
+    <option *ngFor="let num of [10, 25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+  </select> -->
+
+  <input type="text" placeholder="Search..." formControlName="searchText" />
+</form>
+
+
+  <div class="loader-wrapper" *ngIf="Medicaltest.length === 0">
+  <div class="loader">
+    <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+  </div>
+</div>
+
+<div class="table-responsive" *ngIf="userPermissions.read && Medicaltest.length > 0">
+  <table class="table table-bordered table-hover align-middle diagnosis-table">
+   <thead class="table-dark text-center" >
+      <tr>
+        <th>#</th>
+        <th>Test Name</th>
+        <th>Default Value</th>
+        <th>Range</th>
+        <th>Min Value</th>
+        <th>Max Value</th>
+        <th>Units</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let medical of Medicaltest;  let i = index">
+        <td>{{ i + 1}}</td>
+        <td>{{ medical.test_name }}</td>
+        <td>{{ medical.default }}</td>
+        <td>{{ medical.min }} - {{medical.max}}</td>
+        <td>{{ medical.min }}</td>
+        <td>{{ medical.max }}</td>
+        <td>{{ medical.units }}</td>
+        <td>
+          <i class="fa-solid fa-pencil action-btn" *ngIf="userPermissions.update" (click)="editMedicaltest(medical._id)"></i>
+          <!-- <i class="fa-solid fa-trash action-btn" *ngIf="userPermissions.delete"  (click)="deleteMedicaltest(medical._id)"></i> -->
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="pagination">
+    <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+    Page {{ currentPage }} of {{ totalPages }}
+    <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+  </div>
+</div>
+<!-- <table class="table table-bordered">
+ <thead class="table-dark text-center" >
+    <tr>
+      <th>#</th>
+      <th>Test Name</th>
+      <th>Parameters</th>
+      <th>Units</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let medical of Medicaltest;  let i = index">
+      <td>{{ i + 1}}</td>
+      <td>{{ medical.test_name }}</td>
+      <td>{{ medical.parameters }}</td>
+      <td>{{ medical.units }}</td>
+      <td>
+        <i class="fa-solid fa-pencil action-btn" (click)="editMedicaltest(medical._id)"></i>
+        <i class="fa-solid fa-trash action-btn"  (click)="deleteMedicaltest(medical._id)"></i>
+
+      </td>
+    </tr>
+  </tbody>
+</table> -->
+

@@ -1,0 +1,260 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>Purchase Order Generation</h2>
+    <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/inventorylayout/purchaseordergenerationlist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  @if (userPermissions.create) {
+    <div class="container mt-4">
+      <h2 class="mb-4">Generate Purchase Order</h2>
+
+      <!-- Debug Information (remove in production) -->
+      <div class="alert alert-info" *ngIf="!selectedVendor.id || !selectedRFQ.id || items.length === 0">
+        <h6>Debug Information:</h6>
+        <p><strong>Vendor ID:</strong> {{ selectedVendor.id || 'Missing' }}</p>
+        <p><strong>RFQ ID:</strong> {{ selectedRFQ.id || 'Missing' }}</p>
+        <p><strong>Items Count:</strong> {{ items.length }}</p>
+        <p><strong>Can Submit:</strong> {{ canSubmit }}</p>
+      </div>
+
+      <!-- Vendor and RFQ Info -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label><strong>Selected Vendor:</strong></label>
+          <p>{{ selectedVendor.name || 'No vendor selected' }}</p>
+          <small class="text-muted" *ngIf="selectedVendor.email">{{ selectedVendor.email }}</small>
+        </div>
+        <div class="col-md-6">
+          <label><strong>Request For Quotation:</strong></label>
+          <p>{{ selectedRFQ.number || 'No RFQ selected' }}</p>
+        </div>
+      </div>
+
+      <!-- Items Table -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">📦 Items Details</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="items.length === 0" class="alert alert-warning">
+            No items found. Please go back and select a quotation with items.
+          </div>
+
+          <table class="table table-bordered table-hover align-middle" *ngIf="items.length > 0">
+            <thead class="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Item</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Unit Price (₹)</th>
+                <th>Net Price (₹)</th>
+                <th>Total Price (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of items; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>
+                  <strong>{{ item.name }}</strong>
+                  <div *ngIf="item.brand" class="small text-muted">Brand: {{ item.brand }}</div>
+                  <div *ngIf="item.strength" class="small text-muted">Strength: {{ item.strength }}</div>
+                </td>
+                <td>{{ item.category }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>₹{{ item.unitPrice | number: '1.2-2' }}</td>
+                <td>
+                  <span class="text-success">₹{{ item.netPrice | number: '1.2-2' }}</span>
+                  <div *ngIf="item.discount > 0" class="small text-success">
+                    ({{ item.discount }}% discount)
+                  </div>
+                </td>
+                <td><strong>₹{{ item.totalPrice | number: '1.2-2' }}</strong></td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="table-success">
+                <td colspan="6" class="text-end"><strong>Grand Total</strong></td>
+                <td><strong>₹{{ getTotal() | number: '1.2-2' }}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Terms & Conditions Section -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">📋 Terms & Conditions</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="termsForm">
+
+            <!-- Payment Terms -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label"><strong>Payment Terms</strong></label>
+                <select class="form-select" formControlName="paymentTerms">
+                  <option value="">Select Payment Terms</option>
+                  <option value="30 days from invoice date">30 days from invoice date</option>
+                  <option value="15 days from invoice date">15 days from invoice date</option>
+                  <option value="7 days from invoice date">7 days from invoice date</option>
+                  <option value="Net 30">Net 30</option>
+                  <option value="COD">Cash on Delivery (COD)</option>
+                  <option value="Advance payment">100% Advance Payment</option>
+                  <option value="50% advance, 50% on delivery">50% Advance, 50% on Delivery</option>
+                  <option value="custom">Custom (specify below)</option>
+                </select>
+                <input
+                  *ngIf="needsCustomPaymentTerms"
+                  type="text"
+                  class="form-control mt-2"
+                  formControlName="customPaymentTerms"
+                  placeholder="Enter custom payment terms">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label"><strong>Delivery Terms</strong></label>
+                <select class="form-select" formControlName="deliveryTerms">
+                  <option value="">Select Delivery Terms</option>
+                  <option value="FOB destination">FOB Destination</option>
+                  <option value="FOB origin">FOB Origin</option>
+                  <option value="Ex-works">Ex-Works</option>
+                  <option value="CIF">Cost, Insurance & Freight (CIF)</option>
+                  <option value="DDP">Delivered Duty Paid (DDP)</option>
+                  <option value="FCA">Free Carrier (FCA)</option>
+                  <option value="custom">Custom (specify below)</option>
+                </select>
+                <input
+                  *ngIf="needsCustomDeliveryTerms"
+                  type="text"
+                  class="form-control mt-2"
+                  formControlName="customDeliveryTerms"
+                  placeholder="Enter custom delivery terms">
+              </div>
+            </div>
+
+            <!-- Delivery Date -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label"><strong>Expected Delivery Date</strong></label>
+                <input
+                  type="date"
+                  class="form-control"
+                  formControlName="deliveryDate"
+                  [min]="minDeliveryDate">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label"><strong>Warranty Period</strong></label>
+                <select class="form-select" formControlName="warrantyPeriod">
+                  <option value="">Select Warranty Period</option>
+                  <option value="No warranty">No Warranty</option>
+                  <option value="30 days">30 Days</option>
+                  <option value="90 days">90 Days</option>
+                  <option value="6 months">6 Months</option>
+                  <option value="1 year">1 Year</option>
+                  <option value="2 years">2 Years</option>
+                  <option value="As per manufacturer">As per Manufacturer</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Additional Terms -->
+            <div class="row mb-3">
+              <div class="col-12">
+                <label class="form-label"><strong>Additional Terms & Conditions</strong></label>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" formControlName="qualityStandards" id="qualityStandards">
+                  <label class="form-check-label" for="qualityStandards">
+                    All items must meet specified quality requirements
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" formControlName="lateDeliveryPenalty" id="lateDeliveryPenalty">
+                  <label class="form-check-label" for="lateDeliveryPenalty">
+                    Penalties may apply for delayed deliveries
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" formControlName="returnPolicy" id="returnPolicy">
+                  <label class="form-check-label" for="returnPolicy">
+                    Damaged or non-conforming items will be returned at supplier cost
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" formControlName="inspectionRights" id="inspectionRights">
+                  <label class="form-check-label" for="inspectionRights">
+                    Buyer reserves the right to inspect goods before acceptance
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Special Instructions -->
+            <div class="row mb-3">
+              <div class="col-12">
+                <label class="form-label"><strong>Special Instructions</strong></label>
+                <textarea
+                  class="form-control"
+                  rows="4"
+                  formControlName="specialInstructions"
+                  placeholder="Enter any special instructions, packaging requirements, delivery instructions, etc."
+                  maxlength="500">
+                </textarea>
+                <small class="text-muted">Maximum 500 characters</small>
+              </div>
+            </div>
+
+            <!-- Custom Terms -->
+            <div class="row mb-3">
+              <div class="col-12">
+                <label class="form-label"><strong>Custom Terms</strong></label>
+                <textarea
+                  class="form-control"
+                  rows="3"
+                  formControlName="customTerms"
+                  placeholder="Add any additional custom terms and conditions specific to this order"
+                  maxlength="1000">
+                </textarea>
+                <small class="text-muted">Maximum 1000 characters</small>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="row mb-3">
+        <div class="col-12 text-end">
+          <button
+            class="btn btn-outline-info me-2"
+            (click)="previewPurchaseOrder()"
+            [disabled]="!canSubmit">
+            <i class="fas fa-eye"></i> Preview PO
+          </button>
+          <button
+            class="btn btn-success"
+            (click)="submitPurchaseOrder()"
+            [disabled]="!canSubmit">
+            <i [class]="submitButtonIcon"></i> {{ submitButtonText }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  } @else {
+    <div class="container mt-4">
+      <div class="alert alert-warning" role="alert">
+        <i class="fa-solid fa-exclamation-triangle me-2"></i>
+        You do not have permission to create {{module}}.
+      </div>
+    </div>
+  }
+</div>

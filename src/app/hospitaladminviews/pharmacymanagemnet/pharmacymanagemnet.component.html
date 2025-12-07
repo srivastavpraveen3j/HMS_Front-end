@@ -1,0 +1,53 @@
+
+<div class="header">
+  <h2>PHARMACY MANAGEMENT</h2>
+  <div class="toggle-buttons">
+    <button (click)="selectedView = 'pharmacy'" [class.active]="selectedView === 'pharmacy'">
+      Pharmacy Management
+    </button>
+    <button (click)="selectedView = 'inventory'" [class.active]="selectedView === 'inventory'">
+      Central Store
+    </button>
+  </div>
+</div>
+
+<div class="m-5">
+  <h2>{{ hospital.name }} - Branch Wise Pharmacy Overview</h2>
+
+  <hr>
+</div>
+
+
+<div class="m-5 d-flex">
+  <div *ngFor="let branch of branches" class="branch-card">
+    <h3>{{ branch.name }}</h3>
+
+    <!-- PHARMACY VIEW -->
+    <div *ngIf="selectedView === 'pharmacy'">
+      <p><strong>Total Pharmacy Records:</strong> {{ branch.pharmacy.length }}</p>
+
+      <div class="record-list">
+        <div class="record-card" *ngFor="let record of branch.pharmacy">
+          <h4>{{ record.patient }}</h4>
+          <p><strong>Medicine:</strong> {{ record.medicine }}</p>
+          <p><strong>Prescribed by:</strong> {{ record.doctor }}</p>
+          <p><strong>Pharmacist:</strong> {{ record.pharmacist }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVENTORY VIEW -->
+    <div *ngIf="selectedView === 'inventory'">
+      <p><strong>Total Inventory Items:</strong> {{ branch.inventory.length }}</p>
+
+      <div class="record-list">
+        <div class="record-card" *ngFor="let item of branch.inventory">
+          <h4>{{ item.item }}</h4>
+          <p><strong>Category:</strong> {{ item.category }}</p>
+          <p><strong>Quantity:</strong> {{ item.quantity }}</p>
+          <p><strong>Distributor:</strong> {{ item.distributor }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+<!-- <p>medicinetimeslot works!</p> -->
+<div class="modal">
+  <h2>Select Time</h2>
+  <div *ngFor="let slot of timeSlots">
+    <h3>{{ slot.label }}</h3>
+    <div class="time-grid">
+      <label *ngFor="let time of slot.times">
+        <input type="checkbox" [checked]="selectedSlots[time]" (change)="toggleSlot(time)" />
+        {{ time }}
+      </label>
+    </div>
+  </div>
+  <button class="save-btn" (click)="saveSelection()">Save</button>
+</div>

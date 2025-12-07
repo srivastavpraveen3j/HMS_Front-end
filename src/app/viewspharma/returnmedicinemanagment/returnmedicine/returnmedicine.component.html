@@ -1,0 +1,556 @@
+<div class="form-meta">
+  <div class="header">
+    <h4 class="mb-0">Medicine Return Management</h4>
+    <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/pharmalayout/returnmedicinelist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div class="container-fluid p-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <!-- Bill Search Section -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Search Bill Number</label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                  </span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="searchBillNumber"
+                    (input)="onSearchChange($any($event.target).value)"
+                    placeholder="Enter bill number to search..."
+                    [disabled]="loading"
+                  />
+                  <button
+                    *ngIf="searchBillNumber"
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    (click)="clearSearch()"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <small class="form-text text-muted">
+                  Start typing to search for pharmaceutical bills
+                </small>
+              </div>
+
+              <!-- Search Status -->
+              <div class="col-md-6">
+                <div
+                  *ngIf="searchingBill"
+                  class="d-flex align-items-center mt-4"
+                >
+                  <div class="spinner-border spinner-border-sm me-2"></div>
+                  <span>Searching for bill...</span>
+                </div>
+                <div
+                  *ngIf="billNotFound && searchBillNumber && !searchingBill"
+                  class="mt-4"
+                >
+                  <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Bill "{{ searchBillNumber }}" not found
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bill Details Section -->
+            <div *ngIf="selectedBill && showReturnForm" class="mb-4">
+              <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                  <h6 class="mb-0">
+                    <i class="fas fa-file-invoice me-2"></i>
+                    Bill Details - {{ selectedBill.inwardSerialNumber }}
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-3">
+                      <strong>Patient:</strong> {{ getPatientInfo() }}
+                    </div>
+                    <div class="col-md-3">
+                      <strong>Type:</strong>
+                      <span class="badge bg-secondary">{{
+                        selectedBill.type
+                      }}</span>
+                    </div>
+                    <div class="col-md-3">
+                      <strong>Total:</strong>
+                      {{ selectedBill.total | currency : "INR" }}
+                    </div>
+                    <div class="col-md-3">
+                      <strong>Date:</strong>
+                      {{ selectedBill.createdAt | date : "medium" }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ✅ Return History Section -->
+            <div *ngIf="showReturnHistory" class="mb-4">
+              <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                  <h6 class="mb-0">
+                    <i class="fas fa-history me-2"></i>
+                    Previous Returns for this Bill ({{ returnHistory.length }})
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Return ID</th>
+                          <th>Date</th>
+                          <th>Reason</th>
+                          <th>Items Returned</th>
+                          <th>Total Qty</th>
+                          <th>Refund Amount</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let returnRecord of returnHistory">
+                          <td>
+                            <span class="badge bg-primary">{{
+                              returnRecord.inwardSerialNumber
+                            }}</span>
+                          </td>
+                          <td>
+                            <small>{{
+                              returnRecord.createdAt | date : "dd/MM/yyyy HH:mm"
+                            }}</small>
+                          </td>
+                          <td>
+                            <small>{{
+                              getReturnReasonLabel(
+                                returnRecord.returnDetails.returnReason
+                              )
+                            }}</small>
+                          </td>
+                          <td>
+                            <div class="small">
+                              <div
+                                *ngFor="
+                                  let pkg of returnRecord.returnDetails.returnedPackages.slice(
+                                    0,
+                                    2
+                                  )
+                                "
+                              >
+                                {{ pkg.medicineName }} ({{
+                                  pkg.returnedQuantity
+                                }})
+                              </div>
+                              <div
+                                *ngIf="
+                                  returnRecord.returnDetails.returnedPackages
+                                    .length > 2
+                                "
+                                class="text-muted"
+                              >
+                                +{{
+                                  returnRecord.returnDetails.returnedPackages
+                                    .length - 2
+                                }}
+                                more...
+                              </div>
+                            </div>
+                          </td>
+                          <td class="text-center">
+                            <span class="badge bg-secondary">{{
+                              getTotalReturnedQuantity(returnRecord)
+                            }}</span>
+                          </td>
+                          <td class="text-end">
+                            <strong class="text-success">{{
+                              returnRecord.refundAmount | currency : "INR"
+                            }}</strong>
+                          </td>
+                          <td>
+                            <span
+                              class="badge"
+                              [class]="
+                                getReturnStatusBadgeClass(returnRecord.status)
+                              "
+                            >
+                              {{ returnRecord.status | titlecase }}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- ✅ Summary with helper methods -->
+                  <div class="row mt-3 bg-light p-2 rounded">
+                    <div class="col-md-4">
+                      <strong>Total Returns:</strong> {{ returnHistory.length }}
+                    </div>
+                    <div class="col-md-4">
+                      <strong>Total Items Returned:</strong>
+                      {{ getTotalItemsReturned() }}
+                    </div>
+                    <div class="col-md-4">
+                      <strong>Total Refunded:</strong>
+                      <span class="text-success">{{
+                        getTotalRefundAmount() | currency : "INR"
+                      }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Return Form -->
+            <div *ngIf="showReturnForm" class="row">
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                      <i class="fas fa-undo-alt me-2"></i>Return Medicines
+                    </h6>
+                  </div>
+                  <div class="card-body">
+                    <!-- Return Reason -->
+                    <div class="row mb-3">
+                      <div class="col-md-6">
+                        <label class="form-label fw-bold"
+                          >Return Reason *</label
+                        >
+                        <select
+                          class="form-select"
+                          [(ngModel)]="returnReason"
+                          required
+                        >
+                          <option value="">-- Select Reason --</option>
+                          <option
+                            *ngFor="let reason of returnReasons"
+                            [value]="reason.value"
+                          >
+                            {{ reason.label }}
+                          </option>
+                        </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label fw-bold">Total Refund</label>
+                        <div
+                          class="form-control-plaintext fw-bold text-success fs-5"
+                        >
+                          {{ calculateTotalRefund() | currency : "INR" }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- ✅ NEW: Refund Payment Details Section -->
+                    <div *ngIf="calculateTotalRefund() > 0" class="row mb-4">
+                      <div class="col-12">
+                        <div class="card border-success">
+                          <div class="card-header bg-light text-dark">
+                            <h6 class="mb-0">
+                              <i class="fas fa-credit-card me-2"></i>Refund
+                              Payment Details
+                            </h6>
+                          </div>
+                          <div class="card-body">
+                            <div class="row">
+                              <!-- Refund Payment Mode -->
+                              <div class="col-md-6">
+                                <label class="form-label fw-bold"
+                                  >Refund Payment Mode *</label
+                                >
+                                <select
+                                  class="form-select"
+                                  [(ngModel)]="refundPaymentMode"
+                                  required
+                                  [class.is-invalid]="
+                                    !refundPaymentMode &&
+                                    calculateTotalRefund() > 0
+                                  "
+                                >
+                                  <option value="">
+                                    -- Select Payment Mode --
+                                  </option>
+                                  <option
+                                    *ngFor="let mode of refundPaymentModes"
+                                    [value]="mode.value"
+                                  >
+                                    {{ mode.label }}
+                                  </option>
+                                </select>
+                                <div class="invalid-feedback">
+                                  Please select a refund payment mode
+                                </div>
+                              </div>
+
+                              <!-- ✅ Conditional UPI Transaction ID Field -->
+                              <div
+                                class="col-md-6"
+                                *ngIf="refundPaymentMode === 'upi'"
+                              >
+                                <label class="form-label fw-bold">
+                                  UPI Transaction ID *
+                                  <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                  <span class="input-group-text">
+                                    <i
+                                      class="fab fa-google-pay text-primary"
+                                    ></i>
+                                  </span>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    [(ngModel)]="refundTransactionId"
+                                    placeholder="Enter UPI transaction ID..."
+                                    [class.is-invalid]="
+                                      refundPaymentMode === 'upi' &&
+                                      !refundTransactionId?.trim()
+                                    "
+                                    maxlength="50"
+                                    pattern="[A-Za-z0-9]+"
+                                    title="Transaction ID should contain only alphanumeric characters"
+                                  />
+                                  <span class="input-group-text">
+                                    <i
+                                      class="fas fa-info-circle"
+                                      title="12-digit UPI transaction reference number"
+                                    ></i>
+                                  </span>
+                                </div>
+                                <div class="invalid-feedback">
+                                  UPI Transaction ID is required for UPI refunds
+                                </div>
+                                <small class="form-text text-muted">
+                                  <i class="fas fa-shield-alt me-1"></i>
+                                  Enter the 12-digit UPI transaction reference
+                                  number
+                                </small>
+                              </div>
+
+                              <!-- ✅ Additional info for other payment modes -->
+                              <div
+                                class="col-md-6"
+                                *ngIf="
+                                  refundPaymentMode &&
+                                  refundPaymentMode !== 'upi'
+                                "
+                              >
+                                <div class="alert alert-info mt-4" role="alert">
+                                  <i class="fas fa-info-circle me-2"></i>
+                                  <strong>{{
+                                    getPaymentModeInfo(refundPaymentMode)
+                                  }}</strong>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- ✅ Refund Summary -->
+                            <div class="row mt-3">
+                              <div class="col-12">
+                                <div class="bg-success text-white p-3 rounded">
+                                  <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                      <h6 class="mb-0">
+                                        <!-- <i
+                                          class="fas fa-money-bill-wave me-2"
+                                        ></i> -->
+                                        Refund Summary
+                                      </h6>
+                                      <small>
+                                        Refund via
+                                        {{
+                                          getPaymentModeLabel(refundPaymentMode)
+                                        }}
+                                        to patient
+                                      </small>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                      <div class="fs-4 fw-bold">
+                                        {{
+                                          calculateTotalRefund()
+                                            | currency : "INR"
+                                        }}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Rest of your existing medicines table and form content -->
+                    <!-- Medicines Table -->
+                    <div class="table-responsive">
+                      <table class="table table-bordered table-hover">
+                        <thead class="table-dark">
+                          <tr>
+                            <th>Medicine Name</th>
+                            <th>Original Qty</th>
+                            <th>Return Qty</th>
+                            <!-- <th>Batch No.</th> -->
+                            <th>Unit Price</th>
+                            <th>Refund Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr
+                            *ngFor="
+                              let item of returnItems;
+                              trackBy: trackByPackageId
+                            "
+                          >
+                            <td class="align-middle">
+                              <strong>{{ item.medicineName }}</strong>
+                            </td>
+                            <td class="text-center align-middle">
+                              <span class="badge bg-primary fs-6">{{
+                                item.originalQuantity
+                              }}</span>
+                            </td>
+                            <td style="width: 140px">
+                              <input
+                                type="number"
+                                class="form-control form-control-sm text-center"
+                                [(ngModel)]="item.returnedQuantity"
+                                (ngModelChange)="
+                                  onReturnQuantityChange(item, $event)
+                                "
+                                [max]="item.maxReturnQuantity"
+                                min="0"
+                                placeholder="0"
+                                [class.is-invalid]="
+                                  item.returnedQuantity > item.maxReturnQuantity
+                                "
+                              />
+                              <small class="text-muted"
+                                >Max: {{ item.maxReturnQuantity }}</small
+                              >
+                            </td>
+                            <!-- <td style="width: 150px" class="align-middle">
+                              <div class="input-group input-group-sm">
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  [ngModel]="item.batchNumber"
+                                  readonly
+                                  placeholder="Auto-filled"
+                                  [class.is-invalid]="
+                                    item.returnedQuantity > 0 &&
+                                    !item.batchNumber?.trim()
+                                  "
+                                />
+                                <span class="input-group-text">
+                                  <i
+                                    class="fas fa-lock text-muted"
+                                    title="Auto-filled from medicine data"
+                                  ></i>
+                                </span>
+                              </div>
+                            </td> -->
+                            <td class="text-end align-middle">
+                              <div>
+                                <strong>{{
+                                  item.actualUnitPrice ||
+                                    item.charge / item.originalQuantity
+                                    | currency : "INR"
+                                }}</strong>
+                                <!-- <div
+                                  *ngIf="
+                                    item.actualUnitPrice &&
+                                    item.actualUnitPrice !==
+                                      item.charge / item.originalQuantity
+                                  "
+                                  class="small text-muted"
+                                >
+                                  <del>{{
+                                    item.charge / item.originalQuantity
+                                      | currency : "INR"
+                                  }}</del>
+                                </div> -->
+                              </div>
+                            </td>
+                            <td class="text-end align-middle fw-bold">
+                              <span
+                                [class.text-success]="item.returnedQuantity > 0"
+                                [class.text-muted]="item.returnedQuantity === 0"
+                              >
+                                {{
+                                  item.returnedQuantity > 0
+                                    ? ((item.actualUnitPrice ||
+                                        item.charge / item.originalQuantity) *
+                                        item.returnedQuantity
+                                      | currency : "INR")
+                                    : (0 | currency : "INR")
+                                }}
+                              </span>
+                            </td>
+                          </tr>
+                        </tbody>
+                        <!-- <tfoot class="table-light">
+                          <tr>
+                            <th colspan="5" class="text-end fs-6">
+                              Total Refund:
+                            </th>
+                            <th class="text-end text-success fs-5">
+                              {{ calculateTotalRefund() | currency : "INR" }}
+                            </th>
+                          </tr>
+                        </tfoot> -->
+                      </table>
+                    </div>
+                    <!-- ... existing medicines table code ... -->
+
+                    <!-- Updated Action Buttons with validation -->
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        (click)="resetReturnQuantities()"
+                        [disabled]="loading"
+                      >
+                        <i class="fas fa-eraser me-1"></i>Clear All
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-success"
+                        (click)="onSubmitReturn()"
+                        [disabled]="
+                          loading ||
+                          calculateTotalRefund() === 0 ||
+                          !isValidRefundPayment()
+                        "
+                      >
+                        <span
+                          *ngIf="loading"
+                          class="spinner-border spinner-border-sm me-2"
+                        ></span>
+                        <i class="fas fa-check me-1"></i>Process Return
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

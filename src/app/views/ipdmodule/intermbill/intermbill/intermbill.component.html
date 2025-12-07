@@ -1,0 +1,1730 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>INTERM BILL</h2>
+    <div class="">
+      <!-- ✅ COMPANY INDICATOR IN HEADER -->
+      <div
+        *ngIf="isCompanyPatient"
+        class="company-indicator alert alert-success d-inline-block p-2 m-2"
+      >
+        <i class="fa-solid fa-building-shield"></i>
+        <strong>{{ companyInfo?.companyName }}</strong> - Company Rates Active
+        <span class="badge badge-light text-dark ml-2">
+          <i class="fa-solid fa-savings"></i> {{ getTotalSavings() }} Saved
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="" *ngIf="userPermissions.create">
+    <form class="" [formGroup]="intermbill" (ngSubmit)="submitForm()">
+      <h4 class="m-4">Patient Details</h4>
+
+      <!-- ✅ COMPANY INFORMATION DISPLAY -->
+      <div *ngIf="isCompanyPatient" class="alert alert-info mb-3">
+        <div class="row">
+          <div class="col-md-8">
+            <h6>
+              <i class="fa-solid fa-building text-primary"></i>
+              <strong>{{ companyInfo?.companyName }}</strong>
+            </h6>
+            <small class="text-muted"
+              >Type: {{ companyInfo?.type || "Cashless" }} | Patient Type:
+              {{ patientType | titlecase }}</small
+            >
+          </div>
+          <div class="col-md-4 text-right">
+            <span class="badge badge-success">
+              <i class="fa-solid fa-check-circle"></i> Company Rates Applied
+            </span>
+          </div>
+        </div>
+        <hr />
+        <small class="text-info">
+          <i class="fa-solid fa-info-circle"></i>
+          Room and bed rates are calculated using
+          {{ companyInfo?.companyName }} company rates instead of standard
+          hospital rates.
+        </small>
+      </div>
+
+      <hr />
+      <div class="row g-6">
+        <!-- UHID Input -->
+        <div class="form-group col-md-2">
+          <label>UHID</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="UHID No"
+            formControlName="uhid"
+            readonly
+            />
+            <!-- (input)="onUhidInput()"
+            (focus)="showSuggestions = true"
+            (blur)="hideSuggestionsWithDelay()" -->
+          <div
+            *ngIf="
+              intermbill.get('uhid')?.invalid && intermbill.get('uhid')?.touched
+            "
+            class="text-danger"
+          >
+            UHID no. is required.
+          </div>
+        </div>
+
+        <!-- Patient Name Input -->
+        <div class="form-group col-md-2">
+          <label>Patient name</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Enter patient name"
+            formControlName="patientName"
+            readonly
+          />
+          <!-- (input)="onPatientInput()" -->
+          <!-- (blur)="hideSuggestionsWithDelay()" -->
+          <!-- (focus)="showSuggestions = true" -->
+
+          <!-- <div
+            *ngIf="
+              intermbill.get('patientName')?.touched &&
+              intermbill.get('patientName')?.invalid
+            "
+            class="text-danger"
+          >
+            Patient name is required.
+          </div> -->
+
+          <!-- ✅ ENHANCED SUGGESTIONS WITH COMPANY INDICATORS -->
+          <!-- <div
+            *ngIf="showSuggestions && filteredPatients.length > 0"
+            class="suggestions-container"
+          >
+            <ul class="suggestions">
+              <li
+                *ngFor="let patient of filteredPatients"
+                (mousedown)="selectPatient(patient)"
+                class="suggestion-item"
+              >
+                {{
+                  patient?.patient_name ||
+                    patient?.uniqueHealthIdentificationId?.patient_name
+                }}
+                {{
+                  patient?.mobile_no ||
+                  patient?.uniqueHealthIdentificationId?.mobile_no
+                    ? " | " +
+                      (patient?.mobile_no ||
+                        patient?.uniqueHealthIdentificationId?.mobile_no)
+                    : ""
+                }}
+                {{
+                  patient?.uhid || patient?.uniqueHealthIdentificationId?.uhid
+                    ? " | " +
+                      (patient?.uhid ||
+                        patient?.uniqueHealthIdentificationId?.uhid)
+                    : ""
+                }} -->
+          <!-- ✅ Company indicator in suggestions -->
+          <!-- <span
+                  *ngIf="isPatientCompany(patient)"
+                  class="badge badge-success ml-2"
+                >
+                  <i class="fa-solid fa-building"></i> Company
+                </span>
+              </li>
+            </ul>
+          </div> -->
+        </div>
+
+        <!-- <div class="row g-2"> -->
+        <div class="form-group col-md-2">
+          <label>Age</label>
+          <input
+            type="text"
+            placeholder="Age"
+            formControlName="age"
+            class="form-control"
+            readonly
+          />
+          <div
+            *ngIf="
+              intermbill.get('age')?.invalid && intermbill.get('age')?.touched
+            "
+            class="error-message"
+          >
+            Age is required.
+          </div>
+        </div>
+        <div class="form-group col-md-2">
+          <label>Address</label>
+          <input
+            type="text"
+            placeholder="area"
+            formControlName="area"
+            class="form-control"
+            readonly
+          />
+        </div>
+        <!-- </div> -->
+        <div class="form-group col-md-2">
+          <label>Consulting doctor</label>
+          <input
+            type="text"
+            placeholder="Cons. Doctor"
+            class="form-control required"
+            formControlName="cons_doc"
+            readonly
+          />
+        </div>
+        <div class="form-group col-md-2">
+          <label>Patient type</label>
+          <input
+            type="text"
+            placeholder="Patient type"
+            formControlName="patientType"
+            class="form-control"
+            readonly
+          />
+          <!-- ✅ Company badge next to patient type -->
+          <span *ngIf="isCompanyPatient" class="badge badge-success ml-2">
+            <i class="fa-solid fa-building"></i> {{ companyInfo?.companyName }}
+          </span>
+        </div>
+      </div>
+
+      <h4 class="m-4">Interim Bill Summary</h4>
+
+      <!-- ✅ Company billing indicator -->
+      <div *ngIf="isCompanyPatient" class="alert alert-success mb-3">
+        <strong
+          ><i class="fa-solid fa-building-shield"></i> Company Billing
+          Active</strong
+        >
+        <br />
+        <small
+          >Room and bed rates are calculated using
+          {{ companyInfo?.companyName }} company rates.
+          <span *ngIf="getTotalSavings() > 0"
+            >You save {{ getTotalSavings() }} compared to standard rates.</span
+          >
+        </small>
+      </div>
+
+      <hr />
+
+      <ul class="nav nav-tabs mb-3">
+        <li class="nav-item" (click)="selectTab('total')">
+          <a class="nav-link" [class.active]="tab === 'total'">Total</a>
+        </li>
+        <li class="nav-item" (click)="selectTab('room')">
+          <a class="nav-link" [class.active]="tab === 'room'">
+            Room/Bed
+            <!-- ✅ Company indicator on room tab -->
+            <span
+              *ngIf="isCompanyPatient"
+              class="badge badge-success badge-sm ml-1"
+            >
+              <i class="fa-solid fa-building"></i>
+            </span>
+          </a>
+        </li>
+        <li class="nav-item" (click)="selectTab('case')">
+          <a class="nav-link" [class.active]="tab === 'case'">Inpatient Case</a>
+        </li>
+        <li class="nav-item" (click)="selectTab('bills')">
+          <a class="nav-link" [class.active]="tab === 'bills'"
+            >Services Bill</a
+          >
+        </li>
+        <li class="nav-item" (click)="selectTab('pharma')">
+          <a class="nav-link" [class.active]="tab === 'pharma'"
+            >Pharmacy Bill</a
+          >
+        </li>
+        <li class="nav-item" (click)="selectTab('test')">
+          <a class="nav-link" [class.active]="tab === 'test'"
+            >Radiology Bill</a
+          >
+        </li>
+        <li class="nav-item" (click)="selectTab('ot')">
+          <a class="nav-link" [class.active]="tab === 'ot'">OT Bill</a>
+        </li>
+        <li class="nav-item" (click)="selectTab('visit')">
+          <a class="nav-link" [class.active]="tab === 'visit'">Visit</a>
+        </li>
+      </ul>
+
+      <div *ngIf="tab === 'total'">
+        <div class="card border shadow-sm rounded">
+          <div
+            class="card-header bg-secondary text-white fs-5 fw-bold text-center"
+          >
+            Total Charges Summary
+          </div>
+          <div class="card-body p-4">
+            <div class="row mb-2">
+              <div class="col-8 text-muted">Room Charges</div>
+              <div class="col-4 text-end fw-semibold">
+                {{ finalRoomCharge | indianCurrency }}
+              </div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-8 text-muted">Service Charges</div>
+              <div class="col-4 text-end fw-semibold">
+                {{ serviceList.totalAmount | indianCurrency }}
+              </div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-8 text-muted">Operation Charges</div>
+              <div class="col-4 text-end fw-semibold">
+                {{ calculateTotal() | indianCurrency }}
+              </div>
+            </div>
+            <div class="row mb-2" *ngIf="patientType != 'cash'">
+              <div class="col-8 text-muted">Medicine Charges</div>
+              <div class="col-4 text-end fw-semibold">
+                {{ pharmaTotal | indianCurrency }}
+              </div>
+            </div>
+            <div class="row mb-4">
+              <div class="col-8 text-muted">Medical Test Charges</div>
+              <div class="col-4 text-end fw-semibold">
+                {{ radiotest.totalAmount| indianCurrency }}
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between border-top pt-3">
+              <h5 class="fw-bold mb-0">Grand Total</h5>
+              <h5
+                [class.text-success]="isCompanyPatient"
+                [class.text-dark]="!isCompanyPatient"
+              >
+                {{ grandTotal | indianCurrency }}
+              </h5>
+              <span *ngIf="isCompanyPatient" class="badge badge-success ml-2">
+                <i class="fa-solid fa-building"></i> With Company Rates
+              </span>
+            </div>
+            <div class="d-flex justify-content-between pt-2">
+              <h5 class="fw-bold mb-0">Deposited Amount</h5>
+              <h5>
+                {{
+                  deposit
+                    | indianCurrency
+                }}
+              </h5>
+            </div>
+            <div class="d-flex justify-content-between pt-2" *ngIf="amountPaid > 0">
+              <h5 class="fw-bold mb-0 text-success">Paid Amount</h5>
+              <h5 class="text-success">
+                {{
+                  amountPaid | indianCurrency
+                }}
+              </h5>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-2">
+              <div class="fw-bold fs-5" [ngClass]="netAmount < 0 ? 'text-success' : ''"> {{ netAmount >= 0 ? 'Net Payable Amount' : 'Refundable Amount'}} </div>
+              <div>
+                <ng-container *ngIf="netAmount >= 0; else refundable">
+                  <span class="fw-bold fs-5 text-dark">
+                    {{ netAmount | indianCurrency }}
+                  </span>
+                </ng-container>
+                <ng-template #refundable>
+                  <span class="fw-bold fs-5 text-success">
+                    {{ netAmount * -1 | indianCurrency }}
+                  </span>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ ENHANCED ROOM TAB WITH COMPANY RATES -->
+      <div *ngIf="tab === 'room'">
+        <!-- ✅ CASE 1: When roomTransfer data exists -->
+        <ng-container
+          *ngIf="roomTransfer?.transfers?.length > 0; else noTransfer"
+        >
+          <div class="card mb-3">
+            <div
+              class="card-header d-flex justify-content-between align-items-center"
+              [class.bg-success]="isCompanyPatient"
+              [class.bg-primary]="!isCompanyPatient"
+              class="text-white"
+            >
+              <span><i class="fa-solid fa-bed"></i> Room & Bed Summary</span>
+              <span *ngIf="isCompanyPatient" class="badge bg-light text-dark">
+                <i class="fa-solid fa-building"></i>
+                {{ companyInfo?.companyName }}
+              </span>
+            </div>
+
+            <div class="card-body table-responsive">
+              <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>#</th>
+                    <th>Ward</th>
+                    <th>Room</th>
+                    <th>Bed</th>
+                    <th>Type</th>
+                    <th>Assigned Date</th>
+                    <th>Room Charge</th>
+                    <th>Bed Charge</th>
+                    <!-- <th>Total Charge</th> -->
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <!-- ✅ Single-row condition: when only temporary transfer -->
+                  <tr *ngIf="!hasPermanentTransfer()">
+                    <td>1</td>
+                    <td>{{ roomTransfer?.primaryBed?.wardName }}</td>
+                    <td>{{ roomTransfer?.primaryBed?.roomNumber }}</td>
+                    <td>{{ roomTransfer?.primaryBed?.bedNumber }}</td>
+                    <td>
+                      <span class="badge bg-success">Primary</span>
+                      <span
+                        *ngIf="hasTemporaryTransfer()"
+                        class="badge bg-info text-dark ms-1"
+                      >
+                        Temporary Transfer Active
+                      </span>
+                    </td>
+                    <td>
+                      {{
+                        roomTransfer?.primaryBed?.assignedDate
+                          | date : "mediumDate"
+                      }}
+                    </td>
+                    <td>{{ appliedRoomRate | indianCurrency }}/day</td>
+                    <td>{{ appliedBedRate | indianCurrency }}/day</td>
+                    <!-- <td>{{ finalRoomCharge | indianCurrency }}</td> -->
+                    <td>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary"
+                        (click)="viewRoomDetails(roomTransfer)"
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+
+                  <!-- ✅ Multiple rows: when permanent transfer(s) exist -->
+                  <tr *ngFor="let t of getPermanentTransfers(); let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ t.to?.wardName || t.from?.wardName }}</td>
+                    <td>{{ t.to?.roomNumber || t.from?.roomNumber }}</td>
+                    <td>{{ t.to?.bedNumber || t.from?.bedNumber }}</td>
+                    <td>
+                      <span class="badge bg-warning text-dark">
+                        {{
+                          t.transferType === "permanent"
+                            ? "Permanent Transfer"
+                            : "Transfer"
+                        }}
+                      </span>
+                    </td>
+                    <td>{{ t.transferStartTime | date : "mediumDate" }}</td>
+                    <td>{{ t.roomCharge | indianCurrency }}/day</td>
+                    <td>{{ t.bedCharge | indianCurrency }}/day</td>
+                    <td>{{ t.totalCharge | indianCurrency }}</td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-primary">
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- ✅ Final Combined Total (below table) -->
+              <div class="text-end mt-3">
+                <h5>
+                  Final Room Charge (Primary + Transfers):
+                  <span
+                    [class.text-success]="isCompanyPatient"
+                    [class.text-primary]="!isCompanyPatient"
+                  >
+                    {{ finalRoomCharge | indianCurrency }}
+                  </span>
+                  <span *ngIf="isCompanyPatient" class="badge bg-success ms-2">
+                    <i class="fa-solid fa-building"></i> Company Rates Applied
+                  </span>
+                </h5>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- ✅ CATEGORY ROOM CASE -->
+        <ng-container *ngIf="categorySelected">
+          <div class="card mb-3">
+            <div
+              class="card-header d-flex justify-content-between align-items-center text-white"
+              [class.bg-success]="isCompanyPatient"
+              [class.bg-primary]="!isCompanyPatient"
+            >
+              <span
+                ><i class="fa-solid fa-hospital-room"></i> Room + Nursing
+                Charge</span
+              >
+              <span *ngIf="isCompanyPatient" class="badge bg-light text-dark">
+                <i class="fa-solid fa-building"></i>
+                {{ companyInfo?.companyName }}
+              </span>
+            </div>
+
+            <div class="card-body table-responsive">
+              <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>#</th>
+                    <th>Room Type</th>
+                    <th>Charge Type</th>
+                    <th>Assigned Date</th>
+                    <th>Room Charge</th>
+                    <th>Bed Charge</th>
+                    <th>Days Stayed</th>
+                    <!-- <th>Total</th> -->
+                    <th>Remarks</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>{{ patientFromCase.categoryChargeAs }}</td>
+                    <td>
+                      <span class="badge bg-primary text-white"
+                        >Room + Nursing</span
+                      >
+                    </td>
+                    <td>
+                      {{
+                        patientFromCase.admissionTime
+                          | date : "dd MMM yyyy hh:mm a"
+                      }}
+                    </td>
+                    <td>
+                      <span
+                        [class.text-success]="isCompanyPatient"
+                        [class.text-primary]="!isCompanyPatient"
+                      >
+                        {{ appliedRoomRate | indianCurrency }}
+                      </span>
+                      <span
+                        *ngIf="isCompanyPatient"
+                        class="badge bg-success ms-1"
+                        >Company</span
+                      >
+                    </td>
+                    <td>
+                      <span
+                        [class.text-success]="isCompanyPatient"
+                        [class.text-primary]="!isCompanyPatient"
+                      >
+                        {{ appliedBedRate | indianCurrency }}
+                      </span>
+                      <span
+                        *ngIf="isCompanyPatient"
+                        class="badge bg-success ms-1"
+                        >Company</span
+                      >
+                    </td>
+                    <td>{{ dayStayed }}</td>
+                    <!-- <td>
+                      <strong>
+                        {{ roomTotal | indianCurrency }}
+                      </strong>
+                    </td> -->
+                    <td>
+                      <span
+                        *ngIf="isCompanyPatient; else standardNote"
+                        class="text-success small"
+                      >
+                        <i class="fa-solid fa-building"></i> Company Rate
+                        Applied
+                      </span>
+                      <ng-template #standardNote>
+                        <span class="text-muted small">Standard Rate</span>
+                      </ng-template>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary"
+                        (click)="viewRoomDetails(roomTransfer)"
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- ✅ Optional Total Summary -->
+              <div class="text-end mt-3">
+                <h5 class="mb-0">
+                  Room + Nursing Total:
+                  <span
+                    [class.text-success]="isCompanyPatient"
+                    [class.text-primary]="!isCompanyPatient"
+                  >
+                    {{ appliedRoomRate * dayStayed | indianCurrency }}
+                  </span>
+                </h5>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- ✅ CASE 2: Standard Room/Bed Case - TABLE FORMAT -->
+        <ng-template #noTransfer>
+          <div *ngIf="!categorySelected">
+            <div class="card mb-3">
+              <div
+                class="card-header d-flex justify-content-between align-items-center text-white"
+                [class.bg-success]="isCompanyPatient"
+                [class.bg-primary]="!isCompanyPatient"
+              >
+                <span><i class="fa-solid fa-bed"></i> Room & Bed Charges</span>
+                <span *ngIf="isCompanyPatient" class="badge bg-light text-dark">
+                  <i class="fa-solid fa-building"></i>
+                  {{ companyInfo?.companyName }}
+                </span>
+              </div>
+
+              <div class="card-body table-responsive">
+                <table class="table table-bordered align-middle table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th>#</th>
+                      <th>Room Number</th>
+                      <th>Room Type</th>
+                      <th>Bed Number</th>
+                      <th>Bed Type</th>
+                      <th>Rate Type</th>
+                      <th>Room Rate (₹/day)</th>
+                      <th>Bed Rate (₹/day)</th>
+                      <th>Days Stayed</th>
+                      <!-- <th>Total (₹)</th> -->
+                      <th>Remarks</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>{{ roomNumber }}</td>
+                      <td>
+                        {{
+                          inpatientcase[0]?.room_id?.room_type_id?.name ||
+                            inpatientcase[0]?.room?.roomType?.name
+                        }}
+                      </td>
+                      <td>{{ bedNumber }}</td>
+                      <td>
+                        {{
+                          inpatientcase[0]?.bed_id?.bed_type_id?.name ||
+                            inpatientcase[0]?.bed?.bedType?.name
+                        }}
+                      </td>
+                      <td>
+                        <span *ngIf="isCompanyPatient" class="badge bg-success"
+                          >Company Rate</span
+                        >
+                        <span *ngIf="!isCompanyPatient" class="badge bg-primary"
+                          >Standard</span
+                        >
+                      </td>
+
+                      <!-- Room Rate -->
+                      <td>
+                        <div>
+                          {{ appliedRoomRate | indianCurrency }}
+                          <div
+                            *ngIf="
+                              isCompanyPatient &&
+                              standardRoomRate !== appliedRoomRate
+                            "
+                            class="small text-muted"
+                          >
+                            <s>{{ standardRoomRate | indianCurrency }}</s>
+                          </div>
+                        </div>
+                      </td>
+
+                      <!-- Bed Rate -->
+                      <td>
+                        <div *ngIf="appliedBedRate >= 0">
+                          {{ appliedBedRate | indianCurrency }}
+                          <div
+                            *ngIf="
+                              isCompanyPatient &&
+                              standardBedRate !== appliedBedRate
+                            "
+                            class="small text-muted"
+                          >
+                            <s>{{ standardBedRate | indianCurrency }}</s>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td>{{ dayStayed }}</td>
+
+                      <!-- Total -->
+                      <!-- <td>
+                        <strong>
+                          {{
+                            dayStayed * (appliedRoomRate + appliedBedRate)
+                              | indianCurrency
+                          }}
+                        </strong>
+                      </td> -->
+
+                      <!-- Remarks -->
+                      <td>
+                        <ng-container
+                          *ngIf="isCompanyPatient; else standardNote"
+                        >
+                          <span class="text-success small">
+                            <i class="fa-solid fa-building"></i>
+                            {{ companyInfo?.companyName }}
+                          </span>
+                        </ng-container>
+                        <ng-template #standardNote>
+                          <span class="text-muted small"
+                            >Standard Hospital Rate</span
+                          >
+                        </ng-template>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary"
+                          (click)="viewRoomDetails(roomTransfer)"
+                        >
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- ✅ Total Summary (with savings section if company) -->
+            <div class="card bg-light mb-3">
+              <div class="card-body">
+                <div class="row">
+                  <!-- 🏦 Savings summary (only if company) -->
+                  <div class="col-md-8">
+                    <div
+                      *ngIf="isCompanyPatient && getTotalSavings() > 0"
+                      class="company-savings-summary"
+                    >
+                      <h6 class="text-success mb-2">
+                        <i class="fa-solid fa-piggy-bank"></i>
+                        {{ companyInfo?.companyName }} Savings
+                      </h6>
+                      <ul class="small text-muted mb-0">
+                        <li *ngIf="standardRoomRate - appliedRoomRate > 0">
+                          Room: Saved
+                          {{
+                            (standardRoomRate - appliedRoomRate) * dayStayed
+                              | indianCurrency
+                          }}
+                          ({{
+                            standardRoomRate - appliedRoomRate | indianCurrency
+                          }}/day × {{ dayStayed }} days)
+                        </li>
+                        <li *ngIf="standardBedRate - appliedBedRate > 0">
+                          Bed: Saved
+                          {{
+                            (standardBedRate - appliedBedRate) * dayStayed
+                              | indianCurrency
+                          }}
+                          ({{
+                            standardBedRate - appliedBedRate | indianCurrency
+                          }}/day × {{ dayStayed }} days)
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- 💰 Total Summary -->
+                  <div class="col-md-4 text-end">
+                    <h5 class="mb-1">
+                      Room Total:
+                      <span
+                        [class.text-success]="isCompanyPatient"
+                        [class.text-primary]="!isCompanyPatient"
+                      >
+                        {{ roomTotal | indianCurrency }}
+                      </span>
+                    </h5>
+                    <small class="text-muted d-block">
+                      {{ dayStayed }} days ×
+                      {{ appliedRoomRate + appliedBedRate | indianCurrency }}
+                      <span *ngIf="isCompanyPatient"
+                        >({{ companyInfo?.companyName }} rates)</span
+                      >
+                    </small>
+
+                    <!-- 💸 Total Saved -->
+                    <div
+                      *ngIf="isCompanyPatient && getTotalSavings() > 0"
+                      class="mt-2"
+                    >
+                      <span class="badge bg-success">
+                        <i class="fa fa-piggy-bank"></i> Total Saved:
+                        {{ getTotalSavings() | indianCurrency }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- ✅ ALL OTHER TABS REMAIN EXACTLY THE SAME -->
+      <!-- CASE TAB -->
+      <div *ngIf="tab === 'case'">
+        <div class="card">
+          <div class="card-header bg-info text-white">Inpatient Case</div>
+          <div class="card-body">
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr>
+                  <th>Admission Date</th>
+                  <th>Admission Time</th>
+                  <th>Discharged</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let caseItem of inpatientcase">
+                  <td>{{ caseItem.createdAt | date }}</td>
+                  <td>{{ caseItem.admissionTime | date : "shortTime" }}</td>
+                  <td>{{ caseItem.isDischarge ? "Yes" : "No" }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- BILLS TAB -->
+      <div *ngIf="tab === 'bills'">
+        <div class="card">
+          <div class="card-header bg-success text-white">
+            Services Bill ({{ serviceList.services.length }})
+          </div>
+          <div class="mx-5 w-75 mx-auto" *ngIf="serviceList.services.length === 0">
+            <p class="alert alert-success text-center">No bill data exist</p>
+          </div>
+          <div
+            class="card-body"
+            *ngIf="serviceList && serviceList.services.length > 0"
+          >
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr>
+                  <th>Billing Date</th>
+                  <th>Services</th>
+                  <th>Total Charge</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let s of serviceList.services">
+                  <td>{{ s.date | date }}</td>
+                  <td>{{ s.service }}</td>
+                  <td>{{ s.charge | indianCurrency }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="text-end fw-bold">
+              Inpatient Bills Total:
+              {{ serviceList.totalAmount | indianCurrency }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHARMA TAB -->
+      <div *ngIf="tab === 'pharma'">
+        <div class="card">
+          <div class="card-header bg-warning text-dark">
+            Pharmacy Bill ({{ pharmaceuticalinward.length }})
+          </div>
+          <div
+            class="mx-5 w-75 mx-auto"
+            *ngIf="pharmaceuticalinward.length === 0"
+          >
+            <p class="alert alert-warning text-center">
+              No pharmacy data exist
+            </p>
+          </div>
+          <div class="card-body" *ngIf="pharmaceuticalinward.length > 0">
+            <!-- Pharma Inward Table -->
+            <div>
+              <h5>Pharmacy Inward Details</h5>
+              <div
+                *ngFor="let pharma of pharmaceuticalinward"
+                class="card mb-2"
+              >
+                <div class="card-header bg-light">
+                  <strong>Pharmacy Bill</strong> | Payment Mode:
+                  {{ pharma.PaymentMode }} | Amount Received:
+                  {{ pharma.amountReceived }} | Date:
+                  {{ pharma.createdAt | date : "short" }}
+                </div>
+                <div class="card-body p-2">
+                  <table class="table table-sm table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Medicine Name</th>
+                        <th>Quantity</th>
+                        <th>Charge</th>
+                        <th>Dosage Instruction</th>
+                        <th>Timing</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let med of pharma.packages">
+                        <td>{{ med.medicineName }}</td>
+                        <td>{{ med.quantity }}</td>
+                        <td>{{ med.charge | indianCurrency }}</td>
+                        <td>{{ med.dosageInstruction }}</td>
+                        <td>
+                          <span *ngIf="med.checkbox?.morning">Morning </span>
+                          <span *ngIf="med.checkbox?.noon">Noon </span>
+                          <span *ngIf="med.checkbox?.evening">Evening </span>
+                          <span *ngIf="med.checkbox?.night">Night</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-end fw-bold">
+              Pharmaceutical Total: {{ pharmaTotal | indianCurrency }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEST Tab -->
+      <div *ngIf="tab === 'test'">
+        <div class="card">
+          <div class="card-header bg-dark text-light">
+            Radiology Bill ({{ radiotest.services.length }})
+          </div>
+
+          <!-- Empty State -->
+          <div class="mx-5 w-75 mx-auto" *ngIf="radiotest.services.length === 0">
+            <p class="alert alert-dark text-center">
+              No medical test data exist
+            </p>
+          </div>
+
+          <div
+            class="card-body"
+            *ngIf="radiotest && radiotest.services.length > 0"
+          >
+            <!-- Test List -->
+            <div class="card mb-2">
+              <table class="table table-sm table-bordered">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Test Name</th>
+                    <th>Charge</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let test of radiotest.services">
+                    <td>{{ test.date | date }}</td>
+                    <td>{{ test.service }}</td>
+                    <td>{{ test.charge | indianCurrency }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p class="text-end fw-bold mt-3">
+              Test Total: {{ radiotest.totalAmount | indianCurrency }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- OT TAB -->
+      <div *ngIf="tab === 'ot'">
+        <div class="card">
+          <div class="card-header bg-danger text-white">OT Bill ({{otbills.length}})</div>
+          <div class="mx-5 w-75 mx-auto" *ngIf="otbills.length === 0">
+            <p class="alert alert-danger text-center">No OT data exist</p>
+          </div>
+
+          <div class="card-body" *ngIf="otbills.length > 0">
+            <!-- MAIN SURGERY INFO TABLE -->
+            <table
+              class="table table-bordered table-hover align-middle diagnosis-table"
+            >
+              <thead class="table-dark">
+                <tr>
+                  <th>Surgery Date</th>
+                  <th>Start Time</th>
+                  <th>End Time</th>
+                  <th>Anesthesia Type</th>
+                  <th>Equipment Used</th>
+                  <th>High Risk</th>
+                  <th>Implant Details</th>
+                  <th>Net Amount</th>
+                  <th>Surgery Package</th>
+                  <th>Total days stay</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <ng-container *ngFor="let otBill of otbills">
+                  <!-- MAIN ROW -->
+                  <tr>
+                    <td>{{ otBill.surgeryDate | date : "fullDate" }}</td>
+                    <td>{{ otBill.surgeryStartTime | dateToIST }}</td>
+                    <td>{{ otBill.surgeryEndTime | dateToIST }}</td>
+                    <td>{{ otBill.anesthesiaType }}</td>
+                    <td>{{ otBill.equipmentUsed }}</td>
+                    <td>{{ otBill.highRisk ? "Yes" : "No" }}</td>
+                    <td>{{ otBill.implantDetails }}</td>
+
+                    <td>
+                      {{
+                        (getChargeForOperation(otBill)
+                          ? getChargeForOperation(otBill).totalPrice
+                          : otBill.netAmount
+                        ) | indianCurrency
+                      }}
+                    </td>
+
+                    <!-- WHEN USING surgeryPackages -->
+                    <div *ngIf="otBill.manualOperationEntries.length === 0">
+                      <td *ngFor="let package of otBill.surgeryPackages">
+                        {{ package?.name }}
+                        <span *ngIf="package?.duration">
+                          (package duration: {{ package.duration }})
+                        </span>
+                      </td>
+                    </div>
+
+                    <!-- WHEN USING manualOperationEntries -->
+                    <div *ngIf="otBill.manualOperationEntries">
+                      <td *ngFor="let package of otBill.manualOperationEntries">
+                        {{ package?.name }}
+                        <span *ngIf="package?.duration">
+                          (package duration: {{ package.duration }})
+                        </span>
+                      </td>
+                    </div>
+
+                    <td>
+                      {{
+                        getTotalDaysFromLogs(roomTransfer.dailyRoomChargeLogs)
+                      }}
+                    </td>
+
+                    <td *ngIf="otBill.manualOperationEntries.length === 0">
+                      <button
+                        type="button"
+                        *ngIf="!getChargeForOperation(otBill)"
+                        (click)="navigateWithPatientIdToOtCharge(otBill._id)"
+                      >
+                        Add charge manually
+                      </button>
+                    </td>
+                  </tr>
+
+                  <!-- NESTED ROW -->
+                  <tr *ngIf="getChargeForOperation(otBill) as charge">
+                    <td colspan="11">
+                      <table class="table table-bordered table-sm">
+                        <thead>
+                          <tr>
+                            <th>Amount</th>
+                            <th>Charge Type</th>
+                            <th>Name</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let entry of charge.entries">
+                            <td>{{ entry.amount | indianCurrency }}</td>
+                            <td>{{ entry.chargeType }}</td>
+                            <td>{{ entry.staffName }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <!-- DEFAULT PACKAGE BREAKDOWN IF NO CHARGE -->
+                  <tr *ngIf="!getChargeForOperation(otBill)">
+                    <td colspan="11">
+                      <!-- BREAKDOWN for surgeryPackages -->
+                      <table
+                        class="table table-bordered table-sm"
+                        *ngIf="
+                          !otBill.manualOperationEntries &&
+                          otBill.surgeryPackages[0]?.breakdown?.length > 0
+                        "
+                      >
+                        <thead>
+                          <tr>
+                            <th>Amount</th>
+                            <th>Charge Type</th>
+                            <th>Percentage</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          <tr
+                            *ngFor="
+                              let b of otBill.surgeryPackages[0]?.breakdown
+                            "
+                          >
+                            <td>{{ b.amount | indianCurrency }}</td>
+                            <td>{{ b.chargeType }}</td>
+                            <td>{{ b.percentage }}%</td>
+                          </tr>
+                        </tbody>
+                      </table>
+
+                      <!-- BREAKDOWN for manualOperationEntries -->
+                      <table
+                        class="table table-bordered table-sm"
+                        *ngIf="
+                          otBill.manualOperationEntries &&
+                          otBill.manualOperationEntries[0]?.breakdown?.length >
+                            0
+                        "
+                      >
+                        <thead>
+                          <tr>
+                            <th>Amount</th>
+                            <th>Charge Type</th>
+                            <th>Name</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          <tr
+                            *ngFor="
+                              let b of otBill.manualOperationEntries[0]
+                                ?.breakdown
+                            "
+                          >
+                            <td>{{ b.amount | indianCurrency }}</td>
+                            <td>{{ b.chargeType }}</td>
+                            <td>{{ b.staffName }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+            <!-- TOTAL -->
+            <p class="text-end fw-bold">
+              OT Surgery Total: {{ calculateTotal() | indianCurrency }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="tab === 'visit'">
+        <div class="card">
+          <div class="card-header bg-secondary text-white">Visit</div>
+          <div class="card-body p-4">
+            <div class="card-body table-responsive">
+              <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Doctor Name</th>
+                    <th>Detail</th>
+                    <th>Rate</th>
+                    <th>Quantity</th>
+                    <th>Remark</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let visit of visits; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ visit.createdAt }}</td>
+                    <td>{{ visit.doctorId ? visit.doctorId?.name : visit.manualDoctorId?.name }}
+                      <span *ngIf="visit.manualDoctorId"> {{ visit.manualDoctorId?.specialization }}, </span>
+                      <span *ngIf="visit.manualDoctorId"> {{ visit.manualDoctorId?.experience }} years </span>
+                    </td>
+                    <td>{{ visit.headName }}</td>
+                    <td>{{ visit.amount | indianCurrency }}</td>
+                    <td>{{ visit.noOfVisits }}</td>
+                    <td>{{ visit.remarks }}</td>
+                    <td>{{ visit.amount * visit.noOfVisits | indianCurrency }}</td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-primary">
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- ✅ Final Combined Total (below table) -->
+              <div class="text-end mt-3">
+                <h5>
+                  Final Room Charge (Primary + Transfers):
+                  <span
+                    [class.text-success]="isCompanyPatient"
+                    [class.text-primary]="!isCompanyPatient"
+                  >
+                    {{ finalRoomCharge | indianCurrency }}
+                  </span>
+                  <span *ngIf="isCompanyPatient" class="badge bg-success ms-2">
+                    <i class="fa-solid fa-building"></i> Company Rates Applied
+                  </span>
+                </h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr />
+      <!-- <div>
+        <div class="d-flex justify-content-between">
+          <h4 class="text-end">
+            Grand Total:
+            <span
+              [class.text-success]="isCompanyPatient"
+              [class.text-primary]="!isCompanyPatient"
+            >
+              {{ grandTotal | indianCurrency }}
+            </span>
+            <span *ngIf="isCompanyPatient" class="badge badge-success ml-2">
+              <i class="fa-solid fa-building"></i> With Company Rates
+            </span>
+          </h4>
+          <h4 class="text-end">
+            Deposited Amount :
+            {{
+              inpatientdeposit[0]?.amountDeposited || deposit | indianCurrency
+            }}
+          </h4>
+        </div>
+        <h4 class="text-end">
+          <ng-container *ngIf="netAmount >= 0; else refundable">
+            Net Amount :
+            <span class="fw-bold text-primary">
+              {{ netAmount | indianCurrency }}
+            </span>
+          </ng-container>
+
+          <ng-template #refundable>
+            Refundable Amount :
+            <span class="fw-bold text-success">
+              {{ netAmount * -1 | indianCurrency }}
+            </span>
+          </ng-template>
+
+          <span *ngIf="isCompanyPatient" class="small text-success d-block">
+            (Calculated with {{ companyInfo?.companyName }} company rates)
+            <span *ngIf="getTotalSavings() > 0">
+              - Total Savings: {{ getTotalSavings() | indianCurrency }}
+            </span>
+          </span>
+        </h4>
+      </div> -->
+
+      <!-- <div *ngIf="isPay">
+        <div class="form-group">
+          <label>Payment Method</label>
+          <div class="radio-group mx-3">
+            <label
+              ><input type="radio" formControlName="paymentMode" value="cash" />
+              CASH</label
+            >
+            <label
+              ><input type="radio" formControlName="paymentMode" value="upi" />
+              UPI</label
+            >
+            <label
+              ><input type="radio" formControlName="paymentMode" value="card" />
+              CARD</label
+            >
+          </div>
+
+          <billing-discount-box
+            [parentForm]="intermbill"
+            (requestDiscount)="onRequestDiscount()"
+          ></billing-discount-box>
+
+          <div
+            *ngIf="
+              intermbill.get('paymentMode')?.invalid &&
+              intermbill.get('paymentMode')?.touched
+            "
+            class="text-danger"
+          >
+            Select a payment method
+          </div>
+        </div>
+
+
+        <div
+          class="form-group"
+          *ngIf="intermbill.get('paymentMode')?.value === 'upi'"
+        >
+          <label>Transaction ID</label>
+          <input
+            type="text"
+            formControlName="transactionId"
+            class="form-control"
+            placeholder="Enter UPI Transaction ID"
+          />
+          <div
+            *ngIf="
+              intermbill.get('transactionId')?.invalid &&
+              intermbill.get('transactionId')?.touched
+            "
+            class="text-danger"
+          >
+            Transaction ID is required
+          </div>
+        </div>
+
+        <div>
+          <label>Amount Received</label>
+          <input
+            type="number"
+            formControlName="amount_received"
+            class="form-control"
+            placeholder="Enter received amount"
+          />
+        </div>
+      </div> -->
+
+      <!-- part payment component  -->
+      <div *ngIf="isPay">
+        <app-ipdpaymentdetails
+          [parentForm]="intermbill"
+          (paymentChange)="onPaymentChange($event)"
+        ></app-ipdpaymentdetails>
+      </div>
+
+      <div class="d-flex justify-content-between mt-4">
+        <div class="d-flex gap-2">
+          <button
+            type="button"
+            class="list-cases-btn"
+            (click)="generatePatientReceipt()"
+          >
+            Inpatient Receipt
+          </button>
+          <button type="button" (click)="generateFinalBillAndPrint(ipdId)">
+            Print
+          </button>
+        </div>
+        <div>
+          <button
+            *ngIf="isPay"
+            type="submit"
+            class="btn btn-success"
+            (click)="generateFullBill()"
+          >
+            Save
+            <span *ngIf="isCompanyPatient" class="ml-1"
+              >({{ companyInfo?.companyName }} Rates)</span
+            >
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- ✅ RIGHT SECTION - ENHANCED WITH COMPANY DISPLAY -->
+    <!-- <div class="right-section form-half mx-2">
+      <div class="info-box">
+        <h3 class="text-center mb-3">Hospital Billing Summary</h3>
+
+        <div *ngIf="showBillReport" class="p-4 border mt-4" id="billReport"> -->
+    <!-- Room Charges -->
+    <!-- <h5>Room & Bed Charges</h5>
+          <table class="table table-bordered mb-4">
+            <tbody>
+              <tr>
+                <th>Room Number</th>
+                <td>{{ roomNumber }}</td>
+                <th>Type</th>
+                <td>
+                  {{
+                    inpatientcase[0]?.room_id?.room_type_id?.name ||
+                      inpatientcase[0]?.room?.roomType?.name
+                  }}
+                </td>
+                <th>/Day</th>
+                <td [class.text-success]="isCompanyPatient">
+                  {{ appliedRoomRate | indianCurrency }}
+                  <span
+                    *ngIf="isCompanyPatient"
+                    class="badge badge-success badge-sm ml-1"
+                    >Company</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <th>Bed Number</th>
+                <td>{{ bedNumber }}</td>
+                <th>Type</th>
+                <td>
+                  {{
+                    inpatientcase[0]?.bed_id?.bed_type_id?.name ||
+                      inpatientcase[0]?.bed?.bedType?.name
+                  }}
+                </td>
+                <th>/Day</th>
+                <td [class.text-success]="isCompanyPatient">
+                  {{ appliedBedRate | indianCurrency }}
+                  <span
+                    *ngIf="isCompanyPatient"
+                    class="badge badge-success badge-sm ml-1"
+                    >Company</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <th>Total Days Stayed</th>
+                <td colspan="2">
+                  {{ inpatientcase[0]?.daysStayed || dayStayed || "N/A" }}
+                </td>
+                <th>Total Room Charge</th>
+                <td colspan="2">
+                  <strong [class.text-success]="isCompanyPatient">{{
+                    roomTotal | indianCurrency
+                  }}</strong>
+                  <span
+                    *ngIf="isCompanyPatient"
+                    class="badge badge-success badge-sm ml-1"
+                    >Company Rate</span
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table> -->
+
+    <!-- ALL OTHER SECTIONS REMAIN EXACTLY THE SAME -->
+    <!-- Inpatient Bills -->
+    <!-- <h5>Inpatient Bills</h5>
+          <div *ngFor="let bill of inpatientbills" class="mb-3">
+            <p><strong>Billing Date:</strong> {{ bill.billingDate | date }}</p>
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Amount ()</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let s of bill.service">
+                  <td>{{ s.name }}</td>
+                  <td>{{ s.charge }}</td>
+                </tr>
+                <tr>
+                  <th>Subtotal</th>
+                  <th>{{ bill.totalBillAmount }}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-end">
+            <strong>Total: {{ inpatientBillsTotal }}</strong>
+          </p> -->
+
+    <!-- Pharmaceutical Inward -->
+    <!-- <h5>Pharmaceutical Inward</h5>
+          <div *ngFor="let pharma of pharmaceuticalinward" class="mb-3">
+            <p>
+              <strong>Date:</strong> {{ pharma.createdAt | date : "short" }} |
+              Mode: {{ pharma.paymentMode }}
+            </p>
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Medicine</th>
+                  <th>Qty</th>
+                  <th>Amount ()</th>
+                  <th>Times</th>
+                  <th>Instruction</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let pkg of pharma.packages">
+                  <td>{{ pkg.medicineName }}</td>
+                  <td>{{ pkg.quantity }}</td>
+                  <td>{{ pkg.charge }}</td>
+                  <td>
+                    <span *ngIf="pkg.checkbox?.morning">Morning </span>
+                    <span *ngIf="pkg.checkbox?.noon">Noon </span>
+                    <span *ngIf="pkg.checkbox?.evening">Evening </span>
+                    <span *ngIf="pkg.checkbox?.night">Night</span>
+                  </td>
+                  <td>{{ pkg.dosageInstruction }}</td>
+                </tr>
+                <tr>
+                  <th colspan="4">Subtotal</th>
+                  <th>{{ pharma.total }}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="text-end">
+            <strong>Total: {{ pharmaTotal }}</strong>
+          </p> -->
+
+    <!-- Medical Test Details -->
+    <!-- <h5>Medical Test Inward</h5>
+          <div *ngFor="let test of medicaltestinward" class="card mb-2">
+            <div *ngIf="test.remarks" class="mt-2">
+              <strong>Findings:</strong>
+              <pre style="white-space: pre-wrap">{{ test.remarks }}</pre>
+            </div>
+
+            <div class="card-header bg-light">
+              <strong>Lab Bill</strong> | Payment Mode: {{ test.PaymentMode }} |
+              Amount Received: {{ test.amountReceived }} | Date:
+              {{ test.createdAt | date : "short" }}
+            </div>
+            <div class="card-body p-2">
+              <div *ngFor="let group of test.testMaster">
+                <h6 class="fw-bold">
+                  {{ group.testGroup }} - {{ group.price }}
+                </h6>
+                <table class="table table-sm table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Test Name</th>
+                      <th>Value</th>
+                      <th>Unit</th>
+                      <th>Reference Range</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let param of group.testParameters">
+                      <td>{{ param.test_name }}</td>
+                      <td>{{ param.input }}</td>
+                      <td>{{ param.units }}</td>
+                      <td>{{ param.min }} – {{ param.max }}</td>
+                      <td>
+                        <span
+                          [ngClass]="{
+                            'text-danger':
+                              +param.input > +param.max ||
+                              +param.input < +param.min,
+                            'text-success':
+                              +param.input <= +param.max &&
+                              +param.input >= +param.min
+                          }"
+                        >
+                          {{
+                            +param.input > +param.max
+                              ? "High"
+                              : +param.input < +param.min
+                              ? "Low"
+                              : "Normal"
+                          }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div> -->
+
+    <!-- Optional: Show remarks -->
+    <!-- <div *ngIf="test.remarks" class="mt-2">
+                <strong>Findings:</strong>
+                <pre style="white-space: pre-wrap">{{ test.remarks }}</pre>
+              </div>
+            </div>
+            <div class="no-break"></div>
+          </div>
+
+          <p class="text-end fw-bold mt-3">
+            Test Total: {{ medicaltestTotal | indianCurrency }}
+          </p>
+
+           OT / Surgery Details
+           <hr />
+          <h5>OT / Surgery Details</h5>
+          <div *ngFor="let bill of otbills" class="mb-3">
+            <p><strong>OT Date:</strong> {{ bill.surgeryDate | date }}</p>
+
+            <table class="table table-bordered mb-3">
+              <thead>
+                <tr>
+                  <th>Surgery Date</th>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Anesthesia</th>
+                  <th>Equipment</th>
+                  <th>High Risk</th>
+                  <th>Implants</th>
+                  <th>Packages</th>
+                  <th>Subtotal ()</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let bill of otbills">
+                  <td>{{ bill.surgeryDate | date }}</td>
+                  <td>{{ bill.surgeryStartTime }}</td>
+                  <td>{{ bill.surgeryEndTime }}</td>
+                  <td>{{ bill.anesthesiaType }}</td>
+                  <td>{{ bill.equipmentUsed }}</td>
+                  <td>{{ bill.highRisk ? "Yes" : "No" }}</td>
+                  <td>{{ bill.implantDetails || "N/A" }}</td>
+                  <td>
+                    <ul class="mb-0">
+                      <li *ngFor="let pkg of bill.surgeryPackage">
+                        {{ pkg.name || pkg.description }}
+                      </li>
+                    </ul>
+                  </td>
+                  <td>{{ bill.netAmount }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="text-end">
+              <strong>Total: {{ otTotal }}</strong>
+            </p>
+          </div> -->
+
+    <!-- <table>
+            <thead>
+              <th>Total Service Bill</th>
+              <th>Total Room Service Bill</th>
+              <th>Total Pharma Bill</th>
+              <th>Total Medical Test Bill</th>
+              <th>Total OT Bill</th>
+            </thead>
+            <tbody>
+              <td>{{ inpatientBillsTotal }}</td>
+              <td>{{ roomTotal }}</td>
+              <td>{{ pharmaTotal }}</td>
+              <td>{{ medicaltestTotal }}</td>
+              <td>{{ otTotal }}</td>
+            </tbody>
+          </table>  -->
+
+    <!-- Grand Total -->
+    <!-- <hr />
+          <div class="d-flex justify-content-between">
+            <h4 class="text-end">
+              Grand Total:
+              <span
+                [class.text-success]="isCompanyPatient"
+                [class.text-primary]="!isCompanyPatient"
+              >
+                {{ grandTotal | indianCurrency }}
+              </span>
+            </h4>
+            <h4 class="text-end">Deposited Amount : {{ deposit }}</h4>
+          </div>
+          <h4 class="text-end">
+            Net Amount :
+            <span
+              [class.text-success]="isCompanyPatient"
+              [class.text-primary]="!isCompanyPatient"
+            >
+              {{ grandTotal - deposit }}
+            </span>
+            <span *ngIf="isCompanyPatient" class="small text-success d-block">
+              (Calculated with {{ companyInfo?.companyName }} company rates)
+            </span>
+          </h4> -->
+
+    <!-- Signatures -->
+    <!-- <div class="mt-4 d-flex justify-content-between">
+            <p>Billing Officer Signature: ____________________</p>
+            <p>Patient Signature: ____________________</p>
+          </div> -->
+    <!-- </div>
+      </div>
+    </div> -->
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="selectedLogs">
+  <div class="modal-content-box">
+    <div class="modal-header">
+      <h3 style="visibility: hidden">Patient Details</h3>
+      <!-- <button class="close-btn mt-5" (click)="closeModal()">×</button> -->
+      <i class="fas fa-times" (click)="closeModal()"></i>
+    </div>
+    <hr />
+    <div class="modal-body">
+      <app-roomchargecalculation
+        [roomData]="selectedLogs"
+      ></app-roomchargecalculation>
+    </div>
+    <div class="modal-footer mt-2">
+      <button type="button" class="btn btn-secondary" (click)="closeModal()">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="selectedPatientBill">
+  <div class="modal-content-box">
+    <div class="modal-header">
+      <h3 style="visibility: hidden">Patient Details</h3>
+      <!-- <button class="close-btn mt-5" (click)="closeModal()">×</button> -->
+      <i class="close-btn fas fa-times" (click)="closeModal()"></i>
+    </div>
+    <hr />
+    <div class="modal-body">
+      <app-ipdfinalbill
+        [estimateBill]="selectedPatientBill"
+        [serviceList]="serviceList"
+        [radioList]="radiotest"
+        [otData]="otData"
+        [roomCharge]="roomTotal"
+        [pharmaCharge]="pharmaTotal"
+        [otcharge]="calculateOtTotal()"
+        [total]="grandTotal"
+        [deposit]="deposit"
+        [finalRoomCharge]="finalRoomCharge"
+        [dailyRoomCharges]="dailyRoomCharges"
+        [paidAmount]="amountPaid"
+      ></app-ipdfinalbill>
+    </div>
+  </div>
+</div>

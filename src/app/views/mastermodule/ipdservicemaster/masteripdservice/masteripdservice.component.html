@@ -1,0 +1,82 @@
+<!-- <p>masteripdservice works!</p> -->
+<div class="header">
+  <h2>IPD SERVICE</h2>
+  <div class="">
+    <!-- <button class="list-cases-btn mx-3"   ><i class="fa-solid fa-user-group"></i></button> -->
+    <button class="list-cases-btn mx-3"  [routerLink]="['/master/masteripdservicelist']" routerLinkActive="router-link-active"   >IPD SERVICE LIST</button>
+  </div>
+</div>
+<div class="container mt-4">
+  <form [formGroup]="roomChargesForm">
+    <div class="row">
+
+      <!-- Left Side -->
+      <div class="col-md-6">
+        <h4>Service Details</h4>
+
+        <div class="mb-3">
+          <label class="form-label">Service Group</label>
+          <input type="text" class="form-control" formControlName="serviceGroup" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Service Name *</label>
+          <input type="text" class="form-control" formControlName="serviceName" required />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Extra Details</label>
+          <textarea class="form-control" formControlName="extraDetails"></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Dr Required *</label>
+          <div>
+            <input type="radio" formControlName="drRequired" value="yes" /> Yes
+            <input type="radio" formControlName="drRequired" value="no" checked /> No
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Rate *</label>
+          <input type="text" class="form-control" formControlName="rate" required />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Rate Editable *</label>
+          <div>
+            <input type="radio" formControlName="rateEditable" value="yes" /> Yes
+            <input type="radio" formControlName="rateEditable" value="no" checked /> No
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Status *</label>
+          <div>
+            <input type="radio" formControlName="status" value="active" checked /> Active
+            <input type="radio" formControlName="status" value="inactive" /> Inactive
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <button  class="btn btn-secondary" (click)="saveForm()">Save & List</button>
+          <button  class="btn btn-secondary mx-2">Save & Add New</button>
+          <button  class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Right Side Room Rates -->
+      <div class="col-md-6">
+        <h4>Room Rates</h4>
+        <div *ngFor="let room of roomFields" class="mb-3">
+          <label class="form-label">{{ room | titlecase }} Rate</label>
+          <input type="text" class="form-control" [formControlName]="room" placeholder="Enter {{ room | titlecase }} Rate" />
+        </div>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+
+

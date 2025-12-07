@@ -1,0 +1,58 @@
+<!-- <p>pathotestmaster works!</p> -->
+<div class="header">
+  <h2>TEST MASTER</h2>
+  <button class="list-cases-btn" [routerLink]="['/pathologylayout/testmasterlist']" routerLinkActive="router-link-active" >LIST CASES</button>
+</div>
+<div class="opd-container">
+  <form [formGroup]="testmaster" (ngSubmit)="OnSubmit()">
+    <h4 class="m-4">Test Master Details</h4>
+    <hr>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Test Name:</label>
+        <input type="text" placeholder="test name" class="required" formControlName="testname">
+        <div class="text-danger small"
+        *ngIf="testmaster.get('testname')?.invalid && testmaster.get('testname')?.touched">
+      Test Name is required.
+      </div>
+      </div>
+      <div class="form-group">
+        <label>Test Group Name:</label>
+        <input type="text" placeholder="test group name" class="req
+
+
+        uired" formControlName="groupname">
+        <div class="text-danger small"
+        *ngIf="testmaster.get('groupname')?.invalid && testmaster.get('groupname')?.touched">
+      Test Group Name is required.
+      </div>
+      </div>
+      <div class="form-group">
+        <label>Test Parameter Name:</label>
+        <input type="text" placeholder="test parameter name" class="required" formControlName="parameter">
+        <div class="text-danger small"
+        *ngIf="testmaster.get('parameter')?.invalid && testmaster.get('parameter')?.touched">
+      Test Parameter Name is required.
+      </div>
+      </div>
+      <div class="form-group">
+        <label>unit:</label>
+        <input type="text" placeholder="unit" class="required" formControlName="unit">
+        <div class="text-danger small"
+        *ngIf="testmaster.get('unit')?.invalid && testmaster.get('unit')?.touched">
+      Unit is required.
+      </div>
+      </div>
+
+
+
+
+
+    </div>
+
+    <div class="text-center mt-4">
+
+      <button class="btn  btn-dark mx-2" [disabled]="testmaster.invalid">Save</button>
+
+    </div>

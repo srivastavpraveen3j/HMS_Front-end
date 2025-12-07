@@ -1,0 +1,119 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>Vitals</h2>
+    <!-- <button class="list-cases-btn" routerLinkActive="router-link-active" [routerLink]="['/doctor/vitals']">
+      ADD VITALS
+    </button> -->
+  </div>
+
+  <div class="filters d-flex align-items-center m-3">
+
+    <form [formGroup]="filterForm" class="top-bar p-3">
+      <input type="text" placeholder="Search..." formControlName="searchText" />
+    </form>
+
+    <label class="">
+      <input type="radio" name="filter" value="today" [(ngModel)]="activeFilter" (change)="applyFilters()" checked />
+      TODAY'S
+    </label>
+
+    <label class="mx-3">
+      <input type="radio" name="filter" value="dateRange" [(ngModel)]="activeFilter" (change)="applyFilters()" />
+      Date Range
+    </label>
+
+    <!-- Date Inputs Visible Only for Date Range -->
+    <input *ngIf="activeFilter === 'dateRange'" type="date" [(ngModel)]="startDate" (change)="applyFilters()"
+      class="form-control mx-2" />
+    <input *ngIf="activeFilter === 'dateRange'" type="date" [(ngModel)]="endDate" (change)="applyFilters()"
+      class="form-control mx-2" />
+  </div>
+
+
+
+  <app-loader [patientData]="filteredCases" [title]="module" [activeFilter]="activeFilter" [startDate]="startDate"
+    [endDate]="endDate"></app-loader>
+
+  <div class="table-responsive" *ngIf="userPermissions.read && filteredCases.length > 0">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>UHID</th>
+          <th>Patient Name</th>
+          <th>Age</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Temp (°F)</th>
+          <th>Pulse</th>
+          <th>SPO2</th>
+          <th>BP (Sys/Dia)</th>
+          <th>Resp Rate</th>
+          <th>Blood Sugar</th>
+          <th>Date</th>
+          <th>Action</th>
+          <!-- <th>Input</th>
+          <th>Output</th>
+          <th>Remarks</th> -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of displayedCases; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ record.uhid }}</td>
+          <td>{{ record.patient_name }}</td>
+          <td>{{ record.age }}</td>
+          <td>{{ record.date | date: 'dd-MM-yyyy' }}</td>
+          <td>{{ record.time }}</td>
+          <td>{{ record?.temperature }}</td>
+          <td>{{ record.pulseRate }}</td>
+          <td>{{ record.spo2 }}</td>
+          <td>
+            {{ record.systolicBloodPressure }}/{{ record.diastolicBloodPressure }}
+          </td>
+          <td>{{ record.respiratoryRate }}</td>
+          <td>{{ record.bloodSugar }}</td>
+          <td>{{ record.createdAt | date : "yyyy-MM-dd HH:mm:ss" }}</td>
+          <td>
+            <i class="fa-solid fa-eye action-btn" (click)="viewPatient(record._id)"></i>
+            <i class="fa-solid fa-pencil action-btn" *ngIf="userPermissions.update" (click)="editVitals(record._id)"></i>
+            <!-- <i
+              class="fa-solid fa-trash action-btn"
+              *ngIf="userPermissions.delete"
+              (click)="deleteVitals(record._id)"
+            ></i> -->
+          </td>
+          <!-- <td>{{ record.input }}</td>
+          <td>{{ record.output }}</td>
+          <td>{{ record.remarks }}</td> -->
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination d-flex justify-content-center align-items-center my-3">
+      <button class="pagination-btn btn btn-primary mx-2" (click)="previousPage()" [disabled]="currentPage === 1">
+        Previous
+      </button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button class="pagination-btn btn btn-primary mx-2" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" *ngIf="selectedPatient">
+    <div class="modal-content-box">
+      <div class="modal-header">
+        <h3 style="visibility: hidden">Patient Details</h3>
+        <button class="close-btn" (click)="closeModal()">×</button>
+      </div>
+      <hr />
+      <div class="modal-body">
+        <app-ipdvitalchart [patientData]="selectedPatient"></app-ipdvitalchart>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,79 @@
+<div class="form-meta">
+  <!-- <h4 class="m-4">Discount Requests Dashboard</h4> -->
+  <div class="header">
+    <h2>Discount Requests Dashboard</h2>
+  </div>
+
+<div class="discount-dashboard mt-5">
+  <table class="table table-bordered">
+    <thead class="thead-dark">
+      <tr>
+        <th>Patient Name</th>
+        <th>UHID</th>
+        <th>Requested By</th>
+        <th>Amount (₹)</th>
+        <th>Reason</th>
+        <th>Remark</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let request of discountRequests">
+        <tr>
+          <td>{{ request.uhid.patient_name }}</td>
+          <td>{{ request.uhid.uhid }}</td>
+          <td>{{ request.requestedBy.name }}</td>
+
+          <!-- Discount -->
+          <td>
+            <ng-container *ngIf="request.isEdit; else viewDiscount">
+              <input
+                type="number"
+                [(ngModel)]="request.discount"
+                class="form-control"
+              />
+            </ng-container>
+            <ng-template #viewDiscount>{{ request.discount }}</ng-template>
+          </td>
+
+          <!-- Reason -->
+          <td>
+            <ng-container *ngIf="request.isEdit; else viewReason">
+              <input
+                disabled
+                type="text"
+                [(ngModel)]="request.reason"
+                class="form-control"
+              />
+            </ng-container>
+            <ng-template #viewReason>{{ request.reason }}</ng-template>
+          </td>
+          <td>
+            <ng-container *ngIf="request.isEdit; else viewRemark">
+              <input
+                type="text"
+                [(ngModel)]="request.reasonbyAdmin"
+                class="form-control"
+              />
+            </ng-container>
+            <ng-template #viewRemark>{{ request.reasonbyAdmin }}</ng-template>
+          </td>
+
+          <!-- Status -->
+          <td>{{ request.discountStatus }}</td>
+
+          <!-- Actions -->
+          <td>
+            <discount-approval-toggle
+              [request]="request"
+              (statusChanged)="updateStatus($event)"
+            ></discount-approval-toggle>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</div>
+
+</div>

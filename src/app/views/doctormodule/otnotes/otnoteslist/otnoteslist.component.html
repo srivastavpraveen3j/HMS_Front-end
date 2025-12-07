@@ -1,0 +1,147 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>OT Sheet LIST</h2>
+    <div class="">
+      <!-- <button class="list-cases-btn mx-3"   ><i class="fa-solid fa-user-group"></i></button> -->
+      <!-- <button
+        class="list-cases-btn"
+        [routerLink]="['/doctor/otnotes']"
+        routerLinkActive="router-link-active"
+      >
+        ADD OT SHEET
+      </button> -->
+    </div>
+  </div>
+
+  <!-- <div class="top-bar p-3">
+      <form [formGroup]="filterForm" class="top-bar p-3">
+        <input type="text" placeholder="Search..." formControlName="searchText" />
+      </form>
+
+
+    </div> -->
+
+  <!-- Filter by Today or Date Range -->
+  <div class="filters d-flex align-items-center m-3">
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="today"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+        checked
+      />
+      TODAY'S
+    </label>
+
+    <label class="m-3">
+      <input
+        type="radio"
+        name="filter"
+        value="dateRange"
+        [(ngModel)]="activeFilter"
+        (change)="applyFilters()"
+      />
+      Date Range
+    </label>
+
+    <!-- Date Inputs Visible Only for Date Range -->
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="startDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+    />
+    <input
+      *ngIf="activeFilter === 'dateRange'"
+      type="date"
+      [(ngModel)]="endDate"
+      (change)="applyFilters()"
+      class="form-control mx-2"
+    />
+  </div>
+
+  <app-loader
+    [patientData]="filteredCases"
+    [title]="module"
+    [activeFilter]="activeFilter"
+    [startDate]="startDate"
+    [endDate]="endDate"
+  ></app-loader>
+
+  <div class="" *ngIf="userPermissions.read && filteredCases.length > 0">
+    <table
+      class="table table-bordered table-hover align-middle diagnosis-table"
+    >
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Patient Name</th>
+          <th>UHID</th>
+          <th>Suregon</th>
+          <th>Operation Name</th>
+          <th>Operation Start Date</th>
+          <th>Operation In Time</th>
+          <th>Operation Start Time</th>
+          <th>Operation End Time</th>
+          <th>Operation Out Time</th>
+          <!-- <th>Operation End Date</th> -->
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let patient of filteredCases; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ patient.patient_name }}</td>
+          <td>{{ patient.uhid }}</td>
+          <td>{{ patient.suregon }}</td>
+          <td>{{ patient.procedure_name }}</td>
+          <td>{{ patient.startingdate | date }}</td>
+          <td>{{ patient.intime }}</td>
+          <td>{{ patient.startingtime }}</td>
+          <td>{{ patient.endingtime }}</td>
+          <td>{{ patient.outtime }}</td>
+          <!-- <td>{{ patient.endingdate | date }}</td> -->
+          <td>
+            <i
+              class="fa-solid fa-eye action-btn"
+              (click)="viewDetails(patient)"
+            ></i>
+            <i
+              class="fa-solid fa-pencil action-btn"
+              (click)="editotnotes(patient._id)"
+            ></i>
+            <!-- <i
+              class="fa-solid fa-trash action-btn"
+              (click)="deleteotnotes(patient._id)"
+            ></i> -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Sidebar Panel -->
+    <div class="customization-sidebar" [class.open]="isSidebarOpen">
+      <button class="close-btn" (click)="closeSidebar()">×</button>
+      <!-- <div class="" *ngFor="let patient of otnotes">
+      <h5><b>Patient Name :</b> {{patient.patient_name}} </h5>
+      <h5><b>UHID Number :</b> {{patient.uhid}} </h5>
+
+     </div> -->
+
+      <h6 class="sidebar-header">OT Procedure</h6>
+      <div
+        class="sidebar-content"
+        [innerHTML]="selectedNote?.otprocedure || 'No data'"
+      ></div>
+
+      <h6 class="sidebar-header">Post Operative Order</h6>
+      <div
+        class="sidebar-content"
+        [innerHTML]="selectedNote?.postoperativeorder || 'No data'"
+      ></div>
+    </div>
+  </div>
+</div>

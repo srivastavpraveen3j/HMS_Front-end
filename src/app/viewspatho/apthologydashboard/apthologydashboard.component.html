@@ -1,0 +1,206 @@
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pathology Management Dashboard</title>
+</head>
+
+<div class="p-2">
+  <!-- Dashboard Overview Section -->
+  <div id="dashboard" class="section active">
+    <div class="stats-grid">
+      <div class="stat-card" routerLink="/pharmalayout/opdpharmalayout">
+        <div class="stat-number">{{ totalFilteredOPDCases || 0 }}</div>
+        <div class="stat-label">OPD Patients Today</div>
+      </div>
+      <div class="stat-card" routerLink="/pharmalayout/pharmalayout">
+        <div class="stat-number">{{ totalFilteredIPDCases || 0 }}</div>
+        <div class="stat-label">IPD Patients</div>
+      </div>
+      <div class="stat-card" routerLink="/pharmalayout/walkinpharma">
+        <div class="stat-number">{{ totalFilteredWalkCases || 0 }}</div>
+        <div class="stat-label">Walk-in Patients</div>
+      </div>
+      <!-- <div class="stat-card" routerLink="/pharmalayout/pharmamanagementlist">
+        <div class="stat-number">{{ lowStockMedicinesFullList.length }}</div>
+        <div class="stat-label">Low Stock Alerts</div>
+      </div> -->
+    </div>
+
+    <div class="quick-actions">
+      <!-- <div class="action-btn" onclick="showSection('patients')">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">👥</div>
+                    <div>Manage Patients</div>
+                </div> -->
+      <div class="action-btn" routerLink="/pathologylayout/pathoreport">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem">📊</div>
+        <div>View Reports Department Wise</div>
+      </div>
+      <div class="action-btn" routerLink="/pathologylayout/deptpathoreports">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem">📊</div>
+        <div>View Reports Test Wise</div>
+      </div>
+      <!-- <div class="action-btn" onclick="addNewPatient()">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">➕</div>
+                    <div>Add New Patient</div>
+                </div> -->
+    </div>
+
+    <div class="dashboard-grid">
+      <div
+        class="card d-flex justify-content-center align-items-center"
+        style="min-height: 400px"
+      >
+        <canvas id="topTestsChart"></canvas>
+      </div>
+      <div
+        class="card d-flex justify-content-center align-items-center"
+        style="min-height: 400px"
+      >
+        <canvas id="incomePieChart"></canvas>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Recent OPD Patients Walk- In</div>
+          <button
+            class="btn btn-primary"
+            routerLink="/pathologylayout/walkinpathoinward"
+          >
+            View All
+          </button>
+        </div>
+        <div class="table-container">
+          <table class="table">
+            <thead class="table-dark text-center">
+              <tr>
+                <!-- <th>INWARD ID</th> -->
+                <th>DATE TIME</th>
+                <th>PATIENT DETAILS</th>
+                <th>AGE / GENDER</th>
+                <th>REFERENCE DOCTOR</th>
+                <th>TEST NAME</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of filteredwalkCases; let i = index">
+                <!-- <td>{{ record.inpatientDepartmentId || 'N/A' }}</td> -->
+
+                <!-- <td>{{ i + 1 }}</td> -->
+                <td>{{ record.createdAt | date : "shortTime" }}</td>
+                <td>{{ record?.walkInPatient?.name || "N/A" }}</td>
+                <td>
+                  {{ record?.walkInPatient?.age || "N/A" }}/{{
+                    record?.walkInPatient?.gender || "N/A"
+                  }}
+                </td>
+                <td>{{ record?.walkInPatient?.referenceDoctor || "N/A" }}</td>
+                <td>
+                  <div *ngFor="let test of record.testMaster">
+                    {{ test.testGroup }}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Recent OPD Patients</div>
+          <button
+            class="btn btn-primary"
+            routerLink="/pathologylayout/opdpathologylayout"
+          >
+            View All
+          </button>
+        </div>
+        <!-- <div class="table-container"> -->
+        <table class="table">
+          <thead class="table-dark text-center">
+            <tr>
+              <!-- <th>INWARD ID</th> -->
+              <th>DATE TIME</th>
+              <th>PATIENT DETAILS</th>
+              <th>AGE / GENDER</th>
+              <th>UHID NO</th>
+              <th>TEST NAME</th>
+              <!-- <th>STATUS</th> -->
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let record of filteredCases; let i = index">
+              <!-- <td>{{ record.inpatientDepartmentId || 'N/A' }}</td> -->
+
+              <!-- <td>{{ i + 1 }}</td> -->
+              <td>{{ record.createdAt | date : "shortTime" }}</td>
+              <td>{{ record.patient_name || "N/A" }}</td>
+              <td>{{ record.age || "N/A" }}/{{ record.gender || "N/A" }}</td>
+              <td>{{ record.uhid || "N/A" }}</td>
+              <td>
+                <div *ngFor="let test of record.testMaster">
+                  {{ test.testGroup }}
+                </div>
+              </td>
+              <!-- <td>
+            <div *ngFor="let test of record.testMaster">
+              {{ test.status }}
+            </div>
+          </td> -->
+            </tr>
+          </tbody>
+        </table>
+        <!-- </div> -->
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">IPD Patient Summary</div>
+          <button
+            class="btn btn-primary"
+            routerLink="/pathologylayout/pathologylayout"
+          >
+            View All
+          </button>
+        </div>
+        <div class="table-container">
+          <table class="table">
+            <thead class="table-dark text-center">
+              <tr>
+                <!-- <th>INWARD ID</th> -->
+                <th>DATE TIME</th>
+                <th>PATIENT DETAILS</th>
+                <th>AGE / GENDER</th>
+                <th>UHID NO</th>
+                <th>TEST NAME</th>
+                <!-- <th>STATUS</th> -->
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of filteredipdCases; let i = index">
+                <!-- <td>{{ record.inpatientDepartmentId || 'N/A' }}</td> -->
+
+                <!-- <td>{{ i + 1 }}</td> -->
+                <td>{{ record.createdAt | date : "shortTime" }}</td>
+                <td>{{ record.patient_name || "N/A" }}</td>
+                <td>{{ record.age || "N/A" }}/{{ record.gender || "N/A" }}</td>
+                <td>{{ record.uhid || "N/A" }}</td>
+                <td>
+                  <div *ngFor="let test of record.testMaster">
+                    {{ test.testGroup }}
+                  </div>
+                </td>
+                <!-- <td>
+            <div *ngFor="let test of record.testMaster">
+              {{ test.status }}
+            </div>
+          </td> -->
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

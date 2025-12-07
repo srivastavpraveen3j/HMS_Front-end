@@ -1,0 +1,141 @@
+<div class="form-meta">
+    <!-- <p>purchase-indent works!</p> -->
+  <div class="header">
+    <h2>Purchase Indent</h2>
+    <!-- Example icon and dropdown -->
+    <span class="icons position-relative">
+      <!-- <i
+        class="fa-solid fa-user-tie mx-2"
+        (click)="showUHIDDropdown = !showUHIDDropdown"
+      ></i> -->
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/inventorylayout/purchaseindentlist']"
+        routerLinkActive="router-link-active"
+      ></i>
+
+      <!-- Dropdown -->
+      <!-- <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+        <div
+          *ngIf="uhidTodayRecords.length === 0"
+          class="text-center text-muted py-2"
+        >
+          No UHID created today.
+        </div>
+
+        <ul class="uhid-list">
+          <li
+            *ngFor="let record of uhidTodayRecords"
+            (click)="selectPatientFromUHID(record)"
+            style="cursor: pointer"
+          >
+            <div class="uhid-name">{{ record.patient_name }}</div>
+            <div class="uhid-meta">
+              UHID: {{ record.uhid }} | Age: {{ record.age }}
+            </div>
+          </li>
+        </ul>
+      </div> -->
+    </span>
+
+    <!-- <button class="list-cases-btn" [routerLink]="['/opd/opdcases']" routerLinkActive="router-link-active">LIST CASES</button> -->
+
+
+
+
+  </div>
+
+
+  <!-- CARD VIEW: Shown only when both read and approval permissions are available -->
+
+  <form action="" [formGroup]="purchaseintend" *ngIf="userPermissions.create"  (ngSubmit)="submitSelected()">
+
+
+<div *ngIf="filteredUnintendedRequisitions.length === 0" class="alert alert-warning text-center mt-3">
+  No {{ selectedStatus }} requisitions found.
+</div>
+    <div class="row p-5">
+      <div class="col-md-6 mb-4" *ngFor="let pr of filteredUnintendedRequisitions; let i = index">
+        <div class="card shadow rounded-3 border-0 position-relative card-hover-group"
+            (mouseenter)="pr.hover = true" (mouseleave)="pr.hover = false">
+
+          <!-- Selection Circle -->
+          <div class="position-absolute bottom-0 end-0 m-2">
+            <input type="checkbox" class="form-check-input big-circle"
+                  [checked]="isSelected(pr)"
+                  (click)="toggleSelection(pr)"
+                  [style.opacity]="pr.hover || isSelected(pr) ? '1' : '0'"
+                  style="transition: 0.3s;">
+          </div>
+
+          <!-- Card Header -->
+          <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center rounded-top">
+            <div class="fw-bold">{{ pr.materialRequestNumber }} - {{ pr.departmentName }}</div>
+            <span>Material Request Date: {{ pr.createdAt | date }}</span>
+          </div>
+
+          <!-- Card Body -->
+          <div class="card-body">
+            <div class="row mb-2">
+              <div class="col-6"><strong>Item:</strong> {{ pr.itemName }}</div>
+              <div class="col-6"><strong>Quantity:</strong> {{ pr.quantityRequired }}</div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-6"><strong>Category:</strong> {{ pr.category }}</div>
+              <div class="col-6" *ngIf="pr.createdByUser">
+                <strong>Requested By:</strong> {{ pr.createdByUser.name }}
+              </div>
+            </div>
+            <div class="row" *ngIf="pr.approvedByUser">
+              <div class="col-6">
+                <strong>Reviewed By:</strong> {{ pr.approvedByUser.name }}
+              </div>
+              <div class="col-6" *ngIf="pr.updatedAt">
+                <strong>Reviewed Date:</strong> {{ pr.updatedAt | date }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Submit Button -->
+
+
+        <div class="text-center mt-3"  *ngIf="selectedRequests.length > 0">
+          <button class="btn btn-dark mx-2" type="submit"  >Submit</button>
+          <!-- <button class="btn btn-dark mx-2" type="submit" [disabled]="prForm.invalid">Submit</button> -->
+          <!-- <button class="btn btn-secondary" type="button" (click)="prForm.reset()">Cancel</button> -->
+        </div>
+  </form>
+
+
+
+
+    <!-- Pagination Controls -->
+    <div class="pagination d-flex justify-content-center align-items-center my-3" *ngIf="userPermissions.create">
+      <button
+        class="pagination-btn btn btn-primary mx-2"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button
+        class="pagination-btn btn btn-primary mx-2"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+
+
+     <div class="alert alert-danger text-center mt-3" *ngIf="!userPermissions.read">
+    🚫 You do not have access to create {{module}} .
+  </div>
+
+
+</div>

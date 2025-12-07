@@ -1,0 +1,16 @@
+<!-- <p>hrmslayout works!</p> -->
+<!-- <aside>
+<app-hrmssidebar (collapseChange)="onSidebarCollapseChange($event)"></app-hrmssidebar>
+ </aside> -->
+
+
+
+<div class="admin-layout-container" [class.sidebar-collapsed]="isCollapsed">
+ <app-hrmssidebar (collapseChange)="onSidebarCollapseChange($event)"></app-hrmssidebar>
+
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+<app-adminfooter></app-adminfooter>

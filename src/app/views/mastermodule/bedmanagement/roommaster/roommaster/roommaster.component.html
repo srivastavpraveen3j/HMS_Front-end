@@ -1,0 +1,100 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>ADD NEW ROOM DETAILS</h2>
+    <span class="icons position-relative">
+      <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/master/roommasterlist']"
+        routerLinkActive="router-link-active"
+      ></i>
+    </span>
+  </div>
+
+  <div *ngIf="userPermissions.create">
+    <form [formGroup]="roomForm" (ngSubmit)="onSubmit()">
+      <div class="form-container">
+        <div class="form-half">
+          <div class="form-group">
+            <label>Room Number <span class="required">*</span></label>
+            <input
+              formControlName="roomNumber"
+              class="form-control"
+              placeholder="e.g., A101"
+            />
+            <div
+              *ngIf="roomForm.get('roomNumber')?.touched && roomForm.get('roomNumber')?.invalid"
+              class="text-danger"
+            >
+              Room Number is Required
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Room Type <span class="required">*</span></label>
+            <select class="form-control" formControlName="room_type_id">
+              <option *ngFor="let rt of roomTypes" [value]="rt._id">
+                {{ rt.name }}
+              </option>
+            </select>
+            <div
+              *ngIf="roomForm.get('room_type_id')?.touched && roomForm.get('room_type_id')?.invalid"
+              class="text-danger"
+            >
+              Room Type is Required
+            </div>
+          </div>
+        </div>
+        <div class="form-half">
+          <div class="form-group">
+            <label>Beds <span class="required">*</span></label>
+            <div class="multi-select-container">
+              <div class="selected-tags">
+                <span *ngFor="let bed of selectedBeds" class="tag">
+                  {{ bed.bed_number }} - {{ bed?.bed_type_id?.name }}
+                  <span class="remove" (click)="removeBed(bed)">×</span>
+                </span>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Select beds"
+                  readonly
+                  (click)="toggleBedDropdown()"
+                />
+              </div>
+              <div class="dropdown" *ngIf="dropdownOpenBeds">
+                <div
+                  *ngFor="let bed of beds"
+                  (click)="selectBed(bed)"
+                  class="dropdown-option"
+                  [class.selected]="isBedSelected(bed)"
+                >
+                  {{ bed.bed_number }} - {{ bed?.bed_type_id?.name }}
+                </div>
+              </div>
+            </div>
+            <div
+              *ngIf="roomForm.get('bed_id')?.touched && roomForm.get('bed_id')?.invalid"
+              class="text-danger"
+            >
+              At least one bed is required
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Remarks</label>
+            <textarea formControlName="remarks" class="form-control"></textarea>
+          </div>
+          <div class="form-group">
+            <label>
+              Active
+              <input type="checkbox" formControlName="isActive" />
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions text-center mt-3">
+        <button type="submit" class="btn btn-dark mx-2" [disabled]="roomForm.invalid">
+          Submit
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

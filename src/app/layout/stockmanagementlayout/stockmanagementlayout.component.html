@@ -1,0 +1,27 @@
+
+<!-- <div class="admin-layout-container" [class.sidebar-collapsed]="sidebarCollapsed">
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+    <button class="sidebar-toggle-btn" (click)="toggleSidebar()">
+      <span *ngIf="!sidebarCollapsed">&#9776;</span>
+      <span *ngIf="sidebarCollapsed">&times;</span>
+    </button>
+   <app-stockheader></app-stockheader>
+
+  </aside>
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+<app-adminfooter></app-adminfooter> -->
+
+
+<div class="admin-layout-container" [class.sidebar-collapsed]="isCollapsed">
+  <app-stockheader
+    (collapseChange)="onSidebarCollapseChange($event)">
+  </app-stockheader>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+<app-adminfooter></app-adminfooter>

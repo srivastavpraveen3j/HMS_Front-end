@@ -1,0 +1,40 @@
+<!-- <p>accesscontrol works!</p> -->
+
+<div class="header">
+  <h2>USAGE & MONITORING</h2>
+</div>
+
+  <!-- Filter Section -->
+  <div class="filter-row m-5">
+    <select [(ngModel)]="selectedHospital" (change)="filterData()">
+      <option *ngFor="let hospital of hospitals">{{ hospital.name }}</option>
+    </select>
+
+    <select [(ngModel)]="selectedBranch" (change)="filterData()">
+      <option *ngFor="let branch of branches">{{ branch }}</option>
+    </select>
+
+    <select [(ngModel)]="selectedPeriod" (change)="filterData()">
+      <option value="monthly">Monthly</option>
+      <option value="quarterly">Quarterly</option>
+      <option value="yearly">Yearly</option>
+    </select>
+  </div>
+
+  <!-- Usage Charts -->
+  <div class="chart-section">
+    <canvas id="usageChart"></canvas>
+  </div>
+
+  <!-- Metrics Summary with icons -->
+  <div class="metrics-summary">
+    <div class="metric-card" *ngFor="let metric of metrics">
+      <div class="icon-circle">
+        <!-- <img [src]="getMetricIcon(metric.label)" alt="{{ metric.label }} icon"> -->
+      </div>
+      <div class="metric-info">
+        <h4>{{ metric.label }}</h4>
+        <p>{{ metric.value }}</p>
+      </div>
+    </div>
+  </div>

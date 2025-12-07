@@ -1,0 +1,345 @@
+<div class="employee-card-layout" *ngIf="!isLoading && employee">
+  <!-- Header Bar -->
+  <div class="header-bar">
+    <div class="employee-header">
+      <div class="employee-code">{{ employee.name }}</div>
+      <!-- <div class="employee-code">{{ getEmployeeCode() }}</div> -->
+      <div class="employee-meta">
+        <span class="gender-badge">
+          <i class="fas fa-{{ employee.gender === 'female' ? 'venus' : 'mars' }}"></i>
+          {{ employee.gender || "Not specified" }}
+        </span>
+      </div>
+    </div>
+    <div class="join-date">
+     J.O.D : {{ getJoinDate() }} • EMP ID: {{ employee._id?.substring(0, 8) }}
+    </div>
+  </div>
+
+  <div class="main-conten">
+    <!-- Ultra Compact Sidebar (Icons Only) -->
+    <div class="sidebar-nav-compact">
+      <div class="nav-item-compact"
+           [class.active]="activeSection === 'profile'"
+           (click)="setActiveSection('profile')"
+           data-tooltip="Employee Summary">
+        <i class="fas fa-user nav-icon-compact"></i>
+      </div>
+
+      <div class="nav-item-compact"
+           [class.active]="activeSection === 'personal'"
+           (click)="setActiveSection('personal')"
+           data-tooltip="Personal Details">
+        <i class="fas fa-id-card nav-icon-compact"></i>
+      </div>
+
+      <div class="nav-item-compact"
+           [class.active]="activeSection === 'job'"
+           (click)="setActiveSection('job')"
+           data-tooltip="Job Information">
+        <i class="fas fa-briefcase nav-icon-compact"></i>
+      </div>
+
+      <div class="nav-item-compact"
+           [class.active]="activeSection === 'permissions'"
+           (click)="setActiveSection('permissions')"
+           data-tooltip="Permissions">
+        <i class="fas fa-shield-alt nav-icon-compact"></i>
+      </div>
+
+      <div class="nav-item-compact"
+           [class.active]="activeSection === 'attendance'"
+           (click)="setActiveSection('attendance')"
+           data-tooltip="Attendance">
+        <i class="fas fa-clock nav-icon-compact"></i>
+      </div>
+
+      <div class="nav-item-compact"
+           [class.active]="activeSection === 'salary'"
+           (click)="setActiveSection('salary')"
+           data-tooltip="Salary">
+        <i class="fas fa-money-bill-wave nav-icon-compact"></i>
+      </div>
+
+      <div class="nav-item-compact"
+           [class.active]="activeSection === 'documents'"
+           (click)="setActiveSection('documents')"
+           data-tooltip="Documents">
+        <i class="fas fa-file-alt nav-icon-compact"></i>
+      </div>
+
+      <div class="nav-item-compact"
+           [class.active]="activeSection === 'history'"
+           (click)="setActiveSection('history')"
+           data-tooltip="Employment History">
+        <i class="fas fa-history nav-icon-compact"></i>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="content-area">
+
+      <!-- ✅ PERMISSIONS SECTION - This was missing! -->
+      <div class="content-section" *ngIf="activeSection === 'permissions'">
+        <div class="permissions-layout">
+          <!-- Left Content -->
+          <div class="permissions-main">
+            <div class="section-header">
+              <h3>Role & Permissions</h3>
+            </div>
+
+            <!-- Current Role Section -->
+            <div class="role-section">
+              <h4>Current Role</h4>
+              <div class="role-badge-large">
+                <i class="fas fa-users"></i>
+                <span>{{ employee.role?.name || 'All module permission' }}</span>
+              </div>
+              <div class="role-stats">
+                <small class="text-muted">
+                  {{ employee.role?.permission?.length || 0 }} permissions assigned
+                </small>
+              </div>
+            </div>
+
+            <!-- Module Permissions Section -->
+            <div class="modules-section">
+              <h4>Module Permissions</h4>
+              <div class="permission-modules-grid" *ngIf="employee.role?.permission?.length > 0; else noPermissions">
+                <div class="permission-module-card" *ngFor="let perm of employee.role.permission; let i = index">
+                  <div class="module-header">
+                    <i class="fas fa-cube"></i>
+                    <span>{{ perm.name }}</span>
+                    <small class="module-name-badge">{{ perm.moduleName }}</small>
+                  </div>
+                  <div class="permission-actions">
+                    <div class="action-button create" [class.active]="perm.create">
+                      <i class="fas fa-plus"></i>
+                      <span>Create</span>
+                    </div>
+                    <div class="action-button read" [class.active]="perm.read">
+                      <i class="fas fa-eye"></i>
+                      <span>Read</span>
+                    </div>
+                    <div class="action-button update" [class.active]="perm.update">
+                      <i class="fas fa-edit"></i>
+                      <span>Update</span>
+                    </div>
+                    <div class="action-button delete" [class.active]="perm.delete">
+                      <i class="fas fa-trash"></i>
+                      <span>Delete</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <ng-template #noPermissions>
+                <div class="no-permissions">
+                  <i class="fas fa-ban fa-2x text-muted mb-3"></i>
+                  <p>No permissions assigned to this employee</p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+
+          <!-- Right Sidebar -->
+          <div class="permissions-sidebar">
+            <div class="sidebar-section">
+              <h4>Quick Actions</h4>
+              <div class="quick-actions">
+                <div class="quick-action-item" (click)="editEmployee()">
+                  <i class="fas fa-edit"></i>
+                  <span>Edit Employee</span>
+                </div>
+                <div class="quick-action-item">
+                  <i class="fas fa-download"></i>
+                  <span>Download Profile</span>
+                </div>
+                <div class="quick-action-item">
+                  <i class="fas fa-print"></i>
+                  <span>Print Details</span>
+                </div>
+                <div class="quick-action-item" (click)="goBack()">
+                  <i class="fas fa-arrow-left"></i>
+                  <span>Back to List</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="sidebar-section">
+              <h4>Role Information</h4>
+              <div class="role-info-card">
+                <div class="role-name">{{ employee.role?.name || 'All module permission' }}</div>
+                <div class="role-count">{{ employee.role?.permission?.length || 67 }} permissions</div>
+                <div class="role-created">
+                  <small class="text-muted">
+                    Role created: {{ employee.role?.createdAt | date:'shortDate' }}
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Permission Summary -->
+            <div class="sidebar-section">
+              <h4>Permission Summary</h4>
+              <div class="permission-summary">
+                <div class="summary-item">
+                  <span class="summary-label">Total Modules:</span>
+                  <span class="summary-value">{{ getUniqueModules() }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Create Access:</span>
+                  <span class="summary-value">{{ getCreatePermissionsCount() }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Read Access:</span>
+                  <span class="summary-value">{{ getReadPermissionsCount() }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Update Access:</span>
+                  <span class="summary-value">{{ getUpdatePermissionsCount() }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Delete Access:</span>
+                  <span class="summary-value">{{ getDeletePermissionsCount() }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Details Section -->
+      <div class="content-section" *ngIf="activeSection === 'personal'">
+        <div class="details-layout">
+          <!-- Main Content -->
+          <div class="details-main">
+            <div class="section-header">
+              <h3>Personal Details</h3>
+            </div>
+
+            <div class="details-content">
+              <div class="info-section">
+                <h4>Basic Information</h4>
+                <div class="info-row">
+                  <span class="label">Full Name:</span>
+                  <span class="value">{{ employee.name || "demo" }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Email:</span>
+                  <span class="value">{{ employee.email || "demo@gmail.com" }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Phone:</span>
+                  <span class="value">{{ employee.phone || "Not provided" }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Gender:</span>
+                  <span class="value">{{ employee.gender || "Not specified" }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Date of Birth:</span>
+                  <span class="value">{{ employee.dob | date  }}</span>
+                </div>
+              </div>
+
+              <div class="info-section">
+                <h4>Contact Information</h4>
+                <div class="info-row">
+                  <span class="label">Address:</span>
+                  <span class="value">{{ employee.address || "Not provided" }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">City:</span>
+                  <span class="value">{{ employee.city || "Not provided" }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">State:</span>
+                  <span class="value">{{ employee.state || "Not provided" }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Postal Code:</span>
+                  <span class="value">{{ employee.postalCode || "Not provided" }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Sidebar -->
+          <div class="details-sidebar">
+            <div class="sidebar-section">
+              <h4>Personal Details</h4>
+              <div class="action-buttons-vertical">
+                <button class="btn btn-primary w-100 mb-2">
+                  <i class="fas fa-download me-1"></i>Download
+                </button>
+                <button class="btn btn-outline-primary w-100" (click)="editEmployee()">
+                  <i class="fas fa-edit me-1"></i>Edit Details
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Other Sections (Placeholders) -->
+      <div class="content-section" *ngIf="activeSection === 'profile'">
+        <div class="coming-soon">
+          <i class="fas fa-user fa-3x text-muted mb-3"></i>
+          <h4>Employee Profile</h4>
+          <p class="text-muted">Employee summary will be displayed here</p>
+        </div>
+      </div>
+
+      <div class="content-section" *ngIf="activeSection === 'job'">
+        <div class="coming-soon">
+          <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+          <h4>Job Information</h4>
+          <p class="text-muted">Job details will be displayed here</p>
+        </div>
+      </div>
+
+      <div class="content-section" *ngIf="activeSection === 'attendance'">
+        <div class="coming-soon">
+          <i class="fas fa-clock fa-3x text-muted mb-3"></i>
+          <h4>Attendance Records</h4>
+          <p class="text-muted">Attendance details will be displayed here</p>
+        </div>
+      </div>
+
+      <div class="content-section" *ngIf="activeSection === 'salary'">
+        <div class="coming-soon">
+          <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
+          <h4>Salary Information</h4>
+          <p class="text-muted">Salary details will be displayed here</p>
+        </div>
+      </div>
+
+      <div class="content-section" *ngIf="activeSection === 'documents'">
+        <div class="coming-soon">
+          <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+          <h4>Employee Documents</h4>
+          <p class="text-muted">Employee documents will be displayed here</p>
+        </div>
+      </div>
+
+      <div class="content-section" *ngIf="activeSection === 'history'">
+        <div class="coming-soon">
+          <i class="fas fa-history fa-3x text-muted mb-3"></i>
+          <h4>Employment History</h4>
+          <p class="text-muted">Employment history will be displayed here</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="isLoading">
+  <div class="loading-content">
+    <div class="spinner-border text-primary mb-3"></div>
+    <h5>Loading Employee Details...</h5>
+    <p class="text-muted">Please wait while we fetch the employee information.</p>
+  </div>
+</div>

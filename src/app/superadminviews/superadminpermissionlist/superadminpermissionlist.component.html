@@ -1,0 +1,30 @@
+<div class="header">
+    <h3>Existing Permissions</h3>
+    <i class="fa-solid fa-add" [routerLink]="['/superadmin/superadminpermission']"
+        routerLinkActive="router-link-active"></i>
+</div>
+<table class="table table-bordered table-striped mt-3">
+    <thead>
+        <tr>
+            <!-- <th>Module</th> -->
+            <th>Name</th>
+            <th>Action</th>
+            <th>Description</th>
+            <!-- <th>Actions</th> -->
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let perm of permissions">
+            <!-- <td>{{ perm.moduleName }}</td> -->
+            <td>{{ perm.name }}</td>
+            <td><span class="badge bg-primary">{{ perm.action }}</span></td>
+            <td>{{ perm.description }}</td>
+            <!--
+        <td>
+          <button class="btn btn-sm btn-primary mx-1" (click)="editPermission(perm)">Edit</button>
+          <button class="btn btn-sm btn-danger mx-1" (click)="deletePermission(perm._id)">Delete</button>
+        </td>
+        -->
+        </tr>
+    </tbody>
+</table>

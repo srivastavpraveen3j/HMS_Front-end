@@ -1,0 +1,248 @@
+<div class="inventory-dashboard">
+  <!-- Compact Header -->
+  <div class="dashboard-header">
+    <div class="header-left">
+      <div class="inventory-info">
+        <h1 class="inventory-title">INVENTORY STOCK</h1>
+        <span class="management-label">Inventory Management</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button
+        class="primary-button"
+        [routerLink]="['/inventorylayout/inventorystock']"
+        routerLinkActive="router-link-active">
+        <i class="fas fa-plus"></i>
+        <span>ADD ITEM</span>
+      </button>
+
+      <button
+        class="alert-button"
+        (click)="toggleLowStockView()"
+        [class.active]="showingLowStock">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>{{ showingLowStock ? "All Items" : "Low Stock" }}</span>
+        <div class="alert-count" *ngIf="!showingLowStock && lowStockMedicinesFullList.length > 0">
+          {{ lowStockMedicinesFullList.length }}
+        </div>
+      </button>
+
+      <button class="view-switch" (click)="toggleView()">
+        <i class="fas" [ngClass]="showTableView ? 'fa-th' : 'fa-list'"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Search and Controls Bar - Improved Inline Layout -->
+  <div class="controls-bar">
+    <form [formGroup]="filterForm" class="controls-form">
+      <!-- Left side: Search -->
+      <div class="search-section">
+        <div class="search-wrapper">
+          <!-- <i class="fas fa-search search-icon"></i> -->
+          <input
+            type="text"
+            placeholder="Search inventory..."
+            formControlName="searchText"
+            class="search-field">
+        </div>
+      </div>
+
+      <!-- Right side: Records per page -->
+      <div class="filter-section">
+        <div class="records-per-page-wrapper">
+          <label class="records-label">Records per page:</label>
+          <select formControlName="recordsPerPage" class="records-select">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Table View -->
+  <div class="data-table-container" *ngIf="showTableView && userPermissions.read && medicines.length > 0">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th class="col-index">#</th>
+          <th class="col-batch">Batch Number</th>
+          <th class="col-item">Item Name</th>
+          <th class="col-vendor">Vendor</th>
+          <th class="col-expiry">Expiry Date</th>
+          <th class="col-manufacturing">Manufacturing</th>
+          <th class="col-stock">Stock</th>
+          <th class="col-price">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let medicine of showingLowStock ? lowStockMedicines : medicines; let i = index"
+          class="table-row"
+          [class.expired-row]="isExpired(medicine)"
+          [class.warning-row]="!isExpired(medicine) && (isNearExpiry(medicine, 30) || medicine.stock <= 10)">
+
+          <td class="index-cell">
+            {{ showingLowStock ?
+              ((lowStockCurrentPage - 1) * lowStockRecordsPerPage + i + 1) :
+              ((currentPage - 1) * recordsPerPage + i + 1)
+            }}
+          </td>
+
+          <td class="batch-cell">
+            <span class="batch-number">{{ medicine.batch_no }}</span>
+          </td>
+
+          <td class="item-info">
+            <div class="item-name">{{ medicine.medicine_name }}</div>
+            <div class="item-meta">{{ medicine?.supplier?.vendorName || 'Unknown' }}</div>
+          </td>
+
+          <td class="vendor-cell">{{ medicine?.supplier?.vendorName || '-' }}</td>
+
+          <td class="expiry-cell">
+            <div class="expiry-date">
+              {{ medicine.expiry_date | date : "dd/MM/yy" }}
+            </div>
+          </td>
+
+          <td class="manufacturing-cell">
+            <div class="mfg-date">
+              {{ medicine.mfg_date | date : "dd/MM/yy" }}
+            </div>
+          </td>
+
+          <td class="stock-cell">
+            <div class="stock-display">
+              <span class="stock-number"
+                [class.stock-critical]="medicine.stock <= 5"
+                [class.stock-low]="medicine.stock > 5 && medicine.stock <= 10"
+                [class.stock-good]="medicine.stock > 10">
+                {{ medicine.stock }}
+              </span>
+              <span class="stock-unit">units</span>
+              <div class="stock-warning" *ngIf="medicine.stock <= 10">
+                <span class="warning-badge">Only {{ medicine.stock }} left</span>
+              </div>
+            </div>
+          </td>
+
+          <td class="price-cell">
+            <span class="price-amount">₹{{ medicine.price }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Card View -->
+  <div class="cards-container" *ngIf="!showTableView && userPermissions.read && medicines.length > 0">
+    <div
+      *ngFor="let medicine of showingLowStock ? lowStockMedicines : medicines"
+      class="inventory-card"
+      [class.expired-card]="isExpired(medicine)"
+      [class.warning-card]="!isExpired(medicine) && (isNearExpiry(medicine, 30) || medicine.stock <= 10)">
+
+      <div class="card-header">
+        <div class="item-title">{{ medicine.medicine_name }}</div>
+        <div class="batch-info">Batch: {{ medicine.batch_no }}</div>
+      </div>
+
+      <div class="card-body">
+        <div class="card-row">
+          <span class="label">Vendor:</span>
+          <span class="value">{{ medicine?.supplier?.vendorName || 'Unknown' }}</span>
+        </div>
+
+        <div class="card-row">
+          <span class="label">Expiry:</span>
+          <span class="value">{{ medicine.expiry_date | date : "dd/MM/yyyy" }}</span>
+        </div>
+
+        <div class="card-row">
+          <span class="label">Manufacturing:</span>
+          <span class="value">{{ medicine.mfg_date | date : "dd/MM/yyyy" }}</span>
+        </div>
+      </div>
+
+      <div class="card-metrics">
+        <div class="metric">
+          <div class="metric-value"
+            [class.metric-critical]="medicine.stock <= 5"
+            [class.metric-warning]="medicine.stock > 5 && medicine.stock <= 10">
+            {{ medicine.stock }}
+          </div>
+          <div class="metric-label">Stock</div>
+          <div class="stock-warning" *ngIf="medicine.stock <= 10">
+            <span class="mini-warning">{{ medicine.stock }} left</span>
+          </div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-value price">₹{{ medicine.price }}</div>
+          <div class="metric-label">Price</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-bar" *ngIf="(showingLowStock ? lowStockTotalPages : totalPages) > 1">
+    <button
+      class="page-btn"
+      (click)="showingLowStock ? lowStockPreviousPage() : previousPage()"
+      [disabled]="(showingLowStock ? lowStockCurrentPage : currentPage) === 1">
+      <i class="fas fa-chevron-left"></i>
+      Previous
+    </button>
+
+    <div class="page-info">
+      Page {{ showingLowStock ? lowStockCurrentPage : currentPage }} of
+      {{ showingLowStock ? lowStockTotalPages : totalPages }}
+    </div>
+
+    <button
+      class="page-btn"
+      (click)="showingLowStock ? lowStockNextPage() : nextPage()"
+      [disabled]="
+        (showingLowStock ? lowStockCurrentPage : currentPage) ===
+        (showingLowStock ? lowStockTotalPages : totalPages)
+      ">
+      Next
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="medicines.length === 0 && !showingLowStock">
+    <div class="empty-icon">
+      <i class="fas fa-boxes"></i>
+    </div>
+    <h3>No Inventory Items Found</h3>
+    <p>Start by adding your first inventory item</p>
+    <button
+      class="primary-button"
+      [routerLink]="['/inventorylayout/inventorystock']">
+      <i class="fas fa-plus"></i>
+      Add First Item
+    </button>
+  </div>
+
+  <!-- Low Stock Empty State -->
+  <div class="empty-state good-news" *ngIf="showingLowStock && lowStockMedicines.length === 0">
+    <div class="empty-icon success">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <h3 class="success-title">Excellent Stock Management!</h3>
+    <p class="success-message">All inventory items have sufficient stock levels</p>
+    <div class="success-details">
+      <p><strong>✓</strong> No items are running low</p>
+      <p><strong>✓</strong> All medicines are well-stocked</p>
+      <p><strong>✓</strong> No immediate restocking needed</p>
+    </div>
+  </div>
+</div>

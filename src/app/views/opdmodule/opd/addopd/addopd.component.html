@@ -1,0 +1,260 @@
+<!-- OPD Form Component -->
+<div class="form-meta">
+  <div class="header">
+    <h2>ADD NEW OPDCASE DETAILS</h2>
+    <span class="icons position-relative">
+      <i class="fa-solid fa-user-tie mx-2" (click)="showUHIDDropdown = !showUHIDDropdown"></i>
+      <i class="fa-solid fa-signal" [routerLink]="['/opd/opdcases']" routerLinkActive="router-link-active"></i>
+
+      <!-- Dropdown -->
+      <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+        <div *ngIf="uhidTodayRecords.length === 0" class="text-center text-muted py-2">
+          No UHID created today.
+        </div>
+        <ul class="uhid-list">
+          <li *ngFor="let record of uhidTodayRecords" (click)="selectPatientFromUHID(record)">
+            <div class="uhid-name">{{ record.patient_name }}</div>
+            <div class="uhid-meta">
+              UHID: {{ record.uhid }} | Age: {{ record.age }}
+            </div>
+          </li>
+        </ul>
+      </div>
+    </span>
+  </div>
+
+  <form [formGroup]="opdForm" (ngSubmit)="onSubmit()">
+    <div class="four-col-layout">
+
+      <!-- Patient Name -->
+      <div class="field-pane">
+        <label>Patient*</label>
+        <input type="text" class="form-control uhid-name" placeholder="Enter patient name"
+          formControlName="patient_name" (input)="onPatientInput()" (focus)="showSuggestions = true"
+          (blur)="hideSuggestionsWithDelay()" />
+        <div *ngIf="showSuggestions && filteredPatients.length > 0" class="suggestion-container">
+          <ul class="suggestions">
+            <li *ngFor="let patient of filteredPatients" (mousedown)="selectPatient(patient)">
+              {{ patient.patient_name }}{{ patient.mobile_no ? " | " + patient.mobile_no : "" }}{{ patient.uhid ? " | "
+              + patient.uhid : "" }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- DOB -->
+      <div class="field-pane">
+        <label>DOB*</label>
+        <input type="date" class="form-control" formControlName="dob" />
+      </div>
+
+      <!-- Age -->
+      <div class="field-pane">
+        <label>Age*</label>
+        <input type="text" placeholder="Age" formControlName="age" class="form-control" />
+      </div>
+
+      <!-- Gender -->
+      <div class="field-pane">
+        <label>Gender</label>
+        <div class="radio-group">
+          <label><input type="radio" name="gender" value="male" formControlName="gender" /> Male</label>
+          <label><input type="radio" name="gender" value="female" formControlName="gender" /> Female</label>
+        </div>
+      </div>
+
+      <!-- Case -->
+      <div class="field-pane">
+        <label>Case</label>
+        <select formControlName="caseType" class="form-control">
+          <option value="new">New</option>
+          <option value="old">Old</option>
+        </select>
+      </div>
+
+      <!-- Consultant Doctor -->
+      <div class="field-pane">
+        <label>Consultant Dr.</label>
+        <input type="text" class="form-control" placeholder="Search Doctor by Name" [formControl]="doctorSearchControl"
+          (focus)="showDoctorSuggestions = true" (blur)="hideSuggestionsLater()" />
+
+        <div class="suggestion-container">
+          <ul class="suggestions" *ngIf="showDoctorSuggestions && filteredDoctors.length > 0">
+            <li *ngFor="let doc of filteredDoctors" (mousedown)="selectDoctor(doc)">
+              {{ doc.name }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Referring Doctor -->
+      <div class="field-pane">
+        <label>Referring Dr.</label>
+        <input type="text" class="form-control" placeholder="Search Doctor by Name"
+          [formControl]="refDoctorSearchControl" (focus)="showRefDoctorSuggestions = true"
+          (blur)="hideSuggestionsLater()" />
+
+        <ul class="dropdown-menu show doctor-suggestion-list"
+          *ngIf="showRefDoctorSuggestions && filteredRefDoctors.length > 0">
+          <!-- ✅ SELF Option -->
+          <li class="dropdown-item self-option" (mousedown)="selectRefDoctor({ name: 'SELF' })">
+            SELF
+          </li>
+
+          <!-- ✅ Limit to 10 results only -->
+          <li class="dropdown-item" *ngFor="let doc of filteredRefDoctors | slice:0:10"
+            (mousedown)="selectRefDoctor(doc)">
+            {{ doc.name }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="field-pane">
+        <label>Mobile*</label>
+        <input type="text" formControlName="mobile_no" placeholder="Mobile No" maxlength="50"
+          title="Enter 10-digit mobile numbers separated by comma" (keypress)="allowOnlyNumbersAndComma($event)"
+          class="form-control" />
+      </div>
+
+      <!-- Weight -->
+      <div class="field-pane">
+        <label>Weight (kg)</label>
+        <input type="text" placeholder="Weight" formControlName="weight" class="form-control" />
+      </div>
+
+      <!-- Height -->
+      <div class="field-pane">
+        <label>Height (cm)</label>
+        <input type="text" placeholder="Height" formControlName="height" class="form-control" />
+      </div>
+
+
+      <!-- UHID Number (Old Case) -->
+      <div class="field-pane" *ngIf="opdForm.get('caseType')?.value === 'old'">
+        <label>UHID Number</label>
+        <input type="text" placeholder="UHID" formControlName="uhid" class="form-control" />
+      </div>
+
+      <!-- Date -->
+      <div class="field-pane">
+        <label>Date</label>
+        <input type="date" formControlName="dor" class="form-control" />
+      </div>
+
+      <!-- Time -->
+      <div class="field-pane">
+        <label>Time</label>
+        <input type="time" formControlName="dot" class="form-control" />
+      </div>
+
+      <!-- <div class="field-pane">
+        <app-mobile-numbers></app-mobile-numbers>
+      </div> -->
+
+      <!-- Address -->
+      <div class="field-pane">
+        <label>Address</label>
+        <input type="text" class="form-control" placeholder="Address" formControlName="address" />
+      </div>
+
+      <!-- Area -->
+      <div class="field-pane">
+        <label>Area</label>
+        <input type="text" class="form-control" placeholder="Area" formControlName="area" />
+      </div>
+
+      <!-- City -->
+      <div class="field-pane">
+        <label>City</label>
+        <input type="text" class="form-control" formControlName="city" placeholder="City" [value]="'Surat'" />
+      </div>
+
+      <!-- State & Pincode -->
+      <div class="field-pane">
+        <label>State</label>
+        <input type="text" class="form-control" formControlName="state" placeholder="State" [value]="'Gujarat'" />
+      </div>
+
+
+      <div class="field-pane">
+        <label>Pincode</label>
+        <input type="text" formControlName="pincode" maxlength="6" pattern="[1-9][0-9]{5}"
+          title="Enter valid 6-digit pincode" (keypress)="allowOnlyNumbers($event)" class="form-control" />
+      </div>
+
+      <!-- MLC -->
+      <div class="field-pane">
+        <label>MLC</label>
+        <div class="radio-group">
+          <label><input type="radio" name="isMedicoLegalCase" [value]="true" formControlName="isMedicoLegalCase"
+              (change)="isMLC = 'yes'" /> Yes</label>
+          <label><input type="radio" name="isMedicoLegalCase" [value]="false" formControlName="isMedicoLegalCase"
+              (change)="isMLC = 'no'" /> No</label>
+        </div>
+      </div>
+
+      <!-- MLC Details -->
+      <div *ngIf="isMLC === 'yes'" class="field-pane full-width">
+        <div class="four-col-layout">
+          <div class="field-pane">
+            <label>Person Inform Police</label>
+            <input type="text" formControlName="policeInformerFullName" class="form-control" />
+          </div>
+          <div class="field-pane">
+            <label>Police Station Location</label>
+            <input type="text" formControlName="policeStationLocation" class="form-control" />
+          </div>
+          <div class="field-pane">
+            <label>Responsible Relative</label>
+            <input type="text" formControlName="responsibleRelativeFullName" class="form-control" />
+          </div>
+          <div class="field-pane">
+            <label>Treating Dr.</label>
+            <input type="text" class="form-control" placeholder="Search Doctor by Name"
+              [formControl]="TreatdoctorSearchControl" (focus)="showTreatDoctorSuggestions = true"
+              (blur)="hideSuggestionsLater()" />
+            <ul class="dropdown-menu show" *ngIf="showTreatDoctorSuggestions && filteredTreatDoctors.length > 0">
+              <li class="dropdown-item" *ngFor="let doc of filteredTreatDoctors" (mousedown)="selectTreatDoctor(doc)">
+                {{ doc.name }}
+              </li>
+            </ul>
+          </div>
+          <div class="field-pane">
+            <label>Inform Date</label>
+            <app-customcalendar formControlName="informationReportedDate"></app-customcalendar>
+          </div>
+          <div class="field-pane">
+            <label>Bucket Number</label>
+            <input type="text" formControlName="bucketNumber" class="form-control" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Aadhar -->
+      <div class="field-pane">
+        <label>Aadhar Card</label>
+        <input type="text" formControlName="aadharNumber" maxlength="14" (input)="onAadharInput($event)"
+          placeholder="xxxx-xxxx-xxxx" class="form-control" />
+      </div>
+
+      <!-- Email -->
+      <div class="field-pane">
+        <label>Email</label>
+        <input type="email" formControlName="emailAddress" class="form-control" />
+      </div>
+
+      <!-- PAN -->
+      <div class="field-pane">
+        <label>PAN Card</label>
+        <input type="text" formControlName="panCardNumber" maxlength="12" style="text-transform: uppercase"
+          class="form-control" />
+      </div>
+
+    </div>
+
+    <!-- Form actions -->
+    <div class="form-actions text-center mt-3">
+      <button class="btn btn-dark mx-2" type="submit">{{ editMode ? "Update" : "Submit" }}</button>
+    </div>
+  </form>
+</div>

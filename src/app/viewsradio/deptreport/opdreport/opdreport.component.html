@@ -1,0 +1,261 @@
+<div #pdfFullContent>
+  <!-- Header Section -->
+  <div class="card p-4 mb-4 ">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+      <h2 class="mb-0">OPD RADIOLOGY REPORTS {{ subTitle }}</h2>
+      <div class="filter-tabs">
+ <div class="d-flex gap-2 mt-3 mt-md-0 flex-wrap ">
+        <button type="button" class="btn btn-dark" [ngClass]="{ active: selectedRange === 'today' }" (click)="selectRange('today')">Today</button>
+        <button type="button" class="btn btn-dark" [ngClass]="{ active: selectedRange === 'week' }" (click)="selectRange('week')">This Week</button>
+        <button type="button" class="btn btn-dark" [ngClass]="{ active: selectedRange === 'month' }" (click)="selectRange('month')">This Month</button>
+        <button type="button" class="btn btn-dark" [ngClass]="{ active: selectedRange === 'year' }" (click)="selectRange('year')">This Year</button>
+      </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Chart Filters -->
+  <div *ngIf="paginatedData.length > 0">
+    <div class="card p-4 mb-4 no-print">
+      <div class="row justify-content-start align-items-center filter-tabs">
+        <div class="col-12 d-flex flex-wrap align-items-center">
+          <!-- Chart Type Toggle -->
+          <div class="col-md-6 d-flex align-items-center  ">
+            <label class="me-3 fw-semibold no-print">Chart Type:</label>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input no-print"
+                type="radio"
+                name="chartType"
+                id="barChart"
+                value="bar"
+                [(ngModel)]="chartType"
+                (change)="renderChart()"
+              />
+              <label class="form-check-label no-print" for="barChart"
+                >Bar</label
+              >
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input no-print"
+                type="radio"
+                name="chartType"
+                id="lineChart"
+                value="line"
+                [(ngModel)]="chartType"
+                (change)="renderChart()"
+              />
+              <label class="form-check-label no-print" for="lineChart"
+                >Line</label
+              >
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input no-print"
+                type="radio"
+                name="chartType"
+                id="pieChart"
+                value="pie"
+                [(ngModel)]="chartType"
+                (change)="renderChart()"
+              />
+              <label class="form-check-label no-print" for="pieChart"
+                >Pie</label
+              >
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input no-print"
+                type="radio"
+                name="chartType"
+                id="radarChart"
+                value="radar"
+                [(ngModel)]="chartType"
+                (change)="renderChart()"
+              />
+              <label class="form-check-label no-print" for="radarChart"
+                >Radar</label
+              >
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input no-print"
+                type="radio"
+                name="chartType"
+                id="bubbleChart"
+                value="bubble"
+                [(ngModel)]="chartType"
+                (change)="renderChart()"
+              />
+              <label class="form-check-label no-print" for="bubbleChart"
+                >Bubble</label
+              >
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input no-print"
+                type="radio"
+                name="chartType"
+                id="polarAreaChart"
+                value="polarArea"
+                [(ngModel)]="chartType"
+                (change)="renderChart()"
+              />
+              <label class="form-check-label no-print" for="polarAreaChart"
+                >Polar Area</label
+              >
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input no-print"
+                type="radio"
+                name="chartType"
+                id="scatterChart"
+                value="scatter"
+                [(ngModel)]="chartType"
+                (change)="renderChart()"
+              />
+              <label class="form-check-label no-print" for="scatterChart"
+                >Scatter</label
+              >
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input no-print"
+                type="radio"
+                name="chartType"
+                id="doughnutChart"
+                value="doughnut"
+                [(ngModel)]="chartType"
+                (change)="renderChart()"
+              />
+              <label class="form-check-label no-print" for="doughnutChart"
+                >Doughnut</label
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Canvas -->
+    <div class="card p-3 mb-4">
+      <div style="height: 400px">
+        <canvas #chartCanvas id="pathoChart" style="width: 100%; height: 100%"></canvas>
+      </div>
+    </div>
+
+    <!-- Table: Normal View -->
+    <div *ngIf="!isGeneratingPDF" class="d-print-none">
+      <div class="card p-3 mb-4">
+        <table class="table table-bordered table-hover align-middle diagnosis-table">
+         <thead class="table-dark text-center">
+        <tr>
+          <th>INWARD ID</th>
+          <th>DATE TIME</th>
+          <th>PATIENT DETAILS</th>
+          <th>AGE / GENDER</th>
+          <th>UHID NO</th>
+          <th>TEST NAME</th>
+          <!-- <th>STATUS</th> -->
+          <!-- <th>ACTION</th> -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of paginatedData; let i = index">
+          <!-- <td>{{ record.inpatientDepartmentId || 'N/A' }}</td> -->
+
+          <td>{{ i + 1 }}</td>
+          <td>{{ record.createdAt | date : "short" }}</td>
+          <td>{{ record.patient_name || "N/A" }}</td>
+          <td>{{ record.age || "N/A" }}/{{ record.gender || "N/A" }}</td>
+          <td>{{ record.uhid || "N/A" }}</td>
+          <td>
+            <div *ngFor="let test of record.testMaster">
+              {{ test.testGroup }}
+            </div>
+          </td>
+          <!-- <td>
+            <div *ngFor="let test of record.testMaster">
+              {{ test.status }}
+            </div>
+          </td> -->
+          <!-- <td>
+            <i
+              class="fa-solid fa-eye action-btn"
+              (click)="viewPatient(record?._id)"
+            ></i>
+          </td> -->
+        </tr>
+      </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table: PDF Export View -->
+    <div *ngIf="isGeneratingPDF" class="d-print-block">
+      <div class="card p-3 mb-4">
+        <table class="table table-bordered table-hover align-middle diagnosis-table">
+          <thead class="table-dark text-center">
+            <tr>
+              <th>INWARD ID</th>
+              <th>DATE TIME</th>
+              <th>PATIENT NAME</th>
+              <th>AGE / GENDER</th>
+              <th>UHID NO</th>
+              <th>Medicine Name</th>
+              <th>Total Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let record of filteredData">
+              <td>{{ record.inwardSerialNumber }}</td>
+              <td>{{ record.createdAt | date : 'short' }}</td>
+              <td>
+                {{ record.patient_name || '-' }}
+                <span *ngIf="!record.patient_name">[Missing]</span>
+              </td>
+              <td>{{ record.age || '-' }} / {{ record.gender || '-' }}</td>
+              <td>{{ record.uhid }}</td>
+              <td>
+                <ul>
+                  <li *ngFor="let med of record.packages">
+                    {{ med.medicineName }} - {{ med.quantity }} × ₹{{ med.charge }}
+                  </li>
+                </ul>
+              </td>
+              <td>{{ record.total }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Total Amount -->
+    <div class="alert alert-secondary my-2 text-end">
+      Total Amount Received: ₹{{ totalAmountReceived | number : '1.2-2' }}
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination no-print" *ngIf="!isGeneratingPDF && paginatedData.length > 0">
+      <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+      Page {{ currentPage }} of {{ totalPages }}
+      <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+    </div>
+  </div>
+
+</div>
+
+  <!-- Download Button -->
+  <div class="d-flex justify-content-end no-print" *ngIf="paginatedData.length > 0">
+    <button (click)="downloadPDF()" class="btn btn-dark mb-3">Download</button>
+  </div>
+
+  <!-- Loader Component -->
+  <app-loader
+    [patientData]="paginatedData"
+    [title]="title"
+    [activeFilter]="selectedRange"
+  ></app-loader>

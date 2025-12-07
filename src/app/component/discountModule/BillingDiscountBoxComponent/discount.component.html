@@ -1,0 +1,31 @@
+<div [formGroup]="parentForm" class="discount-box">
+  <div class="row mb-2">
+    <div class="col-md-6">
+      <label>Discount</label>
+      <input type="number" formControlName="discount" class="form-control" placeholder="Enter discount" min="0" />
+    </div>
+
+    <div class="col-md-6">
+      <label>Reason</label>
+      <input type="text" formControlName="discountReason" class="form-control" placeholder="Enter reason" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12 d-flex justify-content-between align-items-center">
+      <button *ngIf="!isDiscountRequested" class="btn btn-primary" type="button" (click)="emitRequest()">
+        Request Discount
+      </button>
+
+      <div *ngIf="discountStatus === 'pending'" class="text-warning">
+        Awaiting admin approval
+      </div>
+      <div *ngIf="discountStatus === 'approved'" class="text-success">
+        Discount approved
+      </div>
+      <div *ngIf="discountStatus === 'rejected'" class="text-danger">
+        Discount rejected
+      </div>
+    </div>
+  </div>
+</div>

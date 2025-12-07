@@ -1,0 +1,39 @@
+<!-- <p>pathotestmasterlist works!</p> -->
+<div class="header">
+  <h2>TEST MASTER LIST</h2>
+  <button class="list-cases-btn" [routerLink]="['/pathologylayout/testmaster']" routerLinkActive="router-link-active" >ADD TEST MASTER</button>
+</div>
+<div class="top-bar p-3">
+  <select formControl="recordsPerPage">
+    <option *ngFor="let num of [25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+  </select>
+
+  <input type="text" placeholder="Search..." formControl="searchText" />
+
+</div>
+
+  <table class="table table-bordered table-hover align-middle diagnosis-table">
+ <thead class="table-dark text-center" >
+    <tr>
+      <th>#</th>
+      <th>Test Name</th>
+      <th>Test Group Name</th>
+      <th>Test Parameter Name</th>
+      <th>Unit</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr >
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>
+        <i class="fa-solid fa-eye action-btn"  ></i>
+        <i class="fa-solid fa-pencil action-btn" ></i>
+      </td>
+    </tr>
+  </tbody>
+</table>

@@ -1,0 +1,56 @@
+<!-- <p>servicegrouplist works!</p> -->
+<!-- <p>servicegroup works!</p> -->
+<div class="header">
+  <h2>SERVCIES GROUP LIST</h2>
+  <button class="list-cases-btn" routerLink="/master/servicegroupmaster" >ADD SERVICE GROUP</button>
+</div>
+
+
+
+<div class="form-group">
+  <!-- <label>Service Group <span class="required">*</span></label> -->
+  <select class="form-control w-25">
+    <option>Select Service Group</option>
+  </select>
+</div>
+
+<div class="top-bar p-3">
+  <select formControl="recordsPerPage">
+    <option *ngFor="let num of [25, 50, 100]" [value]="num">{{ num }} RECORDS</option>
+  </select>
+
+  <input type="text" placeholder="Search..." formControl="searchText" />
+
+</div>
+
+<div class="opd-service-master">
+
+
+  <table class="opd-table">
+   <thead class="table-dark text-center" >
+      <tr>
+        <th>Priority</th>
+        <th>Master Group</th>
+        <th>Service Group</th>
+        <th>Service Name</th>
+        <th>Dr Required</th>
+        <th>Print Dr. Name</th>
+        <th>Dr. Name</th>
+        <th>Rate Editable</th>
+        <th>Rate</th>
+        <th>Active</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr >
+       <td></td>
+       <td></td>
+       <td></td>
+       <td></td>
+       <td></td>
+       <td></td>
+      </tr>
+    </tbody>
+  </table>
+</div>

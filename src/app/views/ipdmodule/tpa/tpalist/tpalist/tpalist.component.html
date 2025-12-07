@@ -1,0 +1,114 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>TPA & IPD CLAIM LIST</h2>
+    <button
+      class="list-cases-btn"
+      routerLinkActive="router-link-active"
+      [routerLink]="['/ipd/tpa']"
+    >
+      ADD NEW TPA
+    </button>
+  </div>
+
+  <div class="top-bar p-3">
+    <form [formGroup]="filterForm">
+      <input type="text" placeholder="Search..." formControlName="searchText" />
+    </form>
+  </div>
+
+  <!-- Filter by Today or Date Range -->
+  <!-- <div class="filters text-center d-flex align-items-center ">
+  
+  
+    <label class="m-3">
+      <input type="radio" name="filter" value="today" [(ngModel)]="activeFilter" (change)="onFilterChange()" checked>
+     Today's
+  </label>
+  
+  <label for="" class="m-3">
+    <input type="radio" name="filter" value="dateRange" [(ngModel)]="activeFilter" (change)="onFilterChange()">
+      Date Range
+  </label>
+  
+  <input *ngIf="activeFilter === 'dateRange'" type="date" [(ngModel)]="startDate" (change)="onDateRangeChange()" class="form-control mx-2 w-50" />
+  
+  <input *ngIf="activeFilter === 'dateRange'" type="date" [(ngModel)]="endDate" (change)="onDateRangeChange()" class="form-control mx-2 w-50" />
+  
+  </div> -->
+
+  <app-loader [patientData]="uhidRecords" [title]="module"></app-loader>
+  <!-- <app-loader [patientData]="uhidRecords" [title]="module" [activeFilter]="activeFilter" [startDate]="startDate"
+    [endDate]="endDate"></app-loader> -->
+
+  <div class="" *ngIf="uhidRecords.length > 0">
+    <div
+      class="table-responsive"
+      *ngIf="userPermissions.read && uhidRecords.length > 0"
+    >
+      <table class="table table-bordered table-hover diagnosis-table">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>UHID</th>
+            <th>PATIENT NAME</th>
+            <th>GENDER</th>
+            <th>AGE</th>
+            <th>Claim Number</th>
+            <th>Claim Amount</th>
+            <th>Cheque/ NEFT number</th>
+            <th>Cheque / NEFT amount</th>
+            <th>Final Claim Amount</th>
+            <th>Approved Amount</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of uhidRecords; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ record.uhid || "-" }}</td>
+            <td>{{ record.patient_name || "-" }}</td>
+            <td>{{ record.gender || "-" }}</td>
+            <td>{{ record.age || "-" }}</td>
+            <td>{{ record.initialClaimNumber }}</td>
+            <td>{{ record.initialClaimAmount }}</td>
+            <td>{{ record.chequeNumber || "-" }}</td>
+            <td>{{ record.chequeAmount || "-" }}</td>
+            <td>{{ record.finalClaimAmount || "-" }}</td>
+            <td>{{ record.finalApprovedAmount || "-" }}</td>
+            <td>
+              <!-- Add action buttons here -->
+              <!-- <i class="fa-solid fa-eye action-btn" (click)="viewPatient(patient._id)"></i> -->
+              <!-- <i class="fa-solid fa-pencil action-btn" *ngIf="userPermissions.update" (click)="edittpa(record._id)"></i> -->
+              <i
+                class="fa-solid fa-trash action-btn"
+                *ngIf="userPermissions.delete"
+                (click)="deletetpa(record._id)"
+              ></i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div
+      class="pagination d-flex justify-content-center align-items-center my-3"
+    >
+      <button
+        class="pagination-btn btn btn-primary mx-2"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+      Page {{ currentPage }} of {{ totalPages }}
+      <button
+        class="pagination-btn btn btn-primary mx-2"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>

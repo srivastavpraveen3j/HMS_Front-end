@@ -1,0 +1,118 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>MEDICINE LIST</h2>
+    <div class="">
+      <button
+        class="list-cases-btn mx-3"
+        [routerLink]="['/master/medicinemaster']"
+        routerLinkActive="router-link-active"
+      >
+        ADD MEDICINE
+      </button>
+
+      <button class="list-cases-btn mx-3" (click)="toggleLowStockView()">
+        {{ showingLowStock ? "Show All Medicines" : "Stock About to Finish" }}
+        <span *ngIf="!showingLowStock" class="badge bg-danger ms-2">
+          {{ lowStockMedicinesFullList.length }}
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div class="top-bar p-3">
+    <form [formGroup]="filterForm">
+      <input type="text" placeholder="Search..." formControlName="searchText" />
+    </form>
+  </div>
+
+  <!-- <div class="loader-wrapper" *ngIf="medicines.length === 0">
+    <div class="loader">
+      <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+    </div>
+  </div> -->
+
+  <div class="" *ngIf="userPermissions.read && medicines.length > 0">
+    <div class="table-responsive">
+      <table
+        class="table table-bordered table-hover align-middle diagnosis-table"
+      >
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Batch Number</th>
+            <th>Medicine Name</th>
+            <th>Supplier</th>
+            <th>Dose</th>
+            <th>Expiry Date</th>
+            <th>Manufacturing Date</th>
+            <th>Stock</th>
+            <th>Price</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let medicine of showingLowStock ? lowStockMedicines : medicines;
+              let i = index
+            "
+          >
+            <td>{{ i + 1 }}</td>
+            <td>{{ medicine.batch_no }}</td>
+            <td>{{ medicine.medicine_name }}</td>
+            <td>{{ medicine.supplier }}</td>
+            <td>{{ medicine.dose }}</td>
+            <td>{{ medicine.expiry_date | date : "dd-MM-yyyy" }}</td>
+            <td>{{ medicine.mfg_date | date : "dd-MM-yyyy" }}</td>
+            <td>
+              {{ medicine.stock }}
+              <span *ngIf="medicine.stock <= 10" class="badge bg-danger ms-2">
+                Only {{ medicine.stock }} left
+              </span>
+            </td>
+
+            <td>{{ medicine.price }}</td>
+            <td>
+              <!-- Edit Button -->
+              <i
+                class="fa-solid fa-pencil action-btn"
+                *ngIf="userPermissions.update"
+                (click)="editmedicine(medicine._id)"
+              >
+              </i>
+
+              <!-- Delete Button -->
+              <!-- <i
+      class="fa-solid fa-trash action-btn"
+      *ngIf="userPermissions.delete"
+      (click)="deletemedicine(medicine._id)">
+    </i> -->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button
+        class="pagination-btn"
+        (click)="showingLowStock ? lowStockPreviousPage() : previousPage()"
+        [disabled]="(showingLowStock ? lowStockCurrentPage : currentPage) === 1"
+      >
+        Previous
+      </button>
+      Page {{ showingLowStock ? lowStockCurrentPage : currentPage }} of
+      {{ showingLowStock ? lowStockTotalPages : totalPages }}
+      <button
+        class="pagination-btn"
+        (click)="showingLowStock ? lowStockNextPage() : nextPage()"
+        [disabled]="
+          (showingLowStock ? lowStockCurrentPage : currentPage) ===
+          (showingLowStock ? lowStockTotalPages : totalPages)
+        "
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>

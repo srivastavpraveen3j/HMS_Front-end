@@ -1,0 +1,53 @@
+<!-- <div *ngIf="patientData && patientData.length === 0" class="alert alert-warning text-center">
+    <ng-container *ngIf="activeFilter === 'today'">
+        No {{ title }} created today.
+    </ng-container>
+
+    <ng-container *ngIf="activeFilter === 'dateRange' && startDate && endDate">
+        No {{ title }} found between {{ startDate }} and {{ endDate }}.
+    </ng-container>
+</div> -->
+
+<div *ngIf="patientData && patientData.length === 0" class="alert alert-primary text-center">
+    <ng-container [ngSwitch]="activeFilter">
+
+        <!-- Today Filter -->
+        <ng-container *ngSwitchCase="'today'">
+            No {{ title }} created today.
+        </ng-container>
+
+        <!-- This Week Filter -->
+        <ng-container *ngSwitchCase="'week'">
+            No {{ title }} created this week.
+        </ng-container>
+
+        <!-- This Month Filter -->
+        <ng-container *ngSwitchCase="'month'">
+            No {{ title }} created this month.
+        </ng-container>
+
+        <!-- This Year Filter -->
+        <ng-container *ngSwitchCase="'year'">
+            No {{ title }} created this year.
+        </ng-container>
+
+        <!-- Date Range Filter -->
+        <ng-container *ngSwitchCase="'dateRange'">
+            <ng-container *ngIf="startDate && endDate">
+            No {{ title }} found between {{ startDate | date: 'dd MMM yyyy' }} and {{ endDate | date: 'dd MMM yyyy' }}.
+            </ng-container>
+        </ng-container>
+
+        <!-- Default fallback -->
+        <ng-container *ngSwitchDefault>
+            No {{ title }} data found.
+        </ng-container>
+
+    </ng-container>
+</div>
+
+<!-- <div class="loader-wrapper" *ngIf="patientData.length === 0 && !patientData">
+    <div class="loader">
+        <img src="Untitled design (6).jpg" alt="Loading..." class="loading-img" />
+    </div>
+</div> -->

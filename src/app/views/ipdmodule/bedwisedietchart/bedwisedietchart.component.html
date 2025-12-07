@@ -1,0 +1,310 @@
+<!-- bedwisedietchart.component.html -->
+<div class="form-meta">
+  <!-- ✅ Visible letterheader for printing - moved to top -->
+  <div id="letterheader-section" style="display: none;">
+    <app-letterheader></app-letterheader>
+    <div style="text-align: center; margin: 20px 0;">
+      <h1 style="font-size: 18px; font-weight: bold;">PATIENT DIET LIST</h1>
+      <p style="margin: 10px 0;">Diet Date: {{ selectedDate | date:'mediumDate' }}</p>
+      <p style="margin: 10px 0;">Generated on: {{ today | date:'medium' }}</p>
+    </div>
+
+    <table id="print-table" style="width: 100%; border-collapse: collapse; margin-top: 20px; font-family: Arial, sans-serif;">
+      <thead>
+        <tr style="background-color: #475569; color: white;">
+          <th style="border: 1px solid #000; padding: 8px; text-align: left; font-weight: bold;">Room Number/Bed No.</th>
+          <th style="border: 1px solid #000; padding: 8px; text-align: left; font-weight: bold;">In Patient Name</th>
+          <th style="border: 1px solid #000; padding: 8px; text-align: left; font-weight: bold;">U C Doctor</th>
+          <th style="border: 1px solid #000; padding: 8px; text-align: left; font-weight: bold;">Diet Type</th>
+          <th style="border: 1px solid #000; padding: 8px; text-align: left; font-weight: bold;">Meals & Food Items</th>
+          <th style="border: 1px solid #000; padding: 8px; text-align: left; font-weight: bold;">Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let patient of bedWiseData"
+            style="border-bottom: 1px solid #000;"
+            [style.display]="patient.hasDietChart ? 'table-row' : 'none'">
+          <td style="border: 1px solid #000; padding: 8px; vertical-align: top;">{{ getBedNumber(patient) }}</td>
+          <td style="border: 1px solid #000; padding: 8px; vertical-align: top;">{{ patient.patientInfo.name }}</td>
+          <td style="border: 1px solid #000; padding: 8px; vertical-align: top;">{{ patient.patientInfo.doctorName }}</td>
+          <td style="border: 1px solid #000; padding: 8px; vertical-align: top;">{{ getDietTypeLabel(patient.dietChart?.dietType) }}</td>
+          <td style="border: 1px solid #000; padding: 8px; vertical-align: top; white-space: pre-line; font-size: 12px;">{{ getDetailedMealsString(patient.dietChart?.meals) }}</td>
+          <td style="border: 1px solid #000; padding: 8px; vertical-align: top;">{{ patient.dietChart?.remarks }}</td>
+        </tr>
+        <tr *ngIf="getPatientsWithDietCharts().length === 0" style="border-bottom: 1px solid #000;">
+          <td colspan="6" style="border: 1px solid #000; padding: 20px; text-align: center;">
+            No patients with diet charts found for the selected date.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="header">
+    <h2>BED WISE DIET CHART</h2>
+    <div class="header-actions">
+      <!-- <input
+        type="date"
+        [(ngModel)]="selectedDate"
+        (change)="loadBedWiseData()"
+        class="form-control me-2"
+        style="width: 200px;"
+      /> -->
+
+      <!-- ✅ Export Buttons -->
+      <div class="btn-group me-2" role="group">
+        <button
+          class="btn btn-success btn-sm"
+          (click)="printDietChart()"
+          [disabled]="getPatientsWithDietCharts().length === 0 || isLoading"
+          title="Print Diet Chart"
+        >
+          <i class="fas fa-print"></i> Print
+        </button>
+        <button
+          class="btn btn-warning btn-sm"
+          (click)="exportToExcel()"
+          [disabled]="getPatientsWithDietCharts().length === 0 || isLoading"
+          title="Export to Excel"
+        >
+          <i class="fas fa-file-excel"></i> Excel
+        </button>
+      </div>
+
+      <button
+        class="btn btn-primary"
+        [routerLink]="['/ipd/ipdadmissionlist']"
+      >
+        BACK TO ADMISSION LIST
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="text-center p-4">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading bed-wise diet chart data...</p>
+  </div>
+
+  <!-- Bed-wise Diet Chart Grid -->
+  <div class="diet-grid" *ngIf="!isLoading && bedWiseData.length > 0">
+    <div
+      class="diet-card"
+      *ngFor="let patient of bedWiseData; let i = index"
+      [class.has-diet]="patient.hasDietChart"
+      (click)="viewDietChart(patient)"
+    >
+      <!-- Patient Header -->
+      <div class="patient-header">
+        <div class="patient-info">
+          <h6 class="patient-name">{{ patient.patientInfo.name }}</h6>
+          <small class="text-muted">UHID: {{ patient.patientInfo.uhid }}</small>
+        </div>
+        <div class="bed-info">
+          <span class="badge bg-info">
+            Room: {{ patient.bedInfo.roomNumber }} | Bed: {{ patient.bedInfo.bedNumber }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Patient Details -->
+      <div class="patient-details">
+        <div class="row">
+          <div class="col-6">
+            <small><strong>Age:</strong> {{ patient.patientInfo.age }}</small><br>
+            <small><strong>Gender:</strong> {{ patient.patientInfo.gender }}</small>
+          </div>
+          <div class="col-6">
+            <small><strong>Type:</strong> {{ patient.patientInfo.patientType }}</small><br>
+            <small><strong>Doctor:</strong> {{ patient.patientInfo.doctorName }}</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Diet Chart Status -->
+      <div class="diet-status">
+        <div *ngIf="patient.hasDietChart" class="has-diet-chart">
+          <div class="diet-info">
+            <h6>{{ getDietTypeLabel(patient.dietChart.dietType) }}</h6>
+            <small>{{ patient.dietChart.meals?.length || 0 }} meals planned</small>
+            <div class="mt-2">
+              <span class="badge bg-success me-1"
+                    *ngFor="let meal of patient.dietChart.meals">
+                {{ getMealTimeLabel(meal.time) }}
+              </span>
+            </div>
+          </div>
+          <!-- <div class="diet-actions">
+            <button
+              class="btn btn-sm btn-outline-primary"
+              (click)="viewDietChart(patient); $event.stopPropagation()"
+            >
+              <i class="fas fa-eye"></i> View
+            </button>
+          </div> -->
+        </div>
+
+        <div *ngIf="!patient.hasDietChart" class="no-diet-chart">
+          <div class="text-center p-3">
+            <i class="fas fa-utensils fa-2x text-muted mb-2"></i>
+            <p class="text-muted mb-2">No diet chart assigned</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Data Message -->
+  <div *ngIf="!isLoading && bedWiseData.length === 0" class="text-center p-5">
+    <i class="fas fa-bed fa-4x text-muted mb-3"></i>
+    <h5 class="text-muted">No admitted patients found</h5>
+    <p class="text-muted">There are no patients currently admitted to create diet charts for.</p>
+  </div>
+
+  <!-- Create Diet Chart Modal -->
+  <div class="modal fade"
+       [class.show]="showCreateModal"
+       [style.display]="showCreateModal ? 'block' : 'none'"
+       *ngIf="showCreateModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            Create Diet Chart for {{ selectedPatient?.patientInfo?.name }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeModal()"
+          ></button>
+        </div>
+
+        <form [formGroup]="dietForm" (ngSubmit)="saveDietChart()">
+          <div class="modal-body">
+            <!-- Diet Type Selection -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Diet Type</label>
+                <select class="form-select" formControlName="dietType">
+                  <option *ngFor="let type of dietTypes" [value]="type.value">
+                    {{ type.label }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Total Calories (optional)</label>
+                <input type="number" class="form-control" formControlName="totalCalories">
+              </div>
+            </div>
+
+            <!-- Meals Section -->
+            <div class="meals-section" formArrayName="meals">
+              <h6>Meal Planning</h6>
+              <div
+                class="meal-card mb-3"
+                *ngFor="let meal of mealsArray.controls; let mealIndex = index"
+                [formGroupName]="mealIndex"
+              >
+                <h6 class="meal-title">{{ getMealTimeLabel(meal.get('time')?.value) }}</h6>
+
+                <div formArrayName="items">
+                  <div
+                    class="row mb-2"
+                    *ngFor="let item of getMealItemsArray(mealIndex).controls; let itemIndex = index"
+                    [formGroupName]="itemIndex"
+                  >
+                    <div class="col-4">
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        placeholder="Food item"
+                        formControlName="name"
+                      >
+                    </div>
+                    <div class="col-3">
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        placeholder="Quantity"
+                        formControlName="quantity"
+                      >
+                    </div>
+                    <div class="col-4">
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        placeholder="Instructions"
+                        formControlName="instructions"
+                      >
+                    </div>
+                    <div class="col-1">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="removeMealItem(mealIndex, itemIndex)"
+                        *ngIf="getMealItemsArray(mealIndex).length > 1"
+                      >
+                        <i class="fas fa-minus"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary mb-2"
+                  (click)="addMealItem(mealIndex)"
+                >
+                  <i class="fas fa-plus"></i> Add Item
+                </button>
+
+                <div class="mb-2">
+                  <textarea
+                    class="form-control form-control-sm"
+                    rows="2"
+                    placeholder="Special instructions for this meal"
+                    formControlName="specialInstructions"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="row">
+              <div class="col-md-6">
+                <label class="form-label">Water Intake</label>
+                <input type="text" class="form-control" formControlName="waterIntake" placeholder="e.g., 2-3 liters/day">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Restrictions</label>
+                <input type="text" class="form-control" formControlName="restrictions" placeholder="Comma separated">
+              </div>
+            </div>
+
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <label class="form-label">Allergies</label>
+                <input type="text" class="form-control" formControlName="allergies" placeholder="Comma separated">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Remarks</label>
+                <textarea class="form-control" rows="2" formControlName="remarks"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-success" [disabled]="!dietForm.valid">
+              Create Diet Chart
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

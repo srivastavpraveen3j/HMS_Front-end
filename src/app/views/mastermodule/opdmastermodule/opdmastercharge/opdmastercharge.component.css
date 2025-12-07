@@ -1,0 +1,321 @@
+.services-section {
+  margin-top: 30px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.services-header {
+  margin-bottom: 20px;
+}
+
+.services-header h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.controls-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+}
+
+.type-filter-container {
+  flex: 1;
+  min-width: 300px;
+}
+
+.filter-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.type-filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 0;
+}
+
+.radio-option input[type="radio"] {
+  margin-right: 6px;
+  cursor: pointer;
+}
+
+.radio-option span {
+  color: #555;
+  transition: color 0.2s;
+}
+
+.radio-option:hover span {
+  color: #007bff;
+}
+
+.radio-option input[type="radio"]:checked + span {
+  color: #007bff;
+  font-weight: 600;
+}
+
+.search-container {
+  flex: 0 0 300px;
+}
+
+.search-input {
+  width: 100%;
+}
+
+.services-table-container {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+}
+
+.services-table {
+  margin-bottom: 0;
+}
+
+.services-table th {
+  position: sticky;
+  top: 0;
+  background-color: #f8f9fa;
+  z-index: 10;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.service-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.service-row:hover {
+  background-color: #f5f5f5;
+}
+
+.service-row.selected {
+  background-color: #e3f2fd;
+}
+
+.service-row.focused {
+  outline: 2px solid #2196f3;
+  outline-offset: -2px;
+}
+
+.service-type-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.service-type-badge.type-opd {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.service-type-badge.type-ipd {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.service-type-badge.type-radiology {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.service-type-badge.type-laboratory {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.service-type-badge.type-pharmacy {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+.service-type-badge.type-unknown {
+  background-color: #f8f9fa;
+  color: #6c757d;
+}
+
+.selected-services-display {
+  min-height: 100px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 10px;
+  background-color: #f8f9fa;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tag {
+  background-color: #007bff;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tag .service-type {
+  opacity: 0.8;
+  font-size: 10px;
+}
+
+.tag .remove {
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+.tag .remove:hover {
+  color: #ff6b6b;
+}
+
+.no-selection {
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+.loading-message, .no-data-message {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+}
+
+.no-data-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.no-data-content i {
+  font-size: 24px;
+  opacity: 0.5;
+}
+
+.table-info-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid #dee2e6;
+  margin-top: 10px;
+}
+
+.results-info {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.selection-count {
+  font-weight: 600;
+  color: #007bff;
+}
+
+.table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #dee2e6;
+}
+
+.page-info {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+@media (max-width: 768px) {
+  .controls-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .type-filter-container {
+    min-width: auto;
+  }
+
+  .search-container {
+    flex: 1;
+  }
+
+  .type-filter-buttons {
+    justify-content: center;
+  }
+
+  .table-pagination {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .results-info {
+    flex-direction: column;
+    gap: 5px;
+    text-align: center;
+  }
+}
+.service-type-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.service-type-badge.type-opd {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.service-type-badge.type-ipd {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.service-type-badge.type-radiology {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.service-type-badge.type-unknown {
+  background-color: #f8f9fa;
+  color: #6c757d;
+}
+
+/* Prevent form submission styling */
+.services-section input[type="radio"],
+.services-section input[type="checkbox"],
+.services-section input[type="text"] {
+  outline: none;
+}
+
+.services-section input[type="radio"]:focus,
+.services-section input[type="checkbox"]:focus {
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}

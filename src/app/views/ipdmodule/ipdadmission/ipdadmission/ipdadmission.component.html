@@ -1,0 +1,1043 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>NEW ADMISSION</h2>
+    <!-- <button class="list-cases-btn" [routerLink]="['/ipd/ipdadmissionlist']" routerLinkActive="router-link-active">ADMISSION LIST</button> -->
+    <span class="icons position-relative">
+      <!-- <i
+        class="fa-solid fa-user-tie mx-2"
+        (click)="showUHIDDropdown = !showUHIDDropdown"
+      ></i> -->
+      <!-- <i
+        class="fa-solid fa-signal"
+        [routerLink]="['/ipd/ipdadmissionlist']"
+        routerLinkActive="router-link-active"
+      ></i> -->
+
+      <!-- Dropdown -->
+      <!-- <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+        <div
+          *ngIf="uhidTodayRecords.length === 0"
+          class="text-center text-muted py-2"
+        >
+          No UHID created today.
+        </div>
+
+        <ul class="uhid-list">
+          <li
+            *ngFor="let record of uhidTodayRecords"
+            (click)="selectPatientFromUHID(record)"
+            style="cursor: pointer"
+          >
+            <div class="uhid-name">{{ record.patient_name }}</div>
+            <div class="uhid-meta">
+              UHID: {{ record.uhid }} | Age: {{ record.age }}
+            </div>
+          </li>
+        </ul>
+      </div> -->
+    </span>
+  </div>
+
+  <div class="opd-container" *ngIf="userPermissions.create">
+    <form [formGroup]="ipdadmission" (ngSubmit)="OnSubmit()">
+      <h4 class="m-4">Patient Details</h4>
+      <hr />
+
+      <div class="row g-3">
+        <div class="form-group col-md-3">
+          <!-- <div
+            class="form-group"
+            *ngIf="ipdadmission.get('caseType')?.value === 'old'"
+          > -->
+          <label>UHID:</label>
+          <input
+            type="text"
+            formControlName="uhid"
+            [placeholder]="
+              ipdadmission.get('caseType')?.value === 'new'
+                ? 'UHID will be visible here for patient if exist'
+                : 'Search UHID here'
+            "
+            [readonly]="ipdadmission.get('caseType')?.value === 'new'"
+            class="form-control"
+          />
+          <!-- </div> -->
+        </div>
+        <div class="form-group col-md-9">
+          <label>Patient Name*:</label>
+          <input
+            type="text"
+            class="input-text"
+            placeholder="Enter patient name"
+            formControlName="patient_name"
+            (input)="onPatientInput()"
+            (focus)="showSuggestions = true"
+            (blur)="hideSuggestionsWithDelay()"
+          />
+          <!-- Patient Suggestions Dropdown - MOVED OUTSIDE BUT STILL IN THE FORM-GROUP -->
+          <!-- <div *ngIf="showSuggestions && filteredPatients.length > 0" class="suggestion-container"> -->
+          <div
+            *ngIf="showSuggestions && filteredPatients.length > 0 && !editMode"
+            class="suggestion-container"
+          >
+            <ul class="suggestions">
+              <li
+                *ngFor="let patient of filteredPatients"
+                (mousedown)="selectPatient(patient)"
+              >
+                {{ patient.patient_name }}
+                {{ patient.mobile_no ? "| " + patient.mobile_no : "" }}
+                {{ patient.uhid ? "| " + patient.uhid : "" }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Debug info - MODIFIED to check for manuallySelected flag -->
+          <div
+            *ngIf="
+              ipdadmission.get('patient_name')?.value &&
+              ipdadmission.get('patient_name')?.value.length > 2 &&
+              !filteredPatients.length &&
+              !manuallySelected
+            "
+            class="text-danger"
+          >
+            No matching patients found
+          </div>
+          <div
+            *ngIf="
+              ipdadmission.get('patient_name')?.touched &&
+              ipdadmission.get('patient_name')?.invalid
+            "
+            class="text-danger"
+          >
+            Patient name is required
+          </div>
+        </div>
+        <!-- <div class="form-group">
+          <label>UHID No:</label>
+          <input type="text" placeholder="IPD No:" formControlName="uhid" [class.is-invalid]="isInvalid('uhid')">
+          <small *ngIf="isInvalid('uhid')" class="text-danger">UHID No is required.</small>
+        </div> -->
+
+        <div class="form-group col-md-3" hidden>
+          <label>Case Type:</label>
+          <select formControlName="caseType">
+            <!-- <option value="">Select Case type</option> -->
+            <option value="new">New</option>
+            <option value="old">Old</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row g-2">
+        <div class="form-row" hidden>
+          <div
+            class="form-group"
+            [ngClass]="{
+              'is-invalid':
+                ipdadmission.get('dor')?.invalid &&
+                ipdadmission.get('dor')?.touched
+            }"
+          >
+            <label>Date of Registration:</label>
+            <!-- <app-customcalendar  formControlName="dor" title="Select registration date"></app-customcalendar> -->
+
+            <input
+              type="date"
+              class="form-control"
+              formControlName="dor"
+              title="Select registration date"
+            />
+            <div
+              class="text-danger small"
+              *ngIf="
+                ipdadmission.get('dor')?.invalid &&
+                ipdadmission.get('dor')?.touched
+              "
+            >
+              Registration date is required.
+            </div>
+          </div>
+
+          <div
+            class="form-group"
+            [ngClass]="{
+              'is-invalid':
+                ipdadmission.get('dot')?.invalid &&
+                ipdadmission.get('dot')?.touched
+            }"
+          >
+            <label>Time:</label>
+            <!-- <app-customtimepicker  formControlName="dot" title="Select registration time"></app-customtimepicker> -->
+            <input
+              type="time"
+              class="form-control"
+              formControlName="dot"
+              title="Select registration time"
+            />
+            <div
+              class="text-danger small"
+              *ngIf="
+                ipdadmission.get('dot')?.invalid &&
+                ipdadmission.get('dot')?.touched
+              "
+            >
+              Registration time is required.
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group col-md-6">
+          <label>Date:</label>
+          <input
+            type="date"
+            formControlName="admissionDate"
+            class="form-control"
+          />
+          <!-- <app-customcalendar formControlName="dor"></app-customcalendar> -->
+        </div>
+
+        <div class="form-group col-md-6">
+          <label>Time:</label>
+          <!-- <app-customtimepicker formControlName="dot"></app-customtimepicker> -->
+          <input
+            type="time"
+            formControlName="admissionTime"
+            class="form-control"
+          />
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div
+          class="form-group col-md-4"
+          [ngClass]="{
+            'is-invalid':
+              ipdadmission.get('dob')?.invalid &&
+              ipdadmission.get('dob')?.touched
+          }"
+        >
+          <label>DOB*:</label>
+          <!-- <app-integer-date formControlName="dob"></app-integer-date> -->
+          <input type="date" formControlName="dob" class="form-control" />
+          <!-- <app-customcalendar formControlName="dob" title="Select date of birth"></app-customcalendar> -->
+          <div
+            class="text-danger small"
+            *ngIf="
+              ipdadmission.get('dob')?.invalid &&
+              ipdadmission.get('dob')?.touched
+            "
+          >
+            Date of birth is required.
+          </div>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Age*:</label>
+          <input type="text" class="mx-3" name="age" formControlName="age" />
+          <small *ngIf="isInvalid('age')" class="text-danger"
+            >Age is required.</small
+          >
+        </div>
+        <div
+          class="form-group col-md-4"
+          [ngClass]="{
+            'is-invalid':
+              ipdadmission.get('gender')?.invalid &&
+              ipdadmission.get('gender')?.touched
+          }"
+        >
+          <label>Gender:</label>
+          <div class="radio-group mx-3" title="Select gender">
+            <label
+              ><input
+                type="radio"
+                class="mx-3"
+                value="male"
+                formControlName="gender"
+              />
+              MALE</label
+            >
+            <label
+              ><input
+                type="radio"
+                class="mx-3"
+                value="female"
+                formControlName="gender"
+              />
+              FEMALE</label
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="form-group col-md-3">
+          <label for="" class="form-label">Height (cm)</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Height in cm"
+            formControlName="height"
+          />
+        </div>
+        <div class="form-group col-md-3">
+          <label for="" class="form-label">Weight (kg)</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Weight in kilogram"
+            formControlName="weight"
+          />
+        </div>
+        <div class="form-group col-md-3">
+          <label for="" class="form-label">Blood Group</label>
+          <select formControlName="bloodGroup">
+            <option value="">Select Blood Group</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </select>
+        </div>
+        <div class="form-group col-md-3">
+          <label for="patientType">Patient Type</label>
+          <select id="patientType" formControlName="patient_type" required>
+            <option value="">Select Patient Type</option>
+            <!-- <option value="med">med</option> -->
+            <option value="cash">cash</option>
+            <!-- <option value="cashless">cashless</option> -->
+          </select>
+          <div
+            *ngIf="
+              ipdadmission.get('patient_type')?.touched &&
+              ipdadmission.get('patient_type')?.invalid
+            "
+            class="text-danger"
+          >
+            Patient type is required.
+          </div>
+        </div>
+
+        <!-- Company Selection - Show only when patient type is cashless -->
+        <div
+          class="form-group col-md-3"
+          *ngIf="ipdadmission.get('patient_type')?.value === 'cashless'"
+        >
+          <label for="companyId"
+            >Company <span class="text-danger">*</span></label
+          >
+          <select
+            id="companyId"
+            formControlName="companyId"
+            (change)="onCompanyChange($event)"
+            [class.is-invalid]="
+              ipdadmission.get('companyId')?.invalid &&
+              ipdadmission.get('companyId')?.touched
+            "
+          >
+            <option value="">Select Company</option>
+            <option *ngFor="let company of companies" [value]="company._id">
+              {{ company.companyName }} ({{ company.companyShortName }})
+            </option>
+          </select>
+          <div
+            *ngIf="
+              ipdadmission.get('companyId')?.touched &&
+              ipdadmission.get('companyId')?.invalid
+            "
+            class="text-danger small"
+          >
+            Company selection is required for cashless patients.
+          </div>
+        </div>
+
+        <!-- Company Name (Hidden field for storing company name) -->
+        <input type="hidden" formControlName="companyName" />
+
+        <!-- Legacy company name input (keep for backward compatibility if needed) -->
+        <div
+          class="form-group col-md-4"
+          *ngIf="['med'].includes(ipdadmission.get('patient_type')?.value)"
+        >
+          <label>Company Name:</label>
+          <input
+            type="text"
+            placeholder="companyName"
+            formControlName="companyName"
+          />
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="form-group col-md-4">
+          <label>Mobile*:</label>
+          <input
+            type="text"
+            formControlName="mobile_no"
+            placeholder="Mobile No"
+            maxlength="10"
+            pattern="[6-9][0-9]{9}"
+            title="Enter 10-digit mobile number starting with 6-9"
+            (keypress)="allowOnlyNumbers($event)"
+          />
+          <div
+            class="text-danger small"
+            *ngIf="
+              ipdadmission.get('mobile_no')?.invalid &&
+              ipdadmission.get('mobile_no')?.touched
+            "
+          >
+            Enter valid 10-digit mobile number.
+          </div>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Alternate Mobile:</label>
+          <input
+            type="text"
+            formControlName="alternate_mobile"
+            placeholder="Alternate Mobile No"
+            maxlength="10"
+            pattern="[6-9][0-9]{9}"
+            title="Enter 10-digit mobile number starting with 6-9"
+            (keypress)="allowOnlyNumbers($event)"
+          />
+          <div
+            class="text-danger small"
+            *ngIf="
+              ipdadmission.get('alternate_mobile')?.invalid &&
+              ipdadmission.get('alternate_mobile')?.touched
+            "
+          >
+            Enter valid 10-digit mobile number.
+          </div>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Address:</label>
+          <!-- <input type="text" placeholder="Area" formControlName="area" /> -->
+          <textarea
+            name=""
+            id=""
+            class="form-control"
+            placeholder="Address"
+            formControlName="area"
+          ></textarea>
+        </div>
+
+        <!-- <div
+          class="form-group"
+          [ngClass]="{
+            'is-invalid':
+              ipdadmission.get('pincode')?.invalid &&
+              ipdadmission.get('pincode')?.touched
+          }"
+        >
+          <label>Pincode:</label>
+          <input
+            type="text"
+            formControlName="pincode"
+            placeholder="Pincode"
+            maxlength="6"
+            pattern="[1-9][0-9]{5}"
+            title="Enter a valid 6-digit pincode starting with 1-9"
+            (keypress)="allowOnlyNumbers($event)"
+          />
+
+          <div
+            class="text-danger small"
+            *ngIf="
+              ipdadmission.get('pincode')?.invalid &&
+              ipdadmission.get('pincode')?.touched
+            "
+          >
+            Enter a valid 6-digit pincode.
+          </div>
+        </div> -->
+      </div>
+
+      <!-- <h4 class="m-4">TPA & Company</h4>
+      <hr>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Payment Type:</label>
+          <select formControlName="paymentType">
+            <option>Cash</option>
+            <option>UPI</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>CorporateTPA:</label>
+          <select formControlName="tpaCompany">
+            <option>Select Company/TPA</option>
+            <option>Aditya Birla Finance</option>
+            <option>ICICI Lombard</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Policy Number:</label>
+          <input type="text" class="form-control" placeholder="policy number" formControlName="policyNumber">
+        </div>
+        <div class="form-group">
+          <label>Insurance:</label>
+          <select formControlName="insuranceType">
+            <option>Medical Plan</option>
+            <option>Combo Package</option>
+          </select>
+        </div>
+      </div> -->
+      <!-- admittingDoctorId (change)="onDoctorChange($event)" -->
+      <h4 class="m-4">Doctor Details</h4>
+      <hr />
+
+      <div class="row g-2">
+        <!-- <div class="form-group">
+          <label>Cons. Doctor:</label>
+          <select class="form-control" formControlName="admittingDoctorId" (change)="onDoctorChange($event)">
+            <option *ngFor="let doctor of doctors" [value]="doctor._id">{{ doctor.name }}</option>
+          </select>
+        </div> -->
+        <!-- <div class="form-group">
+          <label>Consultant Dr.:</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search Doctor by Name"
+            formControlName="admittingDoctorId"
+            [formControl]="doctorSearchControl"
+            (focus)="showDoctorSuggestions = true"
+            (blur)="hideSuggestionsLater()"
+            (change)="onDoctorChange($event)"
+          />
+          <ul
+            class="dropdown-menu show"
+            *ngIf="showDoctorSuggestions && filteredDoctors.length > 0"
+          >
+            <li
+              class="dropdown-item"
+              *ngFor="let doc of filteredDoctors"
+              (mousedown)="selectDoctor(doc)"
+            >
+              {{ doc.name }}
+            </li>
+          </ul>
+        </div> -->
+        <div class="form-group col-md-6 position-relative">
+          <label class="form-label fw-bold">Consultant Dr.:</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search Doctor by Name"
+            [formControl]="doctorSearchControl"
+            (focus)="showDoctorSuggestions = true"
+            (blur)="hideSuggestionsLater()"
+            (input)="filterDoctors($any($event.target).value)"
+            autocomplete="off"
+          />
+          <div class="suggestion-container">
+            <ul
+              class="suggestions"
+              *ngIf="showDoctorSuggestions && filteredDoctors.length > 0"
+            >
+              <li
+                class="list-group-item list-group-item-action"
+                *ngFor="let doc of filteredDoctors"
+                (mousedown)="selectDoctor(doc)"
+              >
+                {{ doc.name }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Hidden input for actual ObjectId -->
+        <input type="hidden" formControlName="admittingDoctorId" />
+
+        <!-- <div class="form-group col-md-4">
+          <label>Speciality:</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Speciality"
+            formControlName="consSpeciality"
+            readonly
+          />
+        </div> -->
+
+        <div class="form-group col-md-6 position-relative">
+          <label>Referring Dr.:</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search Doctor by Name"
+            [formControl]="refDoctorSearchControl"
+            (focus)="showRefDoctorSuggestions = true"
+            (blur)="hideSuggestionsLater()"
+            (input)="filterDoctors($any($event.target).value)"
+            autocomplete="off"
+          />
+          <div class="suggestion-container">
+            <ul
+              class="suggestions"
+              *ngIf="showRefDoctorSuggestions && filteredRefDoctors.length > 0"
+            >
+              <li
+                class=""
+                *ngFor="let doc of filteredRefDoctors"
+                (mousedown)="selectRefDoctor(doc)"
+              >
+                {{ doc.name }}
+              </li>
+            </ul>
+          </div>
+          <!-- <div
+            class="text-danger small"
+            *ngIf="
+              ipdadmission.get('referringDoctorId')?.invalid &&
+              ipdadmission.get('referringDoctorId')?.touched
+            "
+          >
+            Referring Dr. is required.
+          </div> -->
+        </div>
+      </div>
+
+      <!-- <div class="section diagnosisheet">
+        <h4>VITALS</h4>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="" class="form-label">Systolic</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Systolic"
+              formControlName="systolicBloodPressure"
+            />
+          </div>
+          <div class="form-group">
+            <label for="" class="form-label">Diastolic</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Diastolic"
+              formControlName="diastolicBloodPressure"
+            />
+          </div>
+          <div class="form-group">
+            <label for="" class="form-label">Blood Group</label>
+            <select class="form-control" formControlName="bloodGroup">
+              <option>Blood Group</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="" class="form-label">Temperature</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Temperature"
+              formControlName="temperature"
+            />
+          </div>
+          <div class="form-group">
+            <label for="" class="form-label">Height (cm)</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Height in centimeter"
+              formControlName="height"
+            />
+          </div>
+          <div class="form-group">
+            <label for="" class="form-label">Weight (kg)</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Weight in kilogram"
+              formControlName="weight"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="" class="form-label">Pulse</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Pulse"
+              formControlName="pulseRate"
+            />
+          </div>
+          <div class="form-group">
+            <label for="" class="form-label">SPO2</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="SPO2"
+              formControlName="spo2"
+            />
+          </div>
+          <div class="form-group">
+            <label for="" class="form-label">Blood Sugar</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="bloodSugar"
+              formControlName="bloodSugar"
+            />
+          </div>
+          <div class="form-group">
+            <label for="" class="form-label">Respiratory Rate</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="respiratoryRate"
+              formControlName="respiratoryRate"
+            />
+          </div>
+        </div>
+      </div> -->
+
+      <h4 class="m-4">Bed Allocation</h4>
+      <hr />
+
+      <!-- <div class="form-group">
+        <label>Ward:</label>
+        <app-customward class="w-75" formControlName="ward"></app-customward>
+        <div class="text-danger small" *ngIf="ipdadmission.get('ward')?.invalid && ipdadmission.get('ward')?.touched">
+          Ward Selection is required.
+        </div>
+      </div> -->
+
+      <!-- Ward Selection -->
+      <!-- Ward Pre-selected -->
+      <!-- <div class="form-group">
+    <label>Selected Ward: <strong>{{ ipdadmission.get('wardMasterId')?.value }}</strong></label>
+  </div> -->
+
+      <div class="row g-2">
+        <div class="form-group col-md-6">
+          <label>Ward:</label>
+          <select
+            class="form-control w-75"
+            formControlName="wardMasterId"
+            (change)="onWardSelected($event)"
+          >
+            <option value="">Select Ward</option>
+            <option *ngFor="let ward of wards" [value]="ward._id">
+              {{ ward.ward_name }}
+            </option>
+          </select>
+
+          <div
+            class="text-danger small"
+            *ngIf="
+              ipdadmission.get('wardMasterId')?.invalid &&
+              ipdadmission.get('wardMasterId')?.touched
+            "
+          >
+            Ward Selection is required.
+          </div>
+        </div>
+
+        <!-- Room Selection -->
+        <div
+          class="form-group col-md-6"
+          *ngIf="selectedward && selectedRooms.length > 0"
+        >
+          <label>Room:</label>
+          <select formControlName="room_id" (change)="onRoomSelected($event)">
+            <option value="">Select Room</option>
+            <option *ngFor="let room of selectedRooms" [value]="room._id">
+              {{ room.roomNumber }}
+            </option>
+          </select>
+        </div>
+        <!-- Fallback message -->
+        <div
+          *ngIf="selectedward && (!selectedRooms || selectedRooms.length === 0)"
+          class="col-md-6 mt-3"
+        >
+          <div
+            class="bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-lg p-3 text-center shadow-sm"
+          >
+            ⚠️ All beds in this ward are occupied.
+          </div>
+        </div>
+      </div>
+
+      <!-- Bed Selection -->
+      <!-- Bed Selection -->
+      <div class="form-group" *ngIf="selectedBeds.length > 0">
+        <label>Bed:</label>
+        <div class="bed-grid">
+          <div
+            class="bed-card mx-2"
+            *ngFor="let bed of selectedBeds"
+            [class.selected]="selectedBed?._id === bed._id"
+            [class.occupied]="bed.is_occupied"
+            [title]="
+              'Bed No: ' +
+              bed.bed_number +
+              ' (' +
+              (bed.is_occupied ? 'occupied' : 'available') +
+              ')'
+            "
+            (click)="onBedSelectedCustom(bed)"
+          >
+            <!-- <small>{{ bed?.bed_type_id?.name }}</small> -->
+            <img
+              *ngIf="!bed.is_occupied"
+              [src]="bed.is_occupied ? 'double-bed.png' : 'double-bed (1).png'"
+              alt="Bed Image"
+            />
+            <span>{{ bed.bed_number }}</span>
+
+            <!-- Tooltip example -->
+            <!-- <div class="tooltip" *ngIf="bed.is_occupied">
+             Occupied:
+              {{getPatientNameForBed(bed._id) || 'Unknown'}}
+            </div> -->
+
+            <div class="tooltip" *ngIf="bed.is_occupied">
+              Occupied: {{ getPatientNameForBed(bed._id) || "Unknown" }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div *ngIf="selectedBed">
+        <p class="text-success">Selected Bed: {{ selectedBed.bed_number }}</p>
+        <!-- ({{ selectedBed.status }}) -->
+      </div>
+
+      <div class="d-flex align-items-center">
+        <!-- Checkbox to toggle dropdown -->
+        <div>
+          <label class="form-label me-2">Charge as selected bed category</label>
+          <input
+            type="checkbox"
+            formControlName="isBedCategorySelected"
+            (change)="toggleBedCategory($event)"
+          />
+        </div>
+
+        <div class="mx-5 w-25" *ngIf="isBedCategory">
+          <select
+
+            (change)="onRoomTypeSelect($event)"
+            class="form-select"
+          >
+            <option value="">Select Bed Category</option>
+            <option *ngFor="let roomType of roomTypes" [value]="roomType._id">
+              {{ roomType.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Optional: show selected IDs for debug -->
+      <!-- <div *ngIf="selectedRoomTypeId" class="mt-2 text-muted small">
+        <p><strong>Room Type ID:</strong> {{ selectedRoomTypeId }}</p>
+        <p><strong>Bed Type ID:</strong> {{ selectedBedTypeId }}</p>
+      </div> -->
+
+      <h4 class="m-4">Medical Legal Case (MLC)</h4>
+      <hr />
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>MLC:</label>
+          <div class="radio-group mx-3">
+            <label
+              ><input
+                type="radio"
+                class="mx-3"
+                name="isMedicoLegalCase"
+                [value]="true"
+                formControlName="isMedicoLegalCase"
+                (change)="isMLC = 'yes'"
+              />
+              Yes</label
+            >
+            <label
+              ><input
+                type="radio"
+                class="mx-3"
+                name="isMedicoLegalCase"
+                [value]="false"
+                formControlName="isMedicoLegalCase"
+                (change)="isMLC = 'no'"
+              />
+              No</label
+            >
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="isMLC === 'yes'" class="mlc-form">
+        <!-- <div class="form-row">
+          <div class="form-group">
+            <label>MLC NO</label>
+            <input type="text" placeholder="MLC No" formControlName="mlcNo">
+          </div>
+          <div class="form-group">
+            <label>MLC DOCTOR</label>
+            <input type="text" placeholder="MLC Doctor" formControlName="mlcDoctor">
+          </div>
+        </div> -->
+
+        <div class="row g-3">
+          <div class="form-group col-md-4">
+            <label>PERSON INFORM POLICE</label>
+            <input
+              type="text"
+              placeholder="Person In Hospital Who Inform Police"
+              formControlName="policeInformerFullName"
+            />
+          </div>
+          <div class="form-group col-md-4">
+            <label>POLICE STATION LOCATION</label>
+            <input
+              type="text"
+              placeholder="Enter police station loaction"
+              formControlName="police_station_location"
+            />
+          </div>
+          <div class="form-group col-md-4">
+            <label>RESPONSIBLE RELATIVE</label>
+            <input
+              type="text"
+              placeholder="Patient’s Responsible Relative"
+              formControlName="responsibleRelativeFullName"
+            />
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="form-group col-md-4">
+            <label>Treating Dr.:</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search Doctor by Name"
+              [formControl]="TreatdoctorSearchControl"
+              (focus)="showTreatDoctorSuggestions = true"
+              (blur)="hideSuggestionsLater()"
+            />
+            <div class="suggestion-container">
+              <ul
+                class="suggestions"
+                *ngIf="
+                  showTreatDoctorSuggestions && filteredTreatDoctors.length > 0
+                "
+              >
+                <li
+                  class="list-group-item list-group-item-action"
+                  *ngFor="let doc of filteredTreatDoctors"
+                  (mousedown)="selectTreatDoctor(doc)"
+                >
+                  {{ doc.name }}
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="form-group col-md-4">
+            <label>INFORM DATE</label>
+            <input
+              type="datetime-local"
+              name=""
+              id=""
+              formControlName="informationReportedDate"
+            />
+            <!-- <input
+                type="date"
+                name=""
+                id=""
+                class="w-50"
+                formControlName="informTime"
+              /> -->
+          </div>
+          <div class="form-group col-md-4">
+            <label>BUCKET NUMBER</label>
+            <input
+              type="text"
+              name=""
+              id=""
+              placeholder="Enter bucket number"
+              formControlName="bucket_number"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- <div *ngIf="isMLC === 'yes'" class="mlc-form">
+
+      </div> -->
+
+      <div class="form-actions text-center mt-3">
+        <button
+          class="btn btn-dark mx-2"
+          type="submit"
+          [disabled]="ipdadmission.invalid"
+        >
+          Submit
+        </button>
+        <!-- <button class="btn btn-secondary" type="button" (click)="resetForm()">
+          Cancel
+        </button> -->
+      </div>
+    </form>
+
+    <!-- <div class="right-section mx-2">
+
+      <div class="info-box">
+        VISIT HISTORY
+
+  <div  class="mt-3">
+    <table class="table table-bordered table-hover align-middle diagnosis-table">
+      <thead class="table-dark text-center">
+        <tr>
+          <th>#</th>
+          <th>Visit Date</th>
+          <th>Visit Time</th>
+        </tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+
+    </table>
+  </div>
+      </div>
+
+
+
+
+
+
+
+
+
+    </div> -->
+  </div>
+</div>

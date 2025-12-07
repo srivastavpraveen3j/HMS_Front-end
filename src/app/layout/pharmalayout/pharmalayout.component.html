@@ -1,0 +1,32 @@
+<!-- <p>pharmalayout works!</p> -->
+<!-- <header>
+  <app-pharmaheader></app-pharmaheader>
+</header>
+<main>
+<router-outlet></router-outlet>
+</main> -->
+
+<!-- <div class="admin-layout-container" [class.sidebar-collapsed]="sidebarCollapsed">
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+    <button class="sidebar-toggle-btn" (click)="toggleSidebar()">
+      <span *ngIf="!sidebarCollapsed">&#9776;</span>
+      <span *ngIf="sidebarCollapsed">&times;</span>
+    </button>
+     <app-pharmaheader></app-pharmaheader>
+
+  </aside>
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div> -->
+<!-- <app-adminfooter></app-adminfooter> -->
+<div class="admin-layout-container" [class.sidebar-collapsed]="isCollapsed">
+  <app-pharmaheader
+    (collapseChange)="onSidebarCollapseChange($event)">
+  </app-pharmaheader>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+<app-adminfooter></app-adminfooter>

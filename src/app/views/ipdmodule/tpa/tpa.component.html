@@ -1,0 +1,457 @@
+<div class="form-meta">
+  <div class="header">
+    <h2>TPA & IPD CLAIM</h2>
+    <div class="">
+      <!-- <button class="list-cases-btn mx-3"   ><i class="fa-solid fa-user-group"></i></button> -->
+      <span class="icons position-relative">
+        <i
+          class="fa-solid fa-user-tie mx-2"
+          (click)="showUHIDDropdown = !showUHIDDropdown"
+        ></i>
+        <i
+          class="fa-solid fa-signal"
+          [routerLink]="['/ipd/tpalist']"
+          routerLinkActive="router-link-active"
+        ></i>
+
+        <!-- Dropdown -->
+        <!-- Dropdown -->
+        <div *ngIf="showUHIDDropdown" class="dropdown-uhid-custom">
+          <div
+            *ngIf="uhidTodayRecords?.length === 0"
+            class="text-center text-muted py-2"
+          >
+            No InPatient Case Created today.
+          </div>
+
+          <ul class="uhid-list">
+            <li
+              *ngFor="let record of uhidTodayRecords"
+              (click)="selectPatientFromUHID(record)"
+              style="cursor: pointer"
+            >
+              <div class="uhid-name">
+                {{ record.uniqueHealthIdentificationId?.patient_name }}
+              </div>
+              <div class="uhid-meta">
+                UHID: {{ record.uniqueHealthIdentificationId?.uhid }} | Age:
+                {{ record.uniqueHealthIdentificationId?.age }}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </span>
+    </div>
+  </div>
+
+  <div class="opd-container" *ngIf="userPermissions.create">
+    <form [formGroup]="tpaform" (ngSubmit)="OnSubmit()">
+      <h4 class="m-4">Patient Details</h4>
+      <hr />
+      <div class="form-row">
+        <div class="form-group">
+          <label>UHID No:</label>
+          <input
+            type="text"
+            placeholder="UHID No"
+            class="required"
+            formControlName="uhid"
+          />
+          <div
+            *ngIf="tpaform.get('uhid')?.invalid && tpaform.get('uhid')?.touched"
+            class="error-message"
+          >
+            UHID no. is required.
+          </div>
+        </div>
+        <!-- <div class="form-group">
+            <label>Patient Type:</label>
+            <select formControlName="patient_type">
+              <option>Cash</option>
+              <option>Medi Claim</option>
+            </select>
+            <div *ngIf="tpaform.get('patient_type')?.invalid && tpaform.get('patient_type')?.touched"
+              class="error-message">
+              Patient Type is required.
+            </div>
+          </div> -->
+      </div>
+      <div class="row g-3">
+        <div class="form-group col-md-4">
+          <label>Patient*:</label>
+          <input
+            type="text"
+            class="input-text"
+            placeholder="Enter patient name"
+            formControlName="patientName"
+            (input)="onPatientInput()"
+            (focus)="showSuggestions = true"
+            (blur)="hideSuggestionsWithDelay()"
+          />
+          <!-- </div> -->
+          <!-- Patient Suggestions Dropdown - MOVED OUTSIDE BUT STILL IN THE FORM-GROUP -->
+          <div
+            *ngIf="showSuggestions && filteredPatients.length > 0"
+            class="suggestions-container"
+          >
+            <ul class="suggestions">
+              <li
+                *ngFor="let patient of filteredPatients"
+                (mousedown)="selectPatient(patient)"
+              >
+                {{ patient.patient_name }}
+                {{ patient.mobile_no ? "| " + patient.mobile_no : "" }}
+                {{ patient.uhid ? "| " + patient.uhid : "" }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Debug info - MODIFIED to check for manuallySelected flag -->
+          <div
+            *ngIf="
+              tpaform.get('patient_name')?.value &&
+              tpaform.get('patient_name')?.value.length > 2 &&
+              !filteredPatients.length &&
+              !manuallySelected
+            "
+            class="text-danger"
+          >
+            No matching patients found
+          </div>
+          <div
+            *ngIf="
+              tpaform.get('patientName')?.touched &&
+              tpaform.get('patientName')?.invalid
+            "
+            class="text-danger"
+          >
+            Patient name is required
+          </div>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Age*:</label>
+          <input type="text" placeholder="Age" formControlName="age" />
+          <div
+            *ngIf="tpaform.get('age')?.invalid && tpaform.get('age')?.touched"
+            class="error-message"
+          >
+            Age is required.
+          </div>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Address:</label>
+          <input type="text" placeholder="area" formControlName="area" />
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="form-group col-md-4">
+          <label>Cons. Doctor*:</label>
+          <input
+            type="text"
+            placeholder="Cons. Doctor"
+            class="required"
+            formControlName="cons_doc"
+          />
+        </div>
+        <div class="form-group col-md-4">
+          <label>Total Billing*:</label>
+          <input
+            type="text"
+            placeholder="total_billing"
+            class="required"
+            formControlName="total_billing"
+          />
+        </div>
+        <div class="form-group col-md-4">
+          <label>Total Deposit*:</label>
+          <input
+            type="text"
+            placeholder="total_deposit"
+            class="required"
+            formControlName="total_deposit"
+          />
+        </div>
+      </div>
+
+      <h4 class="m-4">TPA Claim Details</h4>
+      <hr />
+      <div class="form-row">
+        <table class="table">
+          <thead class="table-dark">
+            <tr>
+              <th>Type</th>
+              <th>Claim No</th>
+              <th>Claim Date</th>
+              <th>Claim Amt.</th>
+              <th>Remarks</th>
+              <th>A.L. No</th>
+              <th>Approved Amt</th>
+              <th>Deduction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Pre Approval</td>
+              <td>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Claim No"
+                  formControlName="claimno"
+                />
+              </td>
+              <td><input type="date" class="form-control" /></td>
+              <td>
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="Claim Amt"
+                  formControlName="claimamount"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Remarks"
+                  formControlName="remarks"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="A.L. No"
+                  formControlName="alno"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="Approved Amt"
+                  formControlName="approvedamount"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="Deduction"
+                  formControlName="deduction"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Final Approval</td>
+              <td>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Claim No"
+                  formControlName="finalclaimno"
+                />
+              </td>
+              <td><input type="date" class="form-control" /></td>
+              <td>
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="Claim Amt"
+                  formControlName="finalclaimamount"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Remarks"
+                  formControlName="finalremarks"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="A.L. No"
+                  formControlName="finalalno"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="Approved Amt"
+                  formControlName="finalapprovedamount"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="Deduction"
+                  formControlName="finaldeduction"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-group">
+        <label>CO Payment:</label>
+        <input type="text" class="form-control" placeholder="CO Payment" />
+      </div>
+
+      <h4 class="m-4">Payment Details</h4>
+      <hr />
+
+      <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Mode of Payment:</label>
+            <div class="flex">
+              <input
+                type="radio"
+                name="paymentMode"
+                formControlName="paymentMode"
+                value="NEFT"
+              />
+              NEFT
+              <input
+                type="radio"
+                name="paymentMode"
+                formControlName="paymentMode"
+                value="cheque"
+              />
+              Cheque
+            </div>
+            <div
+              *ngIf="
+                tpaform.get('paymentMode')?.invalid &&
+                tpaform.get('paymentMode')?.touched
+              "
+              class="error-message"
+            >
+              Payment Method is required.
+            </div>
+          </div>
+          <div class="form-group">
+            <label>NEFT / Cheque No.:</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="NEFT / Cheque No."
+              formControlName="chequeno"
+            />
+            <div
+              *ngIf="
+                tpaform.get('chequeno')?.invalid &&
+                tpaform.get('chequeno')?.touched
+              "
+              class="error-message"
+            >
+              NEFT/ Cheeque is required.
+            </div>
+          </div>
+          <div class="form-group mt-4">
+            <div class="d-flex">
+              <label class="col-sm-4 col-form-label">TPA Deduction</label>
+              <div class="col-sm-3">
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="%"
+                  formControlName="tpadeduction"
+                />
+              </div>
+              <!-- <div class="col-sm-1 text-center text-white bg-maroon rounded me-3" style="font-weight: bold;">%</div> -->
+              <div class="col-sm-3">
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="₹"
+                  formControlName="tpadeductioninr"
+                />
+              </div>
+              <!-- <div class="col-sm-1 text-center text-white bg-maroon rounded me-3" style="font-weight: bold;">₹</div> -->
+            </div>
+          </div>
+          <div class="form-group mt-4">
+            <div class="d-flex mt-4">
+              <label class="col-sm-4 col-form-label">TPA Discount</label>
+              <div class="col-sm-3">
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="%"
+                  formControlName="tpadiscount"
+                />
+              </div>
+              <!-- <div class="col-sm-1 text-center text-white bg-maroon rounded me-3" style="font-weight: bold;">%</div> -->
+              <div class="col-sm-3">
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="₹"
+                  formControlName="tpadiscountinr"
+                />
+              </div>
+              <!-- <div class="col-sm-1 text-center text-white bg-maroon rounded me-3" style="font-weight: bold;">₹</div> -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Payment Receveing Date</label>
+            <!-- <app-customcalendar formControlName="paymentrecevingdate"></app-customcalendar> -->
+            <input type="date" formControlName="paymentrecevingdate" />
+          </div>
+          <div class="form-group">
+            <label class="col-sm-4 col-form-label">NEFT / Cheque Amount</label>
+            <input
+              type="number"
+              class="form-control"
+              placeholder="NEFT / Cheque Amount"
+              formControlName="chequeamount"
+            />
+          </div>
+          <div class="form-group">
+            <label class="col-sm-4 col-form-label">TDS</label>
+            <input
+              type="number"
+              class="form-control"
+              placeholder="TDS"
+              formControlName="tds"
+            />
+          </div>
+          <div class="form-group">
+            <label class="col-sm-4 col-form-label">Due</label>
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Due"
+              formControlName="due"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-3">
+        <button
+          class="btn btn-dark mx-2"
+          type="submit"
+          [disabled]="tpaform.invalid"
+        >
+          Submit
+        </button>
+        <button class="btn btn-secondary" type="reset" (click)="resetForm()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
